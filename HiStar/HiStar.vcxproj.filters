@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="源文件\Dialog">
+      <UniqueIdentifier>{0ac979dd-ba81-46c1-a27e-00e79d2fa410}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\IBClient">
+      <UniqueIdentifier>{df940cef-7d00-491b-983a-09eacd70d197}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\IBInterface">
+      <UniqueIdentifier>{6460b270-3695-4aa5-a7ca-784aeaf4c242}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+    <None Include="res\HiStar.rc2">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\HiStar.ico">
+      <Filter>资源文件</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="HiStar.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="HiStarDlg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="global.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="HiStarDlg.cpp">
+      <Filter>源文件\Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="HiStar.cpp">
+      <Filter>源文件\Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CppClient\src\EClientSocket.cpp">
+      <Filter>源文件\IBClient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CppClient\src\EClientSocketBase.cpp">
+      <Filter>源文件\IBClient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CppClient\src\StdAfx.cpp">
+      <Filter>源文件\IBClient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\IBInterface\IBInterface.cpp">
+      <Filter>源文件\IBInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CppClient\Shared\HScrollListBox.cpp">
+      <Filter>源文件\IBClient</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="HiStar.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
