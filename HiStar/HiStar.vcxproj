@@ -101,9 +101,11 @@
     <None Include="res\HiStar.rc2" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AccountPage.h" />
     <ClInclude Include="global.h" />
     <ClInclude Include="HiStar.h" />
-    <ClInclude Include="HiStarDlg.h" />
+    <ClInclude Include="OperaPage.h" />
+    <ClInclude Include="MainDlg.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -114,8 +116,10 @@
     <ClCompile Include="..\CppClient\src\EClientSocketBase.cpp" />
     <ClCompile Include="..\CppClient\src\StdAfx.cpp" />
     <ClCompile Include="..\IBInterface\IBInterface.cpp" />
+    <ClCompile Include="AccountPage.cpp" />
     <ClCompile Include="HiStar.cpp" />
-    <ClCompile Include="HiStarDlg.cpp" />
+    <ClCompile Include="OperaPage.cpp" />
+    <ClCompile Include="MainDlg.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="HiStar.rc" />

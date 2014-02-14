@@ -36,9 +36,6 @@
     <ClInclude Include="HiStar.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="HiStarDlg.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -51,11 +48,17 @@
     <ClInclude Include="global.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="MainDlg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="OperaPage.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="AccountPage.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="HiStarDlg.cpp">
-      <Filter>源文件\Dialog</Filter>
-    </ClCompile>
     <ClCompile Include="HiStar.cpp">
       <Filter>源文件\Dialog</Filter>
     </ClCompile>
@@ -73,6 +76,15 @@
     </ClCompile>
     <ClCompile Include="..\CppClient\Shared\HScrollListBox.cpp">
       <Filter>源文件\IBClient</Filter>
+    </ClCompile>
+    <ClCompile Include="MainDlg.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="OperaPage.cpp">
+      <Filter>源文件\Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="AccountPage.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

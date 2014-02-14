@@ -1,5 +1,5 @@
 
-// HiStarDlg.h : 头文件
+// OperaPage.h : 头文件
 //
 
 #pragma once
@@ -7,17 +7,18 @@
 #include "..\cppclient\shared\eclient.h"
 #include "HScrollListBox.h"
 #include "EWrapper.h"  
+#include "afxcmn.h"
 
-// CHiStarDlg 对话框
-class CHiStarDlg : public CDialogEx,public EWrapper
+// COperaPage 对话框
+class COperaPage : public CDialogEx,public EWrapper
 {
 // 构造
 public:
-	CHiStarDlg(CWnd* pParent = NULL);	// 标准构造函数
+	COperaPage(CWnd* pParent = NULL);	// 标准构造函数
 // 析构
-	~CHiStarDlg();
+	~COperaPage();
 // 对话框数据
-	enum { IDD = IDD_HISTAR_DIALOG };
+	enum { IDD = IDD_OPERA_PAGE };
 
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 支持
@@ -99,7 +100,7 @@ public:
 	afx_msg void OnConnectIB();
 //控件变量
 	CHScrollListBox m_orderStatus;
-	IBString m_accountName;
+	IBString m_accountName; 
 };
 //其他变量
 const int N = 5;

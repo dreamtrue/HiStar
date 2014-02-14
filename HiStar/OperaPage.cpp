@@ -5,7 +5,7 @@
 #include "stdafx.h"
 #include "HiStar.h"
 #include "afxdialogex.h"
-#include "HiStarDlg.h"
+#include "OperaPage.h"
 #include "EClientSocket.h"   // C:\JTS\SocketClient\include must be added to include path
 #include "global.h"
 #ifdef _DEBUG
@@ -43,41 +43,41 @@ BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
 END_MESSAGE_MAP()
 
 
-// CHiStarDlg 对话框
+// COperaPage 对话框
 
 
 
 
-CHiStarDlg::CHiStarDlg(CWnd* pParent /*=NULL*/)
-	: CDialogEx(CHiStarDlg::IDD, pParent)
+COperaPage::COperaPage(CWnd* pParent /*=NULL*/)
+	: CDialogEx(COperaPage::IDD, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 	m_pIBClient = new EClientSocket( this);
 	m_accountName = _T("");
 }
 
-CHiStarDlg::~CHiStarDlg()
+COperaPage::~COperaPage()
 {
 	delete m_pIBClient;
 }
 
-void CHiStarDlg::DoDataExchange(CDataExchange* pDX)
+void COperaPage::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_LIST1, m_orderStatus);
 }
 
-BEGIN_MESSAGE_MAP(CHiStarDlg, CDialogEx)
+BEGIN_MESSAGE_MAP(COperaPage, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-	ON_BN_CLICKED(IDC_BUTTON1, &CHiStarDlg::OnConnectIB)
+	ON_BN_CLICKED(IDC_BUTTON1, &COperaPage::OnConnectIB)
 END_MESSAGE_MAP()
 
 
-// CHiStarDlg 消息处理程序
+// COperaPage 消息处理程序
 
-BOOL CHiStarDlg::OnInitDialog()
+BOOL COperaPage::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
 
@@ -106,14 +106,14 @@ BOOL CHiStarDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
-	ShowWindow(SW_MAXIMIZE);
+	ShowWindow(SW_NORMAL);
 
 	// TODO: 在此添加额外的初始化代码
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
-void CHiStarDlg::OnSysCommand(UINT nID, LPARAM lParam)
+void COperaPage::OnSysCommand(UINT nID, LPARAM lParam)
 {
 	if ((nID & 0xFFF0) == IDM_ABOUTBOX)
 	{
@@ -130,7 +130,7 @@ void CHiStarDlg::OnSysCommand(UINT nID, LPARAM lParam)
 //  来绘制该图标。对于使用文档/视图模型的 MFC 应用程序，
 //  这将由框架自动完成。
 
-void CHiStarDlg::OnPaint()
+void COperaPage::OnPaint()
 {
 	if (IsIconic())
 	{
@@ -157,12 +157,12 @@ void CHiStarDlg::OnPaint()
 
 //当用户拖动最小化窗口时系统调用此函数取得光标
 //显示。
-HCURSOR CHiStarDlg::OnQueryDragIcon()
+HCURSOR COperaPage::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-void CHiStarDlg::OnConnectIB()
+void COperaPage::OnConnectIB()
 {
 	UINT clientID = 0;
 	CString displayString;

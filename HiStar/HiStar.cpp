@@ -4,7 +4,8 @@
 
 #include "stdafx.h"
 #include "HiStar.h"
-#include "HiStarDlg.h"
+#include "MainDlg.h"
+//#include "OperaPage.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -68,7 +69,8 @@ BOOL CHiStarApp::InitInstance()
 	// 例如修改为公司或组织名
 	SetRegistryKey(_T("应用程序向导生成的本地应用程序"));
 
-	CHiStarDlg dlg;
+	//COperaPage dlg;
+	CMainDlg dlg;
 	m_pMainWnd = &dlg;
 	INT_PTR nResponse = dlg.DoModal();
 	if (nResponse == IDOK)
@@ -92,4 +94,3 @@ BOOL CHiStarApp::InitInstance()
 	//  而不是启动应用程序的消息泵。
 	return FALSE;
 }
-
