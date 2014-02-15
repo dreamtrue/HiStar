@@ -31,6 +31,9 @@
     <Filter Include="源文件\TraderSpi">
       <UniqueIdentifier>{e9552b64-ea19-42c3-b076-a7754e3cedb8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\CtpClient">
+      <UniqueIdentifier>{1a00f2fb-ac6e-42e3-9e9e-248eb84411f9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -115,6 +118,15 @@
     </ClCompile>
     <ClCompile Include="HiStar.cpp">
       <Filter>源文件\HiStar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MdSpi\mdspi.cpp">
+      <Filter>源文件\MdSpi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\TraderSpi\traderspi.cpp">
+      <Filter>源文件\TraderSpi</Filter>
+    </ClCompile>
+    <ClCompile Include="CtpOpera.cpp">
+      <Filter>源文件\CtpClient</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -28,34 +28,16 @@ CHiStarApp::CHiStarApp()
 	, m_TApi(NULL)
 	, m_cQ(NULL)
 	, m_cT(NULL)
+	, m_pLoginCtp(false)
 {
 	// 支持重新启动管理器
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;
-
-	// TODO: 在此处添加构造代码，
+	//IB Client
 	m_pIBClient = new EClientSocket( this);
-	// 将所有重要的初始化放置在 InitInstance 中
     m_accountIB.m_accountName = _T("U1032950");
-	//Ctp行情系统
-	CString strPath = __targv[0]; 
-	strPath = strPath.Left(strPath.ReverseFind('\\'));
-	strPath += '\\';
-	strPath += _T("log\\");
-	if (!PathIsDirectory(strPath))
-	{
-		CreateDirectory(strPath,NULL);
-	}
-
-
-
-
-
-
-
-
-
+	//CTP Client
+	CreateCtpClient();
 }
-
 
 // 唯一的一个 CHiStarApp 对象
 
@@ -136,11 +118,11 @@ CHiStarApp::~CHiStarApp(void)
 void CHiStarApp::PostOrderStatus(CString str)
 {
 	CString *pStatus = new CString(str);
-	PostMessageA(AfxGetMainWnd()->m_hWnd,WM_ORDER_STATUS,(UINT)pStatus,NULL);
+	PostMessage(AfxGetMainWnd()->m_hWnd,WM_ORDER_STATUS,(UINT)pStatus,NULL);
 }
 
 void CHiStarApp::PostErrors(CString str)
 {
 	CString *pErrors = new CString(str);
-	PostMessageA(AfxGetMainWnd()->m_hWnd,WM_ERRORS,(UINT)pErrors,NULL);
+	PostMessage(AfxGetMainWnd()->m_hWnd,WM_ERRORS,(UINT)pErrors,NULL);
 }

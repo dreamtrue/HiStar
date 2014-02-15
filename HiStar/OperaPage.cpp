@@ -161,7 +161,7 @@ HCURSOR COperaPage::OnQueryDragIcon()
 
 void COperaPage::OnConnectIB()
 {
-	PostThreadMessageA(GetCurrentThreadId(),WM_CONNECT_IB,NULL,NULL);
+	PostThreadMessage(GetCurrentThreadId(),WM_CONNECT_IB,NULL,NULL);
 }
 
 void COperaPage::OnDisconnectIB()

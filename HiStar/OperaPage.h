@@ -6,7 +6,6 @@
 #include "resource.h"
 #include "HScrollListBox.h" 
 #include "afxcmn.h"
-#include "eclient.h"
 #include "EWrapper.h" 
 #include "e:\histar\trunk\cppclient\shared\hscrolllistbox.h"
 

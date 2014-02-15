@@ -21,6 +21,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
     <UseOfMfc>Static</UseOfMfc>
+    <UseOfAtl>Static</UseOfAtl>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -122,7 +123,10 @@
     <ClCompile Include="..\CppClient\src\EClientSocketBase.cpp" />
     <ClCompile Include="..\CppClient\src\StdAfx.cpp" />
     <ClCompile Include="..\IBInterface\IBInterface.cpp" />
+    <ClCompile Include="..\MdSpi\mdspi.cpp" />
+    <ClCompile Include="..\TraderSpi\traderspi.cpp" />
     <ClCompile Include="AccountPage.cpp" />
+    <ClCompile Include="CtpOpera.cpp" />
     <ClCompile Include="HiStar.cpp" />
     <ClCompile Include="IBOpera.cpp" />
     <ClCompile Include="OperaPage.cpp" />

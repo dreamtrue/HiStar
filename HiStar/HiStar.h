@@ -8,7 +8,6 @@
 	#error "在包含此文件之前包含“stdafx.h”以生成 PCH 文件"
 #endif
 #include "resource.h"		// 主符号
-#include "eclient.h"
 #include "EWrapper.h" 
 #include "EClientSocket.h" 
 #include "HScrollListBox.h" 
@@ -17,7 +16,6 @@
 	// CHiStarApp:
 // 有关此类的实现，请参阅 HiStar.cpp
 //
-
 class CHiStarApp : public CWinApp,public EWrapper
 {
 public:
@@ -94,6 +92,7 @@ public:
 	void OnDisconnectIB(UINT wParam,LONG lParam);
 	void PostOrderStatus(CString str);
 	void PostErrors(CString str);
+public:
 	//IB系统
 	bool faError;
 	SAccountIB m_accountIB;
@@ -104,6 +103,9 @@ public:
 	CThostFtdcTraderApi* m_TApi;
 	CtpMdSpi* m_cQ;
 	CtpTraderSpi* m_cT;
+	void CreateCtpClient(void);
+	void OnLoginCtp(void);
+	bool m_pLoginCtp;
 };
 
 extern CHiStarApp theApp;
