@@ -51,7 +51,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;..\IBInterface;..\CppClient\lib;..\CppClient\src;..\CppClient\Shared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\TraderSpi;..\api_libs;..\THostFtdc;..\MdSpi;.;..\IBInterface;..\CppClient\lib;..\CppClient\src;..\CppClient\Shared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -76,7 +76,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\CppClient\Shared;..\CppClient\lib;..\CppClient\src;.;..\IBInterface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\api_libs;..\TraderSpi;..\THostFtdc;..\MdSpi;..\CppClient\Shared;..\CppClient\lib;..\CppClient\src;.;..\IBInterface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -102,6 +102,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\CppClient\Shared\TwsSocketClientErrors.h" />
+    <ClInclude Include="..\THostFtdc\ThostFtdcMdApi.h" />
+    <ClInclude Include="..\THostFtdc\ThostFtdcTraderApi.h" />
+    <ClInclude Include="..\THostFtdc\ThostFtdcUserApiDataType.h" />
+    <ClInclude Include="..\THostFtdc\ThostFtdcUserApiStruct.h" />
     <ClInclude Include="AccountPage.h" />
     <ClInclude Include="global.h" />
     <ClInclude Include="HiStar.h" />

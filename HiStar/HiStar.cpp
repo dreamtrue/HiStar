@@ -10,8 +10,6 @@
 #define new DEBUG_NEW
 #endif
 HANDLE g_hEvent = 0;
-//IB交易系统
-EClient *g_pIBClient =NULL;
 // CHiStarApp
 
 BEGIN_MESSAGE_MAP(CHiStarApp, CWinApp)
@@ -25,14 +23,37 @@ END_MESSAGE_MAP()
 
 CHiStarApp::CHiStarApp()
 	: faError(false)
+	, m_pIBClient(NULL)
+	, m_MApi(NULL)
+	, m_TApi(NULL)
+	, m_cQ(NULL)
+	, m_cT(NULL)
 {
 	// 支持重新启动管理器
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;
 
 	// TODO: 在此处添加构造代码，
-	g_pIBClient = new EClientSocket( this);
+	m_pIBClient = new EClientSocket( this);
 	// 将所有重要的初始化放置在 InitInstance 中
     m_accountIB.m_accountName = _T("U1032950");
+	//Ctp行情系统
+	CString strPath = __targv[0]; 
+	strPath = strPath.Left(strPath.ReverseFind('\\'));
+	strPath += '\\';
+	strPath += _T("log\\");
+	if (!PathIsDirectory(strPath))
+	{
+		CreateDirectory(strPath,NULL);
+	}
+
+
+
+
+
+
+
+
+
 }
 
 
@@ -107,8 +128,8 @@ BOOL CHiStarApp::InitInstance()
 
 CHiStarApp::~CHiStarApp(void)
 {
-	delete g_pIBClient;
-	g_pIBClient = NULL;
+	delete m_pIBClient;
+	m_pIBClient = NULL;
 }
 
 

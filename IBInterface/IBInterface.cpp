@@ -8,7 +8,6 @@ static int faErrorCodes[NUM_FA_ERROR_CODES] =
 { 503, 504, 505, 522, 1100, NOT_AN_FA_ACCOUNT_ERROR} ;
 extern HANDLE g_hEvent;
 //IB交易系统
-extern EClient *g_pIBClient;
 void CHiStarApp::tickPrice( TickerId tickerId, TickType field, double price, int canAutoExecute){
 	TRACE("tickPrice\n");
 }

@@ -25,6 +25,12 @@
     <Filter Include="源文件\HiStar">
       <UniqueIdentifier>{a6a18a21-45e2-47c3-a79f-8a17504e40a8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\MdSpi">
+      <UniqueIdentifier>{e20f8ced-2f1b-42c8-8a4b-e737c09c63cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\TraderSpi">
+      <UniqueIdentifier>{e9552b64-ea19-42c3-b076-a7754e3cedb8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -64,6 +70,18 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\CppClient\Shared\TwsSocketClientErrors.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\THostFtdc\ThostFtdcMdApi.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\THostFtdc\ThostFtdcTraderApi.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\THostFtdc\ThostFtdcUserApiDataType.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\THostFtdc\ThostFtdcUserApiStruct.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

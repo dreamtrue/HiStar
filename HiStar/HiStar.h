@@ -7,12 +7,13 @@
 #ifndef __AFXWIN_H__
 	#error "在包含此文件之前包含“stdafx.h”以生成 PCH 文件"
 #endif
-#include "global.h"
 #include "resource.h"		// 主符号
 #include "eclient.h"
 #include "EWrapper.h" 
 #include "EClientSocket.h" 
 #include "HScrollListBox.h" 
+#include "mdspi.h"
+#include "traderspi.h"
 	// CHiStarApp:
 // 有关此类的实现，请参阅 HiStar.cpp
 //
@@ -93,8 +94,16 @@ public:
 	void OnDisconnectIB(UINT wParam,LONG lParam);
 	void PostOrderStatus(CString str);
 	void PostErrors(CString str);
+	//IB系统
 	bool faError;
-	SAcountIB m_accountIB;
+	SAccountIB m_accountIB;
+	SAccountCtp m_accountCtp;
+	EClient* m_pIBClient;
+	//CTP系统
+	CThostFtdcMdApi* m_MApi;
+	CThostFtdcTraderApi* m_TApi;
+	CtpMdSpi* m_cQ;
+	CtpTraderSpi* m_cT;
 };
 
 extern CHiStarApp theApp;
