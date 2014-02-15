@@ -28,4 +28,7 @@ public:
 	CAccountPage m_AccountPage;
 	CDialog* pDialog[2];  //用来保存对话框对象指针
 	afx_msg void OnTcnSelchangingTab(NMHDR *pNMHDR, LRESULT *pResult);
+protected:
+	afx_msg LRESULT OnOrderStatus(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT CMainDlg::OnErrors(WPARAM wParam, LPARAM lParam);
 };

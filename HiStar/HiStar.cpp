@@ -5,29 +5,34 @@
 #include "stdafx.h"
 #include "HiStar.h"
 #include "MainDlg.h"
-//#include "OperaPage.h"
-
+#include "UserMsg.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-HANDLE g_hEvent;
-
+HANDLE g_hEvent = 0;
+//IB交易系统
+EClient *g_pIBClient =NULL;
 // CHiStarApp
 
 BEGIN_MESSAGE_MAP(CHiStarApp, CWinApp)
 	ON_COMMAND(ID_HELP, &CWinApp::OnHelp)
+	ON_THREAD_MESSAGE(WM_CONNECT_IB,OnConnectIB)
+	ON_THREAD_MESSAGE(WM_DISCONNECT_IB,OnDisconnectIB)
 END_MESSAGE_MAP()
 
 
 // CHiStarApp 构造
 
 CHiStarApp::CHiStarApp()
+	: faError(false)
 {
 	// 支持重新启动管理器
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;
 
 	// TODO: 在此处添加构造代码，
+	g_pIBClient = new EClientSocket( this);
 	// 将所有重要的初始化放置在 InitInstance 中
+    m_accountIB.m_accountName = _T("U1032950");
 }
 
 
@@ -40,6 +45,11 @@ CHiStarApp theApp;
 
 BOOL CHiStarApp::InitInstance()
 {
+	//让进程拥有最高优先级
+	if(!SetPriorityClass(GetCurrentProcess(),REALTIME_PRIORITY_CLASS ))
+	{
+		return false;
+	}
 	g_hEvent=CreateEvent(NULL, true, false, NULL); 
 	// 如果一个运行在 Windows XP 上的应用程序清单指定要
 	// 使用 ComCtl32.dll 版本 6 或更高版本来启用可视化方式，
@@ -93,4 +103,23 @@ BOOL CHiStarApp::InitInstance()
 	// 由于对话框已关闭，所以将返回 FALSE 以便退出应用程序，
 	//  而不是启动应用程序的消息泵。
 	return FALSE;
+}
+
+CHiStarApp::~CHiStarApp(void)
+{
+	delete g_pIBClient;
+	g_pIBClient = NULL;
+}
+
+
+void CHiStarApp::PostOrderStatus(CString str)
+{
+	CString *pStatus = new CString(str);
+	PostMessageA(AfxGetMainWnd()->m_hWnd,WM_ORDER_STATUS,(UINT)pStatus,NULL);
+}
+
+void CHiStarApp::PostErrors(CString str)
+{
+	CString *pErrors = new CString(str);
+	PostMessageA(AfxGetMainWnd()->m_hWnd,WM_ERRORS,(UINT)pErrors,NULL);
 }

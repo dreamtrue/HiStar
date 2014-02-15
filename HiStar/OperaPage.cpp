@@ -8,10 +8,12 @@
 #include "OperaPage.h"
 #include "EClientSocket.h"   // C:\JTS\SocketClient\include must be added to include path
 #include "global.h"
+#include "UserMsg.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 extern HANDLE g_hEvent;
+extern EClient *g_pIBClient;
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
 class CAboutDlg : public CDialogEx
@@ -45,26 +47,21 @@ END_MESSAGE_MAP()
 
 // COperaPage 对话框
 
-
-
-
 COperaPage::COperaPage(CWnd* pParent /*=NULL*/)
 	: CDialogEx(COperaPage::IDD, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
-	m_pIBClient = new EClientSocket( this);
-	m_accountName = _T("");
 }
 
 COperaPage::~COperaPage()
 {
-	delete m_pIBClient;
 }
 
 void COperaPage::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_LIST1, m_orderStatus);
+	DDX_Control(pDX, IDC_LIST2, m_errors);
 }
 
 BEGIN_MESSAGE_MAP(COperaPage, CDialogEx)
@@ -72,6 +69,7 @@ BEGIN_MESSAGE_MAP(COperaPage, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BUTTON1, &COperaPage::OnConnectIB)
+	ON_BN_CLICKED(IDC_BUTTON3, &COperaPage::OnDisconnectIB)
 END_MESSAGE_MAP()
 
 
@@ -164,34 +162,10 @@ HCURSOR COperaPage::OnQueryDragIcon()
 
 void COperaPage::OnConnectIB()
 {
-	UINT clientID = 0;
-	CString displayString;
-	displayString.Format( "Connecting to Tws using clientId %d ...",clientID);
-	m_orderStatus.AddString( displayString);
+	PostThreadMessageA(GetCurrentThreadId(),WM_CONNECT_IB,NULL,NULL);
+}
 
-	m_pIBClient->eConnect("127.0.0.1",4001,clientID);
-	//登陆成功
-	if( m_pIBClient->serverVersion() > 0)	{
-		CString displayString;
-		displayString.Format( "Connected to Tws server version %d at %s.",
-			m_pIBClient->serverVersion(), m_pIBClient->TwsConnectionTime());
-		m_orderStatus.AddString( displayString);
-	}
-	DWORD dwRet;
-	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
-	if (dwRet==WAIT_OBJECT_0)
-	{ 
-		ResetEvent(g_hEvent); 
-	}
-	m_pIBClient->reqAccountUpdates(true,m_accountName);
-	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
-	if (dwRet==WAIT_OBJECT_0)
-	{ 
-		ResetEvent(g_hEvent); 
-	}
-	m_pIBClient->reqCurrentTime();
-	if (dwRet==WAIT_OBJECT_0)
-	{ 
-		ResetEvent(g_hEvent); 
-	}
+void COperaPage::OnDisconnectIB()
+{
+	PostThreadMessageA(GetCurrentThreadId(),WM_DISCONNECT_IB,NULL,NULL);
 }

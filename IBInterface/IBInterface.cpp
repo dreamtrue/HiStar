@@ -1,95 +1,202 @@
 #include "stdafx.h"
 #include "afxdialogex.h"
-#include "OperaPage.h"
+#include "HiStar.h"
 #include "global.h"
+#define NOT_AN_FA_ACCOUNT_ERROR 321
+#define NUM_FA_ERROR_CODES 6
+static int faErrorCodes[NUM_FA_ERROR_CODES] =
+{ 503, 504, 505, 522, 1100, NOT_AN_FA_ACCOUNT_ERROR} ;
 extern HANDLE g_hEvent;
-void COperaPage::tickPrice( TickerId tickerId, TickType field, double price, int canAutoExecute){}
-void COperaPage::tickSize( TickerId tickerId, TickType field, int size){}
-void COperaPage::tickOptionComputation( TickerId tickerId, TickType tickType, double impliedVol, double delta,
-	double optPrice, double pvDividend, double gamma, double vega, double theta, double undPrice){}
-void COperaPage::tickGeneric(TickerId tickerId, TickType tickType, double value){}
-void COperaPage::tickString(TickerId tickerId, TickType tickType, const IBString& value){}
-void COperaPage::tickEFP(TickerId tickerId, TickType tickType, double basisPoints, const IBString& formattedBasisPoints,
-	double totalDividends, int holdDays, const IBString& futureExpiry, double dividendImpact, double dividendsToExpiry){}
-void COperaPage::orderStatus( OrderId orderId, const IBString &status, int filled,
+//IB交易系统
+extern EClient *g_pIBClient;
+void CHiStarApp::tickPrice( TickerId tickerId, TickType field, double price, int canAutoExecute){
+	TRACE("tickPrice\n");
+}
+void CHiStarApp::tickSize( TickerId tickerId, TickType field, int size){
+	TRACE("tickSize\n");
+}
+void CHiStarApp::tickOptionComputation( TickerId tickerId, TickType tickType, double impliedVol, double delta,
+	double optPrice, double pvDividend, double gamma, double vega, double theta, double undPrice){
+		TRACE("tickOptionComputation\n");
+}
+void CHiStarApp::tickGeneric(TickerId tickerId, TickType tickType, double value){
+	TRACE("tickGeneric\n");
+}
+void CHiStarApp::tickString(TickerId tickerId, TickType tickType, const IBString& value){
+	TRACE("tickString\n");
+}
+void CHiStarApp::tickEFP(TickerId tickerId, TickType tickType, double basisPoints, const IBString& formattedBasisPoints,
+	double totalDividends, int holdDays, const IBString& futureExpiry, double dividendImpact, double dividendsToExpiry){
+		TRACE("tickEFP\n");
+}
+void CHiStarApp::orderStatus( OrderId orderId, const IBString &status, int filled,
 	int remaining, double avgFillPrice, int permId, int parentId,
-	double lastFillPrice, int clientId, const IBString& whyHeld){}
-void COperaPage::openOrder( OrderId orderId, const Contract&, const Order&, const OrderState&){}
-void COperaPage::openOrderEnd(){}
-void COperaPage::winError( const IBString &str, int lastError){}
-void COperaPage::connectionClosed(){}
-
-void COperaPage::updateAccountValue(const IBString& key, const IBString& val,
-	const IBString& currency, const IBString& accountName){
-		if(key == "AvailableFunds" && currency == "USD"){
-			TRACE("IB可用资金 %.f USD\r\n",atof(val));
-		}
-		if(key == "NetLiquidation" && currency == "USD"){
-		}
+	double lastFillPrice, int clientId, const IBString& whyHeld){
+		TRACE("orderStatus\n");
+}
+void CHiStarApp::openOrder( OrderId orderId, const Contract&, const Order&, const OrderState&){
+	TRACE("openOrder\n");
+}
+void CHiStarApp::openOrderEnd(){
+	TRACE("openOrderEnd\n");
+}
+void CHiStarApp::winError( const IBString &str, int lastError){
+	TRACE("winError\n");
+}
+void CHiStarApp::connectionClosed(){
+	TRACE("connectionClosed\n");
+	CString cStatus;
+	cStatus.Format("ConnectionClosed");
+	PostOrderStatus(cStatus);
 }
 
-void COperaPage::updatePortfolio( const Contract& contract, int position,
+
+void CHiStarApp::updateAccountValue(const IBString& key, const IBString& val,
+	const IBString& currency, const IBString& accountName){
+	TRACE("updateAccountValue\n");
+	if(key == "AvailableFunds" && currency == "USD"){
+		TRACE("IB可用资金 %.f USD\r\n",atof(val));
+	}
+	if(key == "NetLiquidation" && currency == "USD"){
+	}
+}
+
+void CHiStarApp::updatePortfolio( const Contract& contract, int position,
 	double marketPrice, double marketValue, double averageCost,
 	double unrealizedPNL, double realizedPNL, const IBString& accountName){
+		TRACE("updatePortfolio\n");
 		TRACE("持仓 %d\r\n",position);
 }
 
-void COperaPage::updateAccountTime(const IBString& timeStamp){
-	CString str;
-	str.Format("Account Time: %s", timeStamp);
-	m_orderStatus.AddString(str);
-	SetEvent(g_hEvent);
+void CHiStarApp::updateAccountTime(const IBString& timeStamp){
+	TRACE("updateAccountTime\n");
+	CString cStatus;
+	cStatus.Format("Account Time: %s", timeStamp);
+	PostOrderStatus(cStatus);
 }
 
-void COperaPage::accountDownloadEnd(const IBString& accountName){
-	CString str;
-	str.Format("Account Download End: %s", accountName);
-	m_orderStatus.AddString(str);
-	SetEvent(g_hEvent);
+void CHiStarApp::accountDownloadEnd(const IBString& accountName){
+	TRACE("accountDownloadEnd\n");
+	CString cStatus;
+	cStatus.Format("Account Download End: %s",accountName);
+	PostOrderStatus(cStatus);
 }
 
-void COperaPage::nextValidId( OrderId orderId){}
-void COperaPage::contractDetails( int reqId, const ContractDetails& contractDetails){}
-void COperaPage::bondContractDetails( int reqId, const ContractDetails& contractDetails){}
-void COperaPage::contractDetailsEnd( int reqId){}
-void COperaPage::execDetails( int reqId, const Contract& contract, const Execution& execution){}
-void COperaPage::execDetailsEnd( int reqId){}
-void COperaPage::error(const int id, const int errorCode, const IBString errorString){}
-void COperaPage::updateMktDepth(TickerId id, int position, int operation, int side,
-	double price, int size){}
-void COperaPage::updateMktDepthL2(TickerId id, int position, IBString marketMaker, int operation,
-	int side, double price, int size){}
-void COperaPage::updateNewsBulletin(int msgId, int msgType, const IBString& newsMessage, const IBString& originExch){}
-
-void COperaPage::managedAccounts( const IBString& accountsList){
-	m_accountName = accountsList;
-	CString displayString;
-	displayString.Format("Connected : The list of managed accounts are : [%s]", accountsList);
-	m_orderStatus.AddString( displayString);
-	SetEvent(g_hEvent);
+void CHiStarApp::nextValidId( OrderId orderId){
+	TRACE("nextValidId\n");
+}
+void CHiStarApp::contractDetails( int reqId, const ContractDetails& contractDetails){
+	TRACE("contractDetails\n");
+}
+void CHiStarApp::bondContractDetails( int reqId, const ContractDetails& contractDetails){
+	TRACE("bondContractDetails\n");
+}
+void CHiStarApp::contractDetailsEnd( int reqId){
+	TRACE("contractDetailsEnd\n");
+}
+void CHiStarApp::execDetails( int reqId, const Contract& contract, const Execution& execution){
+	TRACE("execDetails\n");
+}
+void CHiStarApp::execDetailsEnd( int reqId){
+	TRACE("execDetailsEnd\n");
+}
+void CHiStarApp::error(const int id, const int errorCode, const IBString errorString){
+	TRACE("error\n");
+	CString errorStr("Id: ");
+	char buf[20];
+	_itoa_s(id, buf, 10);
+	errorStr += CString(buf);
+	errorStr += " | ";
+	errorStr += "Error Code: ";
+	_itoa_s(errorCode, buf, 10);
+	errorStr += CString(buf);
+	errorStr += " | ";
+	errorStr += "Error Msg: ";
+	errorStr += errorString;
+	PostErrors(errorStr);
+	for (int ctr=0; ctr < NUM_FA_ERROR_CODES; ctr++) {
+		faError |= (errorCode == faErrorCodes[ctr]) ;
+	}
+}
+void CHiStarApp::updateMktDepth(TickerId id, int position, int operation, int side,
+	double price, int size){
+		TRACE("updateMktDepth\n");
+}
+void CHiStarApp::updateMktDepthL2(TickerId id, int position, IBString marketMaker, int operation,
+	int side, double price, int size){
+		TRACE("updateMktDepthL2\n");
+}
+void CHiStarApp::updateNewsBulletin(int msgId, int msgType, const IBString& newsMessage, const IBString& originExch){
+	TRACE("updateNewsBulletin\n");
+}
+void CHiStarApp::managedAccounts( const IBString& accountsList){
+	CString cStatus;
+	m_accountIB.m_accountName = accountsList;
+	cStatus.Format("Connected : The list of managed accounts are : [%s]", accountsList);
+	PostOrderStatus(cStatus);
 }
 
-void COperaPage::receiveFA(faDataType pFaDataType, const IBString& cxml){}
-void COperaPage::historicalData(TickerId reqId, const IBString& date, double open, double high, 
-	double low, double close, int volume, int barCount, double WAP, int hasGaps){}
-void COperaPage::scannerParameters(const IBString &xml){}
-void COperaPage::scannerData(int reqId, int rank, const ContractDetails &contractDetails,
+void CHiStarApp::receiveFA(faDataType pFaDataType, const IBString& cxml){
+	TRACE("receiveFA\n");
+}
+void CHiStarApp::historicalData(TickerId reqId, const IBString& date, double open, double high, 
+	double low, double close, int volume, int barCount, double WAP, int hasGaps){
+		TRACE("historicalData\n");
+}
+void CHiStarApp::scannerParameters(const IBString &xml){
+	TRACE("scannerParameters\n");
+}
+void CHiStarApp::scannerData(int reqId, int rank, const ContractDetails &contractDetails,
 	const IBString &distance, const IBString &benchmark, const IBString &projection,
-	const IBString &legsStr){}
-void COperaPage::scannerDataEnd(int reqId){}
-void COperaPage::realtimeBar(TickerId reqId, long time, double open, double high, double low, double close,
-	long volume, double wap, int count){}
-void COperaPage::currentTime(long time){}
-void COperaPage::fundamentalData(TickerId reqId, const IBString& data){}
-void COperaPage::deltaNeutralValidation(int reqId, const UnderComp& underComp){}
-void COperaPage::tickSnapshotEnd( int reqId){}
-void COperaPage::marketDataType( TickerId reqId, int marketDataType){}
-void COperaPage::commissionReport( const CommissionReport &commissionReport){}
-void COperaPage::position( const IBString& account, const Contract& contract, int position, double avgCost){}
-void COperaPage::positionEnd(){}
-void COperaPage::accountSummary( int reqId, const IBString& account, const IBString& tag, const IBString& value, const IBString& curency){}
-void COperaPage::accountSummaryEnd( int reqId){}
-void COperaPage::verifyMessageAPI( const IBString& apiData){}
-void COperaPage::verifyCompleted( bool isSuccessful, const IBString& errorText){}
-void COperaPage::displayGroupList( int reqId, const IBString& groups){}
-void COperaPage::displayGroupUpdated( int reqId, const IBString& contractInfo){}
+	const IBString &legsStr){
+		TRACE("scannerData\n");
+}
+void CHiStarApp::scannerDataEnd(int reqId){
+	TRACE("scannerDataEnd\n");
+}
+void CHiStarApp::realtimeBar(TickerId reqId, long time, double open, double high, double low, double close,
+	long volume, double wap, int count){
+		TRACE("realtimeBar\n");
+}
+void CHiStarApp::currentTime(long time){
+	TRACE("currentTime\n");
+}
+void CHiStarApp::fundamentalData(TickerId reqId, const IBString& data){
+	TRACE("fundamentalData\n");
+}
+void CHiStarApp::deltaNeutralValidation(int reqId, const UnderComp& underComp){
+	TRACE("deltaNeutralValidation\n");
+}
+void CHiStarApp::tickSnapshotEnd( int reqId){
+	TRACE("tickSnapshotEnd\n");
+}
+void CHiStarApp::marketDataType( TickerId reqId, int marketDataType){
+	TRACE("marketDataType\n");
+}
+void CHiStarApp::commissionReport( const CommissionReport &commissionReport){
+	TRACE("commissionReport\n");
+}
+void CHiStarApp::position( const IBString& account, const Contract& contract, int position, double avgCost){
+	TRACE("position\n");
+}
+void CHiStarApp::positionEnd(){
+	TRACE("positionEnd\n");
+}
+void CHiStarApp::accountSummary( int reqId, const IBString& account, const IBString& tag, const IBString& value, const IBString& curency){
+	TRACE("accountSummary\n");
+}
+void CHiStarApp::accountSummaryEnd( int reqId){
+	TRACE("accountSummaryEnd\n");
+}
+void CHiStarApp::verifyMessageAPI( const IBString& apiData){
+	TRACE("verifyMessageAPI\n");
+}
+void CHiStarApp::verifyCompleted( bool isSuccessful, const IBString& errorText){
+	TRACE("verifyCompleted\n");
+}
+void CHiStarApp::displayGroupList( int reqId, const IBString& groups){
+	TRACE("displayGroupList\n");
+}
+void CHiStarApp::displayGroupUpdated( int reqId, const IBString& contractInfo){
+	TRACE("displayGroupUpdated\n");
+}

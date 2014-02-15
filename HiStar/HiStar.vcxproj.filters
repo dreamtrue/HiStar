@@ -22,6 +22,9 @@
     <Filter Include="源文件\IBInterface">
       <UniqueIdentifier>{6460b270-3695-4aa5-a7ca-784aeaf4c242}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\HiStar">
+      <UniqueIdentifier>{a6a18a21-45e2-47c3-a79f-8a17504e40a8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -57,11 +60,14 @@
     <ClInclude Include="AccountPage.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="UserMsg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CppClient\Shared\TwsSocketClientErrors.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="HiStar.cpp">
-      <Filter>源文件\Dialog</Filter>
-    </ClCompile>
     <ClCompile Include="..\CppClient\src\EClientSocket.cpp">
       <Filter>源文件\IBClient</Filter>
     </ClCompile>
@@ -77,14 +83,20 @@
     <ClCompile Include="..\CppClient\Shared\HScrollListBox.cpp">
       <Filter>源文件\IBClient</Filter>
     </ClCompile>
-    <ClCompile Include="MainDlg.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="OperaPage.cpp">
       <Filter>源文件\Dialog</Filter>
     </ClCompile>
     <ClCompile Include="AccountPage.cpp">
-      <Filter>源文件</Filter>
+      <Filter>源文件\Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="IBOpera.cpp">
+      <Filter>源文件\IBInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="MainDlg.cpp">
+      <Filter>源文件\Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="HiStar.cpp">
+      <Filter>源文件\HiStar</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
