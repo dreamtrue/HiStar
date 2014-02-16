@@ -13,7 +13,7 @@ BOOL bRecconnect = FALSE;
 BOOL bMdSignal = FALSE;
 void CtpMdSpi::OnRspError(CThostFtdcRspInfoField *pRspInfo,
 	int nRequestID, bool bIsLast){
-		TRACE("OnRspError\n");
+		TRACE("OnRspErrorM\n");
 		IsErrorRspInfo(pRspInfo);
 }
 
@@ -74,6 +74,7 @@ void CtpMdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
 }
 
 void CtpMdSpi::ReqUserLogout(){
+	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	CThostFtdcUserLogoutField req;
 	memset(&req, 0, sizeof(req));
 	strcpy(req.BrokerID, m_sBkrID);

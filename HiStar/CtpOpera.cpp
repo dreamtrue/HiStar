@@ -2,6 +2,7 @@
 #include "HiStar.h"
 BOOL bIsInit = FALSE;
 extern HANDLE g_hEvent;
+extern BOOL g_bLoginCtpT;
 UINT LoginThread(LPVOID pParam);
 void CHiStarApp::CreateCtpClient(void)
 {
@@ -48,6 +49,12 @@ void CHiStarApp::LoginCtp(UINT wParam,LONG lParam)
 		m_pLoginCtp = NULL;
 	}
 }
+void CHiStarApp::LogoutCtp(UINT wParam,LONG lParam)
+{
+	//交易模块登出,行情模块不需要,否则会报错(暂时不知道原因?)
+	m_cT->ReqUserLogout();
+	//m_cQ->ReqUserLogout();
+}
 UINT LoginThread(LPVOID pParam)
 {
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
@@ -71,12 +78,6 @@ UINT LoginThread(LPVOID pParam)
 	DWORD dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
 		TRACE("CTP交易平台登陆成功\n");
-		if(ResetEvent(g_hEvent)){
-			TRACE(_T("重置成功\n"));
-		}
-		else{
-			TRACE(_T("重置失败\n"));
-		}
 	}
 	else{
 		pApp->m_pLoginCtp = NULL;
@@ -181,4 +182,9 @@ UINT LoginThread(LPVOID pParam)
 #endif
 	pApp->m_pLoginCtp = NULL;
 	return 0;
+}
+void CHiStarApp::QryAccCtp(UINT wParam,LONG lParam){
+	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
+	if(g_bLoginCtpT)
+		pApp->m_cT->ReqQryTdAcc();
 }

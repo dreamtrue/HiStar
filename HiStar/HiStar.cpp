@@ -11,14 +11,14 @@
 #endif
 HANDLE g_hEvent = 0;
 // CHiStarApp
-
 BEGIN_MESSAGE_MAP(CHiStarApp, CWinApp)
 	ON_COMMAND(ID_HELP, &CWinApp::OnHelp)
 	ON_THREAD_MESSAGE(WM_CONNECT_IB,OnConnectIB)
 	ON_THREAD_MESSAGE(WM_DISCONNECT_IB,OnDisconnectIB)
 	ON_THREAD_MESSAGE(WM_LOGIN_CTP,LoginCtp)
+	ON_THREAD_MESSAGE(WM_LOGOUT_CTP,LogoutCtp)
+	ON_THREAD_MESSAGE(WM_QRY_ACC_CTP,QryAccCtp)
 END_MESSAGE_MAP()
-
 
 // CHiStarApp 构造
 
@@ -31,6 +31,17 @@ CHiStarApp::CHiStarApp()
 	, m_cT(NULL)
 	, m_pLoginCtp(false)
 {
+	//定位内存泄漏位置,非常好用
+	/*
+	_CrtSetBreakAlloc(1814);
+	_CrtSetBreakAlloc(1811);
+	_CrtSetBreakAlloc(1804);
+    _CrtSetBreakAlloc(1795);
+	_CrtSetBreakAlloc(973);
+	_CrtSetBreakAlloc(971);
+	_CrtSetBreakAlloc(969);
+	_CrtSetBreakAlloc(967);
+	*/
 	// 支持重新启动管理器
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;
 	//IB Client
@@ -111,6 +122,8 @@ BOOL CHiStarApp::InitInstance()
 CHiStarApp::~CHiStarApp(void)
 {
 	delete m_pIBClient;
+	delete m_cT;
+	delete m_cQ;
 	m_pIBClient = NULL;
 }
 

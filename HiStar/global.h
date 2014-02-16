@@ -11,6 +11,31 @@
 
 #define WAIT_MS	5000
 
+
+///合约保证金率
+typedef CThostFtdcInstrumentMarginRateField MGRATE,*PMGRATE;
+///合约手续费率
+typedef CThostFtdcInstrumentCommissionRateField FEERATE,*PFEERATE;
+
+typedef CThostFtdcInstrumentField INSTINFO,*PINSTINFO;
+
+typedef struct CThostFtdcInstrumentFieldEx
+{
+	INSTINFO iinf;
+	TThostFtdcRatioType	OpenRatioByMoney;
+	TThostFtdcRatioType	OpenRatioByVolume;
+	TThostFtdcRatioType	CloseRatioByMoney;
+	TThostFtdcRatioType	CloseRatioByVolume;
+	TThostFtdcRatioType	CloseTodayRatioByMoney;
+	TThostFtdcRatioType	CloseTodayRatioByVolume;
+}INSINFEX,*PINSINFEX;
+
+typedef std::vector<CThostFtdcOrderField*> ::iterator VOrd;
+typedef std::vector<CThostFtdcInvestorPositionField*> ::iterator VInvP;
+typedef std::vector<CThostFtdcInstrumentFieldEx*>::iterator VIT_if;
+typedef std::vector<CThostFtdcInstrumentMarginRateField*>::iterator VIT_mr;
+typedef std::vector<CThostFtdcInstrumentCommissionRateField*>::iterator VIT_cf;
+
 struct SAccountIB{
 	CString  m_accountName;
 	SAccountIB(){
@@ -25,6 +50,13 @@ struct SAccountCtp{
 	CString m_szInst;
 	//前置地址
 	CStringArray m_szArTs,m_szArMd;
+	//账户信息
+	INSINFEX *m_InstInf;
+	CThostFtdcDepthMarketDataField *m_pDepthMd;
+	std::vector<CThostFtdcOrderField*> m_onRoadVec;
+	CThostFtdcTradingAccountField *m_pTdAcc;
+	CThostFtdcNotifyQueryAccountField *m_pNotifyBkYe;
+	CThostFtdcInvestorField *m_pInvInf;
 	SAccountCtp(){
 		/*
 		m_szArTs.Add(_T("tcp://ctp1-front1.citicsf.com:41205"));
@@ -53,33 +85,17 @@ struct SAccountCtp{
 		strcpy(m_sINVESTOR_ID,"00000037");
 		strcpy(m_sPASSWORD,"123456");
 		m_szInst = _T("IF1402");
+		//初始化
+		m_InstInf = new CThostFtdcInstrumentFieldEx();
+		m_pDepthMd = new CThostFtdcDepthMarketDataField();
+		m_pTdAcc = new CThostFtdcTradingAccountField();
+		m_pInvInf = new CThostFtdcInvestorField();
+		m_pNotifyBkYe = new CThostFtdcNotifyQueryAccountField();
+	}
+	~SAccountCtp(){
+		delete m_InstInf;delete m_pDepthMd;delete m_pTdAcc;delete m_pInvInf;delete m_pNotifyBkYe;
 	}
 };
-
-///合约保证金率
-typedef CThostFtdcInstrumentMarginRateField MGRATE,*PMGRATE;
-///合约手续费率
-typedef CThostFtdcInstrumentCommissionRateField FEERATE,*PFEERATE;
-
-typedef CThostFtdcInstrumentField INSTINFO,*PINSTINFO;
-
-typedef struct CThostFtdcInstrumentFieldEx
-{
-	INSTINFO iinf;
-	TThostFtdcRatioType	OpenRatioByMoney;
-	TThostFtdcRatioType	OpenRatioByVolume;
-	TThostFtdcRatioType	CloseRatioByMoney;
-	TThostFtdcRatioType	CloseRatioByVolume;
-	TThostFtdcRatioType	CloseTodayRatioByMoney;
-	TThostFtdcRatioType	CloseTodayRatioByVolume;
-}INSINFEX,*PINSINFEX;
-
-typedef std::vector<CThostFtdcOrderField*> ::iterator VOrd;
-typedef std::vector<CThostFtdcInvestorPositionField*> ::iterator VInvP;
-typedef std::vector<CThostFtdcInstrumentFieldEx*>::iterator VIT_if;
-typedef std::vector<CThostFtdcInstrumentMarginRateField*>::iterator VIT_mr;
-typedef std::vector<CThostFtdcInstrumentCommissionRateField*>::iterator VIT_cf;
-
 #define _REAL_CTP_
 
 #define PROD_INFO "Q7 8117"

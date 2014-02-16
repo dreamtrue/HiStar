@@ -105,6 +105,8 @@ public:
 	CtpTraderSpi* m_cT;
 	void CreateCtpClient(void);
 	void LoginCtp(UINT wParam,LONG lParam);
+	void LogoutCtp(UINT wParam,LONG lParam);
+	void QryAccCtp(UINT wParam,LONG lParam);
 	bool m_pLoginCtp;
 	int FindInstMul(TThostFtdcInstrumentIDType InstID);
 };

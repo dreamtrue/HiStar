@@ -70,6 +70,7 @@ BEGIN_MESSAGE_MAP(COperaPage, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON1, &COperaPage::OnConnectIB)
 	ON_BN_CLICKED(IDC_BUTTON3, &COperaPage::OnDisconnectIB)
 	ON_BN_CLICKED(IDC_BUTTON4, &COperaPage::OnLoginCtp)
+	ON_BN_CLICKED(IDC_BUTTON5, &COperaPage::OnLogoutCtp)
 END_MESSAGE_MAP()
 
 
@@ -173,4 +174,9 @@ void COperaPage::OnDisconnectIB()
 void COperaPage::OnLoginCtp()
 {
 	PostThreadMessageA(GetCurrentThreadId(),WM_LOGIN_CTP,NULL,NULL);
+}
+
+void COperaPage::OnLogoutCtp()
+{
+	PostThreadMessageA(GetCurrentThreadId(),WM_LOGOUT_CTP,NULL,NULL);
 }

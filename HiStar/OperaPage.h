@@ -41,6 +41,7 @@ public:
 	CHScrollListBox m_errors;
 	afx_msg void OnDisconnectIB();
 	afx_msg void OnLoginCtp();
+	afx_msg void OnLogoutCtp();
 };
 //其他变量
 const int N = 5;

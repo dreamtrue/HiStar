@@ -1,9 +1,11 @@
 #include "StdAfx.h"
 #include "traderspi.h"
 #include "HiStar.h"
+#include "UserMsg.h"
 #pragma warning(disable :4996)
 extern HANDLE g_hEvent;
-BOOL bRecconnectT = FALSE;
+BOOL g_bRecconnectT = FALSE;
+BOOL g_bLoginCtpT = FALSE;
 bool g_bOnceT = FALSE;//交易系统是否曾经登陆过，如果登陆过则是TRUE,否则FALSE
 //网络故障恢复正常后 自动重连
 void CtpTraderSpi::OnFrontConnected()
@@ -11,7 +13,7 @@ void CtpTraderSpi::OnFrontConnected()
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	if (g_bOnceT)
 	{
-		bRecconnectT = TRUE;
+		g_bRecconnectT = TRUE;
 		ReqUserLogin(pApp->m_accountCtp.m_sBROKER_ID,pApp->m_accountCtp.m_sINVESTOR_ID,pApp->m_accountCtp.m_sPASSWORD);
 		SYSTEMTIME curTime;
 		::GetLocalTime(&curTime);
@@ -41,7 +43,8 @@ void CtpTraderSpi::ReqUserLogin(TThostFtdcBrokerIDType	vAppId,TThostFtdcUserIDTy
 void CtpTraderSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
 	CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast){
 		if(pRspInfo){memcpy(&m_RspMsg,pRspInfo,sizeof(CThostFtdcRspInfoField));}
-		if(!IsErrorRspInfo(pRspInfo) && pRspUserLogin){  
+		if(!IsErrorRspInfo(pRspInfo) && pRspUserLogin){ 
+			g_bLoginCtpT = true;
 			// 保存会话参数	
 			m_ifrontId = pRspUserLogin->FrontID;
 			m_isessionId = pRspUserLogin->SessionID;
@@ -96,7 +99,9 @@ void CtpTraderSpi::ReqUserLogout()
 ///登出请求响应
 void CtpTraderSpi::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
-	if( !IsErrorRspInfo(pRspInfo) && pUserLogout){}
+	if( !IsErrorRspInfo(pRspInfo) && pUserLogout){
+		g_bLoginCtpT = FALSE;
+	}
 	if(bIsLast) SetEvent(g_hEvent);
 }
 
@@ -230,7 +235,9 @@ void CtpTraderSpi::OnRspQryTradingAccount(
 		CThostFtdcTradingAccountField* pAcc = new CThostFtdcTradingAccountField();
 		memcpy(pAcc,pTradingAccount,sizeof(CThostFtdcTradingAccountField));
 		m_TdAcc = *pAcc;
-		TRACE(_T("账户金额%f\n"),pAcc->Balance);
+		if(AfxGetApp()->m_pMainWnd->m_hWnd){
+			PostMessageA(AfxGetApp()->m_pMainWnd->m_hWnd,WM_UPDATE_ACC_CTP,NULL,(LPARAM)pAcc);
+		}
 	}
 	if(bIsLast) SetEvent(g_hEvent);
 }
@@ -544,7 +551,7 @@ void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder){
 	//////修改已发出的报单状态
 	if(founded){
 		m_orderVec[i] = order; 
-		if (!bRecconnectT){
+		if (!g_bRecconnectT){
 			///////////////////////////刷新挂单列表/////////////////////
 			//未加入挂单列表
 			if (true){
@@ -604,7 +611,7 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 		TRACE(_T("修改成交单状态"));
 		//不过是重新覆盖成交信息
 		m_tradeVec[i]= trade; 
-		if (!bRecconnectT){
+		if (!g_bRecconnectT){
 			//可以在这儿添加要显示的成交信息,如果是重连后获取的则不显示。
 		} 
 	}
@@ -680,6 +687,7 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 
 void CtpTraderSpi::OnFrontDisconnected(int nReason){
 	if (true){
+		g_bLoginCtpT = FALSE;
 		SYSTEMTIME curTime;
 		::GetLocalTime(&curTime);
 		CString	szT;
@@ -994,7 +1002,7 @@ void CtpTraderSpi::OnRtnFromBankToFutureByFuture(CThostFtdcRspTransferField *pRs
 	else 
 	{
 		m_BfTransVec.push_back(bfTrans);
-		if(true && !bRecconnectT)
+		if(true && !g_bRecconnectT)
 		{
 			if(pRspTransfer->ErrorID!=0)
 			{
@@ -1088,7 +1096,7 @@ void CtpTraderSpi::OnRtnFromFutureToBankByFuture(CThostFtdcRspTransferField *pRs
 	else 
 	{
 		m_BfTransVec.push_back(bfTrans);
-		if(true && !bRecconnectT)
+		if(true && !g_bRecconnectT)
 		{
 			if(pRspTransfer->ErrorID!=0)
 			{
@@ -1161,7 +1169,7 @@ void CtpTraderSpi::OnRtnQueryBankBalanceByFuture(CThostFtdcNotifyQueryAccountFie
 {
 	if(pNotifyQueryAccount->ErrorID ==0)
 	{
-		if (true && !bRecconnectT)
+		if (true && !g_bRecconnectT)
 		{
 
 			CThostFtdcNotifyQueryAccountField *pNotify = new CThostFtdcNotifyQueryAccountField();
@@ -1465,6 +1473,7 @@ void CtpTraderSpi::OnRtnInstrumentStatus(CThostFtdcInstrumentStatusField *pInstr
 
 void CtpTraderSpi::OnRspError(CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
+	TRACE(_T("OnRspErrorT\n"));
 	IsErrorRspInfo(pRspInfo);
 }
 

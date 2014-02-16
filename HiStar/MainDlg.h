@@ -26,9 +26,18 @@ public:
 	int m_CurSelTab;
 	COperaPage m_pageOpera;
 	CAccountPage m_AccountPage;
-	CDialog* pDialog[2];  //用来保存对话框对象指针
+	CDialog* m_pDialog[2];  //用来保存对话框对象指针
 	afx_msg void OnTcnSelchangingTab(NMHDR *pNMHDR, LRESULT *pResult);
 protected:
 	afx_msg LRESULT OnOrderStatus(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT CMainDlg::OnErrors(WPARAM wParam, LPARAM lParam);
+public:
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	//定时器
+	UINT_PTR m_timerID;
+	afx_msg void OnBnClickedOk();
+protected:
+	afx_msg LRESULT OnUpdateAccCtp(WPARAM wParam, LPARAM lParam);
+public:
+	afx_msg void OnKillTimer();
 };

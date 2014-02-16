@@ -5,7 +5,7 @@
 #include "HiStar.h"
 #include "AccountPage.h"
 #include "afxdialogex.h"
-
+#include "UserMsg.h"
 
 // CAccountPage 对话框
 
@@ -28,7 +28,13 @@ void CAccountPage::DoDataExchange(CDataExchange* pDX)
 
 
 BEGIN_MESSAGE_MAP(CAccountPage, CDialogEx)
+	ON_WM_SHOWWINDOW()
 END_MESSAGE_MAP()
 
 
 // CAccountPage 消息处理程序
+
+void CAccountPage::OnShowWindow(BOOL bShow, UINT nStatus)
+{
+	CDialogEx::OnShowWindow(bShow, nStatus);
+}
