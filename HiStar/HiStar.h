@@ -104,8 +104,9 @@ public:
 	CtpMdSpi* m_cQ;
 	CtpTraderSpi* m_cT;
 	void CreateCtpClient(void);
-	void OnLoginCtp(void);
+	void LoginCtp(UINT wParam,LONG lParam);
 	bool m_pLoginCtp;
+	int FindInstMul(TThostFtdcInstrumentIDType InstID);
 };
 
 extern CHiStarApp theApp;

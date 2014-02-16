@@ -16,6 +16,7 @@ BEGIN_MESSAGE_MAP(CHiStarApp, CWinApp)
 	ON_COMMAND(ID_HELP, &CWinApp::OnHelp)
 	ON_THREAD_MESSAGE(WM_CONNECT_IB,OnConnectIB)
 	ON_THREAD_MESSAGE(WM_DISCONNECT_IB,OnDisconnectIB)
+	ON_THREAD_MESSAGE(WM_LOGIN_CTP,LoginCtp)
 END_MESSAGE_MAP()
 
 
@@ -34,7 +35,6 @@ CHiStarApp::CHiStarApp()
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;
 	//IB Client
 	m_pIBClient = new EClientSocket( this);
-    m_accountIB.m_accountName = _T("U1032950");
 	//CTP Client
 	CreateCtpClient();
 }
@@ -53,7 +53,7 @@ BOOL CHiStarApp::InitInstance()
 	{
 		return false;
 	}
-	g_hEvent=CreateEvent(NULL, true, false, NULL); 
+	g_hEvent = CreateEvent(NULL, true, false, NULL); 
 	// 如果一个运行在 Windows XP 上的应用程序清单指定要
 	// 使用 ComCtl32.dll 版本 6 或更高版本来启用可视化方式，
 	//则需要 InitCommonControlsEx()。否则，将无法创建窗口。

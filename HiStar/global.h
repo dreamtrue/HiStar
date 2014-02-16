@@ -13,6 +13,9 @@
 
 struct SAccountIB{
 	CString  m_accountName;
+	SAccountIB(){
+		m_accountName = _T("U1032950");
+	}
 };
 struct SAccountCtp{
 	TThostFtdcBrokerIDType	m_sBROKER_ID;
@@ -22,6 +25,35 @@ struct SAccountCtp{
 	CString m_szInst;
 	//前置地址
 	CStringArray m_szArTs,m_szArMd;
+	SAccountCtp(){
+		/*
+		m_szArTs.Add(_T("tcp://ctp1-front1.citicsf.com:41205"));
+		m_szArTs.Add(_T("tcp://ctp1-front3.citicsf.com:41205"));
+		m_szArTs.Add(_T("tcp://ctp1-front13.citicsf.com:41205"));
+		m_szArTs.Add(_T("tcp://180.169.101.177:41205"));
+		m_szArMd.Add(_T("tcp://ctp1-md1.citicsf.com:41213"));
+		m_szArMd.Add(_T("tcp://ctp1-md3.citicsf.com:41213"));
+		m_szArMd.Add(_T("tcp://ctp1-md13.citicsf.com:41213"));
+		m_szArMd.Add(_T("tcp://180.169.101.177:41213"));
+		memset(&m_sBROKER_ID, 0, sizeof(m_sBROKER_ID));
+		memset(&m_sINVESTOR_ID, 0, sizeof(m_sINVESTOR_ID));
+		memset(&m_sPASSWORD, 0, sizeof(m_sPASSWORD));
+		strcpy(m_sBROKER_ID,"66666");
+		strcpy(m_sINVESTOR_ID,"10127111");
+		strcpy(m_sPASSWORD,"003180");
+		m_szInst = _T("IF1402");
+		*/
+		//模拟系统
+		m_szArTs.Add(_T("tcp://ctpmn1-front1.citicsf.com:51205"));
+        m_szArMd.Add(_T("tcp://ctpmn1-front1.citicsf.com:51213"));
+		memset(&m_sBROKER_ID, 0, sizeof(m_sBROKER_ID));
+		memset(&m_sINVESTOR_ID, 0, sizeof(m_sINVESTOR_ID));
+		memset(&m_sPASSWORD, 0, sizeof(m_sPASSWORD));
+		strcpy(m_sBROKER_ID,"1017");
+		strcpy(m_sINVESTOR_ID,"00000037");
+		strcpy(m_sPASSWORD,"123456");
+		m_szInst = _T("IF1402");
+	}
 };
 
 ///合约保证金率
@@ -78,7 +110,6 @@ typedef std::vector<CThostFtdcInstrumentCommissionRateField*>::iterator VIT_cf;
 #define ROOT "root"
 #define SESRT "sessions"
 #define SESITEM "session"
-#define WAIT_MS	5000
 
 #define _CZCE _T("郑商所")
 #define _DCE _T("大商所")

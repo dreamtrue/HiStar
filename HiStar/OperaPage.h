@@ -40,6 +40,7 @@ public:
 	CHScrollListBox m_orderStatus;
 	CHScrollListBox m_errors;
 	afx_msg void OnDisconnectIB();
+	afx_msg void OnLoginCtp();
 };
 //其他变量
 const int N = 5;

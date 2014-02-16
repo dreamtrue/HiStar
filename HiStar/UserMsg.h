@@ -4,6 +4,6 @@
 #define WM_ORDER_STATUS WM_USER+1
 #define WM_ERRORS WM_USER+2
 #define WM_DISCONNECT_IB WM_USER+3
-
+#define WM_LOGIN_CTP WM_USER+4
 
 #endif

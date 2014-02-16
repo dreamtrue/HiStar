@@ -3,31 +3,25 @@
 #include "HiStar.h"
 #pragma warning(disable :4996)
 extern HANDLE g_hEvent;
-extern BOOL bRecconnect;
-
+BOOL bRecconnectT = FALSE;
+bool g_bOnceT = FALSE;//交易系统是否曾经登陆过，如果登陆过则是TRUE,否则FALSE
 //网络故障恢复正常后 自动重连
 void CtpTraderSpi::OnFrontConnected()
 {
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
-	if (true)
+	if (g_bOnceT)
 	{
-		bRecconnect = TRUE;
+		bRecconnectT = TRUE;
 		ReqUserLogin(pApp->m_accountCtp.m_sBROKER_ID,pApp->m_accountCtp.m_sINVESTOR_ID,pApp->m_accountCtp.m_sPASSWORD);
-		DWORD dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
-		if (dwRet==WAIT_OBJECT_0)
-		{
-			ResetEvent(g_hEvent);
-			SYSTEMTIME curTime;
-			::GetLocalTime(&curTime);
-			CString	szT;
-			szT.Format(_T("%02d:%02d:%02d CTP重登录成功"), curTime.wHour, curTime.wMinute, curTime.wSecond);	
-		}
-		else
-			return;
+		SYSTEMTIME curTime;
+		::GetLocalTime(&curTime);
+		CString	szT;
+		szT.Format(_T("%02d:%02d:%02d CTP重登录"), curTime.wHour, curTime.wMinute, curTime.wSecond);	
 	}	
 	else
-	{
+	{//第一次登陆
 		ReqUserLogin(pApp->m_accountCtp.m_sBROKER_ID,pApp->m_accountCtp.m_sINVESTOR_ID,pApp->m_accountCtp.m_sPASSWORD);
+		g_bOnceT = true;
 	}
 }
 
@@ -45,51 +39,44 @@ void CtpTraderSpi::ReqUserLogin(TThostFtdcBrokerIDType	vAppId,TThostFtdcUserIDTy
 #define TIME_NULL "--:--:--"
 
 void CtpTraderSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
-	CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
-{
-	if ( pRspInfo){memcpy(&m_RspMsg,pRspInfo,sizeof(CThostFtdcRspInfoField));}
+	CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast){
+		if(pRspInfo){memcpy(&m_RspMsg,pRspInfo,sizeof(CThostFtdcRspInfoField));}
+		if(!IsErrorRspInfo(pRspInfo) && pRspUserLogin){  
+			// 保存会话参数	
+			m_ifrontId = pRspUserLogin->FrontID;
+			m_isessionId = pRspUserLogin->SessionID;
 
-	if (!IsErrorRspInfo(pRspInfo) && pRspUserLogin )
-	{  
-		// 保存会话参数	
-		m_ifrontId = pRspUserLogin->FrontID;
-		m_isessionId = pRspUserLogin->SessionID;
+			strcpy(m_sTdday,pRspUserLogin->TradingDay);
 
-		strcpy(m_sTdday,pRspUserLogin->TradingDay);
+			int nextOrderRef = atoi(pRspUserLogin->MaxOrderRef);
+			sprintf(m_sOrdRef, "%d", ++nextOrderRef);
 
-		int nextOrderRef = atoi(pRspUserLogin->MaxOrderRef);
-		sprintf(m_sOrdRef, "%d", ++nextOrderRef);
-
-		SYSTEMTIME curTime;
-		::GetLocalTime(&curTime);
-		CTime tc(curTime);
-		int i=0;
-		int iHour[4],iMin[4],iSec[4];
-		if (!strcmp(pRspUserLogin->DCETime,TIME_NULL) || !strcmp(pRspUserLogin->SHFETime,TIME_NULL))
-		{
-			for (i=0;i<4;i++)
-			{
-				iHour[i]=curTime.wHour;
-				iMin[i]=curTime.wMinute;
-				iSec[i]=curTime.wSecond;
+			SYSTEMTIME curTime;
+			::GetLocalTime(&curTime);
+			CTime tc(curTime);
+			int i=0;
+			int iHour[4],iMin[4],iSec[4];
+			if (!strcmp(pRspUserLogin->DCETime,TIME_NULL) || !strcmp(pRspUserLogin->SHFETime,TIME_NULL)){
+				for (i=0;i<4;i++){
+					iHour[i]=curTime.wHour;
+					iMin[i]=curTime.wMinute;
+					iSec[i]=curTime.wSecond;
+				}
 			}
+			else{
+				sscanf(pRspUserLogin->SHFETime, "%d:%d:%d", &iHour[0], &iMin[0], &iSec[0]);
+				sscanf(pRspUserLogin->DCETime, "%d:%d:%d", &iHour[1], &iMin[1], &iSec[1]);
+				sscanf(pRspUserLogin->CZCETime, "%d:%d:%d", &iHour[2], &iMin[2], &iSec[2]);
+				sscanf(pRspUserLogin->FFEXTime, "%d:%d:%d", &iHour[3], &iMin[3], &iSec[3]);
+			}
+			CTime t[4];
+			for (i=0;i<4;i++){
+				t[i] = CTime(curTime.wYear,curTime.wMonth,curTime.wDay,iHour[i],iMin[i],iSec[i]);
+				m_tsEXnLocal[i] = t[i]-tc;
+			}
+			sprintf(m_sTmBegin,"%02d:%02d:%02d.%03d",curTime.wHour,curTime.wMinute,curTime.wSecond,curTime.wMilliseconds);  
 		}
-		else
-		{
-			sscanf(pRspUserLogin->SHFETime, "%d:%d:%d", &iHour[0], &iMin[0], &iSec[0]);
-			sscanf(pRspUserLogin->DCETime, "%d:%d:%d", &iHour[1], &iMin[1], &iSec[1]);
-			sscanf(pRspUserLogin->CZCETime, "%d:%d:%d", &iHour[2], &iMin[2], &iSec[2]);
-			sscanf(pRspUserLogin->FFEXTime, "%d:%d:%d", &iHour[3], &iMin[3], &iSec[3]);
-		}
-		CTime t[4];
-		for (i=0;i<4;i++)
-		{
-			t[i] = CTime(curTime.wYear,curTime.wMonth,curTime.wDay,iHour[i],iMin[i],iSec[i]);
-			m_tsEXnLocal[i] = t[i]-tc;
-		}
-		sprintf(m_sTmBegin,"%02d:%02d:%02d.%03d",curTime.wHour,curTime.wMinute,curTime.wSecond,curTime.wMilliseconds);  
-	}
-	if(bIsLast) SetEvent(g_hEvent);
+		if(bIsLast) SetEvent(g_hEvent);
 }
 
 const char* CtpTraderSpi::GetTradingDay()
@@ -126,7 +113,8 @@ void CtpTraderSpi::OnRspSettlementInfoConfirm(
 	CThostFtdcSettlementInfoConfirmField  *pSettlementInfoConfirm, 
 	CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {	
-	if( !IsErrorRspInfo(pRspInfo) && pSettlementInfoConfirm){}
+	if( !IsErrorRspInfo(pRspInfo) && pSettlementInfoConfirm){
+	}
 	if(bIsLast) SetEvent(g_hEvent);
 }
 
@@ -241,13 +229,8 @@ void CtpTraderSpi::OnRspQryTradingAccount(
 	{
 		CThostFtdcTradingAccountField* pAcc = new CThostFtdcTradingAccountField();
 		memcpy(pAcc,pTradingAccount,sizeof(CThostFtdcTradingAccountField));
-		m_TdAcc = *pAcc ;
-
-		if (true)
-		{
-			//SendNotifyMessage(((CXTraderDlg*)g_pCWnd)->m_hWnd,WM_QRYACC_MSG,0,(LPARAM)pAcc);
-		}
-
+		m_TdAcc = *pAcc;
+		TRACE(_T("账户金额%f\n"),pAcc->Balance);
 	}
 	if(bIsLast) SetEvent(g_hEvent);
 }
@@ -548,141 +531,102 @@ void CtpTraderSpi::OnRspOrderAction(
 }
 
 ///报单回报
-void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder)
-{	
+void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder){	
 	CThostFtdcOrderField* order = new CThostFtdcOrderField();
 	memcpy(order,  pOrder, sizeof(CThostFtdcOrderField));
-	bool founded=false;    UINT i=0;
-	for(i=0; i<m_orderVec.size(); i++)
-	{
-		if(m_orderVec[i]->BrokerOrderSeq == order->BrokerOrderSeq) 
-		{ founded=true;    break;}
+	bool founded = false;UINT i = 0;
+	for(i = 0;i<m_orderVec.size();i++){
+		if(m_orderVec[i]->BrokerOrderSeq == order->BrokerOrderSeq) { 
+			founded = true;
+			break;
+		}
 	}
 	//////修改已发出的报单状态
-	if(founded) 
-	{
-		m_orderVec[i]= order; 
-
-		if (true && !bRecconnect)
-		{
-			//////////////////////////////////////////////////////////
-			//pDlg->InsertLstOrder(order,false);
-
+	if(founded){
+		m_orderVec[i] = order; 
+		if (!bRecconnectT){
 			///////////////////////////刷新挂单列表/////////////////////
 			//未加入挂单列表
-			if (true)
-			{
+			if (true){
 				//加入列表
-				if (order->OrderStatus == '1' || order->OrderStatus == '3')
-				{
+				if (order->OrderStatus == '1' || order->OrderStatus == '3'){
 				}
 			}
-			else
-			{
+			else{
 				//已经在列表 如完成 则删除
-				if (order->OrderStatus != '1' && order->OrderStatus != '3')
-				{
-					//pDlg->m_onRoadVec.erase(pDlg->m_onRoadVec.begin()+nRet);
-					/*
-					int nRet2 = pDlg->FindOrdInOnRoadLst(order->BrokerOrderSeq);
-
-					if (nRet2 !=-1)
-					{
-						pDlg->m_LstOnRoad.SetRedraw(FALSE);
-						pDlg->m_LstOnRoad.DeleteItem(nRet2);
-						pDlg->m_LstOnRoad.SetRedraw(TRUE);
-					}
-					*/
+				if (order->OrderStatus != '1' && order->OrderStatus != '3'){
 				}
-				else
-				{
-					//存在的挂单 修改状态
-					//pDlg->InsertLstOnRoad(order,false);
+				else{
+				//存在的挂单 修改状态
 				}
-
 			}
 			/////////////////////////刷新持仓////////////////////////////////
-
 			bool bExist = false;
-			for(i=0;i<m_InvPosVec.size();i++)
-			{
-				if (!strcmp(order->InstrumentID,m_InvPosVec[i]->InstrumentID))
-				{ bExist = true; break;}	
+			for(i = 0;i<m_InvPosVec.size();i++){
+				if (!strcmp(order->InstrumentID,m_InvPosVec[i]->InstrumentID)){ 
+					bExist = true; 
+					break;
+				}	
 			}
-
-			if (bExist)
-			{
-
+			if (bExist){
 			}
-			else
-			{
-
+			else{
 			}
-			/////////////////////////////////////////////////////////////////
-
+	     /////////////////////////////////////////////////////////////////
 		}
-
 	} 
 	///////新增加委托单
-	else 
-	{
+	else{
 		m_orderVec.push_back(order);
-		if (true)
-		{
+		if (true){
 			//////////////////////////////////////////////////////////
 		}
 	}
-
 	SetEvent(g_hEvent);
 }
 
 ///成交通知
-void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade)
-{
+void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
+	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	CThostFtdcTradeField* trade = new CThostFtdcTradeField();
-	memcpy(trade,  pTrade, sizeof(CThostFtdcTradeField));
-	bool founded=false;     unsigned int i=0;
-	for(i=0; i<m_tradeVec.size(); i++){
-		if(!strcmp(m_tradeVec[i]->TradeID,trade->TradeID)) {
-			founded=true;   break;
+	memcpy(trade,pTrade,sizeof(CThostFtdcTradeField));
+	bool founded = false;     
+	unsigned int i = 0;
+	for(i = 0;i<m_tradeVec.size();i++){
+		//strcmp返回0时表示相等
+		if(strcmp(m_tradeVec[i]->TradeID,trade->TradeID) == 0){
+			founded = true;   
+			break;
 		}
 	}
 	//////修改成交单状态
-	if(founded) 
-	{
+	if(founded){
+		TRACE(_T("修改成交单状态"));
+		//不过是重新覆盖成交信息
 		m_tradeVec[i]= trade; 
-
-		if (true && !bRecconnect)
-		{
-			//pDlg->InsertLstTrade(trade,i+1);  
+		if (!bRecconnectT){
+			//可以在这儿添加要显示的成交信息,如果是重连后获取的则不显示。
 		} 
 	}
 	///////新增加已成交单 
 	else 
 	{
 		m_tradeVec.push_back(trade);
-		if (true)
-		{
-			//pDlg->m_LstTdInf.SetRedraw(FALSE); 
-			//pDlg->m_LstTdInf.SetRedraw(TRUE);
+		if (true){
 			/////////////////////////刷新持仓////////////////////////////////
-
-			bool bExist = false;
-			for(i=0;i<m_InvPosVec.size();i++)
+			bool bExist = false;//是否存在该持仓
+			for(i = 0;i<m_InvPosVec.size();i++)
 			{
-				if (!strcmp(trade->InstrumentID,m_InvPosVec[i]->InstrumentID))
-				{ bExist = true; break;}	
+				if (strcmp(trade->InstrumentID,m_InvPosVec[i]->InstrumentID) == 0){ 
+					bExist = true; 
+					break;
+				}	
 			}
-
 			CThostFtdcInvestorPositionField* newInvPos = new CThostFtdcInvestorPositionField();
 			ZeroMemory(newInvPos,sizeof(CThostFtdcInvestorPositionField));
-
-			if (bExist)
-			{
-				if (trade->Direction == THOST_FTDC_D_Buy)
-				{
-					switch(trade->OffsetFlag)
-					{
+			if (bExist){
+				if (trade->Direction == THOST_FTDC_D_Buy){
+					switch(trade->OffsetFlag){
 					case THOST_FTDC_OF_Open:
 						break;
 					case THOST_FTDC_OF_Close:
@@ -699,8 +643,7 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade)
 				}
 				if (trade->Direction == THOST_FTDC_D_Sell)
 				{
-					switch(trade->OffsetFlag)
-					{
+					switch(trade->OffsetFlag){
 					case THOST_FTDC_OF_Open:
 						break;
 					case THOST_FTDC_OF_Close:
@@ -716,107 +659,51 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade)
 					}
 				}
 			}
-			else
-			{
-				int iMul = 1;
+			else{
+				int iMul = pApp->FindInstMul(trade->InstrumentID);
 				strcpy(newInvPos->InstrumentID,trade->InstrumentID);
 				strcpy(newInvPos->BrokerID,trade->BrokerID);
 				strcpy(newInvPos->InvestorID,trade->InvestorID);
-				newInvPos->PosiDirection = trade->Direction+2;
+				newInvPos->PosiDirection = trade->Direction + 2;
 				newInvPos->HedgeFlag = trade->HedgeFlag;
 				newInvPos->PositionDate = (strcmp(m_sTdday,trade->TradeDate)==0)?THOST_FTDC_PSD_Today:THOST_FTDC_PSD_History;
 				newInvPos->Position = trade->Volume;
 				newInvPos->OpenVolume = trade->Volume;
 				newInvPos->OpenAmount = trade->Volume * trade->Price * iMul;
 				newInvPos->PositionCost = trade->Volume * trade->Price * iMul;
-				//newInvPos->UseMargin = newInvPos->PositionCost * pDlg->
-
-
 			}
 			/////////////////////////////////////////////////////////////////
 		}
-
 	}
-	//cerr<<" 回报 | 报单已成交...成交编号:"<<trade->TradeID<<endl;
 	SetEvent(g_hEvent);
 }
 
-void CtpTraderSpi::OnFrontDisconnected(int nReason)
-{
-	if (true)
-	{
-		//CXTraderDlg* pDlg = (CXTraderDlg*)g_pCWnd;
-		//pDlg->SetStatusTxt(_T("TD×"),1);
-		//pDlg->SetTipTxt(_T("交易断开"),IDS_TRADE_TIPS);
-		//pDlg->SetPaneTxtColor(1,BLUE);
-
+void CtpTraderSpi::OnFrontDisconnected(int nReason){
+	if (true){
 		SYSTEMTIME curTime;
 		::GetLocalTime(&curTime);
 		CString	szT;
-
-
 		szT.Format(_T("%02d:%02d:%02d CTP中断等待重连"), curTime.wHour, curTime.wMinute, curTime.wSecond);
-		//pDlg->SetStatusTxt(szT,2);
 		//ShowErroTips(IDS_DISCONTIPS,IDS_STRTIPS);
-
 	}
 }
-
-void CtpTraderSpi::OnHeartBeatWarning(int nTimeLapse)
-{
+void CtpTraderSpi::OnHeartBeatWarning(int nTimeLapse){
+	TRACE(_T("OnHeartBeatWarningT\n"));
 }
-/*
-void CtpTraderSpi::PrintOrders(){
-CThostFtdcOrderField* pOrder; 
-for(unsigned int i=0; i<orderVec.size(); i++){
-pOrder = orderVec[i];
-cerr<<" 报单 | 合约:"<<pOrder->InstrumentID
-<<" 方向:"<<MapDirection(pOrder->Direction,false)
-<<" 开平:"<<MapOffset(pOrder->CombOffsetFlag[0],false)
-<<" 价格:"<<pOrder->LimitPrice
-<<" 数量:"<<pOrder->VolumeTotalOriginal
-<<" 序号:"<<pOrder->BrokerOrderSeq 
-<<" 报单编号:"<<pOrder->OrderSysID
-<<" 状态:"<<pOrder->StatusMsg<<endl;
-}
-//SetEvent(g_hEvent);
-}
-
-void CtpTraderSpi::PrintTrades(){
-CThostFtdcTradeField* pTrade;
-for(unsigned int i=0; i<tradeVec.size(); i++){
-pTrade = tradeVec[i];
-cerr<<" 成交 | 合约:"<< pTrade->InstrumentID 
-<<" 方向:"<<MapDirection(pTrade->Direction,false)
-<<" 开平:"<<MapOffset(pTrade->OffsetFlag,false) 
-<<" 价格:"<<pTrade->Price
-<<" 数量:"<<pTrade->Volume
-<<" 报单编号:"<<pTrade->OrderSysID
-<<" 成交编号:"<<pTrade->TradeID<<endl;
-}
-//SetEvent(g_hEvent);
-}
-*/
-
 ///请求查询交易编码
 void CtpTraderSpi::ReqQryTradingCode()
 {
-
 	CThostFtdcQryTradingCodeField req;
 	memset(&req, 0, sizeof(req));
-
 	req.ClientIDType = THOST_FTDC_CIDT_Speculation;
-
 	strcpy(req.BrokerID, BROKER_ID);   //经纪公司代码	
 	strcpy(req.InvestorID, INVEST_ID); //投资者代码
-
 	pUserApi->ReqQryTradingCode(&req,++m_iRequestID);
 }
 
 void CtpTraderSpi::OnRspQryTradingCode(CThostFtdcTradingCodeField *pTradingCode, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
-	if( !IsErrorRspInfo(pRspInfo) && pTradingCode )
-	{
+	if( !IsErrorRspInfo(pRspInfo) && pTradingCode ){
 		CThostFtdcTradingCodeField* pTdCode = new CThostFtdcTradingCodeField();
 		memcpy(pTdCode, pTradingCode, sizeof(CThostFtdcTradingCodeField));
 		m_TdCodeVec.push_back(pTdCode);
@@ -825,10 +712,8 @@ void CtpTraderSpi::OnRspQryTradingCode(CThostFtdcTradingCodeField *pTradingCode,
 }
 
 ///请求查询合约保证金率
-void CtpTraderSpi::ReqQryInstMgr(TThostFtdcInstrumentIDType instId)
-{
+void CtpTraderSpi::ReqQryInstMgr(TThostFtdcInstrumentIDType instId){
 	CThostFtdcQryInstrumentMarginRateField req;
-
 	memset(&req, 0, sizeof(req));
 	strcpy(req.BrokerID, BROKER_ID);   //经纪公司代码	
 	strcpy(req.InvestorID, INVEST_ID); //投资者代码
@@ -1109,7 +994,7 @@ void CtpTraderSpi::OnRtnFromBankToFutureByFuture(CThostFtdcRspTransferField *pRs
 	else 
 	{
 		m_BfTransVec.push_back(bfTrans);
-		if(true && !bRecconnect)
+		if(true && !bRecconnectT)
 		{
 			if(pRspTransfer->ErrorID!=0)
 			{
@@ -1203,11 +1088,11 @@ void CtpTraderSpi::OnRtnFromFutureToBankByFuture(CThostFtdcRspTransferField *pRs
 	else 
 	{
 		m_BfTransVec.push_back(bfTrans);
-		if(true && !bRecconnect)
+		if(true && !bRecconnectT)
 		{
 			if(pRspTransfer->ErrorID!=0)
 			{
-				TCHAR szMsg[MAX_PATH];
+				//TCHAR szMsg[MAX_PATH];
 				//ansi2uni(CP_ACP,pRspTransfer->ErrorMsg,szMsg);
 
 				//ShowErroTips(szMsg,MY_TIPS);
@@ -1276,7 +1161,7 @@ void CtpTraderSpi::OnRtnQueryBankBalanceByFuture(CThostFtdcNotifyQueryAccountFie
 {
 	if(pNotifyQueryAccount->ErrorID ==0)
 	{
-		if (true && !bRecconnect)
+		if (true && !bRecconnectT)
 		{
 
 			CThostFtdcNotifyQueryAccountField *pNotify = new CThostFtdcNotifyQueryAccountField();
@@ -1568,7 +1453,7 @@ void CtpTraderSpi::OnRtnInstrumentStatus(CThostFtdcInstrumentStatusField *pInstr
 	{
 		//CXTraderDlg* pDlg = (CXTraderDlg*)g_pCWnd;
 		CString szStat,szMsg,szExh;
-		TCHAR szTm[30];
+		//TCHAR szTm[30];
 		//ansi2uni(CP_ACP,pInstrumentStatus->EnterTime,szTm);
 		JgTdStatus(szStat,pInstrumentStatus->InstrumentStatus);
 		szExh = JgExchage(pInstrumentStatus->ExchangeID);
@@ -1592,8 +1477,7 @@ bool CtpTraderSpi::IsErrorRspInfo(CThostFtdcRspInfoField *pRspInfo)
 
 void CtpTraderSpi::ShowErrTips(TThostFtdcErrorMsgType ErrorMsg)
 {
-	TCHAR szMsg[MAX_PATH];
+	//TCHAR szMsg[MAX_PATH];
 	//ansi2uni(CP_ACP,ErrorMsg,szMsg);
-
 	//ShowErroTips(szMsg,MY_TIPS);
 }

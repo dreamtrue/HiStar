@@ -7,66 +7,50 @@
 #include "global.h"
 #include <atlconv.h>
 #pragma warning(disable : 4996)
-
+bool g_bOnceM = false;
 extern HANDLE g_hEvent;
 BOOL bRecconnect = FALSE;
 BOOL bMdSignal = FALSE;
 void CtpMdSpi::OnRspError(CThostFtdcRspInfoField *pRspInfo,
-		int nRequestID, bool bIsLast)
-{
-	TRACE("OnRspError\n");
-	IsErrorRspInfo(pRspInfo);
+	int nRequestID, bool bIsLast){
+		TRACE("OnRspError\n");
+		IsErrorRspInfo(pRspInfo);
 }
 
-void CtpMdSpi::OnFrontDisconnected(int nReason)
-{
+void CtpMdSpi::OnFrontDisconnected(int nReason){
 	TRACE("ctp行情系统前置断开\n");
 	bMdSignal = FALSE;
 }
-		
-void CtpMdSpi::OnHeartBeatWarning(int nTimeLapse)
-{
+
+void CtpMdSpi::OnHeartBeatWarning(int nTimeLapse){
 	TRACE("OnHeartBeatWarning\n");
 }
 
-void CtpMdSpi::OnFrontConnected()
-{
+void CtpMdSpi::OnFrontConnected(){
 	TRACE("OnFrontConnected\n");
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
-	if (true)
-	{
+	if (g_bOnceM){
 		bRecconnect = TRUE;
-		ReqUserLogin(pApp->m_accountCtp.m_sBROKER_ID);//,pApp->m_sINVESTOR_ID,pApp->m_sPASSWORD);
+		ReqUserLogin(pApp->m_accountCtp.m_sBROKER_ID);
+		/*
 		DWORD dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
-		if (dwRet==WAIT_OBJECT_0)
-		{
+		if (dwRet==WAIT_OBJECT_0){
 			ResetEvent(g_hEvent);
 		}
-		else
-		{
+		else{
 			return;
 		}
-		char szInst[MAX_PATH];
-		uni2ansi(CP_ACP,pApp->m_accountCtp.m_szInst,szInst);
-
-		LPSTR* pInst = new LPSTR;
-		pInst[0] = szInst;
-		SubscribeMarketData(pInst,1);
-		dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
-		if (dwRet==WAIT_OBJECT_0)
-		{
-			ResetEvent(g_hEvent);
-		}
+		*/
 		bMdSignal = TRUE;
 	}
-	else
-	{
+	else{
 		ReqUserLogin(pApp->m_accountCtp.m_sBROKER_ID);
+		g_bOnceM = true;
+		bMdSignal = TRUE;
 	}
 }
 
-void CtpMdSpi::ReqUserLogin(TThostFtdcBrokerIDType	appId)
-{
+void CtpMdSpi::ReqUserLogin(TThostFtdcBrokerIDType	appId){
 	CThostFtdcReqUserLoginField req;
 	memset(&req, 0, sizeof(req));
 	strcpy(req.BrokerID, appId);
@@ -75,100 +59,77 @@ void CtpMdSpi::ReqUserLogin(TThostFtdcBrokerIDType	appId)
 }
 
 void CtpMdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
-		CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
-{
-	TRACE("OnRspUserLogin\n");
-	if (!IsErrorRspInfo(pRspInfo) && pRspUserLogin)
-	{
-	}
-  if(bIsLast) SetEvent(g_hEvent);
+	CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast){
+		TRACE("OnRspUserLogin\n");
+		CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
+		if (!IsErrorRspInfo(pRspInfo) && pRspUserLogin){
+			///订阅行情深度
+			char szInst[MAX_PATH];
+			uni2ansi(CP_ACP,pApp->m_accountCtp.m_szInst,szInst);
+			LPSTR* pInst = new LPSTR;
+			pInst[0] = szInst;
+			SubscribeMarketData(pInst,1);
+		}
+		//if(bIsLast) SetEvent(g_hEvent);
 }
 
-void CtpMdSpi::ReqUserLogout()
-{
+void CtpMdSpi::ReqUserLogout(){
 	CThostFtdcUserLogoutField req;
 	memset(&req, 0, sizeof(req));
 	strcpy(req.BrokerID, m_sBkrID);
-
 	pUserApi->ReqUserLogout(&req, ++m_iRequestID);
 }
 
 ///登出请求响应
-void CtpMdSpi::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
-{
+void CtpMdSpi::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast){
 	TRACE("OnRspUserLogout\n");
-	if( !IsErrorRspInfo(pRspInfo) && pUserLogout)
-	{	
-	}
-	if(bIsLast) SetEvent(g_hEvent);
+	if( !IsErrorRspInfo(pRspInfo) && pUserLogout){}
+	//if(bIsLast) SetEvent(g_hEvent);
 }
 
 //TThostFtdcInstrumentIDType instId
 
 void CtpMdSpi::SubscribeMarketData(char *pInst[], int nCount)
 {
-  pUserApi->SubscribeMarketData(pInst, nCount); 
+	pUserApi->SubscribeMarketData(pInst, nCount); 
 }
 
 void CtpMdSpi::OnRspSubMarketData(
-         CThostFtdcSpecificInstrumentField *pSpecificInstrument, 
-         CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
-{
-	TRACE("OnRspSubMarketData\n");
-	if (!IsErrorRspInfo(pRspInfo) && pSpecificInstrument)
-	{
-		bMdSignal = TRUE;	
-	}
-	else
-	{
-		bMdSignal = FALSE;
-	}
-  if(bIsLast)  SetEvent(g_hEvent);
+	CThostFtdcSpecificInstrumentField *pSpecificInstrument, 
+	CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast){
+		TRACE("OnRspSubMarketData\n");
+		if (!IsErrorRspInfo(pRspInfo) && pSpecificInstrument){
+			bMdSignal = TRUE;	
+		}
+		else{
+			bMdSignal = FALSE;
+		}
+		//if(bIsLast)  SetEvent(g_hEvent);
 }
 
-void CtpMdSpi::UnSubscribeMarketData(char *pInst[], int nCount)
-{
+void CtpMdSpi::UnSubscribeMarketData(char *pInst[], int nCount){
 	pUserApi->UnSubscribeMarketData(pInst, nCount);
 }
 
 void CtpMdSpi::OnRspUnSubMarketData(
-             CThostFtdcSpecificInstrumentField *pSpecificInstrument,
-             CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
-{
-	TRACE("OnRspUnSubMarketData\n");
-	if (!IsErrorRspInfo(pRspInfo) && pSpecificInstrument)
-	{
-		bMdSignal = FALSE;
-	}
-	else
-	{
-		bMdSignal = TRUE;
-	}
-  if(bIsLast)  SetEvent(g_hEvent);
-}
-
-void CtpMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData)
-{
-	TRACE("OnRtnDepthMarketData\n");
-	if (true)
-	{
-		/*
-		TCHAR szInst[40];
-		ansi2uni(CP_ACP,pDepthMarketData->InstrumentID,szInst);
-
-		if (pDlg->m_szInst.Compare(szInst)==0)
-		{
-			memcpy(pDlg->m_pDepthMd,pDepthMarketData,sizeof(CThostFtdcDepthMarketDataField));		
-			pDlg->RefreshMdPane();
+	CThostFtdcSpecificInstrumentField *pSpecificInstrument,
+	CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast){
+		TRACE("OnRspUnSubMarketData\n");
+		if (!IsErrorRspInfo(pRspInfo) && pSpecificInstrument){
+			bMdSignal = FALSE;
 		}
-		*/
-	}
+		else{
+			bMdSignal = TRUE;
+		}
+		//if(bIsLast)  SetEvent(g_hEvent);
 }
 
-bool CtpMdSpi::IsErrorRspInfo(CThostFtdcRspInfoField *pRspInfo)
-{	
-  bool ret = ((pRspInfo) && (pRspInfo->ErrorID != 0));
-  if (ret){
-  }
-  return ret;
+void CtpMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData){
+	TRACE("%s,%f,%f.\n",pDepthMarketData->InstrumentID,pDepthMarketData->BidPrice1,pDepthMarketData->AskPrice1);
+}
+
+bool CtpMdSpi::IsErrorRspInfo(CThostFtdcRspInfoField *pRspInfo){	
+	bool ret = ((pRspInfo) && (pRspInfo->ErrorID != 0));
+	if (ret){}
+	return ret;
 }

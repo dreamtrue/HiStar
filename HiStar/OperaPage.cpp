@@ -69,6 +69,7 @@ BEGIN_MESSAGE_MAP(COperaPage, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BUTTON1, &COperaPage::OnConnectIB)
 	ON_BN_CLICKED(IDC_BUTTON3, &COperaPage::OnDisconnectIB)
+	ON_BN_CLICKED(IDC_BUTTON4, &COperaPage::OnLoginCtp)
 END_MESSAGE_MAP()
 
 
@@ -167,4 +168,9 @@ void COperaPage::OnConnectIB()
 void COperaPage::OnDisconnectIB()
 {
 	PostThreadMessageA(GetCurrentThreadId(),WM_DISCONNECT_IB,NULL,NULL);
+}
+
+void COperaPage::OnLoginCtp()
+{
+	PostThreadMessageA(GetCurrentThreadId(),WM_LOGIN_CTP,NULL,NULL);
 }
