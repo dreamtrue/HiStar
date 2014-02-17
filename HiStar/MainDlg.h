@@ -24,7 +24,7 @@ public:
 public:
 	CTabCtrl m_tab;
 	int m_CurSelTab;
-	COperaPage m_pageOpera;
+	COperaPage m_operaPage;
 	CAccountPage m_AccountPage;
 	CDialog* m_pDialog[2];  //用来保存对话框对象指针
 	afx_msg void OnTcnSelchangingTab(NMHDR *pNMHDR, LRESULT *pResult);

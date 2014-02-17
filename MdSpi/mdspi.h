@@ -36,17 +36,19 @@ public:
 	virtual void OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData);
 public:
 	//LoginDlg* m_pDlg;
-	void ReqUserLogin(TThostFtdcBrokerIDType	appId);
+	//void ReqUserLogin(TThostFtdcBrokerIDType	appId);
+	void CtpMdSpi::ReqUserLogin(TThostFtdcBrokerIDType	vAppId,TThostFtdcUserIDType	vUserId,TThostFtdcPasswordType	vPasswd);
 	void ReqUserLogout();
-	        //TThostFtdcUserIDType	userId,	TThostFtdcPasswordType	passwd);
+	//TThostFtdcUserIDType	userId,	TThostFtdcPasswordType	passwd);
 	void SubscribeMarketData(char *pInst[], int nCount);
 	void UnSubscribeMarketData(char *pInst[], int nCount);
 	bool IsErrorRspInfo(CThostFtdcRspInfoField *pRspInfo);
 public:
 	int m_iRequestID;
 	TThostFtdcBrokerIDType	m_sBkrID;
+	TThostFtdcUserIDType m_sINVEST_ID;		// 投资者代码
 private:
-  CThostFtdcMdApi* pUserApi;
+	CThostFtdcMdApi* pUserApi;
 };
 
 #endif

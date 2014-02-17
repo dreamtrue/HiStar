@@ -107,7 +107,7 @@ public:
 	void LoginCtp(UINT wParam,LONG lParam);
 	void LogoutCtp(UINT wParam,LONG lParam);
 	void QryAccCtp(UINT wParam,LONG lParam);
-	bool m_pLoginCtp;
+	CWinThread* m_pLoginCtp;
 	int FindInstMul(TThostFtdcInstrumentIDType InstID);
 };
 

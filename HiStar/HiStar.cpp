@@ -9,7 +9,8 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-HANDLE g_hEvent = 0;
+//HANDLE g_hEvent(true,true,NULL,NULL);
+HANDLE g_hEvent;
 // CHiStarApp
 BEGIN_MESSAGE_MAP(CHiStarApp, CWinApp)
 	ON_COMMAND(ID_HELP, &CWinApp::OnHelp)
@@ -29,7 +30,7 @@ CHiStarApp::CHiStarApp()
 	, m_TApi(NULL)
 	, m_cQ(NULL)
 	, m_cT(NULL)
-	, m_pLoginCtp(false)
+	, m_pLoginCtp(NULL)
 {
 	//定位内存泄漏位置,非常好用
 	/*

@@ -77,7 +77,7 @@ void CtpTraderSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
 				t[i] = CTime(curTime.wYear,curTime.wMonth,curTime.wDay,iHour[i],iMin[i],iSec[i]);
 				m_tsEXnLocal[i] = t[i]-tc;
 			}
-			sprintf(m_sTmBegin,"%02d:%02d:%02d.%03d",curTime.wHour,curTime.wMinute,curTime.wSecond,curTime.wMilliseconds);  
+			sprintf(m_sTmBegin,"%02d:%02d:%02d.%03d",curTime.wHour,curTime.wMinute,curTime.wSecond,curTime.wMilliseconds); 
 		}
 		if(bIsLast) SetEvent(g_hEvent);
 }
@@ -93,13 +93,20 @@ void CtpTraderSpi::ReqUserLogout()
 	memset(&req, 0, sizeof(req));
 	strcpy(req.BrokerID, BROKER_ID);
 	strcpy(req.UserID, INVEST_ID);
-	pUserApi->ReqUserLogout(&req, ++m_iRequestID);
+	int iResult = pUserApi->ReqUserLogout(&req, ++m_iRequestID);
+	if(iResult == 0){
+		TRACE("ctp行情系统登出指令发送成功\r\n");
+	}
+	else{
+		TRACE("ctp行情系统登出指令发送失败\r\n");
+	}
 }
 
 ///登出请求响应
 void CtpTraderSpi::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
 	if( !IsErrorRspInfo(pRspInfo) && pUserLogout){
+		TRACE(_T("已经登出ctpT\n"));
 		g_bLoginCtpT = FALSE;
 	}
 	if(bIsLast) SetEvent(g_hEvent);
@@ -214,7 +221,10 @@ void CtpTraderSpi::OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument,
 		memcpy(pInsInf,  pInstrument, sizeof(INSTINFO));
 		m_InsinfVec.push_back(pInsInf);
 	}
-	if(bIsLast) SetEvent(g_hEvent);
+	if(bIsLast){
+		TRACE(_T("合约查询完毕\n"));
+		SetEvent(g_hEvent);
+	}
 }
 
 void CtpTraderSpi::ReqQryTdAcc()

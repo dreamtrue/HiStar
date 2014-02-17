@@ -8,7 +8,6 @@
 #include <atlconv.h>
 #pragma warning(disable : 4996)
 bool g_bOnceM = false;
-extern HANDLE g_hEvent;
 BOOL bRecconnect = FALSE;
 BOOL bMdSignal = FALSE;
 void CtpMdSpi::OnRspError(CThostFtdcRspInfoField *pRspInfo,
@@ -31,30 +30,31 @@ void CtpMdSpi::OnFrontConnected(){
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	if (g_bOnceM){
 		bRecconnect = TRUE;
-		ReqUserLogin(pApp->m_accountCtp.m_sBROKER_ID);
-		/*
-		DWORD dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
-		if (dwRet==WAIT_OBJECT_0){
-			ResetEvent(g_hEvent);
-		}
-		else{
-			return;
-		}
-		*/
+		ReqUserLogin(pApp->m_accountCtp.m_sBROKER_ID,pApp->m_accountCtp.m_sINVESTOR_ID,pApp->m_accountCtp.m_sPASSWORD);
 		bMdSignal = TRUE;
 	}
 	else{
-		ReqUserLogin(pApp->m_accountCtp.m_sBROKER_ID);
+		ReqUserLogin(pApp->m_accountCtp.m_sBROKER_ID,pApp->m_accountCtp.m_sINVESTOR_ID,pApp->m_accountCtp.m_sPASSWORD);
 		g_bOnceM = true;
 		bMdSignal = TRUE;
 	}
 }
-
+/*
 void CtpMdSpi::ReqUserLogin(TThostFtdcBrokerIDType	appId){
 	CThostFtdcReqUserLoginField req;
 	memset(&req, 0, sizeof(req));
 	strcpy(req.BrokerID, appId);
 	strcpy(m_sBkrID,appId);
+	pUserApi->ReqUserLogin(&req, ++m_iRequestID);
+}
+*/
+void CtpMdSpi::ReqUserLogin(TThostFtdcBrokerIDType	vAppId,TThostFtdcUserIDType	vUserId,TThostFtdcPasswordType	vPasswd){
+	CThostFtdcReqUserLoginField req;
+	memset(&req, 0, sizeof(req));
+	strcpy(req.BrokerID, vAppId); strcpy(m_sBkrID, vAppId); 
+	strcpy(req.UserID, vUserId);  strcpy(m_sINVEST_ID, vUserId); 
+	strcpy(req.Password, vPasswd);
+	strcpy(req.UserProductInfo,PROD_INFO);
 	pUserApi->ReqUserLogin(&req, ++m_iRequestID);
 }
 
@@ -70,7 +70,6 @@ void CtpMdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
 			pInst[0] = szInst;
 			SubscribeMarketData(pInst,1);
 		}
-		//if(bIsLast) SetEvent(g_hEvent);
 }
 
 void CtpMdSpi::ReqUserLogout(){
@@ -78,14 +77,14 @@ void CtpMdSpi::ReqUserLogout(){
 	CThostFtdcUserLogoutField req;
 	memset(&req, 0, sizeof(req));
 	strcpy(req.BrokerID, m_sBkrID);
+	strcpy(req.UserID, m_sINVEST_ID);
 	pUserApi->ReqUserLogout(&req, ++m_iRequestID);
 }
 
 ///µ«≥ˆ«Î«ÛœÏ”¶
 void CtpMdSpi::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast){
-	TRACE("OnRspUserLogout\n");
+	TRACE("OnRspUserLogoutM\n");
 	if( !IsErrorRspInfo(pRspInfo) && pUserLogout){}
-	//if(bIsLast) SetEvent(g_hEvent);
 }
 
 //TThostFtdcInstrumentIDType instId
@@ -105,7 +104,6 @@ void CtpMdSpi::OnRspSubMarketData(
 		else{
 			bMdSignal = FALSE;
 		}
-		//if(bIsLast)  SetEvent(g_hEvent);
 }
 
 void CtpMdSpi::UnSubscribeMarketData(char *pInst[], int nCount){
@@ -122,7 +120,6 @@ void CtpMdSpi::OnRspUnSubMarketData(
 		else{
 			bMdSignal = TRUE;
 		}
-		//if(bIsLast)  SetEvent(g_hEvent);
 }
 
 void CtpMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData){

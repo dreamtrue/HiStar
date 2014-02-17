@@ -7,7 +7,8 @@
 #include "HScrollListBox.h" 
 #include "afxcmn.h"
 #include "EWrapper.h" 
-#include "hscrolllistbox.h"
+#include "e:\histar\trunk\cppclient\shared\hscrolllistbox.h"
+#include "afxwin.h"
 
 // COperaPage 对话框
 class COperaPage : public CDialogEx
@@ -42,6 +43,9 @@ public:
 	afx_msg void OnDisconnectIB();
 	afx_msg void OnLoginCtp();
 	afx_msg void OnLogoutCtp();
+	CProgressCtrl m_prgs;
+	CStatic m_staInfo;
+	void ProgressUpdate(LPCTSTR szMsg, const int nPercentDone);
 };
 //其他变量
 const int N = 5;

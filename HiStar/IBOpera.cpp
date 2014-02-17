@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "HiStar.h"
 #include "global.h"
-extern CEvent g_hEvent;
+extern HANDLE g_hEvent;
 //IB交易系统
 void CHiStarApp::OnConnectIB(UINT wParam,LONG lParam){
 	UINT clientID = 0;

@@ -61,6 +61,8 @@ void COperaPage::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_LIST1, m_orderStatus);
 	DDX_Control(pDX, IDC_LIST2, m_errors);
+	DDX_Control(pDX, IDC_PROGRESS1, m_prgs);
+	DDX_Control(pDX, IDC_STATIC1, m_staInfo);
 }
 
 BEGIN_MESSAGE_MAP(COperaPage, CDialogEx)
@@ -180,3 +182,14 @@ void COperaPage::OnLogoutCtp()
 {
 	PostThreadMessageA(GetCurrentThreadId(),WM_LOGOUT_CTP,NULL,NULL);
 }
+
+
+void COperaPage::ProgressUpdate(LPCTSTR szMsg, const int nPercentDone)
+{
+	ASSERT (AfxIsValidString(szMsg));
+	ASSERT ( nPercentDone >= 0  &&  nPercentDone <= 100 );
+
+	m_staInfo.SetWindowText(szMsg);
+	m_prgs.SetPos(nPercentDone);
+}
+

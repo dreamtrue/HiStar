@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "HiStar.h"
+#include "MainDlg.h"
 BOOL bIsInit = FALSE;
 extern HANDLE g_hEvent;
 extern BOOL g_bLoginCtpT;
@@ -53,7 +54,7 @@ void CHiStarApp::LogoutCtp(UINT wParam,LONG lParam)
 {
 	//交易模块登出,行情模块不需要,否则会报错(暂时不知道原因?)
 	m_cT->ReqUserLogout();
-	//m_cQ->ReqUserLogout();
+	m_cQ->ReqUserLogout();
 }
 UINT LoginThread(LPVOID pParam)
 {
@@ -77,15 +78,17 @@ UINT LoginThread(LPVOID pParam)
 	}
 	DWORD dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
-		TRACE("CTP交易平台登陆成功\n");
+		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("联线交易平台成功!"), 10);
+		ResetEvent(g_hEvent);
 	}
 	else{
 		pApp->m_pLoginCtp = NULL;
-		TRACE(_T("CTP交易平台离线\n"));
+		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("交易平台已离线!"), 0);
 		return 0;
 	}
 	if (pApp->m_cT->IsErrorRspInfo(&pApp->m_cT->m_RspMsg)){
 		//登陆失败
+		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("交易登陆错误!"), 0);
 		pApp->m_pLoginCtp = NULL;
 		return 0;
 	}
@@ -99,31 +102,33 @@ UINT LoginThread(LPVOID pParam)
 	pApp->m_MApi->Init();
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
-		TRACE(_T("登陆CTP行情成功\n"));
+		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("登陆行情成功!"), 20);
 		ResetEvent(g_hEvent);
 	}	
 	///////////////////////////////////////////////////////////
 	pApp->m_cT->ReqSettlementInfoConfirm();
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
-		TRACE(_T("确认结算单\n"));
+		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("确认结算单!"), 40);
 		ResetEvent(g_hEvent);
 	}
 	else{
 		pApp->m_pLoginCtp = NULL;
-		TRACE(_T("确认结算超时\n"));
+		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("确认结算超时!"), 0);
 		return 0;
 	}
 
 	pApp->m_cT->ReqQryInst(NULL);
+
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
-		TRACE(_T("查合约列表!\n"));
+		TRACE(_T("合约完毕返回\n"));
+		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("查合约列表!"), 60);
 		ResetEvent(g_hEvent);
 	}
 	else{
 		pApp->m_pLoginCtp = NULL;
-		TRACE(_T("查合约超时!\n"));
+		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("查合约列表超时!"), 0);
 		return 0;
 	}
 
@@ -131,12 +136,12 @@ UINT LoginThread(LPVOID pParam)
 	pApp->m_cT->ReqQryInvPos(NULL);
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
-		TRACE(_T("查持仓信息!\n"));
+		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("查持仓信息!"), 70);
 		ResetEvent(g_hEvent);
 	}	
 	else{
 		pApp->m_pLoginCtp = NULL;
-		TRACE(_T("查持仓信息超时!\n"));
+		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("查持仓信息超时!"), 0);
 		return 0;
 	}
 
@@ -144,12 +149,12 @@ UINT LoginThread(LPVOID pParam)
 	pApp->m_cT->ReqQryTdAcc();
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
-		TRACE(_T("查资金账户!\n"));
+		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("查资金账户!"), 80);
 		ResetEvent(g_hEvent);
 	}	
 	else{
 		pApp->m_pLoginCtp = NULL;
-		TRACE(_T("查账户超时!\n"));
+		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("查账户超时!"), 0);
 		return 0;
 	}
 
@@ -158,12 +163,12 @@ UINT LoginThread(LPVOID pParam)
 	pApp->m_cT->ReqQryAccreg();
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
-		TRACE(_T("查银期信息!\n"));
+		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("查银期信息!"), 90);
 		ResetEvent(g_hEvent);
 	}
 	else{
 		pApp->m_pLoginCtp = NULL;
-		TRACE(_T("查银期信息超时!\n"));
+		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("查银期信息超时!"), 0);
 		return 0;
 	}
 
@@ -171,14 +176,15 @@ UINT LoginThread(LPVOID pParam)
 	pApp->m_cT->ReqQryTradingCode();
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
-		TRACE(_T("查交易编码!\n"));
+		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("查交易编码!"), 99);
 		ResetEvent(g_hEvent);
 	}	
 	else{
 		pApp->m_pLoginCtp = NULL;
-		TRACE(_T("查交易编码超时!\n"));
+		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("查交易编码超时!"), 0);
 		return 0;
 	}	
+	((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("CTP登陆成功!"),100);
 #endif
 	pApp->m_pLoginCtp = NULL;
 	return 0;
