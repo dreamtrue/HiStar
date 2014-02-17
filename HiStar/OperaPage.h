@@ -7,7 +7,7 @@
 #include "HScrollListBox.h" 
 #include "afxcmn.h"
 #include "EWrapper.h" 
-#include "e:\histar\trunk\cppclient\shared\hscrolllistbox.h"
+#include "hscrolllistbox.h"
 
 // COperaPage ¶Ô»°¿ò
 class COperaPage : public CDialogEx
