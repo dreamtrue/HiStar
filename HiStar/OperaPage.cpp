@@ -63,6 +63,7 @@ void COperaPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_LIST2, m_errors);
 	DDX_Control(pDX, IDC_PROGRESS1, m_prgs);
 	DDX_Control(pDX, IDC_STATIC1, m_staInfo);
+	DDX_Control(pDX, IDC_COMBO2, m_CombInst);
 }
 
 BEGIN_MESSAGE_MAP(COperaPage, CDialogEx)
@@ -73,6 +74,8 @@ BEGIN_MESSAGE_MAP(COperaPage, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON3, &COperaPage::OnDisconnectIB)
 	ON_BN_CLICKED(IDC_BUTTON4, &COperaPage::OnLoginCtp)
 	ON_BN_CLICKED(IDC_BUTTON5, &COperaPage::OnLogoutCtp)
+	ON_CBN_SELCHANGE(IDC_COMBO2, &COperaPage::OnInsSelchange)
+	ON_BN_CLICKED(IDC_BUTTON6, &COperaPage::OnReqComboSelMarketDepth)
 END_MESSAGE_MAP()
 
 
@@ -193,3 +196,25 @@ void COperaPage::ProgressUpdate(LPCTSTR szMsg, const int nPercentDone)
 	m_prgs.SetPos(nPercentDone);
 }
 
+void COperaPage::OnInsSelchange()
+{
+	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
+	m_CombInst.GetLBText(m_CombInst.GetCurSel(),pApp->m_accountCtp.m_szInst);
+}
+
+void COperaPage::OnOK(void)
+{
+	//ÆÁ±Îµô¶ÔOKµÄÏìÓ¦
+}
+
+void COperaPage::OnReqComboSelMarketDepth()
+{
+	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
+	char szInst[MAX_PATH];
+	uni2ansi(CP_ACP,pApp->m_accountCtp.m_szInst,szInst);
+	LPSTR* pInst = new LPSTR;
+	pInst[0] = szInst;
+	if(pApp->m_cQ){
+		pApp->m_cQ->SubscribeMarketData(pInst,1);
+	}
+}

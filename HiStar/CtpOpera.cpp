@@ -209,6 +209,7 @@ UINT LoginThread(LPVOID pParam)
 		return 0;
 	}	
 	((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("CTP登陆成功!"),100);
+	((CMainDlg*)(pApp->m_pMainWnd))->addCombInst();//增加合约列表
 #endif
 	pApp->m_pLoginCtp = NULL;
 	return 0;

@@ -38,3 +38,8 @@ void CAccountPage::OnShowWindow(BOOL bShow, UINT nStatus)
 {
 	CDialogEx::OnShowWindow(bShow, nStatus);
 }
+
+void CAccountPage::OnOK(void)
+{
+	//ÆÁ±Îµô¶ÔOKµÄÏìÓ¦
+}

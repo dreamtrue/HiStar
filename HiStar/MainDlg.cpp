@@ -34,7 +34,6 @@ BEGIN_MESSAGE_MAP(CMainDlg, CDialogEx)
 	ON_MESSAGE(WM_UPDATE_ACC_CTP,&CMainDlg::OnUpdateAccCtp)
 	ON_WM_TIMER()
 	ON_BN_CLICKED(IDOK, &CMainDlg::OnBnClickedOk)
-	ON_BN_CLICKED(IDC_BUTTON1, &CMainDlg::OnKillTimer)
 END_MESSAGE_MAP()
 
 
@@ -75,7 +74,6 @@ BOOL CMainDlg::OnInitDialog(void)
 
 void CMainDlg::OnTcnSelchangingTab(NMHDR *pNMHDR, LRESULT *pResult)
 {
-	// TODO: 在此添加控件通知处理程序代码
 	int CurSel = m_tab.GetCurSel();
 	switch(CurSel)
 	{
@@ -217,7 +215,16 @@ afx_msg LRESULT CMainDlg::OnUpdateAccCtp(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-void CMainDlg::OnKillTimer()
+void CMainDlg::addCombInst(void)
 {
-	KillTimer(1);
+	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
+	BOOL bRes = FALSE;
+	for (UINT i=0; i < pApp->m_cT->m_InsinfVec.size();i++)
+	{
+		if(pApp->m_cT->m_InsinfVec[i]->iinf.InstrumentID[0] == 'I' 
+			&& pApp->m_cT->m_InsinfVec[i]->iinf.InstrumentID[1] == 'F'){
+				m_operaPage.m_CombInst.AddString(CString(pApp->m_cT->m_InsinfVec[i]->iinf.InstrumentID));
+				m_operaPage.m_CombInst.SetWindowText(CString(pApp->m_cT->m_InsinfVec[i]->iinf.InstrumentID));
+		}
+	}
 }

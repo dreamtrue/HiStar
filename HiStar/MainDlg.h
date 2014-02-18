@@ -39,5 +39,5 @@ public:
 protected:
 	afx_msg LRESULT OnUpdateAccCtp(WPARAM wParam, LPARAM lParam);
 public:
-	afx_msg void OnKillTimer();
+	void addCombInst(void);
 };

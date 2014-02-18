@@ -46,6 +46,10 @@ public:
 	CProgressCtrl m_prgs;
 	CStatic m_staInfo;
 	void ProgressUpdate(LPCTSTR szMsg, const int nPercentDone);
+	CComboBox m_CombInst;
+	afx_msg void OnInsSelchange();
+	virtual void OnOK(void);
+	afx_msg void OnReqComboSelMarketDepth();
 };
 //其他变量
 const int N = 5;

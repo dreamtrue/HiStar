@@ -20,4 +20,5 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
+	virtual void OnOK(void);
 };

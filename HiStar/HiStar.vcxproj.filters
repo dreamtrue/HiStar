@@ -128,6 +128,9 @@
     <ClCompile Include="CtpOpera.cpp">
       <Filter>源文件\CtpClient</Filter>
     </ClCompile>
+    <ClCompile Include="..\DIYCtrl\ColorStatic.cpp">
+      <Filter>源文件\Dialog</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="HiStar.rc">
