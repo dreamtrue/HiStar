@@ -106,7 +106,7 @@ public:
 	void CreateCtpClient(void);
 	void LoginCtp(UINT wParam,LONG lParam);
 	void LogoutCtp(UINT wParam,LONG lParam);
-	void QryAccCtp(UINT wParam,LONG lParam);
+	void OnQryAccCtp(UINT wParam,LONG lParam);
 	CWinThread* m_pLoginCtp;
 	int FindInstMul(TThostFtdcInstrumentIDType InstID);
 };

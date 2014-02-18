@@ -68,14 +68,20 @@ UINT LoginThread(LPVOID pParam)
 		iLen = pApp->m_accountCtp.m_szArTs[i].GetLength();
 		uni2ansi(CP_ACP,pApp->m_accountCtp.m_szArTs[i].GetBuffer(iLen),szTd);
 		pApp->m_accountCtp.m_szArTs[i].ReleaseBuffer();
-		pApp->m_TApi->RegisterFront(szTd);
+		if(pApp->m_TApi){
+			pApp->m_TApi->RegisterFront(szTd);
+		}
 	}
 	if (!bIsInit){	
-		pApp->m_TApi->Init();	
+		if(pApp->m_TApi){
+			pApp->m_TApi->Init();
+		}
 		bIsInit = TRUE;
 	}
 	else{
-		pApp->m_cT->ReqUserLogin(pApp->m_accountCtp.m_sBROKER_ID,pApp->m_accountCtp.m_sINVESTOR_ID,pApp->m_accountCtp.m_sPASSWORD);
+		if(pApp->m_cT){
+			pApp->m_cT->ReqUserLogin(pApp->m_accountCtp.m_sBROKER_ID,pApp->m_accountCtp.m_sINVESTOR_ID,pApp->m_accountCtp.m_sPASSWORD);
+		}
 	}
 	DWORD dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
@@ -87,27 +93,35 @@ UINT LoginThread(LPVOID pParam)
 		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("交易平台已离线!"), 0);
 		return 0;
 	}
-	if (pApp->m_cT->IsErrorRspInfo(&pApp->m_cT->m_RspMsg)){
-		//登陆失败
-		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("交易登陆错误!"), 0);
-		pApp->m_pLoginCtp = NULL;
-		return 0;
+	if(pApp->m_cT){
+		if (pApp->m_cT->IsErrorRspInfo(&pApp->m_cT->m_RspMsg)){
+			//登陆失败
+			((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("交易登陆错误!"), 0);
+			pApp->m_pLoginCtp = NULL;
+			return 0;
+		}
 	}
 	int iMdSvr = pApp->m_accountCtp.m_szArMd.GetSize();
 	for (i=0;i<iTdSvr;i++){
 		iLen = pApp->m_accountCtp.m_szArMd[i].GetLength();
 		uni2ansi(CP_ACP,pApp->m_accountCtp.m_szArMd[i].GetBuffer(iLen),szMd);
 		pApp->m_accountCtp.m_szArMd[i].ReleaseBuffer();
-		pApp->m_MApi->RegisterFront(szMd);
+		if(pApp->m_MApi){
+			pApp->m_MApi->RegisterFront(szMd);
+		}
 	}
-	pApp->m_MApi->Init();
+	if(pApp->m_MApi){
+		pApp->m_MApi->Init();
+	}
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
 		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("登陆行情成功!"), 20);
 		ResetEvent(g_hEvent);
 	}	
 	///////////////////////////////////////////////////////////
-	pApp->m_cT->ReqSettlementInfoConfirm();
+	if(pApp->m_cT){
+		pApp->m_cT->ReqSettlementInfoConfirm();
+	}
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
 		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("确认结算单!"), 40);
@@ -118,8 +132,9 @@ UINT LoginThread(LPVOID pParam)
 		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("确认结算超时!"), 0);
 		return 0;
 	}
-
-	pApp->m_cT->ReqQryInst(NULL);
+	if(pApp->m_cT){
+		pApp->m_cT->ReqQryInst(NULL);
+	}
 
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
@@ -134,7 +149,9 @@ UINT LoginThread(LPVOID pParam)
 	}
 
 	Sleep(1000);
-	pApp->m_cT->ReqQryInvPos(NULL);
+	if(pApp->m_cT){
+		pApp->m_cT->ReqQryInvPos(NULL);
+	}
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
 		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("查持仓信息!"), 70);
@@ -147,7 +164,9 @@ UINT LoginThread(LPVOID pParam)
 	}
 
 	Sleep(1000);
-	pApp->m_cT->ReqQryTdAcc();
+	if(pApp->m_cT){
+		pApp->m_cT->ReqQryTdAcc();
+	}
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
 		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("查资金账户!"), 80);
@@ -161,7 +180,9 @@ UINT LoginThread(LPVOID pParam)
 
 #ifdef _REAL_CTP_
 	Sleep(1000);
-	pApp->m_cT->ReqQryAccreg();
+	if(pApp->m_cT){
+		pApp->m_cT->ReqQryAccreg();
+	}
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
 		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("查银期信息!"), 90);
@@ -174,7 +195,9 @@ UINT LoginThread(LPVOID pParam)
 	}
 
 	Sleep(1000);
-	pApp->m_cT->ReqQryTradingCode();
+	if(pApp->m_cT){
+		pApp->m_cT->ReqQryTradingCode();
+	}
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
 		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("查交易编码!"), 99);
@@ -190,8 +213,11 @@ UINT LoginThread(LPVOID pParam)
 	pApp->m_pLoginCtp = NULL;
 	return 0;
 }
-void CHiStarApp::QryAccCtp(UINT wParam,LONG lParam){
+void CHiStarApp::OnQryAccCtp(UINT wParam,LONG lParam){
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
-	if(g_bLoginCtpT)
-		pApp->m_cT->ReqQryTdAcc();
+	if(g_bLoginCtpT){
+		if(pApp->m_cT){
+			pApp->m_cT->ReqQryTdAcc();
+		}
+	}
 }
