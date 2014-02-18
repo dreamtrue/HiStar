@@ -122,6 +122,7 @@
     <ClCompile Include="..\CppClient\src\EClientSocket.cpp" />
     <ClCompile Include="..\CppClient\src\EClientSocketBase.cpp" />
     <ClCompile Include="..\CppClient\src\StdAfx.cpp" />
+    <ClCompile Include="..\DIYCtrl\ColorListCtrl.cpp" />
     <ClCompile Include="..\DIYCtrl\ColorStatic.cpp" />
     <ClCompile Include="..\IBInterface\IBInterface.cpp" />
     <ClCompile Include="..\MdSpi\mdspi.cpp" />

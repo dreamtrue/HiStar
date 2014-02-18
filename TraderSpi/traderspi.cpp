@@ -245,7 +245,7 @@ void CtpTraderSpi::OnRspQryTradingAccount(
 		CThostFtdcTradingAccountField* pAcc = new CThostFtdcTradingAccountField();
 		memcpy(pAcc,pTradingAccount,sizeof(CThostFtdcTradingAccountField));
 		m_TdAcc = *pAcc;
-		if(AfxGetApp()->m_pMainWnd->m_hWnd){
+		if(AfxGetApp()->m_pMainWnd){
 			PostMessageA(AfxGetApp()->m_pMainWnd->m_hWnd,WM_UPDATE_ACC_CTP,NULL,(LPARAM)pAcc);
 		}
 	}

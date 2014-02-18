@@ -131,6 +131,9 @@
     <ClCompile Include="..\DIYCtrl\ColorStatic.cpp">
       <Filter>源文件\Dialog</Filter>
     </ClCompile>
+    <ClCompile Include="..\DIYCtrl\ColorListCtrl.cpp">
+      <Filter>源文件\Dialog</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="HiStar.rc">

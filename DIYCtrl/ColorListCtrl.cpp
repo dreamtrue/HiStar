@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 #include "ColorListCtrl.h"
-
+#include "Color.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE

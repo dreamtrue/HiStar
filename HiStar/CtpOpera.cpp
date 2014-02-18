@@ -58,8 +58,11 @@ void CHiStarApp::LogoutCtp(UINT wParam,LONG lParam)
 }
 UINT LoginThread(LPVOID pParam)
 {
-	g_hEvent = CreateEvent(NULL, true, false, NULL); 
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
+	if(!(CMainDlg*)pApp->m_pMainWnd){
+		return 0;
+	}
+	g_hEvent = CreateEvent(NULL, true, false, NULL); 
 	//初始化行情和交易API,注册多个前置备用
 	int iTdSvr = pApp->m_accountCtp.m_szArTs.GetSize();
 	int i =0,iLen;

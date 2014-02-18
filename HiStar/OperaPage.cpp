@@ -64,6 +64,15 @@ void COperaPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_PROGRESS1, m_prgs);
 	DDX_Control(pDX, IDC_STATIC1, m_staInfo);
 	DDX_Control(pDX, IDC_COMBO2, m_CombInst);
+	DDX_Control(pDX, IDC_STATIC01, m_csS1P);
+	DDX_Control(pDX, IDC_STATIC03, m_csB1P);
+	DDX_Control(pDX, IDC_STATIC02, m_csLastP);
+	DDX_Control(pDX, IDC_TAB1, m_TabOption);
+	//DDX_Control(pDX, IDC_LST_ONROAD, m_LstOnRoad);
+	//DDX_Control(pDX, IDC_LST_ODINF, m_LstOrdInf);
+	//DDX_Control(pDX, IDC_LST_TRADE, m_LstTdInf);
+	//DDX_Control(pDX, IDC_LST_INVPOS, m_LstInvPosInf);
+	//DDX_Control(pDX, IDC_LST_ALLINST, m_LstAllInsts);
 }
 
 BEGIN_MESSAGE_MAP(COperaPage, CDialogEx)
@@ -76,6 +85,8 @@ BEGIN_MESSAGE_MAP(COperaPage, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON5, &COperaPage::OnLogoutCtp)
 	ON_CBN_SELCHANGE(IDC_COMBO2, &COperaPage::OnInsSelchange)
 	ON_BN_CLICKED(IDC_BUTTON6, &COperaPage::OnReqComboSelMarketDepth)
+	ON_BN_CLICKED(IDC_BUTTON7, &COperaPage::OnStart)
+	ON_NOTIFY(TCN_SELCHANGING, IDC_TAB1, &COperaPage::OnTcnSelchangingTab1)
 END_MESSAGE_MAP()
 
 
@@ -113,7 +124,29 @@ BOOL COperaPage::OnInitDialog()
 	ShowWindow(SW_NORMAL);
 
 	// TODO: 在此添加额外的初始化代码
+	m_csS1P.SetBkColor(WHITE);
+	m_csS1P.SetWindowText(_T("0.0"),GREEN);
+	m_csLastP.SetBkColor(WHITE);
+	m_csLastP.SetWindowText(_T("0.0"),GREEN);
+	m_csB1P.SetBkColor(WHITE);
+	m_csB1P.SetWindowText(_T("0.0"),GREEN);
 
+	m_TabOption.InsertItem( 0, _T("挂单") );
+	m_TabOption.InsertItem( 1, _T("委托") );
+	m_TabOption.InsertItem( 2, _T("持仓") );
+	m_TabOption.InsertItem( 3, _T("成交") );
+	m_TabOption.InsertItem( 4, _T("合约") );
+	m_TabOption.InsertItem( 5, _T("其它") );
+
+	//InitAllHdrs();
+	/*
+	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
+	m_LstOnRoad.SetItemCountEx(4);
+	m_LstOrdInf.SetItemCountEx(4);
+	m_LstInvPosInf.SetItemCountEx(4);
+	m_LstTdInf.SetItemCountEx(4);
+	m_LstAllInsts.SetItemCountEx(4);
+	*/
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -217,4 +250,172 @@ void COperaPage::OnReqComboSelMarketDepth()
 	if(pApp->m_cQ){
 		pApp->m_cQ->SubscribeMarketData(pInst,1);
 	}
+}
+
+void COperaPage::RefreshMdPane(void)
+{
+	 double dPresp=m_depthMd.PreSettlementPrice;
+	 double dUpD = m_depthMd.LastPrice-dPresp;
+	 m_csS1P.SetDouble(m_depthMd.AskPrice1,CmpPriceColor(m_depthMd.AskPrice1,dPresp));
+	 m_csLastP.SetDouble(m_depthMd.LastPrice,CmpPriceColor(m_depthMd.AskPrice1,dPresp));
+	 m_csB1P.SetDouble(m_depthMd.BidPrice1,CmpPriceColor(m_depthMd.AskPrice1,dPresp));
+}
+
+void COperaPage::InitAllHdrs(void)
+{
+	TCHAR* lpHdrs0[ONROAD_ITMES] = {_T("单号"),_T("合约"),_T("买卖"),_T("开平"),_T("未成"),_T("价格"),_T("时间"),_T("序列号"),_T("冻结金")};
+	int iWidths0[ONROAD_ITMES] = {1,46,34,34,34,46,60,60,60};
+	int i;
+	int total_cx = 0;
+	LVCOLUMN lvcolumn;
+	memset(&lvcolumn, 0, sizeof(lvcolumn));
+
+	for (i = 0;i<ONROAD_ITMES ; i++)
+	{
+		lvcolumn.mask     = LVCF_FMT | LVCF_SUBITEM | LVCF_TEXT | LVCF_WIDTH|LVCFMT_IMAGE;
+		lvcolumn.fmt      = LVCFMT_RIGHT;
+		lvcolumn.iSubItem = i;
+		lvcolumn.pszText  = lpHdrs0[i];
+		lvcolumn.cx       = iWidths0[i];
+		
+		total_cx += lvcolumn.cx;
+		m_LstOnRoad.InsertColumn(i, &lvcolumn);
+	}
+/////////////////////////////////////////////////////////////////////////////////////////////
+	TCHAR* lpHdrs1[ORDER_ITMES] = {_T("单号"),_T("合约"),_T("买卖"),_T("开平"),_T("状态"),_T("价格"),_T("报量"),_T("未成"),
+						_T("已成"),_T("均价"),_T("时间"),_T("序列号"),_T("冻保证金"),_T("冻手续费"),_T("详细状态"),};
+	int iWidths1[ORDER_ITMES] = {1,46,34,34,60,46,34,34,34,46,60,60,60,60,120};
+	total_cx = 0;
+	memset(&lvcolumn, 0, sizeof(lvcolumn));
+	
+	for (i = 0;i<ORDER_ITMES ; i++)
+	{
+		lvcolumn.mask     = LVCF_FMT | LVCF_SUBITEM | LVCF_TEXT | LVCF_WIDTH|LVCFMT_IMAGE;
+		lvcolumn.fmt      = LVCFMT_RIGHT;
+		lvcolumn.iSubItem = i;
+		lvcolumn.pszText  = lpHdrs1[i];
+		lvcolumn.cx       = iWidths1[i];
+		
+		total_cx += lvcolumn.cx;
+		m_LstOrdInf.InsertColumn(i, &lvcolumn);
+	}
+	
+	//////////////////////////////////////////////////////////////////////////////////////////////
+	TCHAR* lpHdrs2[TRADE_ITMES] = {_T("合约"),_T("买卖"),_T("开平"),_T("价格"),_T("手数"),_T("时间"),_T("手续费"),
+		_T("投保"),_T("成交类型"),_T("交易所"),_T("成交编号"),_T("报单编号")};
+	int iWidths2[TRADE_ITMES] = {46,36,40,50,40,60,50,46,60,46,60,60};
+	total_cx = 0;
+	//LVCOLUMN lvcolumn;
+	memset(&lvcolumn, 0, sizeof(lvcolumn));
+	
+	for (i = 0;i<TRADE_ITMES ; i++)
+	{
+		lvcolumn.mask     = LVCF_FMT | LVCF_SUBITEM | LVCF_TEXT | LVCF_WIDTH|LVCFMT_IMAGE;
+		lvcolumn.fmt      = LVCFMT_RIGHT;
+		lvcolumn.iSubItem = i;
+		lvcolumn.pszText  = lpHdrs2[i];
+		lvcolumn.cx       = iWidths2[i];
+		
+		total_cx += lvcolumn.cx;
+		m_LstTdInf.InsertColumn(i, &lvcolumn);
+	}
+	
+	///////////////////////////////////////////////////////////////////////////////
+	TCHAR* lpHdrs3[INVPOS_ITMES] = {_T("合约"),_T("买卖"),_T("总持仓"),_T("可平量"),_T("持仓均价"),_T("持仓盈亏"),_T("占保证金"),_T("总盈亏")};
+	int iWidths3[INVPOS_ITMES] = {46,34,46,46,60,60,60,60};
+	total_cx = 0;
+	memset(&lvcolumn, 0, sizeof(lvcolumn));
+	
+	for (i = 0;i<INVPOS_ITMES ; i++)
+	{
+		lvcolumn.mask     = LVCF_FMT | LVCF_SUBITEM | LVCF_TEXT | LVCF_WIDTH|LVCFMT_IMAGE;
+		lvcolumn.fmt      = LVCFMT_RIGHT;
+		lvcolumn.iSubItem = i;
+		lvcolumn.pszText  = lpHdrs3[i];
+		lvcolumn.cx       = iWidths3[i];
+		
+		total_cx += lvcolumn.cx;
+		m_LstInvPosInf.InsertColumn(i, &lvcolumn);
+	}
+	///////////////////////////////////////////////////////////////////////////////////////
+	
+	TCHAR* lpHdrs4[ALLINST_ITMES] = {_T("代码"),_T("合约"),_T("合约名"),_T("交易所"),_T("乘数"),_T("点差"),
+	_T("类型"),_T("最后日期"),_T("保证金率"),_T("手续费率")};
+	int iWidths4[ALLINST_ITMES] = {26,46,80,46,34,34,34,60,60,120};
+	total_cx = 0;
+	memset(&lvcolumn, 0, sizeof(lvcolumn));
+	
+	for (i = 0;i<ALLINST_ITMES ; i++)
+	{
+		lvcolumn.mask     = LVCF_FMT | LVCF_SUBITEM | LVCF_TEXT | LVCF_WIDTH|LVCFMT_IMAGE;
+		lvcolumn.fmt      = LVCFMT_RIGHT;
+		lvcolumn.iSubItem = i;
+		lvcolumn.pszText  = lpHdrs4[i];
+		lvcolumn.cx       = iWidths4[i];
+		
+		total_cx += lvcolumn.cx;
+		m_LstAllInsts.InsertColumn(i, &lvcolumn);
+	}
+	///////////////////////////////////////////////////////////////////////////////////////	
+}
+
+void COperaPage::OnStart()
+{
+}
+
+
+void COperaPage::OnTcnSelchangingTab1(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	switch ( m_TabOption.GetCurSel() )
+	{
+	case 0:
+		m_LstTdInf.ShowWindow( SW_HIDE );
+		m_LstOrdInf.ShowWindow( SW_HIDE );
+		m_LstInvPosInf.ShowWindow( SW_HIDE );
+		m_LstAllInsts.ShowWindow( SW_HIDE );
+
+		m_LstOnRoad.ShowWindow( SW_SHOW );
+
+		break;
+	case 1:
+		m_LstOnRoad.ShowWindow( SW_HIDE );
+		m_LstTdInf.ShowWindow( SW_HIDE );
+		m_LstInvPosInf.ShowWindow( SW_HIDE );
+		m_LstAllInsts.ShowWindow( SW_HIDE );
+
+		m_LstOrdInf.ShowWindow( SW_SHOW );
+		break;
+	case 2:	
+		m_LstOnRoad.ShowWindow( SW_HIDE );
+		m_LstTdInf.ShowWindow( SW_HIDE );
+		m_LstOrdInf.ShowWindow( SW_HIDE );
+		m_LstAllInsts.ShowWindow( SW_HIDE );
+
+		m_LstInvPosInf.ShowWindow( SW_SHOW );
+		break;
+	case 3:
+		m_LstOnRoad.ShowWindow( SW_HIDE );
+		m_LstOrdInf.ShowWindow( SW_HIDE );
+		m_LstInvPosInf.ShowWindow( SW_HIDE );
+		m_LstAllInsts.ShowWindow( SW_HIDE );
+
+		m_LstTdInf.ShowWindow( SW_SHOW );
+		break;
+	case 4:
+		m_LstOnRoad.ShowWindow( SW_HIDE );
+		m_LstTdInf.ShowWindow( SW_HIDE );
+		m_LstOrdInf.ShowWindow( SW_HIDE );
+		m_LstInvPosInf.ShowWindow( SW_HIDE );
+
+		m_LstAllInsts.ShowWindow( SW_SHOW );
+		break;
+	case 5:
+		m_LstOnRoad.ShowWindow( SW_HIDE );
+		m_LstTdInf.ShowWindow( SW_HIDE );
+		m_LstOrdInf.ShowWindow( SW_HIDE );
+		m_LstInvPosInf.ShowWindow( SW_HIDE );
+		m_LstAllInsts.ShowWindow( SW_HIDE );
+		break;
+	}
+	*pResult = 0;
 }

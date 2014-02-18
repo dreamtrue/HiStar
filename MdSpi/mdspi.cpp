@@ -6,6 +6,7 @@
 #include "HiStar.h"
 #include "global.h"
 #include <atlconv.h>
+#include "MainDlg.h"
 #pragma warning(disable : 4996)
 bool g_bOnceM = false;
 BOOL bRecconnect = FALSE;
@@ -124,6 +125,11 @@ void CtpMdSpi::OnRspUnSubMarketData(
 
 void CtpMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData){
 	TRACE("%s,%f,%f.\n",pDepthMarketData->InstrumentID,pDepthMarketData->BidPrice1,pDepthMarketData->AskPrice1);
+	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
+	if(pApp->m_pMainWnd){
+		memcpy(&(((CMainDlg*)(pApp->m_pMainWnd))->m_operaPage.m_depthMd),pDepthMarketData,sizeof(CThostFtdcDepthMarketDataField));		
+		((CMainDlg*)(pApp->m_pMainWnd))->m_operaPage.RefreshMdPane();
+	}
 }
 
 bool CtpMdSpi::IsErrorRspInfo(CThostFtdcRspInfoField *pRspInfo){	
