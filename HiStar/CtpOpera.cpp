@@ -211,8 +211,16 @@ UINT LoginThread(LPVOID pParam)
 		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("查交易编码超时!"), 0);
 		return 0;
 	}	
-	((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("CTP登陆成功!"),100);
+
 	((CMainDlg*)(pApp->m_pMainWnd))->addCombInst();//增加合约列表
+	((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.InitAllVecs();
+	((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.InitAllHdrs();
+	((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstOnRoad.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_onRoadVec.size());
+	((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstOrdInf.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_orderVec.size());
+	((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstInvPosInf.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_InvPosVec.size());
+	((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstTdInf.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_tradeVec.size());
+	((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstAllInsts.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_InsinfVec.size());
+	((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("CTP登陆成功!"),100);
 #endif
 	pApp->m_pLoginCtp = NULL;
 	return 0;

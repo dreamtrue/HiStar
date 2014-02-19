@@ -11,10 +11,9 @@
 
 IMPLEMENT_DYNAMIC(CTradePage, CDialogEx)
 
-CTradePage::CTradePage(CWnd* pParent /*=NULL*/)
+	CTradePage::CTradePage(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CTradePage::IDD, pParent)
 {
-
 }
 
 CTradePage::~CTradePage()
@@ -24,12 +23,12 @@ CTradePage::~CTradePage()
 void CTradePage::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
-	DDX_Control(pDX, IDC_LIST1, m_LstOnRoad);
-	DDX_Control(pDX, IDC_LIST2, m_LstOrdInf);
-	DDX_Control(pDX, IDC_LIST3, m_LstTdInf);
-	DDX_Control(pDX, IDC_LIST4, m_LstInvPosInf);
-	DDX_Control(pDX, IDC_LIST5, m_LstAllInsts);
 	DDX_Control(pDX, IDC_TAB1, m_tab);
+	DDX_Control(pDX, IDC_LIST7, m_LstOnRoad);
+	DDX_Control(pDX, IDC_LIST8, m_LstOrdInf);
+	DDX_Control(pDX, IDC_LIST9, m_LstTdInf);
+	DDX_Control(pDX, IDC_LIST10, m_LstInvPosInf);
+	DDX_Control(pDX, IDC_LIST11, m_LstAllInsts);
 }
 
 
@@ -74,8 +73,6 @@ BOOL CTradePage::OnInitDialog()
 	m_LstInvPosInf.ShowWindow( SW_HIDE );
 	m_LstAllInsts.ShowWindow( SW_HIDE );
 	m_LstOnRoad.ShowWindow( SW_SHOW );
-	InitAllHdrs();
-
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
 }
@@ -233,4 +230,44 @@ void CTradePage::OnTcnSelchangeTab1(NMHDR *pNMHDR, LRESULT *pResult)
 		break;
 	}
 	*pResult = 0;
+}
+void CTradePage::InitAllVecs()
+{
+	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
+
+	//////////////////////////
+	m_orderVec = pApp->m_cT->m_orderVec;
+	m_tradeVec = pApp->m_cT->m_tradeVec;
+	m_InsinfVec = pApp->m_cT->m_InsinfVec;
+	m_MargRateVec = pApp->m_cT->m_MargRateVec;
+	m_StmiVec = pApp->m_cT->m_StmiVec;
+	m_AccRegVec = pApp->m_cT->m_AccRegVec;
+	m_TdCodeVec = pApp->m_cT->m_TdCodeVec;
+	m_InvPosVec = pApp->m_cT->m_InvPosVec;
+	m_BfTransVec = pApp->m_cT->m_BfTransVec;
+	m_FeeRateRev = pApp->m_cT->m_FeeRateRev;
+	m_TdAcc = pApp->m_cT->m_TdAcc;
+	for (int i=0;i<4;i++)
+	{
+		m_tsEXnLocal[i] = pApp->m_cT->m_tsEXnLocal[i];
+	}
+	m_onRoadVec = m_orderVec;
+	///////////////////////////////////////////////////
+	for(VOrd odIt=m_onRoadVec.begin(); odIt!=m_onRoadVec.end();)
+	{
+		if((*odIt)->OrderStatus !='1' && (*odIt)->OrderStatus !='3'  )
+		{odIt = m_onRoadVec.erase(odIt);}
+		else
+			++odIt;
+	}
+
+	//////////////////////////////////////////////////
+	for(VInvP vip=m_InvPosVec.begin(); vip!=m_InvPosVec.end();)
+	{
+		if((*vip)->YdPosition==0 && (*vip)->Position ==0)
+		{vip = m_InvPosVec.erase(vip);}
+		else
+			++vip;
+	}
+	///////////////////////////////////////////////////////////
 }
