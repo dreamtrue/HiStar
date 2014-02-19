@@ -27,7 +27,6 @@ public:
 	COperaPage m_operaPage;
 	CAccountPage m_AccountPage;
 	CDialog* m_pDialog[2];  //用来保存对话框对象指针
-	afx_msg void OnTcnSelchangingTab(NMHDR *pNMHDR, LRESULT *pResult);
 protected:
 	afx_msg LRESULT OnOrderStatus(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT CMainDlg::OnErrors(WPARAM wParam, LPARAM lParam);
@@ -40,4 +39,5 @@ protected:
 	afx_msg LRESULT OnUpdateAccCtp(WPARAM wParam, LPARAM lParam);
 public:
 	void addCombInst(void);
+	afx_msg void OnTcnSelchangeTab(NMHDR *pNMHDR, LRESULT *pResult);
 };

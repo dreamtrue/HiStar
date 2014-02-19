@@ -14,6 +14,12 @@
 #include "colorstatic.h"
 #include "thostftdcuserapistruct.h"
 #include "ColorListCtrl.h"
+#include "e:\新建文件夹\trunk\diyctrl\colorlistctrl.h"
+#include "e:\新建文件夹\trunk\diyctrl\colorlistctrl.h"
+#include "e:\新建文件夹\trunk\diyctrl\colorlistctrl.h"
+#include "e:\新建文件夹\trunk\diyctrl\colorlistctrl.h"
+#include "e:\新建文件夹\trunk\diyctrl\colorlistctrl.h"
+#include "e:\新建文件夹\trunk\diyctrl\colorlistctrl.h"
 
 // COperaPage 对话框
 class COperaPage : public CDialogEx
@@ -63,13 +69,13 @@ public:
 	CTabCtrl m_TabOption;
 	void InitAllHdrs(void);
 public:
-	CColorListCtrl	m_LstOnRoad;
-	CColorListCtrl	m_LstOrdInf;
-	CColorListCtrl	m_LstTdInf;
-	CColorListCtrl	m_LstInvPosInf;
-	CColorListCtrl	m_LstAllInsts;
 	afx_msg void OnStart();
-	afx_msg void OnTcnSelchangingTab1(NMHDR *pNMHDR, LRESULT *pResult);
+	CColorListCtrl m_LstOnRoad;
+	CColorListCtrl m_LstOrdInf;
+	CColorListCtrl m_LstTdInf;
+	CColorListCtrl m_LstInvPosInf;
+	CColorListCtrl m_LstAllInsts;
+	afx_msg void OnTcnSelchangeTab1(NMHDR *pNMHDR, LRESULT *pResult);
 };
 //其他变量
 const int N = 5;

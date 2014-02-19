@@ -68,11 +68,11 @@ void COperaPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_STATIC03, m_csB1P);
 	DDX_Control(pDX, IDC_STATIC02, m_csLastP);
 	DDX_Control(pDX, IDC_TAB1, m_TabOption);
-	//DDX_Control(pDX, IDC_LST_ONROAD, m_LstOnRoad);
-	//DDX_Control(pDX, IDC_LST_ODINF, m_LstOrdInf);
-	//DDX_Control(pDX, IDC_LST_TRADE, m_LstTdInf);
-	//DDX_Control(pDX, IDC_LST_INVPOS, m_LstInvPosInf);
-	//DDX_Control(pDX, IDC_LST_ALLINST, m_LstAllInsts);
+	DDX_Control(pDX, IDC_LIST3, m_LstOnRoad);
+	DDX_Control(pDX, IDC_LIST4, m_LstOrdInf);
+	DDX_Control(pDX, IDC_LIST5, m_LstTdInf);
+	DDX_Control(pDX, IDC_LIST6, m_LstInvPosInf);
+	DDX_Control(pDX, IDC_LIST7, m_LstAllInsts);
 }
 
 BEGIN_MESSAGE_MAP(COperaPage, CDialogEx)
@@ -86,7 +86,7 @@ BEGIN_MESSAGE_MAP(COperaPage, CDialogEx)
 	ON_CBN_SELCHANGE(IDC_COMBO2, &COperaPage::OnInsSelchange)
 	ON_BN_CLICKED(IDC_BUTTON6, &COperaPage::OnReqComboSelMarketDepth)
 	ON_BN_CLICKED(IDC_BUTTON7, &COperaPage::OnStart)
-	ON_NOTIFY(TCN_SELCHANGING, IDC_TAB1, &COperaPage::OnTcnSelchangingTab1)
+	ON_NOTIFY(TCN_SELCHANGE, IDC_TAB1, &COperaPage::OnTcnSelchangeTab1)
 END_MESSAGE_MAP()
 
 
@@ -137,16 +137,14 @@ BOOL COperaPage::OnInitDialog()
 	m_TabOption.InsertItem( 3, _T("成交") );
 	m_TabOption.InsertItem( 4, _T("合约") );
 	m_TabOption.InsertItem( 5, _T("其它") );
+	m_TabOption.SetCurSel(0);
+	m_LstTdInf.ShowWindow( SW_HIDE );
+	m_LstOrdInf.ShowWindow( SW_HIDE );
+	m_LstInvPosInf.ShowWindow( SW_HIDE );
+	m_LstAllInsts.ShowWindow( SW_HIDE );
+	m_LstOnRoad.ShowWindow( SW_SHOW );
+	InitAllHdrs();
 
-	//InitAllHdrs();
-	/*
-	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
-	m_LstOnRoad.SetItemCountEx(4);
-	m_LstOrdInf.SetItemCountEx(4);
-	m_LstInvPosInf.SetItemCountEx(4);
-	m_LstTdInf.SetItemCountEx(4);
-	m_LstAllInsts.SetItemCountEx(4);
-	*/
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -363,8 +361,7 @@ void COperaPage::OnStart()
 {
 }
 
-
-void COperaPage::OnTcnSelchangingTab1(NMHDR *pNMHDR, LRESULT *pResult)
+void COperaPage::OnTcnSelchangeTab1(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	switch ( m_TabOption.GetCurSel() )
 	{

@@ -28,12 +28,12 @@ void CMainDlg::DoDataExchange(CDataExchange* pDX)
 
 
 BEGIN_MESSAGE_MAP(CMainDlg, CDialogEx)
-	ON_NOTIFY(TCN_SELCHANGING, IDC_TAB, &CMainDlg::OnTcnSelchangingTab)
 	ON_MESSAGE(WM_ORDER_STATUS, &CMainDlg::OnOrderStatus)
 	ON_MESSAGE(WM_ERRORS, &CMainDlg::OnErrors)
 	ON_MESSAGE(WM_UPDATE_ACC_CTP,&CMainDlg::OnUpdateAccCtp)
 	ON_WM_TIMER()
 	ON_BN_CLICKED(IDOK, &CMainDlg::OnBnClickedOk)
+	ON_NOTIFY(TCN_SELCHANGE, IDC_TAB, &CMainDlg::OnTcnSelchangeTab)
 END_MESSAGE_MAP()
 
 
@@ -70,25 +70,6 @@ BOOL CMainDlg::OnInitDialog(void)
 	//设定定时器
 	m_timerID = SetTimer(1,10000,NULL);
 	return 0;
-}
-
-void CMainDlg::OnTcnSelchangingTab(NMHDR *pNMHDR, LRESULT *pResult)
-{
-	int CurSel = m_tab.GetCurSel();
-	switch(CurSel)
-	{
-	case 0:
-		m_CurSelTab = 0;
-		m_AccountPage.ShowWindow(true);
-		m_operaPage.ShowWindow(false);
-		break;
-	case 1:
-		m_CurSelTab = 1;
-		m_operaPage.ShowWindow(true);
-		m_AccountPage.ShowWindow(false);
-		break;
-	}
-	*pResult = 0;
 }
 
 afx_msg LRESULT CMainDlg::OnOrderStatus(WPARAM wParam, LPARAM lParam)
@@ -227,4 +208,24 @@ void CMainDlg::addCombInst(void)
 				m_operaPage.m_CombInst.SetWindowText(CString(pApp->m_cT->m_InsinfVec[i]->iinf.InstrumentID));
 		}
 	}
+}
+
+
+void CMainDlg::OnTcnSelchangeTab(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	int CurSel = m_tab.GetCurSel();
+	switch(CurSel)
+	{
+	case 0:
+		m_CurSelTab = 0;
+		m_operaPage.ShowWindow(true);
+		m_AccountPage.ShowWindow(false);
+		break;
+	case 1:
+		m_CurSelTab = 1;
+		m_AccountPage.ShowWindow(true);
+		m_operaPage.ShowWindow(false);
+		break;
+	}
+	*pResult = 0;
 }
