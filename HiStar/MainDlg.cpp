@@ -46,9 +46,12 @@ BOOL CMainDlg::OnInitDialog(void)
 	//额外初始化代码
 	m_tab.InsertItem(0, _T("操作"));
 	m_tab.InsertItem(1, _T("账户"));
+	m_tab.InsertItem(2,_T("交易"));
 	//创建两个对话框
-	m_AccountPage.Create(IDD_ACCOUNT_PAGE, &m_tab);
+	m_accountPage.Create(IDD_ACCOUNT_PAGE, &m_tab);
 	m_operaPage.Create(IDD_OPERA_PAGE, &m_tab);
+	m_tradePage.Create(IDD_TRADE_PAGE, &m_tab);
+
 	//设定在Tab内显示的范围
 	CRect rc;
 	m_tab.GetClientRect(rc);
@@ -57,13 +60,16 @@ BOOL CMainDlg::OnInitDialog(void)
 	rc.left += 0;
 	rc.right -= 0;
 	m_operaPage.MoveWindow(&rc);
-	m_AccountPage.MoveWindow(&rc);
+	m_accountPage.MoveWindow(&rc);
+	m_tradePage.MoveWindow(&rc);
 	//把对话框对象指针保存起来
 	m_pDialog[0] = &m_operaPage;
-	m_pDialog[1] = &m_AccountPage;
+	m_pDialog[1] = &m_accountPage;
+	m_pDialog[2] = &m_tradePage;
 	//显示初始页面
 	m_pDialog[0]->ShowWindow(SW_SHOW);
 	m_pDialog[1]->ShowWindow(false);
+	m_pDialog[2]->ShowWindow(false);
 	m_tab.SetCurSel(0);
 	//保存当前选择
 	m_CurSelTab = 0;
@@ -191,7 +197,7 @@ afx_msg LRESULT CMainDlg::OnUpdateAccCtp(WPARAM wParam, LPARAM lParam)
 
 	szLine += FormatLine(_T(""),_T(""),_T("="),42);
 
-	HWND hEdit = ::GetDlgItem(m_AccountPage.m_hWnd,IDC_EDIT1);
+	HWND hEdit = ::GetDlgItem(m_accountPage.m_hWnd,IDC_EDIT1);
 	::SendMessage(hEdit,WM_SETTEXT,0,(LPARAM)(LPCTSTR)szLine);
 	return 0;
 }
@@ -219,13 +225,20 @@ void CMainDlg::OnTcnSelchangeTab(NMHDR *pNMHDR, LRESULT *pResult)
 	case 0:
 		m_CurSelTab = 0;
 		m_operaPage.ShowWindow(true);
-		m_AccountPage.ShowWindow(false);
+		m_accountPage.ShowWindow(false);
+		m_tradePage.ShowWindow(false);
 		break;
 	case 1:
 		m_CurSelTab = 1;
-		m_AccountPage.ShowWindow(true);
+		m_accountPage.ShowWindow(true);
 		m_operaPage.ShowWindow(false);
+		m_tradePage.ShowWindow(false);
 		break;
+	case 2:
+		m_CurSelTab = 2;
+		m_tradePage.ShowWindow(true);
+		m_accountPage.ShowWindow(false);
+		m_operaPage.ShowWindow(false);
 	}
 	*pResult = 0;
 }

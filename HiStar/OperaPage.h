@@ -59,23 +59,16 @@ public:
 	void ProgressUpdate(LPCTSTR szMsg, const int nPercentDone);
 	CComboBox m_CombInst;
 	afx_msg void OnInsSelchange();
-	virtual void OnOK(void);
+	afx_msg void OnOK(void);
+	afx_msg void OnBnClickedCancel();
 	afx_msg void OnReqComboSelMarketDepth();
 	CColorStatic m_csS1P;
 	CColorStatic m_csB1P;
 	CColorStatic m_csLastP;
 	void RefreshMdPane(void);
 	CThostFtdcDepthMarketDataField m_depthMd;
-	CTabCtrl m_TabOption;
-	void InitAllHdrs(void);
 public:
 	afx_msg void OnStart();
-	CColorListCtrl m_LstOnRoad;
-	CColorListCtrl m_LstOrdInf;
-	CColorListCtrl m_LstTdInf;
-	CColorListCtrl m_LstInvPosInf;
-	CColorListCtrl m_LstAllInsts;
-	afx_msg void OnTcnSelchangeTab1(NMHDR *pNMHDR, LRESULT *pResult);
 };
 //其他变量
 const int N = 5;

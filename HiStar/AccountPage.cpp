@@ -29,6 +29,8 @@ void CAccountPage::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CAccountPage, CDialogEx)
 	ON_WM_SHOWWINDOW()
+	ON_BN_CLICKED(IDOK, &CAccountPage::OnOK)
+	ON_BN_CLICKED(IDCANCEL, &CAccountPage::OnBnClickedCancel)
 END_MESSAGE_MAP()
 
 
@@ -42,4 +44,6 @@ void CAccountPage::OnShowWindow(BOOL bShow, UINT nStatus)
 void CAccountPage::OnOK(void)
 {
 	//ÆÁ±Îµô¶ÔOKµÄÏìÓ¦
+}
+void CAccountPage::OnBnClickedCancel(){
 }

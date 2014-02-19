@@ -87,6 +87,9 @@
     <ClInclude Include="..\THostFtdc\ThostFtdcUserApiStruct.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="TradePage.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\CppClient\src\EClientSocket.cpp">
@@ -132,6 +135,9 @@
       <Filter>源文件\Dialog</Filter>
     </ClCompile>
     <ClCompile Include="..\DIYCtrl\ColorListCtrl.cpp">
+      <Filter>源文件\Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="TradePage.cpp">
       <Filter>源文件\Dialog</Filter>
     </ClCompile>
   </ItemGroup>

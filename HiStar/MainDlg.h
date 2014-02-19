@@ -1,6 +1,7 @@
 #pragma once
 #include "OperaPage.h"
 #include "AccountPage.h"
+#include "TradePage.h"
 // CMainDlg 对话框
 #include "resource.h"
 class CMainDlg : public CDialogEx
@@ -25,8 +26,9 @@ public:
 	CTabCtrl m_tab;
 	int m_CurSelTab;
 	COperaPage m_operaPage;
-	CAccountPage m_AccountPage;
-	CDialog* m_pDialog[2];  //用来保存对话框对象指针
+	CAccountPage m_accountPage;
+	CTradePage m_tradePage;
+	CDialog* m_pDialog[3];  //用来保存对话框对象指针
 protected:
 	afx_msg LRESULT OnOrderStatus(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT CMainDlg::OnErrors(WPARAM wParam, LPARAM lParam);
