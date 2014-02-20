@@ -1,16 +1,6 @@
 #pragma once
-#include "e:\新建文件夹\trunk\diyctrl\colorlistctrl.h"
-#include "e:\新建文件夹\trunk\diyctrl\colorlistctrl.h"
-#include "e:\新建文件夹\trunk\diyctrl\colorlistctrl.h"
-#include "e:\新建文件夹\trunk\diyctrl\colorlistctrl.h"
-#include "e:\新建文件夹\trunk\diyctrl\colorlistctrl.h"
+#include "colorlistctrl.h"
 #include "afxcmn.h"
-#include "e:\新建文件夹\trunk\diyctrl\colorlistctrl.h"
-#include "e:\新建文件夹\trunk\diyctrl\colorlistctrl.h"
-#include "e:\新建文件夹\trunk\diyctrl\colorlistctrl.h"
-#include "e:\新建文件夹\trunk\diyctrl\colorlistctrl.h"
-#include "e:\新建文件夹\trunk\diyctrl\colorlistctrl.h"
-
 
 // CTradePage 对话框
 
@@ -65,4 +55,39 @@ public:
 	CColorListCtrl m_LstTdInf;
 	CColorListCtrl m_LstInvPosInf;
 	CColorListCtrl m_LstAllInsts;
+public:
+	afx_msg void OnNMDblclkOnroad(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMClkLstOnroad(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMRClkLstOnroad(NMHDR *pNMHDR, LRESULT *pResult);
+
+	afx_msg void OnNMDblclkOrdInf(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMClkLstOrdInf(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMRClkLstOrdInf(NMHDR *pNMHDR, LRESULT *pResult);
+
+	afx_msg void OnNMDblclkTdInf(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMClkLstTdInf(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMRClkLstTdInf(NMHDR *pNMHDR, LRESULT *pResult);
+
+	afx_msg void OnNMDblclkInvPInf(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMClkLstInvPInf(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMRClkLstInvPInf(NMHDR *pNMHDR, LRESULT *pResult);
+
+	afx_msg void OnNMClkLstInsts(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMRClkLstInsts(NMHDR *pNMHDR, LRESULT *pResult);
+
+	/////////////////////////////////////////////////////////////////
+	afx_msg void OnGetDispinf1(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnGetDispinf2(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnGetDispinf3(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnGetDispinf4(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnGetDispinf5(NMHDR *pNMHDR, LRESULT *pResult);
+public:
+	CString m_szInst;
+	int FindInstMul(TThostFtdcInstrumentIDType InstID);
+	int FindOrdInOrderVec(TThostFtdcSequenceNoType BkrOrdSeq);
+	int FindOrdInOnRoadLst(TThostFtdcSequenceNoType BkrOrdSeq);
+	int FindOrdInOnRoadVec(TThostFtdcSequenceNoType BkrOrdSeq);
+	void OnCancelAll();
+	void FiltInsList();
+
 };
