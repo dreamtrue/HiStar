@@ -584,7 +584,9 @@ void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder){
 		else{
 			//挂单返回，表示已经递送出去，将该挂单删除(已经变成委托单或其他)
 			((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_onRoadVec.erase(((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_onRoadVec.begin()+nRet);
+			((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstOnRoad.SetRedraw(FALSE);//目的是暂时锁住数据，防止删除项目时还在读取
 			((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstOnRoad.DeleteItem(nRet);
+			((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstOnRoad.SetRedraw(TRUE);
 			((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstOnRoad.Invalidate();
 		}
 		///////新增加委托单

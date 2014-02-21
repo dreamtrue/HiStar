@@ -1,7 +1,7 @@
 #pragma once
 #include "colorlistctrl.h"
 #include "afxcmn.h"
-
+#include "CVector.h"
 // CTradePage ¶Ô»°¿ò
 
 class CTradePage : public CDialogEx
@@ -31,21 +31,21 @@ public:
 	////////////////////////////////////////////
 	INSINFEX *m_InstInf;
 	CThostFtdcDepthMarketDataField *m_pDepthMd;
-	std::vector<CThostFtdcOrderField*> m_onRoadVec;
+	CVector<CThostFtdcOrderField*> m_onRoadVec;
 	CThostFtdcTradingAccountField *m_pTdAcc;
 	CThostFtdcNotifyQueryAccountField *m_pNotifyBkYe;
 	CThostFtdcInvestorField *m_pInvInf;
-	std::vector<CThostFtdcOrderField*> m_orderVec;
-	std::vector<CThostFtdcTradeField*> m_tradeVec;
-	std::vector<CThostFtdcInstrumentFieldEx*> m_InsinfVec;
-	std::vector<CThostFtdcInstrumentMarginRateField*> m_MargRateVec;
-	std::vector<CThostFtdcSettlementInfoField*> m_StmiVec;
-	std::vector<CThostFtdcAccountregisterField*> m_AccRegVec;
-	std::vector<CThostFtdcTradingCodeField*> m_TdCodeVec;
-	std::vector<CThostFtdcInvestorPositionField*> m_InvPosVec;
-	std::vector<CThostFtdcRspTransferField*> m_BfTransVec;
+	CVector<CThostFtdcOrderField*> m_orderVec;
+	CVector<CThostFtdcTradeField*> m_tradeVec;
+	CVector<CThostFtdcInstrumentFieldEx*> m_InsinfVec;
+	CVector<CThostFtdcInstrumentMarginRateField*> m_MargRateVec;
+	CVector<CThostFtdcSettlementInfoField*> m_StmiVec;
+	CVector<CThostFtdcAccountregisterField*> m_AccRegVec;
+	CVector<CThostFtdcTradingCodeField*> m_TdCodeVec;
+	CVector<CThostFtdcInvestorPositionField*> m_InvPosVec;
+	CVector<CThostFtdcRspTransferField*> m_BfTransVec;
 	CThostFtdcInstrumentCommissionRateField m_FeeRateRev;
-	std::vector<CThostFtdcInstrumentCommissionRateField*> m_FeeRateVec;
+	CVector<CThostFtdcInstrumentCommissionRateField*> m_FeeRateVec;
 	////////////////////////////////////////////
 	CThostFtdcTradingAccountField m_TdAcc;
 	void InitAllVecs();

@@ -140,6 +140,9 @@
     <ClCompile Include="TradePage.cpp">
       <Filter>源文件\Dialog</Filter>
     </ClCompile>
+    <ClCompile Include="CVector.h">
+      <Filter>头文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="HiStar.rc">

@@ -130,6 +130,7 @@
     <ClCompile Include="..\TraderSpi\traderspi.cpp" />
     <ClCompile Include="AccountPage.cpp" />
     <ClCompile Include="CtpOpera.cpp" />
+    <ClCompile Include="CVector.h" />
     <ClCompile Include="HiStar.cpp" />
     <ClCompile Include="IBOpera.cpp" />
     <ClCompile Include="OperaPage.cpp" />
