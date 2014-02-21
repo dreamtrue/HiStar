@@ -85,7 +85,6 @@ struct SAccountCtp{
 		strcpy(m_sINVESTOR_ID,"00000037");
 		strcpy(m_sPASSWORD,"123456");
 		m_szInst = _T("IF1402");
-
 		//≥ı ºªØ
 		m_InstInf = new CThostFtdcInstrumentFieldEx();
 		m_pDepthMd = new CThostFtdcDepthMarketDataField();

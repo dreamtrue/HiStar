@@ -13,6 +13,7 @@
 #define new DEBUG_NEW
 #endif
 extern HANDLE g_hEvent;
+extern BOOL g_bLoginCtpT;
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
 class CAboutDlg : public CDialogEx
@@ -246,4 +247,13 @@ void COperaPage::RefreshMdPane(void)
 
 void COperaPage::OnStart()
 {
+	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
+	TThostFtdcCombOffsetFlagType kpp;
+	kpp[0] = THOST_FTDC_OF_Open;
+	if(g_bLoginCtpT){
+		if(pApp->m_cT){
+			pApp->m_cT->ReqOrdLimit("IF1406", THOST_FTDC_D_Buy,kpp,2291,1);
+		}
+	}
+	//pApp->m_cT->ReqOrdAny("IF1406", THOST_FTDC_D_Buy,kpp,1);
 }

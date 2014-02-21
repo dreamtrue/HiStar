@@ -561,67 +561,37 @@ void CtpTraderSpi::OnRspOrderAction(
 void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder){
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	CThostFtdcOrderField* order = new CThostFtdcOrderField();
-	memcpy(order,  pOrder, sizeof(CThostFtdcOrderField));
+	TRACE("OnRtnOrder所有报单通知%s,%s,%c,%d,已经成交%d\r\n",pOrder->OrderRef, pOrder->OrderSysID,pOrder->OrderStatus,pOrder->BrokerOrderSeq,pOrder->VolumeTraded);
+	memcpy(order,pOrder, sizeof(CThostFtdcOrderField));
 	bool founded = false;UINT i = 0;
 	for(i = 0;i<m_orderVec.size();i++){
 		if(m_orderVec[i]->BrokerOrderSeq == order->BrokerOrderSeq) { 
 			founded = true;
+			//修改命令状态
+			m_orderVec[i] = order;
+			((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_orderVec[i] = order;
+			((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstOrdInf.Invalidate();
 			break;
 		}
-	}
-	//////修改已发出的报单状态
-	if(founded){
-		m_orderVec[i] = order; 
-		if (!g_bRecconnectT){
-			///////////////////////////刷新挂单列表/////////////////////
-			int nRet = ((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.FindOrdInOnRoadVec(order->BrokerOrderSeq);
-			//未加入挂单列表
-			if (nRet==-1){
-				//加入列表
-				if (order->OrderStatus == '1' || order->OrderStatus == '3'){
-					((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_onRoadVec.push_back(order);
-					((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstOnRoad.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_onRoadVec.size());
-				    ((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstOnRoad.Invalidate();
-				}
-			}
-			else{
-				//已经在列表 如完成则删除
-				if (order->OrderStatus != '1' && order->OrderStatus != '3'){
-					((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_onRoadVec.erase(((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_onRoadVec.begin()+nRet);
-					int nRet2 = ((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.FindOrdInOnRoadLst(order->BrokerOrderSeq);	
-					if (nRet2 !=-1)
-					{
-						((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstOnRoad.SetRedraw(FALSE);
-						((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstOnRoad.DeleteItem(nRet2);
-						((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstOnRoad.SetRedraw(TRUE);
-						((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstOnRoad.Invalidate();
-					}
-				}
-				else{
-					//存在的挂单 修改状态
-				}
-			}
-			/////////////////////////刷新持仓////////////////////////////////
-			bool bExist = false;
-			for(i = 0;i<m_InvPosVec.size();i++){
-				if (!strcmp(order->InstrumentID,m_InvPosVec[i]->InstrumentID)){ 
-					bExist = true; 
-					break;
-				}	
-			}
-			if (bExist){
-			}
-			else{
-			}
-	     /////////////////////////////////////////////////////////////////
+	}		
+	if(!founded){
+		//将挂单删除，因为这时有消息返回说明已经递送出去了
+		int nRet = ((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.FindOrdInOnRoadVec(order->BrokerOrderSeq);
+		//未加入挂单列表
+		if (nRet==-1){
+			//如果没有,则不做任何动作
 		}
-	} 
-	///////新增加委托单
-	else{
+		else{
+			//挂单返回，表示已经递送出去，将该挂单删除(已经变成委托单或其他)
+			((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_onRoadVec.erase(((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_onRoadVec.begin()+nRet);
+			((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstOnRoad.DeleteItem(nRet);
+			((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstOnRoad.Invalidate();
+		}
+		///////新增加委托单
 		m_orderVec.push_back(order);
 		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_orderVec.push_back(order);
 		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstOrdInf.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_orderVec.size());
-	    ((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstOrdInf.Invalidate();
+		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstOrdInf.Invalidate();
 	}
 	SetEvent(g_hEvent);
 }
@@ -632,10 +602,10 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 	CThostFtdcTradeField* trade = new CThostFtdcTradeField();
 	memcpy(trade,pTrade,sizeof(CThostFtdcTradeField));
 	bool founded = false;     
-	unsigned int i = 0;
-	for(i = 0;i<m_tradeVec.size();i++){
+	unsigned int ii = 0;
+	for(ii = 0;ii<m_tradeVec.size();ii++){
 		//strcmp返回0时表示相等
-		if(strcmp(m_tradeVec[i]->TradeID,trade->TradeID) == 0){
+		if(strcmp(m_tradeVec[ii]->TradeID,trade->TradeID) == 0){
 			founded = true;   
 			break;
 		}
@@ -644,7 +614,11 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 	if(founded){
 		TRACE(_T("修改成交单状态"));
 		//不过是重新覆盖成交信息
-		m_tradeVec[i]= trade; 
+		int VolumeTotal;double PriceAvg;
+		VolumeTotal = m_tradeVec[ii]->Volume + trade->Volume;
+		PriceAvg = (m_tradeVec[ii]->Price * m_tradeVec[ii]->Volume + trade->Price * trade->Volume) / VolumeTotal;
+		m_tradeVec[ii]->Volume = VolumeTotal;
+		m_tradeVec[ii]->Price = PriceAvg;
 		if (!g_bRecconnectT){
 			//可以在这儿添加要显示的成交信息,如果是重连后获取的则不显示。
 		} 
@@ -654,70 +628,90 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 	{
 		m_tradeVec.push_back(trade);
 		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_tradeVec.push_back(trade);
-		if (true){
-			((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstTdInf.SetItemCountEx(m_tradeVec.size());
-			((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstTdInf.Invalidate();
-			/////////////////////////刷新持仓////////////////////////////////
-			bool bExist = false;//是否存在该持仓
-			for(i = 0;i<m_InvPosVec.size();i++)
-			{
-				if (strcmp(trade->InstrumentID,m_InvPosVec[i]->InstrumentID) == 0){ 
-					bExist = true; 
-					break;
-				}	
-			}
-			CThostFtdcInvestorPositionField* newInvPos = new CThostFtdcInvestorPositionField();
-			ZeroMemory(newInvPos,sizeof(CThostFtdcInvestorPositionField));
-			if (bExist){
-				if (trade->Direction == THOST_FTDC_D_Buy){
-					switch(trade->OffsetFlag){
-					case THOST_FTDC_OF_Open:
-						break;
-					case THOST_FTDC_OF_Close:
-						break;
-					case THOST_FTDC_OF_CloseToday:
-						break;
-					case THOST_FTDC_OF_CloseYesterday:
-						break;
-					case THOST_FTDC_OF_ForceOff:
-						break;
-					case THOST_FTDC_OF_LocalForceClose:
-						break;			
-					}
-				}
-				if (trade->Direction == THOST_FTDC_D_Sell)
-				{
-					switch(trade->OffsetFlag){
-					case THOST_FTDC_OF_Open:
-						break;
-					case THOST_FTDC_OF_Close:
-						break;
-					case THOST_FTDC_OF_CloseToday:
-						break;
-					case THOST_FTDC_OF_CloseYesterday:
-						break;
-					case THOST_FTDC_OF_ForceOff:
-						break;
-					case THOST_FTDC_OF_LocalForceClose:
-						break;			
-					}
-				}
-			}
-			else{
-				int iMul = pApp->FindInstMul(trade->InstrumentID);
-				strcpy(newInvPos->InstrumentID,trade->InstrumentID);
-				strcpy(newInvPos->BrokerID,trade->BrokerID);
-				strcpy(newInvPos->InvestorID,trade->InvestorID);
-				newInvPos->PosiDirection = trade->Direction + 2;
-				newInvPos->HedgeFlag = trade->HedgeFlag;
-				newInvPos->PositionDate = (strcmp(m_sTdday,trade->TradeDate)==0)?THOST_FTDC_PSD_Today:THOST_FTDC_PSD_History;
-				newInvPos->Position = trade->Volume;
-				newInvPos->OpenVolume = trade->Volume;
-				newInvPos->OpenAmount = trade->Volume * trade->Price * iMul;
-				newInvPos->PositionCost = trade->Volume * trade->Price * iMul;
-			}
-			/////////////////////////////////////////////////////////////////
+		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstTdInf.SetItemCountEx(m_tradeVec.size());
+		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstTdInf.Invalidate();
+		/*
+		//有关持仓的计算暂时取消??????
+		/////////////////////////刷新持仓////////////////////////////////
+		bool bExist = false;//是否存在该持仓
+		unsigned int j = 0;
+		for(j = 0;j<m_InvPosVec.size();j++)
+		{
+		//到持仓列表里搜索
+		if (strcmp(trade->InstrumentID,m_InvPosVec[j]->InstrumentID) == 0){ 
+		bExist = true; 
+		break;
+		}	
 		}
+		if (bExist){//在持仓列表里,只需要更新持仓状态
+		if (trade->Direction == THOST_FTDC_D_Buy){
+		m_InvPosVec[j]->Position = m_InvPosVec[j]->Position + trade->Volume;
+		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_InvPosVec[j]->Position = ((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_InvPosVec[j]->Position + trade->Volume;
+		//持仓均价暂时无法计算？
+		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstInvPosInf.Invalidate();
+		switch(trade->OffsetFlag){
+		case THOST_FTDC_OF_Open:
+		break;
+		case THOST_FTDC_OF_Close:
+
+		break;
+		case THOST_FTDC_OF_CloseToday:
+
+		break;
+		case THOST_FTDC_OF_CloseYesterday:
+
+		break;
+		case THOST_FTDC_OF_ForceOff:
+
+		break;
+		case THOST_FTDC_OF_LocalForceClose:
+
+		break;			
+		}
+		}
+		if (trade->Direction == THOST_FTDC_D_Sell)
+		{
+		m_InvPosVec[j]->Position = m_InvPosVec[j]->Position - trade->Volume;
+		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_InvPosVec[j]->Position = ((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_InvPosVec[j]->Position - trade->Volume;
+		//持仓均价暂时无法计算？
+		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstInvPosInf.Invalidate();
+		switch(trade->OffsetFlag){
+		case THOST_FTDC_OF_Open:
+		break;
+		case THOST_FTDC_OF_Close:
+		break;
+		case THOST_FTDC_OF_CloseToday:
+		break;
+		case THOST_FTDC_OF_CloseYesterday:
+		break;
+		case THOST_FTDC_OF_ForceOff:
+		break;
+		case THOST_FTDC_OF_LocalForceClose:
+		break;			
+		}
+		}
+		}
+		else{
+		CThostFtdcInvestorPositionField* newInvPos = new CThostFtdcInvestorPositionField();
+		ZeroMemory(newInvPos,sizeof(CThostFtdcInvestorPositionField));
+		int iMul = pApp->FindInstMul(trade->InstrumentID);//合约乘数
+		strcpy(newInvPos->InstrumentID,trade->InstrumentID);
+		strcpy(newInvPos->BrokerID,trade->BrokerID);
+		strcpy(newInvPos->InvestorID,trade->InvestorID);
+		newInvPos->PosiDirection = trade->Direction + 2;
+		newInvPos->HedgeFlag = trade->HedgeFlag;
+		newInvPos->PositionDate = (strcmp(m_sTdday,trade->TradeDate)==0)?THOST_FTDC_PSD_Today:THOST_FTDC_PSD_History;
+		newInvPos->Position = trade->Volume;
+		newInvPos->OpenVolume = trade->Volume;
+		newInvPos->OpenAmount = trade->Volume * trade->Price * iMul;
+		newInvPos->PositionCost = trade->Volume * trade->Price * iMul;
+		m_InvPosVec.push_back(newInvPos);
+		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_InvPosVec.push_back(newInvPos);
+		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstInvPosInf.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_InvPosVec.size());
+		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstInvPosInf.Invalidate();
+		}
+		/////////////////////////////////////////////////////////////////
+		*/
 	}
 	SetEvent(g_hEvent);
 }
@@ -1321,7 +1315,6 @@ void CtpTraderSpi::OnRspQryCFMMCTradingAccountKey(CThostFtdcCFMMCTradingAccountK
 	if( !IsErrorRspInfo(pRspInfo) && pCFMMCTradingAccountKey)
 	{
 		//memcpy(&g_Cfmmc,pCFMMCTradingAccountKey,sizeof(CThostFtdcCFMMCTradingAccountKeyField));
-
 		char strMsg[1000];
 		sprintf(strMsg,CFMMC_TMPL,pCFMMCTradingAccountKey->ParticipantID,pCFMMCTradingAccountKey->AccountID,
 			pCFMMCTradingAccountKey->KeyID,pCFMMCTradingAccountKey->CurrentKey);
