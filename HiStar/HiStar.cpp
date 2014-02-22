@@ -34,8 +34,8 @@ CHiStarApp::CHiStarApp()
 	, m_strPath(_T(""))
 {
 	//定位内存泄漏位置,非常好用
-	//_CrtSetBreakAlloc(1192);
-	//_CrtSetBreakAlloc(68409);
+	//_CrtSetBreakAlloc(958);
+	//_CrtSetBreakAlloc(638);
 	//_CrtSetBreakAlloc(638);
 	MainThreadId = GetCurrentThreadId();
 	// 支持重新启动管理器
@@ -56,10 +56,10 @@ CHiStarApp theApp;
 BOOL CHiStarApp::InitInstance()
 {
 	//让进程拥有最高优先级
-	if(!SetPriorityClass(GetCurrentProcess(),REALTIME_PRIORITY_CLASS ))
-	{
-		return false;
-	}
+	//if(!SetPriorityClass(GetCurrentProcess(),REALTIME_PRIORITY_CLASS ))
+	//{
+	//	return false;
+	//}
 	// 如果一个运行在 Windows XP 上的应用程序清单指定要
 	// 使用 ComCtl32.dll 版本 6 或更高版本来启用可视化方式，
 	//则需要 InitCommonControlsEx()。否则，将无法创建窗口。
@@ -140,7 +140,7 @@ CHiStarApp::~CHiStarApp(void)
 	if(m_MApi){
 		m_MApi = NULL;
 	}
-	if( m_cQ){
+	if(m_cQ){
 		delete m_cQ;
 		m_cQ = NULL;
 	}
