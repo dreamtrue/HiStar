@@ -216,12 +216,22 @@ void CtpTraderSpi::OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument,
 	CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 { 
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
-	if ( !IsErrorRspInfo(pRspInfo) &&  pInstrument)
+	if (!IsErrorRspInfo(pRspInfo) &&  pInstrument)
 	{
 		INSINFEX InsInf;
 		ZeroMemory(&InsInf,sizeof(INSINFEX));
 		memcpy(&InsInf,pInstrument,sizeof(INSTINFO));
-		m_InsinfVec.push_back(InsInf);
+		bool founded = false;
+		for(int i = 0;i < m_InsinfVec.size();i++){
+			if(!strcmp(m_InsinfVec[i].iinf.InstrumentID,InsInf.iinf.InstrumentID)){
+				founded = true;
+				break;
+			}
+		}
+		if(!founded){
+			TRACE("添加新合约\n");
+			m_InsinfVec.push_back(InsInf);
+		}
 	}
 	if(bIsLast){
 		TRACE(_T("合约查询完毕\n"));
@@ -278,16 +288,20 @@ void CtpTraderSpi::OnRspQryInvestorPosition(
 	CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 { 
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
-	if( !IsErrorRspInfo(pRspInfo) &&  pInvestorPosition )
+	if(!IsErrorRspInfo(pRspInfo) &&  pInvestorPosition )
 	{
 		CThostFtdcInvestorPositionField InvPos;
-		memcpy(&InvPos,  pInvestorPosition, sizeof(CThostFtdcInvestorPositionField));
-		m_InvPosVec.push_back(InvPos);
-		/*
-		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_InvPosVec.push_back(pInvPos);
-		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstInvPosInf.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_InvPosVec.size());
-		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstInvPosInf.Invalidate();
-		*/
+		memcpy(&InvPos,pInvestorPosition, sizeof(CThostFtdcInvestorPositionField));
+		bool founded = false;
+		for(int i = 0;i < m_InvPosVec.size();i++){
+			if(!strcmp(m_InvPosVec[i].InstrumentID,InvPos.InstrumentID)){
+				founded = true;
+				break;
+			}
+		}
+		if(!founded){
+			m_InvPosVec.push_back(InvPos);
+		}
 		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 	}
 	if(bIsLast) SetEvent(g_hEvent);	
