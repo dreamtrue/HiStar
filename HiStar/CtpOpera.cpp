@@ -61,11 +61,15 @@ void CHiStarApp::LoginCtp(UINT wParam,LONG lParam)
 void CHiStarApp::LogoutCtp(UINT wParam,LONG lParam)
 {
 	//交易模块登出,行情模块不需要,否则会报错(暂时不知道原因?)
-	m_cT->ReqUserLogout();
-	m_cQ->ReqUserLogout();//行情无法正常登出，如果在未登出的情况下继续登入，会发生访问冲突；故采用release方式直接删除
-	m_MApi = NULL;//需要将行情API设为NULL，因为已经release
-	m_cQ = NULL;
-	delete m_cQ;
+	if(m_cT){
+		m_cT->ReqUserLogout();
+	}
+	if(m_cQ){
+		m_cQ->ReqUserLogout();//行情无法正常登出，如果在未登出的情况下继续登入，会发生访问冲突；故采用release方式直接删除
+		m_cQ = NULL;
+		delete m_cQ;
+		m_MApi = NULL;//需要将行情API设为NULL，因为已经release
+	}
 }
 UINT LoginThread(LPVOID pParam)
 {
@@ -73,6 +77,10 @@ UINT LoginThread(LPVOID pParam)
 	if(!(CMainDlg*)pApp->m_pMainWnd){
 		return 0;
 	}
+	//不做清除，因为trade信息在重新登陆时并不会重新推送
+	//if(pApp->m_cT){
+	//	pApp->m_cT->ClearAllVectors();//清除掉所有的vectors
+	//}
 	g_hEvent = CreateEvent(NULL, true, false, NULL); 
 	//初始化交易API,注册多个前置备用
 	int iTdSvr = pApp->m_accountCtp.m_szArTs.GetSize();

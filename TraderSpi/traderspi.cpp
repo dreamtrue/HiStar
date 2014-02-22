@@ -600,6 +600,7 @@ void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder){
 
 ///成交通知
 void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
+	TRACE("成交通知\n");
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	CThostFtdcTradeField trade;
 	memcpy(&trade,pTrade,sizeof(CThostFtdcTradeField));
@@ -614,16 +615,14 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 	}
 	//////修改成交单状态
 	if(founded){
-		TRACE(_T("修改成交单状态"));
+		/*该处删去,因为成交编号是表示单笔成交,并不是表示单笔委托,分几笔成交的单子将会有几个成交编号
 		//不过是重新覆盖成交信息
 		int VolumeTotal;double PriceAvg;
 		VolumeTotal = m_tradeVec[ii].Volume + trade.Volume;
 		PriceAvg = (m_tradeVec[ii].Price * m_tradeVec[ii].Volume + trade.Price * trade.Volume) / VolumeTotal;
 		m_tradeVec[ii].Volume = VolumeTotal;
 		m_tradeVec[ii].Price = PriceAvg;
-		if (!g_bRecconnectT){
-			//可以在这儿添加要显示的成交信息,如果是重连后获取的则不显示。
-		} 
+		*/
 	}
 	///////新增加已成交单 
 	else 
@@ -1516,4 +1515,16 @@ bool CtpTraderSpi::IsErrorRspInfo(CThostFtdcRspInfoField *pRspInfo)
 void CtpTraderSpi::ShowErrTips(TThostFtdcErrorMsgType ErrorMsg)
 {
 	ShowErroTips(ErrorMsg,MY_TIPS);
+}
+
+void CtpTraderSpi::ClearAllVectors(){
+	m_orderVec.clear();
+	m_tradeVec.clear();
+	m_InsinfVec.clear();
+	m_MargRateVec.clear();
+	m_StmiVec.clear();
+	m_AccRegVec.clear();
+	m_TdCodeVec.clear();
+	m_InvPosVec.clear();
+	m_BfTransVec.clear();
 }

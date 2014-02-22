@@ -206,6 +206,7 @@ void CMainDlg::addCombInst(void)
 {
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	BOOL bRes = FALSE;
+	m_basicPage.m_CombInst.ResetContent();//³äÖµÇå¿ÕÄÚÈÝ
 	for (UINT i=0; i < pApp->m_cT->m_InsinfVec.size();i++)
 	{
 		if(pApp->m_cT->m_InsinfVec[i].iinf.InstrumentID[0] == 'I' 

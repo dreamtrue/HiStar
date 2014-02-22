@@ -294,6 +294,7 @@ public:
 	CThostFtdcRspInfoField m_RspMsg;
 
 private:
-  CThostFtdcTraderApi* pUserApi;
-
+	CThostFtdcTraderApi* pUserApi;
+  public:
+	void ClearAllVectors();
 };
