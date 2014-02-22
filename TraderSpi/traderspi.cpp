@@ -594,6 +594,7 @@ void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder){
 			founded = true;
 			//修改命令状态
 			m_orderVec[i] = order;
+			//PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 			break;
 		}
 	}		
@@ -606,11 +607,10 @@ void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder){
 		}
 		else{
 			//挂单返回，表示已经递送出去，将该挂单删除(已经变成委托单或其他)
-			PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 		}
 		///////新增加委托单
 		m_orderVec.push_back(order);
-		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
+		//PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 	}
 }
 
