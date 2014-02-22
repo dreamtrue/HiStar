@@ -111,6 +111,7 @@ public:
 	void OnUpdateLstCtrl(UINT wParam,LONG lParam);
 	CWinThread* m_pLoginCtp;
 	int FindInstMul(TThostFtdcInstrumentIDType InstID);
+	CString m_strPath;
 };
 
 extern CHiStarApp theApp;

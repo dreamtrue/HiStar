@@ -74,12 +74,16 @@ void CtpMdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
 }
 
 void CtpMdSpi::ReqUserLogout(){
+	/*
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	CThostFtdcUserLogoutField req;
 	memset(&req, 0, sizeof(req));
 	strcpy(req.BrokerID, m_sBkrID);
 	strcpy(req.UserID, m_sINVEST_ID);
 	pUserApi->ReqUserLogout(&req, ++m_iRequestID);
+	*/
+	pUserApi->RegisterSpi(NULL);
+	pUserApi->Release();
 }
 
 ///µÇ³öÇëÇóÏìÓ¦

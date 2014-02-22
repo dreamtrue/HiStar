@@ -41,15 +41,15 @@ private:
 	std::vector<CThostFtdcOrderField> m_orderVec;
 	std::vector<CThostFtdcTradeField> m_tradeVec;
 	std::vector<CThostFtdcInstrumentFieldEx> m_InsinfVec;
+	std::vector<CThostFtdcInvestorPositionField> m_InvPosVec;
+	CTimeSpan m_tsEXnLocal[4];
 	std::vector<CThostFtdcInstrumentMarginRateField> m_MargRateVec;
 	std::vector<CThostFtdcSettlementInfoField> m_StmiVec;
 	std::vector<CThostFtdcAccountregisterField> m_AccRegVec;
 	std::vector<CThostFtdcTradingCodeField> m_TdCodeVec;
-	std::vector<CThostFtdcInvestorPositionField> m_InvPosVec;
 	std::vector<CThostFtdcRspTransferField> m_BfTransVec;
 	std::vector<CThostFtdcInstrumentCommissionRateField> m_FeeRateVec;
 	CThostFtdcInstrumentCommissionRateField m_FeeRateRev;
-	CTimeSpan m_tsEXnLocal[4];
 public:
 	////////////////////////////////////////////
 	CThostFtdcTradingAccountField m_TdAcc;

@@ -8,24 +8,32 @@ UINT LoginThread(LPVOID pParam);
 void CHiStarApp::CreateCtpClient(void)
 {
 	//Ctp行情系统
-	CString strPath = __targv[0]; 
-	strPath = strPath.Left(strPath.ReverseFind('\\'));
-	strPath += '\\';
-	strPath += _T("log\\");
-	if (!PathIsDirectory(strPath))
+	m_strPath = __targv[0]; 
+	m_strPath = m_strPath.Left(m_strPath.ReverseFind('\\'));
+	m_strPath += '\\';
+	m_strPath += _T("log\\");
+	if (!PathIsDirectory(m_strPath))
 	{
-		CreateDirectory(strPath,NULL);
+		CreateDirectory(m_strPath,NULL);
 	}
 	//CTP交易系统
-	m_TApi = CThostFtdcTraderApi::CreateFtdcTraderApi(strPath);
-	m_cT = new CtpTraderSpi(m_TApi);
-	m_TApi->RegisterSpi((CThostFtdcTraderSpi*)m_cT);
-	m_TApi->SubscribePublicTopic(THOST_TERT_RESTART);
-	m_TApi->SubscribePrivateTopic(THOST_TERT_RESTART);
-	//CTP行情系统
-	m_MApi = CThostFtdcMdApi::CreateFtdcMdApi(strPath);
-	m_cQ = new CtpMdSpi(m_MApi);
-	m_MApi->RegisterSpi(m_cQ);
+	m_TApi = CThostFtdcTraderApi::CreateFtdcTraderApi(m_strPath);
+	if(m_cT){
+		delete m_cT;
+		m_cT = new CtpTraderSpi(m_TApi);
+	}
+	else{
+		m_cT = new CtpTraderSpi(m_TApi);
+	}
+	if(m_TApi){
+		m_TApi->RegisterSpi((CThostFtdcTraderSpi*)m_cT);
+	}
+	if(m_TApi){
+		m_TApi->SubscribePublicTopic(THOST_TERT_RESTART);
+	}
+	if(m_TApi){
+		m_TApi->SubscribePrivateTopic(THOST_TERT_RESTART);
+	}
 }
 int CHiStarApp::FindInstMul(TThostFtdcInstrumentIDType InstID){
 	bool founded=false;
@@ -54,7 +62,10 @@ void CHiStarApp::LogoutCtp(UINT wParam,LONG lParam)
 {
 	//交易模块登出,行情模块不需要,否则会报错(暂时不知道原因?)
 	m_cT->ReqUserLogout();
-	m_cQ->ReqUserLogout();//行情无法正常登出，如果在未登出的情况下继续登入，会发生访问冲突。
+	m_cQ->ReqUserLogout();//行情无法正常登出，如果在未登出的情况下继续登入，会发生访问冲突；故采用release方式直接删除
+	m_MApi = NULL;//需要将行情API设为NULL，因为已经release
+	m_cQ = NULL;
+	delete m_cQ;
 }
 UINT LoginThread(LPVOID pParam)
 {
@@ -63,7 +74,7 @@ UINT LoginThread(LPVOID pParam)
 		return 0;
 	}
 	g_hEvent = CreateEvent(NULL, true, false, NULL); 
-	//初始化行情和交易API,注册多个前置备用
+	//初始化交易API,注册多个前置备用
 	int iTdSvr = pApp->m_accountCtp.m_szArTs.GetSize();
 	int i =0,iLen;
 	char szTd[MAX_PATH],szMd[MAX_PATH];
@@ -103,6 +114,20 @@ UINT LoginThread(LPVOID pParam)
 			pApp->m_pLoginCtp = NULL;
 			return 0;
 		}
+	}
+	//CTP行情系统
+	pApp->m_MApi = CThostFtdcMdApi::CreateFtdcMdApi(pApp->m_strPath);
+	if(pApp->m_MApi){
+		if(pApp->m_cQ){
+			delete pApp->m_cQ;
+			pApp->m_cQ = new CtpMdSpi(pApp->m_MApi);
+		}
+		else{
+			pApp->m_cQ = new CtpMdSpi(pApp->m_MApi);
+		}
+	}
+	if(pApp->m_MApi){
+		pApp->m_MApi->RegisterSpi(pApp->m_cQ);
 	}
 	int iMdSvr = pApp->m_accountCtp.m_szArMd.GetSize();
 	for (i=0;i<iTdSvr;i++){

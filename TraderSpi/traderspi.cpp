@@ -250,11 +250,12 @@ void CtpTraderSpi::OnRspQryTradingAccount(
 { 
 	if (!IsErrorRspInfo(pRspInfo) &&  pTradingAccount)
 	{
-		CThostFtdcTradingAccountField* pAcc = new CThostFtdcTradingAccountField();
+		CThostFtdcTradingAccountField *pAcc = new CThostFtdcTradingAccountField();
 		memcpy(pAcc,pTradingAccount,sizeof(CThostFtdcTradingAccountField));
 		m_TdAcc = *pAcc;
 		if(AfxGetApp()->m_pMainWnd){
-			PostMessageA(AfxGetApp()->m_pMainWnd->m_hWnd,WM_UPDATE_ACC_CTP,NULL,(LPARAM)pAcc);
+
+			PostMessage(AfxGetApp()->m_pMainWnd->m_hWnd,WM_UPDATE_ACC_CTP,NULL,(LPARAM)pAcc);
 		}
 	}
 	if(bIsLast) SetEvent(g_hEvent);
@@ -566,22 +567,22 @@ void CtpTraderSpi::OnRspOrderAction(
 ///报单回报
 void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder){
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
-	CThostFtdcOrderField* order = new CThostFtdcOrderField();
+	CThostFtdcOrderField order;
 	TRACE("OnRtnOrder所有报单通知%s,%s,%c,%d,已经成交%d\r\n",pOrder->OrderRef, pOrder->OrderSysID,pOrder->OrderStatus,pOrder->BrokerOrderSeq,pOrder->VolumeTraded);
-	memcpy(order,pOrder, sizeof(CThostFtdcOrderField));
+	memcpy(&order,pOrder, sizeof(CThostFtdcOrderField));
 	bool founded = false;UINT i = 0;
 	for(i = 0;i<m_orderVec.size();i++){
-		if(m_orderVec[i].BrokerOrderSeq == order->BrokerOrderSeq) { 
+		if(m_orderVec[i].BrokerOrderSeq == order.BrokerOrderSeq) { 
 			founded = true;
 			//修改命令状态
-			m_orderVec[i] = *order;
+			m_orderVec[i] = order;
 			PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 			break;
 		}
 	}		
 	if(!founded){
 		//将挂单删除，因为这时有消息返回说明已经递送出去了
-		int nRet = ((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.FindOrdInOnRoadVec(order->BrokerOrderSeq);
+		int nRet = ((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.FindOrdInOnRoadVec(order.BrokerOrderSeq);
 		//未加入挂单列表
 		if (nRet==-1){
 			//如果没有,则不做任何动作
@@ -591,7 +592,7 @@ void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder){
 			PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 		}
 		///////新增加委托单
-		m_orderVec.push_back(*order);
+		m_orderVec.push_back(order);
 		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 	}
 	SetEvent(g_hEvent);
@@ -600,13 +601,13 @@ void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder){
 ///成交通知
 void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
-	CThostFtdcTradeField* trade = new CThostFtdcTradeField();
-	memcpy(trade,pTrade,sizeof(CThostFtdcTradeField));
+	CThostFtdcTradeField trade;
+	memcpy(&trade,pTrade,sizeof(CThostFtdcTradeField));
 	bool founded = false;     
 	unsigned int ii = 0;
 	for(ii = 0;ii<m_tradeVec.size();ii++){
 		//strcmp返回0时表示相等
-		if(strcmp(m_tradeVec[ii].TradeID,trade->TradeID) == 0){
+		if(strcmp(m_tradeVec[ii].TradeID,trade.TradeID) == 0){
 			founded = true;   
 			break;
 		}
@@ -616,8 +617,8 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 		TRACE(_T("修改成交单状态"));
 		//不过是重新覆盖成交信息
 		int VolumeTotal;double PriceAvg;
-		VolumeTotal = m_tradeVec[ii].Volume + trade->Volume;
-		PriceAvg = (m_tradeVec[ii].Price * m_tradeVec[ii].Volume + trade->Price * trade->Volume) / VolumeTotal;
+		VolumeTotal = m_tradeVec[ii].Volume + trade.Volume;
+		PriceAvg = (m_tradeVec[ii].Price * m_tradeVec[ii].Volume + trade.Price * trade.Volume) / VolumeTotal;
 		m_tradeVec[ii].Volume = VolumeTotal;
 		m_tradeVec[ii].Price = PriceAvg;
 		if (!g_bRecconnectT){
@@ -627,7 +628,7 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 	///////新增加已成交单 
 	else 
 	{
-		m_tradeVec.push_back(*trade);
+		m_tradeVec.push_back(trade);
 		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 		/*
 		//有关持仓的计算暂时取消??????
@@ -816,8 +817,8 @@ void CtpTraderSpi::OnRspQryInvestor(CThostFtdcInvestorField *pInvestor, CThostFt
 {
 	if( !IsErrorRspInfo(pRspInfo) && pInvestor )
 	{
-		CThostFtdcInvestorField *pInv = new CThostFtdcInvestorField;
-		memcpy(pInv,pInvestor,sizeof(CThostFtdcInvestorField));
+		CThostFtdcInvestorField Inv;
+		memcpy(&Inv,pInvestor,sizeof(CThostFtdcInvestorField));
 
 		//SendNotifyMessage(((CXTraderDlg*)g_pCWnd)->m_hWnd,WM_QRYUSER_MSG,0,(LPARAM)pInv);
 	}
@@ -1014,23 +1015,23 @@ void CtpTraderSpi::OnRspFromBankToFutureByFuture(CThostFtdcReqTransferField *pRe
 ///期货发起银行资金转期货通知
 void CtpTraderSpi::OnRtnFromBankToFutureByFuture(CThostFtdcRspTransferField *pRspTransfer)
 {
-	CThostFtdcRspTransferField* bfTrans = new CThostFtdcRspTransferField();
-	memcpy(bfTrans,  pRspTransfer, sizeof(CThostFtdcRspTransferField));
+	CThostFtdcRspTransferField bfTrans;
+	memcpy(&bfTrans,  pRspTransfer, sizeof(CThostFtdcRspTransferField));
 	bool founded=false;    UINT i=0;
 	for(i=0; i<m_BfTransVec.size(); i++)
 	{
-		if(m_BfTransVec[i].FutureSerial==bfTrans->FutureSerial) 
+		if(m_BfTransVec[i].FutureSerial==bfTrans.FutureSerial) 
 		{ founded=true;    break;}
 	}
 	//////覆盖
 	if(founded) 
 	{
-		m_BfTransVec[i] = *bfTrans; 
+		m_BfTransVec[i] = bfTrans; 
 	} 
 	///////新增银期反馈
 	else 
 	{
-		m_BfTransVec.push_back(*bfTrans);
+		m_BfTransVec.push_back(bfTrans);
 		if(!g_bRecconnectT)
 		{
 			if(pRspTransfer->ErrorID!=0)
@@ -1107,24 +1108,24 @@ void CtpTraderSpi::OnRtnFromFutureToBankByFuture(CThostFtdcRspTransferField *pRs
 {
 	//AfxMessageBox(_T("OnRtnFromFutureToBankByFuture"));
 
-	CThostFtdcRspTransferField* bfTrans = new CThostFtdcRspTransferField();
-	memcpy(bfTrans,  pRspTransfer, sizeof(CThostFtdcRspTransferField));
+	CThostFtdcRspTransferField bfTrans;
+	memcpy(&bfTrans,  pRspTransfer, sizeof(CThostFtdcRspTransferField));
 	bool founded=false;    UINT i=0;
 	for(i=0; i<m_BfTransVec.size(); i++)
 	{
-		if(m_BfTransVec[i].FutureSerial==bfTrans->FutureSerial)
+		if(m_BfTransVec[i].FutureSerial==bfTrans.FutureSerial)
 		{ founded=true;    break;}
 	}
 	//////覆盖
 	if(founded) 
 	{
-		m_BfTransVec[i] = *bfTrans; 
+		m_BfTransVec[i] = bfTrans; 
 
 	} 
 	///////新增银期反馈
 	else 
 	{
-		m_BfTransVec.push_back(*bfTrans);
+		m_BfTransVec.push_back(bfTrans);
 		if(!g_bRecconnectT)
 		{
 			if(pRspTransfer->ErrorID!=0)
@@ -1176,16 +1177,16 @@ void CtpTraderSpi::OnRspQueryBankAccountMoneyByFuture(CThostFtdcReqQueryAccountF
 
 	if( IsErrorRspInfo(pRspInfo) || (pReqQueryAccount==NULL))
 	{
-		CThostFtdcRspTransferField* bfTrans = new CThostFtdcRspTransferField();
-		ZeroMemory(bfTrans,sizeof(CThostFtdcRspTransferField));
+		CThostFtdcRspTransferField bfTrans;
+		ZeroMemory(&bfTrans,sizeof(CThostFtdcRspTransferField));
 
-		bfTrans->FutureSerial = pReqQueryAccount->FutureSerial;
-		strcpy(bfTrans->TradeCode,pReqQueryAccount->TradeCode);
+		bfTrans.FutureSerial = pReqQueryAccount->FutureSerial;
+		strcpy(bfTrans.TradeCode,pReqQueryAccount->TradeCode);
 		//bfTrans->TradeAmount = pReqQueryAccount->TradeAmount;
-		strcpy(bfTrans->TradeTime,pReqQueryAccount->TradeTime);
-		strcpy(bfTrans->ErrorMsg,pRspInfo->ErrorMsg);
+		strcpy(bfTrans.TradeTime,pReqQueryAccount->TradeTime);
+		strcpy(bfTrans.ErrorMsg,pRspInfo->ErrorMsg);
 
-		m_BfTransVec.push_back(*bfTrans);
+		m_BfTransVec.push_back(bfTrans);
 
 		ShowErrTips(pRspInfo->ErrorMsg);
 	}
@@ -1201,8 +1202,8 @@ void CtpTraderSpi::OnRtnQueryBankBalanceByFuture(CThostFtdcNotifyQueryAccountFie
 		if (!g_bRecconnectT)
 		{
 
-			CThostFtdcNotifyQueryAccountField *pNotify = new CThostFtdcNotifyQueryAccountField();
-			memcpy(pNotify,pNotifyQueryAccount,sizeof(CThostFtdcNotifyQueryAccountField));
+			CThostFtdcNotifyQueryAccountField Notify;
+			memcpy(&Notify,pNotifyQueryAccount,sizeof(CThostFtdcNotifyQueryAccountField));
 
 			//::PostMessage(g_pCWnd->m_hWnd,WM_QRYBKYE_MSG,0,(LPARAM)pNotify);
 			/*

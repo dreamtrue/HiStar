@@ -31,18 +31,12 @@ CHiStarApp::CHiStarApp()
 	, m_cQ(NULL)
 	, m_cT(NULL)
 	, m_pLoginCtp(NULL)
+	, m_strPath(_T(""))
 {
 	//定位内存泄漏位置,非常好用
-	/*
-	_CrtSetBreakAlloc(1814);
-	_CrtSetBreakAlloc(1811);
-	_CrtSetBreakAlloc(1804);
-    _CrtSetBreakAlloc(1795);
-	_CrtSetBreakAlloc(973);
-	_CrtSetBreakAlloc(971);
-	_CrtSetBreakAlloc(969);
-	_CrtSetBreakAlloc(967);
-	*/
+	//_CrtSetBreakAlloc(1192);
+	//_CrtSetBreakAlloc(68409);
+	//_CrtSetBreakAlloc(638);
 	MainThreadId = GetCurrentThreadId();
 	// 支持重新启动管理器
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;
@@ -126,16 +120,24 @@ CHiStarApp::~CHiStarApp(void)
 	m_pIBClient = NULL;
 	if(m_TApi){
 		m_TApi->RegisterSpi(NULL);
+	}
+	if(m_TApi){
 		m_TApi->Release();
+	}
+	if(m_TApi){
 		m_TApi = NULL;
 	}
-	if( m_cT){
+	if(m_cT){
 		delete m_cT;
 		m_cT = NULL;
 	}
 	if(m_MApi){
 		m_MApi->RegisterSpi(NULL);
+	}
+	if(m_MApi){
 		m_MApi->Release();
+	}
+	if(m_MApi){
 		m_MApi = NULL;
 	}
 	if( m_cQ){
