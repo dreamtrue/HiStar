@@ -34,8 +34,8 @@ res\HiStar.rc2
 
 应用程序向导创建一个对话框类:
 
-OperaPage.h，HiStarDlg.cpp - 对话框
-这些文件包含 COperaPage 类。该类定义应用程序主对话框的行为。该对话框的模板位于 HiStar.rc 中，该文件可以在 Microsoft Visual C++ 中进行编辑。
+BasicPage.h，HiStarDlg.cpp - 对话框
+这些文件包含 CBasicPage 类。该类定义应用程序主对话框的行为。该对话框的模板位于 HiStar.rc 中，该文件可以在 Microsoft Visual C++ 中进行编辑。
 
 
 /////////////////////////////////////////////////////////////////////////////

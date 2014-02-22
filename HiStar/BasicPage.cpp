@@ -5,7 +5,7 @@
 #include "stdafx.h"
 #include "HiStar.h"
 #include "afxdialogex.h"
-#include "OperaPage.h"
+#include "BasicPage.h"
 #include "EClientSocket.h"   // C:\JTS\SocketClient\include must be added to include path
 #include "global.h"
 #include "UserMsg.h"
@@ -42,24 +42,24 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
-	ON_BN_CLICKED(IDOK, &COperaPage::OnOK)
-	ON_BN_CLICKED(IDCANCEL, &COperaPage::OnBnClickedCancel)
+	ON_BN_CLICKED(IDOK, &CBasicPage::OnOK)
+	ON_BN_CLICKED(IDCANCEL, &CBasicPage::OnBnClickedCancel)
 END_MESSAGE_MAP()
 
 
-// COperaPage 对话框
+// CBasicPage 对话框
 
-COperaPage::COperaPage(CWnd* pParent /*=NULL*/)
-	: CDialogEx(COperaPage::IDD, pParent)
+CBasicPage::CBasicPage(CWnd* pParent /*=NULL*/)
+	: CDialogEx(CBasicPage::IDD, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
 
-COperaPage::~COperaPage()
+CBasicPage::~CBasicPage()
 {
 }
 
-void COperaPage::DoDataExchange(CDataExchange* pDX)
+void CBasicPage::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_LIST1, m_orderStatus);
@@ -72,23 +72,23 @@ void COperaPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_STATIC02, m_csLastP);
 }
 
-BEGIN_MESSAGE_MAP(COperaPage, CDialogEx)
+BEGIN_MESSAGE_MAP(CBasicPage, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-	ON_BN_CLICKED(IDC_BUTTON1, &COperaPage::OnConnectIB)
-	ON_BN_CLICKED(IDC_BUTTON3, &COperaPage::OnDisconnectIB)
-	ON_BN_CLICKED(IDC_BUTTON4, &COperaPage::OnLoginCtp)
-	ON_BN_CLICKED(IDC_BUTTON5, &COperaPage::OnLogoutCtp)
-	ON_CBN_SELCHANGE(IDC_COMBO2, &COperaPage::OnInsSelchange)
-	ON_BN_CLICKED(IDC_BUTTON6, &COperaPage::OnReqComboSelMarketDepth)
-	ON_BN_CLICKED(IDC_BUTTON7, &COperaPage::OnStart)
+	ON_BN_CLICKED(IDC_BUTTON1, &CBasicPage::OnConnectIB)
+	ON_BN_CLICKED(IDC_BUTTON3, &CBasicPage::OnDisconnectIB)
+	ON_BN_CLICKED(IDC_BUTTON4, &CBasicPage::OnLoginCtp)
+	ON_BN_CLICKED(IDC_BUTTON5, &CBasicPage::OnLogoutCtp)
+	ON_CBN_SELCHANGE(IDC_COMBO2, &CBasicPage::OnInsSelchange)
+	ON_BN_CLICKED(IDC_BUTTON6, &CBasicPage::OnReqComboSelMarketDepth)
+	ON_BN_CLICKED(IDC_BUTTON7, &CBasicPage::OnStart)
 END_MESSAGE_MAP()
 
 
-// COperaPage 消息处理程序
+// CBasicPage 消息处理程序
 
-BOOL COperaPage::OnInitDialog()
+BOOL CBasicPage::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
 
@@ -130,7 +130,7 @@ BOOL COperaPage::OnInitDialog()
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
-void COperaPage::OnSysCommand(UINT nID, LPARAM lParam)
+void CBasicPage::OnSysCommand(UINT nID, LPARAM lParam)
 {
 	if ((nID & 0xFFF0) == IDM_ABOUTBOX)
 	{
@@ -147,7 +147,7 @@ void COperaPage::OnSysCommand(UINT nID, LPARAM lParam)
 //  来绘制该图标。对于使用文档/视图模型的 MFC 应用程序，
 //  这将由框架自动完成。
 
-void COperaPage::OnPaint()
+void CBasicPage::OnPaint()
 {
 	if (IsIconic())
 	{
@@ -174,33 +174,33 @@ void COperaPage::OnPaint()
 
 //当用户拖动最小化窗口时系统调用此函数取得光标
 //显示。
-HCURSOR COperaPage::OnQueryDragIcon()
+HCURSOR CBasicPage::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-void COperaPage::OnConnectIB()
+void CBasicPage::OnConnectIB()
 {
 	PostThreadMessage(GetCurrentThreadId(),WM_CONNECT_IB,NULL,NULL);
 }
 
-void COperaPage::OnDisconnectIB()
+void CBasicPage::OnDisconnectIB()
 {
 	PostThreadMessageA(GetCurrentThreadId(),WM_DISCONNECT_IB,NULL,NULL);
 }
 
-void COperaPage::OnLoginCtp()
+void CBasicPage::OnLoginCtp()
 {
 	PostThreadMessageA(GetCurrentThreadId(),WM_LOGIN_CTP,NULL,NULL);
 }
 
-void COperaPage::OnLogoutCtp()
+void CBasicPage::OnLogoutCtp()
 {
 	PostThreadMessageA(GetCurrentThreadId(),WM_LOGOUT_CTP,NULL,NULL);
 }
 
 
-void COperaPage::ProgressUpdate(LPCTSTR szMsg, const int nPercentDone)
+void CBasicPage::ProgressUpdate(LPCTSTR szMsg, const int nPercentDone)
 {
 	ASSERT (AfxIsValidString(szMsg));
 	ASSERT ( nPercentDone >= 0  &&  nPercentDone <= 100 );
@@ -209,22 +209,22 @@ void COperaPage::ProgressUpdate(LPCTSTR szMsg, const int nPercentDone)
 	m_prgs.SetPos(nPercentDone);
 }
 
-void COperaPage::OnInsSelchange()
+void CBasicPage::OnInsSelchange()
 {
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	m_CombInst.GetLBText(m_CombInst.GetCurSel(),pApp->m_accountCtp.m_szInst);
 }
 
-void COperaPage::OnOK(void)
+void CBasicPage::OnOK(void)
 {
 	//屏蔽掉对OK的响应
 }
 
-void COperaPage::OnBnClickedCancel(){
+void CBasicPage::OnBnClickedCancel(){
 
 }
 
-void COperaPage::OnReqComboSelMarketDepth()
+void CBasicPage::OnReqComboSelMarketDepth()
 {
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	char szInst[MAX_PATH];
@@ -236,7 +236,7 @@ void COperaPage::OnReqComboSelMarketDepth()
 	}
 }
 
-void COperaPage::RefreshMdPane(void)
+void CBasicPage::RefreshMdPane(void)
 {
 	 double dPresp=m_depthMd.PreSettlementPrice;
 	 double dUpD = m_depthMd.LastPrice-dPresp;
@@ -245,7 +245,7 @@ void COperaPage::RefreshMdPane(void)
 	 m_csB1P.SetDouble(m_depthMd.BidPrice1,CmpPriceColor(m_depthMd.AskPrice1,dPresp));
 }
 
-void COperaPage::OnStart()
+void CBasicPage::OnStart()
 {
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	TThostFtdcCombOffsetFlagType kpp;

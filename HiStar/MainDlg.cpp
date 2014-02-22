@@ -44,13 +44,13 @@ BOOL CMainDlg::OnInitDialog(void)
 {
 	CDialogEx::OnInitDialog();
 	//额外初始化代码
-	m_tab.InsertItem(0, _T("操作"));
+	m_tab.InsertItem(0, _T("基本"));
 	m_tab.InsertItem(1, _T("账户"));
-	m_tab.InsertItem(2,_T("交易"));
+	m_tab.InsertItem(2,_T("状态"));
 	//创建两个对话框
 	m_accountPage.Create(IDD_ACCOUNT_PAGE, &m_tab);
-	m_operaPage.Create(IDD_OPERA_PAGE, &m_tab);
-	m_tradePage.Create(IDD_TRADE_PAGE, &m_tab);
+	m_basicPage.Create(IDD_BASIC_PAGE, &m_tab);
+	m_statusPage.Create(IDD_STATUS_PAGE, &m_tab);
 
 	//设定在Tab内显示的范围
 	CRect rc;
@@ -59,13 +59,13 @@ BOOL CMainDlg::OnInitDialog(void)
 	rc.bottom -= 0;
 	rc.left += 0;
 	rc.right -= 0;
-	m_operaPage.MoveWindow(&rc);
+	m_basicPage.MoveWindow(&rc);
 	m_accountPage.MoveWindow(&rc);
-	m_tradePage.MoveWindow(&rc);
+	m_statusPage.MoveWindow(&rc);
 	//把对话框对象指针保存起来
-	m_pDialog[0] = &m_operaPage;
+	m_pDialog[0] = &m_basicPage;
 	m_pDialog[1] = &m_accountPage;
-	m_pDialog[2] = &m_tradePage;
+	m_pDialog[2] = &m_statusPage;
 	//显示初始页面
 	m_pDialog[0]->ShowWindow(SW_SHOW);
 	m_pDialog[1]->ShowWindow(false);
@@ -80,17 +80,17 @@ BOOL CMainDlg::OnInitDialog(void)
 
 afx_msg LRESULT CMainDlg::OnOrderStatus(WPARAM wParam, LPARAM lParam)
 {
-	int i = m_operaPage.m_orderStatus.AddString(*(CString *)wParam);
+	int i = m_basicPage.m_orderStatus.AddString(*(CString *)wParam);
 	int top = i - N < 0 ? 0 : i - N;
-	m_operaPage.m_orderStatus.SetTopIndex(top);
+	m_basicPage.m_orderStatus.SetTopIndex(top);
 	delete (CString*)wParam;
 	return 0;
 }
 afx_msg LRESULT CMainDlg::OnErrors(WPARAM wParam, LPARAM lParam)
 {
-	int i = m_operaPage.m_errors.AddString(*(CString *)wParam);
+	int i = m_basicPage.m_errors.AddString(*(CString *)wParam);
 	int top = i - N < 0 ? 0 : i - N;
-	m_operaPage.m_errors.SetTopIndex(top);
+	m_basicPage.m_errors.SetTopIndex(top);
 	delete (CString*)wParam;
 	return 0;
 }
@@ -210,8 +210,8 @@ void CMainDlg::addCombInst(void)
 	{
 		if(pApp->m_cT->m_InsinfVec[i]->iinf.InstrumentID[0] == 'I' 
 			&& pApp->m_cT->m_InsinfVec[i]->iinf.InstrumentID[1] == 'F'){
-				m_operaPage.m_CombInst.AddString(CString(pApp->m_cT->m_InsinfVec[i]->iinf.InstrumentID));
-				m_operaPage.m_CombInst.SetWindowText(CString(pApp->m_cT->m_InsinfVec[i]->iinf.InstrumentID));
+				m_basicPage.m_CombInst.AddString(CString(pApp->m_cT->m_InsinfVec[i]->iinf.InstrumentID));
+				m_basicPage.m_CombInst.SetWindowText(CString(pApp->m_cT->m_InsinfVec[i]->iinf.InstrumentID));
 		}
 	}
 }
@@ -224,21 +224,21 @@ void CMainDlg::OnTcnSelchangeTab(NMHDR *pNMHDR, LRESULT *pResult)
 	{
 	case 0:
 		m_CurSelTab = 0;
-		m_operaPage.ShowWindow(true);
+		m_basicPage.ShowWindow(true);
 		m_accountPage.ShowWindow(false);
-		m_tradePage.ShowWindow(false);
+		m_statusPage.ShowWindow(false);
 		break;
 	case 1:
 		m_CurSelTab = 1;
 		m_accountPage.ShowWindow(true);
-		m_operaPage.ShowWindow(false);
-		m_tradePage.ShowWindow(false);
+		m_basicPage.ShowWindow(false);
+		m_statusPage.ShowWindow(false);
 		break;
 	case 2:
 		m_CurSelTab = 2;
-		m_tradePage.ShowWindow(true);
+		m_statusPage.ShowWindow(true);
 		m_accountPage.ShowWindow(false);
-		m_operaPage.ShowWindow(false);
+		m_basicPage.ShowWindow(false);
 	}
 	*pResult = 0;
 }

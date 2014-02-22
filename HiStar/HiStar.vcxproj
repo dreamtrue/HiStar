@@ -110,12 +110,12 @@
     <ClInclude Include="AccountPage.h" />
     <ClInclude Include="global.h" />
     <ClInclude Include="HiStar.h" />
-    <ClInclude Include="OperaPage.h" />
+    <ClInclude Include="BasicPage.h" />
     <ClInclude Include="MainDlg.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="TradePage.h" />
+    <ClInclude Include="StatusPage.h" />
     <ClInclude Include="UserMsg.h" />
   </ItemGroup>
   <ItemGroup>
@@ -133,9 +133,9 @@
     <ClCompile Include="CVector.h" />
     <ClCompile Include="HiStar.cpp" />
     <ClCompile Include="IBOpera.cpp" />
-    <ClCompile Include="OperaPage.cpp" />
+    <ClCompile Include="BasicPage.cpp" />
     <ClCompile Include="MainDlg.cpp" />
-    <ClCompile Include="TradePage.cpp" />
+    <ClCompile Include="StatusPage.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="HiStar.rc" />

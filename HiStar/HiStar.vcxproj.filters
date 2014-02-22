@@ -63,9 +63,6 @@
     <ClInclude Include="MainDlg.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="OperaPage.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="AccountPage.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -87,7 +84,10 @@
     <ClInclude Include="..\THostFtdc\ThostFtdcUserApiStruct.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="TradePage.h">
+    <ClInclude Include="StatusPage.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="BasicPage.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -106,9 +106,6 @@
     </ClCompile>
     <ClCompile Include="..\CppClient\Shared\HScrollListBox.cpp">
       <Filter>源文件\IBClient</Filter>
-    </ClCompile>
-    <ClCompile Include="OperaPage.cpp">
-      <Filter>源文件\Dialog</Filter>
     </ClCompile>
     <ClCompile Include="AccountPage.cpp">
       <Filter>源文件\Dialog</Filter>
@@ -137,11 +134,14 @@
     <ClCompile Include="..\DIYCtrl\ColorListCtrl.cpp">
       <Filter>源文件\Dialog</Filter>
     </ClCompile>
-    <ClCompile Include="TradePage.cpp">
-      <Filter>源文件\Dialog</Filter>
-    </ClCompile>
     <ClCompile Include="CVector.h">
       <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="StatusPage.cpp">
+      <Filter>源文件\Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="BasicPage.cpp">
+      <Filter>源文件\Dialog</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

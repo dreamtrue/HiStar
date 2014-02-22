@@ -2,18 +2,18 @@
 #include "colorlistctrl.h"
 #include "afxcmn.h"
 #include "CVector.h"
-// CTradePage 对话框
+// CStatusPage 对话框
 
-class CTradePage : public CDialogEx
+class CStatusPage : public CDialogEx
 {
-	DECLARE_DYNAMIC(CTradePage)
+	DECLARE_DYNAMIC(CStatusPage)
 
 public:
-	CTradePage(CWnd* pParent = NULL);   // 标准构造函数
-	virtual ~CTradePage();
+	CStatusPage(CWnd* pParent = NULL);   // 标准构造函数
+	virtual ~CStatusPage();
 
 // 对话框数据
-	enum { IDD = IDD_TRADE_PAGE };
+	enum { IDD = IDD_STATUS_PAGE };
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持

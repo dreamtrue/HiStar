@@ -225,9 +225,9 @@ void CtpTraderSpi::OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument,
 	}
 	if(bIsLast){
 		TRACE(_T("合约查询完毕\n"));
-		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_InsinfVec = pApp->m_cT->m_InsinfVec;
-		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstAllInsts.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_InsinfVec.size());
-		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstAllInsts.Invalidate();
+		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_InsinfVec = pApp->m_cT->m_InsinfVec;
+		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstAllInsts.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_InsinfVec.size());
+		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstAllInsts.Invalidate();
 		SetEvent(g_hEvent);
 	}
 }
@@ -279,9 +279,9 @@ void CtpTraderSpi::OnRspQryInvestorPosition(
 		CThostFtdcInvestorPositionField* pInvPos = new CThostFtdcInvestorPositionField();
 		memcpy(pInvPos,  pInvestorPosition, sizeof(CThostFtdcInvestorPositionField));
 		m_InvPosVec.push_back(pInvPos);
-		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_InvPosVec.push_back(pInvPos);
-		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstInvPosInf.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_InvPosVec.size());
-		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstInvPosInf.Invalidate();
+		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_InvPosVec.push_back(pInvPos);
+		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstInvPosInf.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_InvPosVec.size());
+		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstInvPosInf.Invalidate();
 	}
 	if(bIsLast) SetEvent(g_hEvent);	
 }
@@ -569,31 +569,31 @@ void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder){
 			founded = true;
 			//修改命令状态
 			m_orderVec[i] = order;
-			((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_orderVec[i] = order;
-			((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstOrdInf.Invalidate();
+			((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_orderVec[i] = order;
+			((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstOrdInf.Invalidate();
 			break;
 		}
 	}		
 	if(!founded){
 		//将挂单删除，因为这时有消息返回说明已经递送出去了
-		int nRet = ((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.FindOrdInOnRoadVec(order->BrokerOrderSeq);
+		int nRet = ((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.FindOrdInOnRoadVec(order->BrokerOrderSeq);
 		//未加入挂单列表
 		if (nRet==-1){
 			//如果没有,则不做任何动作
 		}
 		else{
 			//挂单返回，表示已经递送出去，将该挂单删除(已经变成委托单或其他)
-			((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_onRoadVec.erase(((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_onRoadVec.begin()+nRet);
-			((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstOnRoad.SetRedraw(FALSE);//目的是暂时锁住数据，防止删除项目时还在读取
-			((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstOnRoad.DeleteItem(nRet);
-			((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstOnRoad.SetRedraw(TRUE);
-			((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstOnRoad.Invalidate();
+			((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_onRoadVec.erase(((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_onRoadVec.begin()+nRet);
+			((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstOnRoad.SetRedraw(FALSE);//目的是暂时锁住数据，防止删除项目时还在读取
+			((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstOnRoad.DeleteItem(nRet);
+			((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstOnRoad.SetRedraw(TRUE);
+			((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstOnRoad.Invalidate();
 		}
 		///////新增加委托单
 		m_orderVec.push_back(order);
-		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_orderVec.push_back(order);
-		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstOrdInf.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_orderVec.size());
-		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstOrdInf.Invalidate();
+		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_orderVec.push_back(order);
+		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstOrdInf.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_orderVec.size());
+		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstOrdInf.Invalidate();
 	}
 	SetEvent(g_hEvent);
 }
@@ -629,9 +629,9 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 	else 
 	{
 		m_tradeVec.push_back(trade);
-		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_tradeVec.push_back(trade);
-		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstTdInf.SetItemCountEx(m_tradeVec.size());
-		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstTdInf.Invalidate();
+		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_tradeVec.push_back(trade);
+		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstTdInf.SetItemCountEx(m_tradeVec.size());
+		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstTdInf.Invalidate();
 		/*
 		//有关持仓的计算暂时取消??????
 		/////////////////////////刷新持仓////////////////////////////////
@@ -648,9 +648,9 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 		if (bExist){//在持仓列表里,只需要更新持仓状态
 		if (trade->Direction == THOST_FTDC_D_Buy){
 		m_InvPosVec[j]->Position = m_InvPosVec[j]->Position + trade->Volume;
-		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_InvPosVec[j]->Position = ((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_InvPosVec[j]->Position + trade->Volume;
+		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_InvPosVec[j]->Position = ((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_InvPosVec[j]->Position + trade->Volume;
 		//持仓均价暂时无法计算？
-		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstInvPosInf.Invalidate();
+		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstInvPosInf.Invalidate();
 		switch(trade->OffsetFlag){
 		case THOST_FTDC_OF_Open:
 		break;
@@ -674,9 +674,9 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 		if (trade->Direction == THOST_FTDC_D_Sell)
 		{
 		m_InvPosVec[j]->Position = m_InvPosVec[j]->Position - trade->Volume;
-		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_InvPosVec[j]->Position = ((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_InvPosVec[j]->Position - trade->Volume;
+		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_InvPosVec[j]->Position = ((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_InvPosVec[j]->Position - trade->Volume;
 		//持仓均价暂时无法计算？
-		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstInvPosInf.Invalidate();
+		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstInvPosInf.Invalidate();
 		switch(trade->OffsetFlag){
 		case THOST_FTDC_OF_Open:
 		break;
@@ -708,9 +708,9 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 		newInvPos->OpenAmount = trade->Volume * trade->Price * iMul;
 		newInvPos->PositionCost = trade->Volume * trade->Price * iMul;
 		m_InvPosVec.push_back(newInvPos);
-		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_InvPosVec.push_back(newInvPos);
-		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstInvPosInf.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_InvPosVec.size());
-		((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstInvPosInf.Invalidate();
+		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_InvPosVec.push_back(newInvPos);
+		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstInvPosInf.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_InvPosVec.size());
+		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstInvPosInf.Invalidate();
 		}
 		/////////////////////////////////////////////////////////////////
 		*/

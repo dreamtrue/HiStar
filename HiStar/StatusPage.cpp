@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 #include "HiStar.h"
-#include "TradePage.h"
+#include "StatusPage.h"
 #include "afxdialogex.h"
 #include <algorithm>
 
@@ -13,20 +13,20 @@ bool cmpInst(const CThostFtdcInstrumentFieldEx* pfirst,const CThostFtdcInstrumen
 	return (iRes<=0);
 }
 
-// CTradePage 对话框
+// CStatusPage 对话框
 
-IMPLEMENT_DYNAMIC(CTradePage, CDialogEx)
+IMPLEMENT_DYNAMIC(CStatusPage, CDialogEx)
 
-	CTradePage::CTradePage(CWnd* pParent /*=NULL*/)
-	: CDialogEx(CTradePage::IDD, pParent)
+	CStatusPage::CStatusPage(CWnd* pParent /*=NULL*/)
+	: CDialogEx(CStatusPage::IDD, pParent)
 {
 }
 
-CTradePage::~CTradePage()
+CStatusPage::~CStatusPage()
 {
 }
 
-void CTradePage::DoDataExchange(CDataExchange* pDX)
+void CStatusPage::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_TAB1, m_tab);
@@ -38,10 +38,10 @@ void CTradePage::DoDataExchange(CDataExchange* pDX)
 }
 
 
-BEGIN_MESSAGE_MAP(CTradePage, CDialogEx)
-	ON_BN_CLICKED(IDOK, &CTradePage::OnBnClickedOk)
-	ON_BN_CLICKED(IDCANCEL, &CTradePage::OnBnClickedCancel)
-	ON_NOTIFY(TCN_SELCHANGE, IDC_TAB1, &CTradePage::OnTcnSelchangeTab1)
+BEGIN_MESSAGE_MAP(CStatusPage, CDialogEx)
+	ON_BN_CLICKED(IDOK, &CStatusPage::OnBnClickedOk)
+	ON_BN_CLICKED(IDCANCEL, &CStatusPage::OnBnClickedCancel)
+	ON_NOTIFY(TCN_SELCHANGE, IDC_TAB1, &CStatusPage::OnTcnSelchangeTab1)
 	ON_NOTIFY(NM_DBLCLK, IDC_LIST7, OnNMDblclkOnroad)
 	ON_NOTIFY(NM_CLICK, IDC_LIST7, OnNMClkLstOnroad)
 	ON_NOTIFY(NM_RCLICK, IDC_LIST7, OnNMRClkLstOnroad)
@@ -68,24 +68,24 @@ BEGIN_MESSAGE_MAP(CTradePage, CDialogEx)
 END_MESSAGE_MAP()
 
 
-// CTradePage 消息处理程序
+// CStatusPage 消息处理程序
 
 
-void CTradePage::OnBnClickedOk()
+void CStatusPage::OnBnClickedOk()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	//CDialogEx::OnOK();
 }
 
 
-void CTradePage::OnBnClickedCancel()
+void CStatusPage::OnBnClickedCancel()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	//CDialogEx::OnCancel();
 }
 
 
-BOOL CTradePage::OnInitDialog()
+BOOL CStatusPage::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
 
@@ -105,7 +105,7 @@ BOOL CTradePage::OnInitDialog()
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
 }
-void CTradePage::InitAllHdrs(void)
+void CStatusPage::InitAllHdrs(void)
 {
 	TCHAR* lpHdrs0[ONROAD_ITMES] = {_T("单号"),_T("合约"),_T("买卖"),_T("开平"),_T("未成"),_T("价格"),_T("时间"),_T("序列号"),_T("冻结金")};
 	int iWidths0[ONROAD_ITMES] = {1,46,34,34,34,46,60,60,60};
@@ -203,7 +203,7 @@ void CTradePage::InitAllHdrs(void)
 	///////////////////////////////////////////////////////////////////////////////////////	
 }
 
-void CTradePage::OnTcnSelchangeTab1(NMHDR *pNMHDR, LRESULT *pResult)
+void CStatusPage::OnTcnSelchangeTab1(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	// TODO: 在此添加控件通知处理程序代码
 	switch ( m_tab.GetCurSel() )
@@ -260,7 +260,7 @@ void CTradePage::OnTcnSelchangeTab1(NMHDR *pNMHDR, LRESULT *pResult)
 	*pResult = 0;
 }
 
-void CTradePage::InitAllVecs()
+void CStatusPage::InitAllVecs()
 {
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 
@@ -301,13 +301,13 @@ void CTradePage::InitAllVecs()
 	///////////////////////////////////////////////////////////
 }
 
-void CTradePage::OnNMDblclkOnroad(NMHDR *pNMHDR, LRESULT *pResult)
+void CStatusPage::OnNMDblclkOnroad(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMITEMACTIVATE pNMIA = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	*pResult = 0;
 }
 
-void CTradePage::OnNMClkLstOnroad(NMHDR *pNMHDR, LRESULT *pResult)
+void CStatusPage::OnNMClkLstOnroad(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMITEMACTIVATE pNMIA = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	int nItem = -1;
@@ -327,7 +327,7 @@ void CTradePage::OnNMClkLstOnroad(NMHDR *pNMHDR, LRESULT *pResult)
 	*pResult = 0;
 }
 
-void CTradePage::OnNMDblclkOrdInf(NMHDR *pNMHDR, LRESULT *pResult)
+void CStatusPage::OnNMDblclkOrdInf(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMITEMACTIVATE pNMIA = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	int nItem = -1;
@@ -344,7 +344,7 @@ void CTradePage::OnNMDblclkOrdInf(NMHDR *pNMHDR, LRESULT *pResult)
 	*pResult = 0;
 }
 
-void CTradePage::OnNMClkLstOrdInf(NMHDR *pNMHDR, LRESULT *pResult)
+void CStatusPage::OnNMClkLstOrdInf(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMITEMACTIVATE pNMIA = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	int nItem = -1;
@@ -364,7 +364,7 @@ void CTradePage::OnNMClkLstOrdInf(NMHDR *pNMHDR, LRESULT *pResult)
 	*pResult = 0;
 }
 
-void CTradePage::OnNMRClkLstOrdInf(NMHDR *pNMHDR, LRESULT *pResult)
+void CStatusPage::OnNMRClkLstOrdInf(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMITEMACTIVATE pNMIA = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	int nItem = -1;
@@ -386,7 +386,7 @@ void CTradePage::OnNMRClkLstOrdInf(NMHDR *pNMHDR, LRESULT *pResult)
 	*pResult = 0;
 }
 
-void CTradePage::OnNMDblclkTdInf(NMHDR *pNMHDR, LRESULT *pResult)
+void CStatusPage::OnNMDblclkTdInf(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMITEMACTIVATE pNMIA = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	int nItem = -1;
@@ -401,7 +401,7 @@ void CTradePage::OnNMDblclkTdInf(NMHDR *pNMHDR, LRESULT *pResult)
 	}
 	*pResult = 0;
 }
-void CTradePage::OnNMClkLstTdInf(NMHDR *pNMHDR, LRESULT *pResult)
+void CStatusPage::OnNMClkLstTdInf(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMITEMACTIVATE pNMIA = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	int nItem = -1;
@@ -420,7 +420,7 @@ void CTradePage::OnNMClkLstTdInf(NMHDR *pNMHDR, LRESULT *pResult)
 	}
 	*pResult = 0;
 }
-void CTradePage::OnNMRClkLstTdInf(NMHDR *pNMHDR, LRESULT *pResult)
+void CStatusPage::OnNMRClkLstTdInf(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMITEMACTIVATE pNMIA = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	int nItem = -1;
@@ -444,7 +444,7 @@ void CTradePage::OnNMRClkLstTdInf(NMHDR *pNMHDR, LRESULT *pResult)
 	*pResult = 0;
 }
 
-void CTradePage::OnNMDblclkInvPInf(NMHDR *pNMHDR, LRESULT *pResult)
+void CStatusPage::OnNMDblclkInvPInf(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMITEMACTIVATE pNMIA = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	int nItem = -1;
@@ -460,7 +460,7 @@ void CTradePage::OnNMDblclkInvPInf(NMHDR *pNMHDR, LRESULT *pResult)
 	}
 	*pResult = 0;
 }
-void CTradePage::OnNMClkLstInvPInf(NMHDR *pNMHDR, LRESULT *pResult)
+void CStatusPage::OnNMClkLstInvPInf(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMITEMACTIVATE pNMIA = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	int nItem = -1;
@@ -481,7 +481,7 @@ void CTradePage::OnNMClkLstInvPInf(NMHDR *pNMHDR, LRESULT *pResult)
 	}
 	*pResult = 0;
 }
-void CTradePage::OnNMRClkLstInvPInf(NMHDR *pNMHDR, LRESULT *pResult)
+void CStatusPage::OnNMRClkLstInvPInf(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMITEMACTIVATE pNMIA = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	int nItem = -1;
@@ -505,7 +505,7 @@ void CTradePage::OnNMRClkLstInvPInf(NMHDR *pNMHDR, LRESULT *pResult)
 	*pResult = 0;
 }
 
-void CTradePage::OnNMClkLstInsts(NMHDR *pNMHDR, LRESULT *pResult)
+void CStatusPage::OnNMClkLstInsts(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMITEMACTIVATE pNMIA = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	int nItem = -1;
@@ -527,7 +527,7 @@ void CTradePage::OnNMClkLstInsts(NMHDR *pNMHDR, LRESULT *pResult)
 	*pResult = 0;
 }
 
-void CTradePage::OnNMRClkLstInsts(NMHDR *pNMHDR, LRESULT *pResult)
+void CStatusPage::OnNMRClkLstInsts(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMITEMACTIVATE pNMIA = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	int nItem = -1;
@@ -550,7 +550,7 @@ void CTradePage::OnNMRClkLstInsts(NMHDR *pNMHDR, LRESULT *pResult)
 	}
 	*pResult = 0;
 }
-void CTradePage::OnNMRClkLstOnroad(NMHDR *pNMHDR, LRESULT *pResult)
+void CStatusPage::OnNMRClkLstOnroad(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMITEMACTIVATE pNMIA = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	int nItem = -1;
@@ -576,7 +576,7 @@ void CTradePage::OnNMRClkLstOnroad(NMHDR *pNMHDR, LRESULT *pResult)
 	*pResult = 0;
 }
  
-void CTradePage::OnGetDispinf1(NMHDR *pNMHDR, LRESULT *pResult)
+void CStatusPage::OnGetDispinf1(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	NMLVDISPINFO *pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pNMHDR);
 	LV_ITEM* pItem= &(pDispInfo)->item;
@@ -629,7 +629,7 @@ void CTradePage::OnGetDispinf1(NMHDR *pNMHDR, LRESULT *pResult)
 }
 
 
-void CTradePage::OnGetDispinf2(NMHDR *pNMHDR, LRESULT *pResult)
+void CStatusPage::OnGetDispinf2(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	NMLVDISPINFO *pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pNMHDR);
 	LV_ITEM* pItem= &(pDispInfo)->item;
@@ -702,7 +702,7 @@ void CTradePage::OnGetDispinf2(NMHDR *pNMHDR, LRESULT *pResult)
 	*pResult = 0;
 }
 
-void CTradePage::OnGetDispinf3(NMHDR *pNMHDR, LRESULT *pResult)
+void CStatusPage::OnGetDispinf3(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	NMLVDISPINFO *pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pNMHDR);
 	LV_ITEM* pItem= &(pDispInfo)->item;
@@ -768,7 +768,7 @@ void CTradePage::OnGetDispinf3(NMHDR *pNMHDR, LRESULT *pResult)
 	*pResult = 0;
 }
 
-void CTradePage::OnGetDispinf4(NMHDR *pNMHDR, LRESULT *pResult)
+void CStatusPage::OnGetDispinf4(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	NMLVDISPINFO *pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pNMHDR);	
 	LV_ITEM* pItem= &(pDispInfo)->item;
@@ -831,7 +831,7 @@ void CTradePage::OnGetDispinf4(NMHDR *pNMHDR, LRESULT *pResult)
 	*pResult = 0;
 }
 
-void CTradePage::OnGetDispinf5(NMHDR *pNMHDR, LRESULT *pResult)
+void CStatusPage::OnGetDispinf5(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	NMLVDISPINFO *pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pNMHDR);
 	LV_ITEM* pItem= &(pDispInfo)->item;
@@ -887,7 +887,7 @@ void CTradePage::OnGetDispinf5(NMHDR *pNMHDR, LRESULT *pResult)
 	}
 	*pResult = 0;
 }
-int CTradePage::FindInstMul(TThostFtdcInstrumentIDType InstID)
+int CStatusPage::FindInstMul(TThostFtdcInstrumentIDType InstID)
 {
 	bool founded=false;
 	int iMul = 1;
@@ -904,7 +904,7 @@ int CTradePage::FindInstMul(TThostFtdcInstrumentIDType InstID)
 	return (-1);
 }
 
-int CTradePage::FindOrdInOrderVec(TThostFtdcSequenceNoType BkrOrdSeq)
+int CStatusPage::FindOrdInOrderVec(TThostFtdcSequenceNoType BkrOrdSeq)
 {
 	UINT i=0;
 	for(i=0; i<m_orderVec.size(); i++)
@@ -915,7 +915,7 @@ int CTradePage::FindOrdInOrderVec(TThostFtdcSequenceNoType BkrOrdSeq)
 	return (-1);
 }
 
-int CTradePage::FindOrdInOnRoadLst(TThostFtdcSequenceNoType BkrOrdSeq)
+int CStatusPage::FindOrdInOnRoadLst(TThostFtdcSequenceNoType BkrOrdSeq)
 {
 	int nRow = -1;
 	int nItem = m_LstOnRoad.GetItemCount();
@@ -933,7 +933,7 @@ int CTradePage::FindOrdInOnRoadLst(TThostFtdcSequenceNoType BkrOrdSeq)
 	return (-1);
 }
 
-int CTradePage::FindOrdInOnRoadVec(TThostFtdcSequenceNoType BkrOrdSeq)
+int CStatusPage::FindOrdInOnRoadVec(TThostFtdcSequenceNoType BkrOrdSeq)
 {	
 	UINT i=0;
 	for(i=0; i<m_onRoadVec.size(); i++)
@@ -943,7 +943,7 @@ int CTradePage::FindOrdInOnRoadVec(TThostFtdcSequenceNoType BkrOrdSeq)
 	}
 	return (-1);
 }
-void  CTradePage::OnCancelAll()
+void  CStatusPage::OnCancelAll()
 {
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	for (UINT i=0;i<m_onRoadVec.size();i++)
@@ -953,7 +953,7 @@ void  CTradePage::OnCancelAll()
 	}
 }
 
-void CTradePage::FiltInsList()
+void CStatusPage::FiltInsList()
 {
 	VIT_if vif;
 	VIT_mr vmr;

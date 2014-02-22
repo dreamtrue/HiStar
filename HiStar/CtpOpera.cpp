@@ -88,18 +88,18 @@ UINT LoginThread(LPVOID pParam)
 	}
 	DWORD dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
-		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("联线交易平台成功!"), 10);
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("联线交易平台成功!"), 10);
 		ResetEvent(g_hEvent);
 	}
 	else{
 		pApp->m_pLoginCtp = NULL;
-		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("交易平台已离线!"), 0);
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("交易平台已离线!"), 0);
 		return 0;
 	}
 	if(pApp->m_cT){
 		if (pApp->m_cT->IsErrorRspInfo(&pApp->m_cT->m_RspMsg)){
 			//登陆失败
-			((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("交易登陆错误!"), 0);
+			((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("交易登陆错误!"), 0);
 			pApp->m_pLoginCtp = NULL;
 			return 0;
 		}
@@ -118,7 +118,7 @@ UINT LoginThread(LPVOID pParam)
 	}
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
-		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("登陆行情成功!"), 20);
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("登陆行情成功!"), 20);
 		ResetEvent(g_hEvent);
 	}	
 	///////////////////////////////////////////////////////////
@@ -127,12 +127,12 @@ UINT LoginThread(LPVOID pParam)
 	}
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
-		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("确认结算单!"), 40);
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("确认结算单!"), 40);
 		ResetEvent(g_hEvent);
 	}
 	else{
 		pApp->m_pLoginCtp = NULL;
-		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("确认结算超时!"), 0);
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("确认结算超时!"), 0);
 		return 0;
 	}
 	if(pApp->m_cT){
@@ -142,12 +142,12 @@ UINT LoginThread(LPVOID pParam)
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
 		TRACE(_T("合约完毕返回\n"));
-		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("查合约列表!"), 60);
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查合约列表!"), 60);
 		ResetEvent(g_hEvent);
 	}
 	else{
 		pApp->m_pLoginCtp = NULL;
-		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("查合约列表超时!"), 0);
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查合约列表超时!"), 0);
 		return 0;
 	}
 
@@ -157,12 +157,12 @@ UINT LoginThread(LPVOID pParam)
 	}
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
-		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("查持仓信息!"), 70);
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查持仓信息!"), 70);
 		ResetEvent(g_hEvent);
 	}	
 	else{
 		pApp->m_pLoginCtp = NULL;
-		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("查持仓信息超时!"), 0);
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查持仓信息超时!"), 0);
 		return 0;
 	}
 
@@ -172,12 +172,12 @@ UINT LoginThread(LPVOID pParam)
 	}
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
-		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("查资金账户!"), 80);
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查资金账户!"), 80);
 		ResetEvent(g_hEvent);
 	}	
 	else{
 		pApp->m_pLoginCtp = NULL;
-		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("查账户超时!"), 0);
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查账户超时!"), 0);
 		return 0;
 	}
 
@@ -188,12 +188,12 @@ UINT LoginThread(LPVOID pParam)
 	}
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
-		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("查银期信息!"), 90);
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查银期信息!"), 90);
 		ResetEvent(g_hEvent);
 	}
 	else{
 		pApp->m_pLoginCtp = NULL;
-		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("查银期信息超时!"), 0);
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查银期信息超时!"), 0);
 		return 0;
 	}
 
@@ -203,29 +203,29 @@ UINT LoginThread(LPVOID pParam)
 	}
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
-		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("查交易编码!"), 99);
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查交易编码!"), 99);
 		ResetEvent(g_hEvent);
 	}	
 	else{
 		pApp->m_pLoginCtp = NULL;
-		((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("查交易编码超时!"), 0);
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查交易编码超时!"), 0);
 		return 0;
 	}
 	((CMainDlg*)(pApp->m_pMainWnd))->addCombInst();//增加合约列表
-	((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.InitAllVecs();
-	((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.InitAllHdrs();
-	((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.FiltInsList();
-	((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstOnRoad.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_onRoadVec.size());
-	((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstOnRoad.Invalidate();
-	((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstOrdInf.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_orderVec.size());
-	((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstOrdInf.Invalidate();
-	((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstInvPosInf.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_InvPosVec.size());
-	((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstInvPosInf.Invalidate();
-	((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstTdInf.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_tradeVec.size());
-	((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstTdInf.Invalidate();
-	((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstAllInsts.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_InsinfVec.size());
-	((CMainDlg*)(pApp->m_pMainWnd))->m_tradePage.m_LstAllInsts.Invalidate();
-	((CMainDlg*)pApp->m_pMainWnd)->m_operaPage.ProgressUpdate(_T("CTP登陆成功!"),100);
+	((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.InitAllVecs();
+	((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.InitAllHdrs();
+	((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.FiltInsList();
+	((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstOnRoad.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_onRoadVec.size());
+	((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstOnRoad.Invalidate();
+	((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstOrdInf.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_orderVec.size());
+	((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstOrdInf.Invalidate();
+	((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstInvPosInf.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_InvPosVec.size());
+	((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstInvPosInf.Invalidate();
+	((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstTdInf.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_tradeVec.size());
+	((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstTdInf.Invalidate();
+	((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstAllInsts.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_InsinfVec.size());
+	((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstAllInsts.Invalidate();
+	((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("CTP登陆成功!"),100);
 #endif
 	pApp->m_pLoginCtp = NULL;
 	return 0;

@@ -127,8 +127,8 @@ void CtpMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarket
 	TRACE("%s,%f,%f.\n",pDepthMarketData->InstrumentID,pDepthMarketData->BidPrice1,pDepthMarketData->AskPrice1);
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	if(pApp->m_pMainWnd){
-		memcpy(&(((CMainDlg*)(pApp->m_pMainWnd))->m_operaPage.m_depthMd),pDepthMarketData,sizeof(CThostFtdcDepthMarketDataField));		
-		((CMainDlg*)(pApp->m_pMainWnd))->m_operaPage.RefreshMdPane();
+		memcpy(&(((CMainDlg*)(pApp->m_pMainWnd))->m_basicPage.m_depthMd),pDepthMarketData,sizeof(CThostFtdcDepthMarketDataField));		
+		((CMainDlg*)(pApp->m_pMainWnd))->m_basicPage.RefreshMdPane();
 	}
 }
 

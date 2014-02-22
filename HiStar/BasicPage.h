@@ -1,5 +1,5 @@
 
-// OperaPage.h : 头文件
+// BasicPage.h : 头文件
 //
 
 #pragma once
@@ -14,23 +14,17 @@
 #include "colorstatic.h"
 #include "thostftdcuserapistruct.h"
 #include "ColorListCtrl.h"
-#include "e:\新建文件夹\trunk\diyctrl\colorlistctrl.h"
-#include "e:\新建文件夹\trunk\diyctrl\colorlistctrl.h"
-#include "e:\新建文件夹\trunk\diyctrl\colorlistctrl.h"
-#include "e:\新建文件夹\trunk\diyctrl\colorlistctrl.h"
-#include "e:\新建文件夹\trunk\diyctrl\colorlistctrl.h"
-#include "e:\新建文件夹\trunk\diyctrl\colorlistctrl.h"
 
-// COperaPage 对话框
-class COperaPage : public CDialogEx
+// CBasicPage 对话框
+class CBasicPage : public CDialogEx
 {
 // 构造
 public:
-	COperaPage(CWnd* pParent = NULL);	// 标准构造函数
+	CBasicPage(CWnd* pParent = NULL);	// 标准构造函数
 // 析构
-	~COperaPage();
+	~CBasicPage();
 // 对话框数据
-	enum { IDD = IDD_OPERA_PAGE };
+	enum { IDD = IDD_BASIC_PAGE };
 
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 支持
