@@ -7,9 +7,9 @@
 #include "afxdialogex.h"
 #include <algorithm>
 
-bool cmpInst(const CThostFtdcInstrumentFieldEx* pfirst,const CThostFtdcInstrumentFieldEx* psecond) 
+bool cmpInst(const CThostFtdcInstrumentFieldEx first,const CThostFtdcInstrumentFieldEx second) 
 {    
-	int iRes = stricmp(pfirst->iinf.InstrumentID,psecond->iinf.InstrumentID);
+	int iRes = stricmp(first.iinf.InstrumentID,second.iinf.InstrumentID);
 	return (iRes<=0);
 }
 
@@ -102,6 +102,7 @@ BOOL CStatusPage::OnInitDialog()
 	m_LstInvPosInf.ShowWindow( SW_HIDE );
 	m_LstAllInsts.ShowWindow( SW_HIDE );
 	m_LstOnRoad.ShowWindow( SW_SHOW );
+    InitAllHdrs();
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
 }
@@ -267,6 +268,7 @@ void CStatusPage::SynchronizeAllVecs()
 	m_orderVec = pApp->m_cT->m_orderVec.GetBuffer();
 	m_tradeVec = pApp->m_cT->m_tradeVec.GetBuffer();
 	m_InsinfVec = pApp->m_cT->m_InsinfVec.GetBuffer();
+	FiltInsList();//排序
 	m_MargRateVec = pApp->m_cT->m_MargRateVec.GetBuffer();
 	m_StmiVec = pApp->m_cT->m_StmiVec.GetBuffer();
 	m_AccRegVec = pApp->m_cT->m_AccRegVec.GetBuffer();
@@ -1003,5 +1005,5 @@ void CStatusPage::FiltInsList()
 			}
 		}
 	}
-	//sort(m_InsinfVec.begin(),m_InsinfVec.end(),cmpInst);	
+	sort(m_InsinfVec.begin(),m_InsinfVec.end(),cmpInst);	
 }

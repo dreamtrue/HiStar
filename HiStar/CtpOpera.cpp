@@ -245,9 +245,6 @@ UINT LoginThread(LPVOID pParam)
 		return 0;
 	}
 	((CMainDlg*)(pApp->m_pMainWnd))->addCombInst();//增加合约列表
-	((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.InitAllHdrs();
-	((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.FiltInsList();
-	((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.SynchronizeAllVecs();
 	((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("CTP登陆成功!"),100);
 #endif
 	pApp->m_pLoginCtp = NULL;
