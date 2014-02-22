@@ -13,6 +13,7 @@
 #include "HScrollListBox.h" 
 #include "mdspi.h"
 #include "traderspi.h"
+extern DWORD MainThreadId;
 	// CHiStarApp:
 // 有关此类的实现，请参阅 HiStar.cpp
 //
@@ -107,6 +108,7 @@ public:
 	void LoginCtp(UINT wParam,LONG lParam);
 	void LogoutCtp(UINT wParam,LONG lParam);
 	void OnQryAccCtp(UINT wParam,LONG lParam);
+	void OnUpdateLstCtrl(UINT wParam,LONG lParam);
 	CWinThread* m_pLoginCtp;
 	int FindInstMul(TThostFtdcInstrumentIDType InstID);
 };

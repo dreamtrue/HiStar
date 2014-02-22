@@ -260,45 +260,54 @@ void CStatusPage::OnTcnSelchangeTab1(NMHDR *pNMHDR, LRESULT *pResult)
 	*pResult = 0;
 }
 
-void CStatusPage::InitAllVecs()
+void CStatusPage::SynchronizeAllVecs()
 {
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
-
+	///////这里的vector均进行了同步，其他比如m_FeeRateRev等不进行更新，故没有同步
+	m_orderVec = pApp->m_cT->m_orderVec.GetBuffer();
+	m_tradeVec = pApp->m_cT->m_tradeVec.GetBuffer();
+	m_InsinfVec = pApp->m_cT->m_InsinfVec.GetBuffer();
+	m_MargRateVec = pApp->m_cT->m_MargRateVec.GetBuffer();
+	m_StmiVec = pApp->m_cT->m_StmiVec.GetBuffer();
+	m_AccRegVec = pApp->m_cT->m_AccRegVec.GetBuffer();
+	m_TdCodeVec = pApp->m_cT->m_TdCodeVec.GetBuffer();
+	m_InvPosVec = pApp->m_cT->m_InvPosVec.GetBuffer();
+	m_BfTransVec = pApp->m_cT->m_BfTransVec.GetBuffer();
 	//////////////////////////
-	m_orderVec = pApp->m_cT->m_orderVec;
-	m_tradeVec = pApp->m_cT->m_tradeVec;
-	m_InsinfVec = pApp->m_cT->m_InsinfVec;
-	m_MargRateVec = pApp->m_cT->m_MargRateVec;
-	m_StmiVec = pApp->m_cT->m_StmiVec;
-	m_AccRegVec = pApp->m_cT->m_AccRegVec;
-	m_TdCodeVec = pApp->m_cT->m_TdCodeVec;
-	m_InvPosVec = pApp->m_cT->m_InvPosVec;
-	m_BfTransVec = pApp->m_cT->m_BfTransVec;
 	m_FeeRateRev = pApp->m_cT->m_FeeRateRev;
 	m_TdAcc = pApp->m_cT->m_TdAcc;
 	for (int i=0;i<4;i++)
 	{
 		m_tsEXnLocal[i] = pApp->m_cT->m_tsEXnLocal[i];
 	}
-	m_onRoadVec = m_orderVec;
 	///////////////////////////////////////////////////
 	for(VOrd odIt=m_onRoadVec.begin(); odIt!=m_onRoadVec.end();)
 	{
-		if((*odIt)->OrderStatus !='1' && (*odIt)->OrderStatus !='3'  )
+		//在对列中的擦除
+		if((*odIt).OrderStatus !='1' && (*odIt).OrderStatus !='3'  )
 		{odIt = m_onRoadVec.erase(odIt);}
 		else
 			++odIt;
 	}
-
 	//////////////////////////////////////////////////
 	for(VInvP vip=m_InvPosVec.begin(); vip!=m_InvPosVec.end();)
 	{
-		if((*vip)->YdPosition==0 && (*vip)->Position ==0)
+		if((*vip).YdPosition==0 && (*vip).Position ==0)
 		{vip = m_InvPosVec.erase(vip);}
 		else
 			++vip;
 	}
 	///////////////////////////////////////////////////////////
+	m_LstOnRoad.SetItemCountEx(m_onRoadVec.size());
+	m_LstOnRoad.Invalidate();
+	m_LstOrdInf.SetItemCountEx(m_orderVec.size());
+	m_LstOrdInf.Invalidate();
+	m_LstInvPosInf.SetItemCountEx(m_InvPosVec.size());
+	m_LstInvPosInf.Invalidate();
+	m_LstTdInf.SetItemCountEx(m_tradeVec.size());
+	m_LstTdInf.Invalidate();
+	m_LstAllInsts.SetItemCountEx(m_InsinfVec.size());
+	m_LstAllInsts.Invalidate();
 }
 
 void CStatusPage::OnNMDblclkOnroad(NMHDR *pNMHDR, LRESULT *pResult)
@@ -589,35 +598,35 @@ void CStatusPage::OnGetDispinf1(NMHDR *pNMHDR, LRESULT *pResult)
 		switch(pItem->iSubItem)
 		{
 		case 0:
-			lstrcpy(pItem->pszText,m_onRoadVec[iItem]->OrderSysID);
+			lstrcpy(pItem->pszText,m_onRoadVec[iItem].OrderSysID);
 			break;
 		case 1: 
-			lstrcpy(pItem->pszText,m_onRoadVec[iItem]->InstrumentID);
+			lstrcpy(pItem->pszText,m_onRoadVec[iItem].InstrumentID);
 			break;
 		case 2:
-			szTemp = JgBsType(m_onRoadVec[iItem]->Direction);
+			szTemp = JgBsType(m_onRoadVec[iItem].Direction);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 3:
-			szTemp=JgOcType(m_onRoadVec[iItem]->CombOffsetFlag[0]);
+			szTemp=JgOcType(m_onRoadVec[iItem].CombOffsetFlag[0]);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 4:
-			szTemp.Format(_T("%d"),m_onRoadVec[iItem]->VolumeTotal);
+			szTemp.Format(_T("%d"),m_onRoadVec[iItem].VolumeTotal);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 5:
-			szTemp.Format(_T("%f"),m_onRoadVec[iItem]->LimitPrice);
+			szTemp.Format(_T("%f"),m_onRoadVec[iItem].LimitPrice);
 			szTemp.TrimRight('0');
 			iLen = szTemp.GetLength();
 			if (szTemp.Mid(iLen-1,1)==_T(".")) {szTemp.TrimRight(_T("."));}
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 6:
-			lstrcpy(pItem->pszText,m_onRoadVec[iItem]->InsertTime);
+			lstrcpy(pItem->pszText,m_onRoadVec[iItem].InsertTime);
 			break;
 		case 7:
-			szTemp.Format(_T("%d"),m_onRoadVec[iItem]->BrokerOrderSeq);
+			szTemp.Format(_T("%d"),m_onRoadVec[iItem].BrokerOrderSeq);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 8:
@@ -642,50 +651,50 @@ void CStatusPage::OnGetDispinf2(NMHDR *pNMHDR, LRESULT *pResult)
 		switch(pItem->iSubItem)
 		{
 		case 0:
-			lstrcpy(pItem->pszText,m_orderVec[iItem]->OrderSysID);
+			lstrcpy(pItem->pszText,m_orderVec[iItem].OrderSysID);
 			break;
 		case 1:
-			lstrcpy(pItem->pszText,m_orderVec[iItem]->InstrumentID);
+			lstrcpy(pItem->pszText,m_orderVec[iItem].InstrumentID);
 			break;
 		case 2: 
-			szTemp = JgBsType(m_orderVec[iItem]->Direction);
+			szTemp = JgBsType(m_orderVec[iItem].Direction);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 3:
-			szTemp = JgOcType(m_orderVec[iItem]->CombOffsetFlag[0]);
+			szTemp = JgOcType(m_orderVec[iItem].CombOffsetFlag[0]);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 4:
-			szTemp=JgOrdStatType(m_orderVec[iItem]->OrderStatus);
+			szTemp=JgOrdStatType(m_orderVec[iItem].OrderStatus);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 5:
-			szTemp.Format(_T("%f"),m_orderVec[iItem]->LimitPrice);
+			szTemp.Format(_T("%f"),m_orderVec[iItem].LimitPrice);
 			szTemp.TrimRight('0');
 			iLen = szTemp.GetLength();
 			if (szTemp.Mid(iLen-1,1)==_T(".")) {szTemp.TrimRight(_T("."));}
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 6:
-			szTemp.Format(_T("%d"),m_orderVec[iItem]->VolumeTotalOriginal);
+			szTemp.Format(_T("%d"),m_orderVec[iItem].VolumeTotalOriginal);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 7:
-			szTemp.Format(_T("%d"),m_orderVec[iItem]->VolumeTotal);
+			szTemp.Format(_T("%d"),m_orderVec[iItem].VolumeTotal);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 8:
-			szTemp.Format(_T("%d"),m_orderVec[iItem]->VolumeTraded);
+			szTemp.Format(_T("%d"),m_orderVec[iItem].VolumeTraded);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 9:
 			lstrcpy(pItem->pszText,UNCOMP);
 			break;
 		case 10:
-			lstrcpy(pItem->pszText,m_orderVec[iItem]->InsertTime);
+			lstrcpy(pItem->pszText,m_orderVec[iItem].InsertTime);
 			break;
 		case 11:
-			szTemp.Format(_T("%d"),m_orderVec[iItem]->BrokerOrderSeq);
+			szTemp.Format(_T("%d"),m_orderVec[iItem].BrokerOrderSeq);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 12:
@@ -695,7 +704,7 @@ void CStatusPage::OnGetDispinf2(NMHDR *pNMHDR, LRESULT *pResult)
 			lstrcpy(pItem->pszText,UNCOMP);
 			break;
 		case 14:
-			szTemp =JgOrdSubmitStat(m_orderVec[iItem]->OrderSubmitStatus);
+			szTemp =JgOrdSubmitStat(m_orderVec[iItem].OrderSubmitStatus);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		}
@@ -717,45 +726,45 @@ void CStatusPage::OnGetDispinf3(NMHDR *pNMHDR, LRESULT *pResult)
 		switch(pItem->iSubItem)
 		{
 		case 0:
-			lstrcpy(pItem->pszText,m_InvPosVec[iItem]->InstrumentID);
+			lstrcpy(pItem->pszText,m_InvPosVec[iItem].InstrumentID);
 			break;
 		case 1: 
-			szTemp = JgBsType(m_InvPosVec[iItem]->PosiDirection-2);
+			szTemp = JgBsType(m_InvPosVec[iItem].PosiDirection-2);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 2:
-			szTemp.Format(_T("%d"),m_InvPosVec[iItem]->YdPosition+m_InvPosVec[iItem]->Position);
+			szTemp.Format(_T("%d"),m_InvPosVec[iItem].YdPosition+m_InvPosVec[iItem].Position);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 3:
 			{
-				if (m_InvPosVec[iItem]->PosiDirection == '2')
+				if (m_InvPosVec[iItem].PosiDirection == '2')
 				{
-					iLen = m_InvPosVec[iItem]->YdPosition+m_InvPosVec[iItem]->Position-m_InvPosVec[iItem]->ShortFrozen;
+					iLen = m_InvPosVec[iItem].YdPosition+m_InvPosVec[iItem].Position-m_InvPosVec[iItem].ShortFrozen;
 					szTemp.Format(_T("%d"),iLen);
 				}
-				if (m_InvPosVec[iItem]->PosiDirection == '3')
+				if (m_InvPosVec[iItem].PosiDirection == '3')
 				{
-					iLen = m_InvPosVec[iItem]->YdPosition+m_InvPosVec[iItem]->Position-m_InvPosVec[iItem]->LongFrozen;
+					iLen = m_InvPosVec[iItem].YdPosition+m_InvPosVec[iItem].Position-m_InvPosVec[iItem].LongFrozen;
 					szTemp.Format(_T("%d"),iLen);
 				}
 			}
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 4:
-			dAvPrice = m_InvPosVec[iItem]->PositionCost/(m_InvPosVec[iItem]->YdPosition+m_InvPosVec[iItem]->Position)/(FindInstMul(m_InvPosVec[iItem]->InstrumentID));
+			dAvPrice = m_InvPosVec[iItem].PositionCost/(m_InvPosVec[iItem].YdPosition+m_InvPosVec[iItem].Position)/(FindInstMul(m_InvPosVec[iItem].InstrumentID));
 			szTemp.Format(_T("%.3f"),dAvPrice);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 5:
-			szTemp.Format(_T("%f"),m_InvPosVec[iItem]->PositionProfit);
+			szTemp.Format(_T("%f"),m_InvPosVec[iItem].PositionProfit);
 			szTemp.TrimRight('0');
 			iLen = szTemp.GetLength();
 			if (szTemp.Mid(iLen-1,1)==_T(".")) {szTemp.TrimRight(_T("."));}
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 6:
-			szTemp.Format(_T("%f"),m_InvPosVec[iItem]->UseMargin);
+			szTemp.Format(_T("%f"),m_InvPosVec[iItem].UseMargin);
 			szTemp.TrimRight('0');
 			iLen = szTemp.GetLength();
 			if (szTemp.Mid(iLen-1,1)==_T(".")) {szTemp.TrimRight(_T("."));}
@@ -782,50 +791,50 @@ void CStatusPage::OnGetDispinf4(NMHDR *pNMHDR, LRESULT *pResult)
 		switch(pItem->iSubItem)
 		{
 		case 0:
-			lstrcpy(pItem->pszText,m_tradeVec[iItemIndex]->InstrumentID);
+			lstrcpy(pItem->pszText,m_tradeVec[iItemIndex].InstrumentID);
 			break;
 		case 1: 
-			szTemp = JgBsType(m_tradeVec[iItemIndex]->Direction);
+			szTemp = JgBsType(m_tradeVec[iItemIndex].Direction);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 2:
-			szTemp = JgOcType(m_tradeVec[iItemIndex]->OffsetFlag);
+			szTemp = JgOcType(m_tradeVec[iItemIndex].OffsetFlag);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 3:
-			szTemp.Format(_T("%f"),m_tradeVec[iItemIndex]->Price);
+			szTemp.Format(_T("%f"),m_tradeVec[iItemIndex].Price);
 			szTemp.TrimRight('0');
 			iLen = szTemp.GetLength();
 			if (szTemp.Mid(iLen-1,1)==_T(".")) {szTemp.TrimRight(_T("."));}
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 4:
-			szTemp.Format(_T("%d"),m_tradeVec[iItemIndex]->Volume);
+			szTemp.Format(_T("%d"),m_tradeVec[iItemIndex].Volume);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 5:
-			lstrcpy(pItem->pszText,m_tradeVec[iItemIndex]->TradeTime);
+			lstrcpy(pItem->pszText,m_tradeVec[iItemIndex].TradeTime);
 			break;
 		case 6:
 			lstrcpy(pItem->pszText,UNCOMP);
 			break;
 		case 7:
-			szTemp=JgTbType(m_tradeVec[iItemIndex]->HedgeFlag);
+			szTemp=JgTbType(m_tradeVec[iItemIndex].HedgeFlag);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 8:
-			szTemp=JgTdType(m_tradeVec[iItemIndex]->TradeType);
+			szTemp=JgTdType(m_tradeVec[iItemIndex].TradeType);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 9:
-			szTemp=JgExchage(m_tradeVec[iItemIndex]->ExchangeID);
+			szTemp=JgExchage(m_tradeVec[iItemIndex].ExchangeID);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 10:
-			lstrcpy(pItem->pszText,m_tradeVec[iItemIndex]->TradeID);
+			lstrcpy(pItem->pszText,m_tradeVec[iItemIndex].TradeID);
 			break;
 		case 11:
-			lstrcpy(pItem->pszText,m_tradeVec[iItemIndex]->OrderLocalID);
+			lstrcpy(pItem->pszText,m_tradeVec[iItemIndex].OrderLocalID);
 			break;
 		}
 	}
@@ -845,43 +854,43 @@ void CStatusPage::OnGetDispinf5(NMHDR *pNMHDR, LRESULT *pResult)
 		switch(pItem->iSubItem)
 		{
 		case 0:
-			strcpy(pItem->pszText, m_InsinfVec[iItem]->iinf.ProductID);
+			strcpy(pItem->pszText, m_InsinfVec[iItem].iinf.ProductID);
 			break;
 		case 1: 
-			strcpy(pItem->pszText, m_InsinfVec[iItem]->iinf.InstrumentID);
+			strcpy(pItem->pszText, m_InsinfVec[iItem].iinf.InstrumentID);
 			break;
 		case 2:
-			strcpy(pItem->pszText,m_InsinfVec[iItem]->iinf.InstrumentName);
+			strcpy(pItem->pszText,m_InsinfVec[iItem].iinf.InstrumentName);
 			break;
 		case 3:
-			szTemp = JgExchage(m_InsinfVec[iItem]->iinf.ExchangeID);
+			szTemp = JgExchage(m_InsinfVec[iItem].iinf.ExchangeID);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 4:
-			szTemp.Format(_T("%d"),m_InsinfVec[iItem]->iinf.VolumeMultiple);
+			szTemp.Format(_T("%d"),m_InsinfVec[iItem].iinf.VolumeMultiple);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 5:
-			szTemp.Format(_T("%f"),m_InsinfVec[iItem]->iinf.PriceTick);
+			szTemp.Format(_T("%f"),m_InsinfVec[iItem].iinf.PriceTick);
 			szTemp.TrimRight('0');
 			iLen = szTemp.GetLength();
 			if (szTemp.Mid(iLen-1,1)==_T(".")) {szTemp.TrimRight(_T("."));}
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 6:
-			szTemp = JgProType((BYTE)m_InsinfVec[iItem]->iinf.ProductClass);
+			szTemp = JgProType((BYTE)m_InsinfVec[iItem].iinf.ProductClass);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 7:
-			strcpy(pItem->pszText,m_InsinfVec[iItem]->iinf.ExpireDate);
+			strcpy(pItem->pszText,m_InsinfVec[iItem].iinf.ExpireDate);
 			break;
 		case 8:
-			szTemp.Format(_T("%d%%"),D2Int(m_InsinfVec[iItem]->iinf.LongMarginRatio*100));
+			szTemp.Format(_T("%d%%"),D2Int(m_InsinfVec[iItem].iinf.LongMarginRatio*100));
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 9:
-			Fee2String(szTemp,m_InsinfVec[iItem]->OpenRatioByMoney,m_InsinfVec[iItem]->OpenRatioByVolume,m_InsinfVec[iItem]->CloseRatioByMoney,
-				m_InsinfVec[iItem]->CloseRatioByVolume,m_InsinfVec[iItem]->CloseTodayRatioByMoney,m_InsinfVec[iItem]->CloseTodayRatioByVolume);
+			Fee2String(szTemp,m_InsinfVec[iItem].OpenRatioByMoney,m_InsinfVec[iItem].OpenRatioByVolume,m_InsinfVec[iItem].CloseRatioByMoney,
+				m_InsinfVec[iItem].CloseRatioByVolume,m_InsinfVec[iItem].CloseTodayRatioByMoney,m_InsinfVec[iItem].CloseTodayRatioByVolume);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		}
@@ -894,9 +903,9 @@ int CStatusPage::FindInstMul(TThostFtdcInstrumentIDType InstID)
 	int iMul = 1;
 	for (UINT i=0; i<m_InsinfVec.size();i++)
 	{
-		if (!strcmp(InstID,m_InsinfVec[i]->iinf.InstrumentID))
+		if (!strcmp(InstID,m_InsinfVec[i].iinf.InstrumentID))
 		{
-			iMul=m_InsinfVec[i]->iinf.VolumeMultiple;
+			iMul=m_InsinfVec[i].iinf.VolumeMultiple;
 			founded=true;
 			break;
 		}
@@ -910,7 +919,7 @@ int CStatusPage::FindOrdInOrderVec(TThostFtdcSequenceNoType BkrOrdSeq)
 	UINT i=0;
 	for(i=0; i<m_orderVec.size(); i++)
 	{
-		if(m_orderVec[i]->BrokerOrderSeq == BkrOrdSeq) 
+		if(m_orderVec[i].BrokerOrderSeq == BkrOrdSeq) 
 		{ return i;}
 	}
 	return (-1);
@@ -939,7 +948,7 @@ int CStatusPage::FindOrdInOnRoadVec(TThostFtdcSequenceNoType BkrOrdSeq)
 	UINT i=0;
 	for(i=0; i<m_onRoadVec.size(); i++)
 	{
-		if(m_onRoadVec[i]->BrokerOrderSeq == BkrOrdSeq) 
+		if(m_onRoadVec[i].BrokerOrderSeq == BkrOrdSeq) 
 		{ return i;}
 	}
 	return (-1);
@@ -949,7 +958,7 @@ void  CStatusPage::OnCancelAll()
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	for (UINT i=0;i<m_onRoadVec.size();i++)
 	{
-		pApp->m_cT->ReqOrderCancel(m_onRoadVec[i]->BrokerOrderSeq);	
+		pApp->m_cT->ReqOrderCancel(m_onRoadVec[i].BrokerOrderSeq);	
 		//m_LstOnRoad.DeleteItem(0);
 	}
 }
@@ -961,7 +970,7 @@ void CStatusPage::FiltInsList()
 	VIT_cf vcf;
 	for(vif=m_InsinfVec.begin(); vif!=m_InsinfVec.end();)
 	{
-		if(((*vif)->iinf.ProductClass > '2') || ((*vif)->iinf.IsTrading==0))
+		if(((*vif).iinf.ProductClass > '2') || ((*vif).iinf.IsTrading==0))
 		{vif = m_InsinfVec.erase(vif);}
 		else
 			++vif;
@@ -971,11 +980,11 @@ void CStatusPage::FiltInsList()
 		for(vmr=m_MargRateVec.begin(); vmr!=m_MargRateVec.end();vmr++)
 		{
 			//ShowErroTips(MY_TIPS,MY_TIPS);
-			if (!strcmp((*vmr)->InstrumentID,(*vif)->iinf.InstrumentID))
+			if (!strcmp((*vmr).InstrumentID,(*vif).iinf.InstrumentID))
 			{
-				(*vif)->iinf.LongMarginRatio = (*vmr)->LongMarginRatioByMoney;
+				(*vif).iinf.LongMarginRatio = (*vmr).LongMarginRatioByMoney;
 
-				(*vif)->iinf.ShortMarginRatio = (*vmr)->ShortMarginRatioByMoney;
+				(*vif).iinf.ShortMarginRatio = (*vmr).ShortMarginRatioByMoney;
 			}
 		}
 	}
@@ -983,16 +992,16 @@ void CStatusPage::FiltInsList()
 	{	
 		for(vif=m_InsinfVec.begin(); vif!=m_InsinfVec.end();vif++)
 		{
-			if (!strcmp((*vcf)->InstrumentID,(*vif)->iinf.ProductID))
+			if (!strcmp((*vcf).InstrumentID,(*vif).iinf.ProductID))
 			{
-				(*vif)->OpenRatioByMoney = (*vcf)->OpenRatioByMoney;
-				(*vif)->OpenRatioByVolume = (*vcf)->OpenRatioByVolume;
-				(*vif)->CloseRatioByMoney = (*vcf)->CloseRatioByMoney;
-				(*vif)->CloseRatioByVolume = (*vcf)->CloseRatioByVolume;
-				(*vif)->CloseTodayRatioByMoney = (*vcf)->CloseTodayRatioByMoney;
-				(*vif)->CloseTodayRatioByVolume = (*vcf)->CloseTodayRatioByVolume;
+				(*vif).OpenRatioByMoney = (*vcf).OpenRatioByMoney;
+				(*vif).OpenRatioByVolume = (*vcf).OpenRatioByVolume;
+				(*vif).CloseRatioByMoney = (*vcf).CloseRatioByMoney;
+				(*vif).CloseRatioByVolume = (*vcf).CloseRatioByVolume;
+				(*vif).CloseTodayRatioByMoney = (*vcf).CloseTodayRatioByMoney;
+				(*vif).CloseTodayRatioByVolume = (*vcf).CloseTodayRatioByVolume;
 			}
 		}
 	}
-	sort(m_InsinfVec.begin(),m_InsinfVec.end(),cmpInst);	
+	//sort(m_InsinfVec.begin(),m_InsinfVec.end(),cmpInst);	
 }

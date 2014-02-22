@@ -191,9 +191,9 @@ void CtpTraderSpi::OnRspQrySettlementInfo(CThostFtdcSettlementInfoField *pSettle
 {
 	if (!IsErrorRspInfo(pRspInfo) &&  pSettlementInfo)
 	{
-		CThostFtdcSettlementInfoField* pSi = new CThostFtdcSettlementInfoField();
-		memcpy(pSi,pSettlementInfo,sizeof(CThostFtdcSettlementInfoField));
-		m_StmiVec.push_back(pSi);
+		CThostFtdcSettlementInfoField Si;
+		memcpy(&Si,pSettlementInfo,sizeof(CThostFtdcSettlementInfoField));
+		m_StmiVec.push_back(Si);
 	}
 	if(bIsLast) 
 	{ 
@@ -218,16 +218,19 @@ void CtpTraderSpi::OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument,
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	if ( !IsErrorRspInfo(pRspInfo) &&  pInstrument)
 	{
-		PINSINFEX pInsInf = new INSINFEX;
-		ZeroMemory(pInsInf,sizeof(INSINFEX));
-		memcpy(pInsInf,  pInstrument, sizeof(INSTINFO));
-		m_InsinfVec.push_back(pInsInf);
+		INSINFEX InsInf;
+		ZeroMemory(&InsInf,sizeof(INSINFEX));
+		memcpy(&InsInf,pInstrument,sizeof(INSTINFO));
+		m_InsinfVec.push_back(InsInf);
 	}
 	if(bIsLast){
 		TRACE(_T("合约查询完毕\n"));
+		/*
 		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_InsinfVec = pApp->m_cT->m_InsinfVec;
 		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstAllInsts.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_InsinfVec.size());
 		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstAllInsts.Invalidate();
+		*/
+		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 		SetEvent(g_hEvent);
 	}
 }
@@ -276,12 +279,15 @@ void CtpTraderSpi::OnRspQryInvestorPosition(
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	if( !IsErrorRspInfo(pRspInfo) &&  pInvestorPosition )
 	{
-		CThostFtdcInvestorPositionField* pInvPos = new CThostFtdcInvestorPositionField();
-		memcpy(pInvPos,  pInvestorPosition, sizeof(CThostFtdcInvestorPositionField));
-		m_InvPosVec.push_back(pInvPos);
+		CThostFtdcInvestorPositionField InvPos;
+		memcpy(&InvPos,  pInvestorPosition, sizeof(CThostFtdcInvestorPositionField));
+		m_InvPosVec.push_back(InvPos);
+		/*
 		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_InvPosVec.push_back(pInvPos);
 		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstInvPosInf.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_InvPosVec.size());
 		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstInvPosInf.Invalidate();
+		*/
+		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 	}
 	if(bIsLast) SetEvent(g_hEvent);	
 }
@@ -503,7 +509,7 @@ void CtpTraderSpi::ReqOrderCancel(TThostFtdcSequenceNoType orderSeq)
 {
 	bool found=false; UINT i=0;
 	for(i=0;i<m_orderVec.size();i++){
-		if(m_orderVec[i]->BrokerOrderSeq == orderSeq){ found = true; break;}
+		if(m_orderVec[i].BrokerOrderSeq == orderSeq){ found = true; break;}
 	}
 	if(!found)
 	{
@@ -515,8 +521,8 @@ void CtpTraderSpi::ReqOrderCancel(TThostFtdcSequenceNoType orderSeq)
 	memset(&req, 0, sizeof(req));
 	strcpy(req.BrokerID, BROKER_ID);   //经纪公司代码	
 	strcpy(req.InvestorID, INVEST_ID); //投资者代码
-	strcpy(req.ExchangeID, m_orderVec[i]->ExchangeID);
-	strcpy(req.OrderSysID, m_orderVec[i]->OrderSysID);
+	strcpy(req.ExchangeID, m_orderVec[i].ExchangeID);
+	strcpy(req.OrderSysID, m_orderVec[i].OrderSysID);
 	req.ActionFlag = THOST_FTDC_AF_Delete;  //操作标志 
 
 	pUserApi->ReqOrderAction(&req, ++m_iRequestID);
@@ -565,12 +571,11 @@ void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder){
 	memcpy(order,pOrder, sizeof(CThostFtdcOrderField));
 	bool founded = false;UINT i = 0;
 	for(i = 0;i<m_orderVec.size();i++){
-		if(m_orderVec[i]->BrokerOrderSeq == order->BrokerOrderSeq) { 
+		if(m_orderVec[i].BrokerOrderSeq == order->BrokerOrderSeq) { 
 			founded = true;
 			//修改命令状态
-			m_orderVec[i] = order;
-			((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_orderVec[i] = order;
-			((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstOrdInf.Invalidate();
+			m_orderVec[i] = *order;
+			PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 			break;
 		}
 	}		
@@ -583,17 +588,11 @@ void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder){
 		}
 		else{
 			//挂单返回，表示已经递送出去，将该挂单删除(已经变成委托单或其他)
-			((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_onRoadVec.erase(((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_onRoadVec.begin()+nRet);
-			((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstOnRoad.SetRedraw(FALSE);//目的是暂时锁住数据，防止删除项目时还在读取
-			((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstOnRoad.DeleteItem(nRet);
-			((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstOnRoad.SetRedraw(TRUE);
-			((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstOnRoad.Invalidate();
+			PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 		}
 		///////新增加委托单
-		m_orderVec.push_back(order);
-		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_orderVec.push_back(order);
-		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstOrdInf.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_orderVec.size());
-		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstOrdInf.Invalidate();
+		m_orderVec.push_back(*order);
+		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 	}
 	SetEvent(g_hEvent);
 }
@@ -607,7 +606,7 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 	unsigned int ii = 0;
 	for(ii = 0;ii<m_tradeVec.size();ii++){
 		//strcmp返回0时表示相等
-		if(strcmp(m_tradeVec[ii]->TradeID,trade->TradeID) == 0){
+		if(strcmp(m_tradeVec[ii].TradeID,trade->TradeID) == 0){
 			founded = true;   
 			break;
 		}
@@ -617,10 +616,10 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 		TRACE(_T("修改成交单状态"));
 		//不过是重新覆盖成交信息
 		int VolumeTotal;double PriceAvg;
-		VolumeTotal = m_tradeVec[ii]->Volume + trade->Volume;
-		PriceAvg = (m_tradeVec[ii]->Price * m_tradeVec[ii]->Volume + trade->Price * trade->Volume) / VolumeTotal;
-		m_tradeVec[ii]->Volume = VolumeTotal;
-		m_tradeVec[ii]->Price = PriceAvg;
+		VolumeTotal = m_tradeVec[ii].Volume + trade->Volume;
+		PriceAvg = (m_tradeVec[ii].Price * m_tradeVec[ii].Volume + trade->Price * trade->Volume) / VolumeTotal;
+		m_tradeVec[ii].Volume = VolumeTotal;
+		m_tradeVec[ii].Price = PriceAvg;
 		if (!g_bRecconnectT){
 			//可以在这儿添加要显示的成交信息,如果是重连后获取的则不显示。
 		} 
@@ -628,10 +627,8 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 	///////新增加已成交单 
 	else 
 	{
-		m_tradeVec.push_back(trade);
-		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_tradeVec.push_back(trade);
-		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstTdInf.SetItemCountEx(m_tradeVec.size());
-		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstTdInf.Invalidate();
+		m_tradeVec.push_back(*trade);
+		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 		/*
 		//有关持仓的计算暂时取消??????
 		/////////////////////////刷新持仓////////////////////////////////
@@ -745,9 +742,9 @@ void CtpTraderSpi::ReqQryTradingCode()
 void CtpTraderSpi::OnRspQryTradingCode(CThostFtdcTradingCodeField *pTradingCode, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
 	if( !IsErrorRspInfo(pRspInfo) && pTradingCode ){
-		CThostFtdcTradingCodeField* pTdCode = new CThostFtdcTradingCodeField();
-		memcpy(pTdCode, pTradingCode, sizeof(CThostFtdcTradingCodeField));
-		m_TdCodeVec.push_back(pTdCode);
+		CThostFtdcTradingCodeField TdCode;
+		memcpy(&TdCode, pTradingCode, sizeof(CThostFtdcTradingCodeField));
+		m_TdCodeVec.push_back(TdCode);
 	}
 	if(bIsLast) SetEvent(g_hEvent);
 }
@@ -769,9 +766,9 @@ void CtpTraderSpi::OnRspQryInstrumentMarginRate(CThostFtdcInstrumentMarginRateFi
 	if( !IsErrorRspInfo(pRspInfo) && pInstrumentMarginRate )
 	{
 
-		CThostFtdcInstrumentMarginRateField* pMaginRate = new CThostFtdcInstrumentMarginRateField();
-		memcpy(pMaginRate,  pInstrumentMarginRate, sizeof(CThostFtdcInstrumentMarginRateField));
-		m_MargRateVec.push_back(pMaginRate);
+		CThostFtdcInstrumentMarginRateField MaginRate;
+		memcpy(&MaginRate,  pInstrumentMarginRate, sizeof(CThostFtdcInstrumentMarginRateField));
+		m_MargRateVec.push_back(MaginRate);
 	}
 	if(bIsLast) SetEvent(g_hEvent);
 
@@ -920,10 +917,9 @@ void CtpTraderSpi::OnRspQryAccountregister(CThostFtdcAccountregisterField *pAcco
 {
 	if( !IsErrorRspInfo(pRspInfo) && pAccountregister)
 	{
-		CThostFtdcAccountregisterField* pAccReg = new CThostFtdcAccountregisterField();
-		memcpy(pAccReg,  pAccountregister, sizeof(CThostFtdcAccountregisterField));
-		m_AccRegVec.push_back(pAccReg);
-
+		CThostFtdcAccountregisterField AccReg;
+		memcpy(&AccReg,  pAccountregister, sizeof(CThostFtdcAccountregisterField));
+		m_AccRegVec.push_back(AccReg);
 	}
 	if(bIsLast) SetEvent(g_hEvent);
 }
@@ -1023,18 +1019,18 @@ void CtpTraderSpi::OnRtnFromBankToFutureByFuture(CThostFtdcRspTransferField *pRs
 	bool founded=false;    UINT i=0;
 	for(i=0; i<m_BfTransVec.size(); i++)
 	{
-		if(m_BfTransVec[i]->FutureSerial==bfTrans->FutureSerial) 
+		if(m_BfTransVec[i].FutureSerial==bfTrans->FutureSerial) 
 		{ founded=true;    break;}
 	}
 	//////覆盖
 	if(founded) 
 	{
-		m_BfTransVec[i]= bfTrans; 
+		m_BfTransVec[i] = *bfTrans; 
 	} 
 	///////新增银期反馈
 	else 
 	{
-		m_BfTransVec.push_back(bfTrans);
+		m_BfTransVec.push_back(*bfTrans);
 		if(!g_bRecconnectT)
 		{
 			if(pRspTransfer->ErrorID!=0)
@@ -1116,19 +1112,19 @@ void CtpTraderSpi::OnRtnFromFutureToBankByFuture(CThostFtdcRspTransferField *pRs
 	bool founded=false;    UINT i=0;
 	for(i=0; i<m_BfTransVec.size(); i++)
 	{
-		if(m_BfTransVec[i]->FutureSerial==bfTrans->FutureSerial)
+		if(m_BfTransVec[i].FutureSerial==bfTrans->FutureSerial)
 		{ founded=true;    break;}
 	}
 	//////覆盖
 	if(founded) 
 	{
-		m_BfTransVec[i]= bfTrans; 
+		m_BfTransVec[i] = *bfTrans; 
 
 	} 
 	///////新增银期反馈
 	else 
 	{
-		m_BfTransVec.push_back(bfTrans);
+		m_BfTransVec.push_back(*bfTrans);
 		if(!g_bRecconnectT)
 		{
 			if(pRspTransfer->ErrorID!=0)
@@ -1189,7 +1185,7 @@ void CtpTraderSpi::OnRspQueryBankAccountMoneyByFuture(CThostFtdcReqQueryAccountF
 		strcpy(bfTrans->TradeTime,pReqQueryAccount->TradeTime);
 		strcpy(bfTrans->ErrorMsg,pRspInfo->ErrorMsg);
 
-		m_BfTransVec.push_back(bfTrans);
+		m_BfTransVec.push_back(*bfTrans);
 
 		ShowErrTips(pRspInfo->ErrorMsg);
 	}

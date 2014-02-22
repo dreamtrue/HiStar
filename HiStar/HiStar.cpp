@@ -18,6 +18,7 @@ BEGIN_MESSAGE_MAP(CHiStarApp, CWinApp)
 	ON_THREAD_MESSAGE(WM_LOGIN_CTP,LoginCtp)
 	ON_THREAD_MESSAGE(WM_LOGOUT_CTP,LogoutCtp)
 	ON_THREAD_MESSAGE(WM_QRY_ACC_CTP,OnQryAccCtp)
+	ON_THREAD_MESSAGE(WM_UPDATE_LSTCTRL,OnUpdateLstCtrl)
 END_MESSAGE_MAP()
 
 // CHiStarApp 构造
@@ -42,6 +43,7 @@ CHiStarApp::CHiStarApp()
 	_CrtSetBreakAlloc(969);
 	_CrtSetBreakAlloc(967);
 	*/
+	MainThreadId = GetCurrentThreadId();
 	// 支持重新启动管理器
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;
 	//IB Client

@@ -32,9 +32,9 @@ int CHiStarApp::FindInstMul(TThostFtdcInstrumentIDType InstID){
 	int iMul = 1;
 	for (UINT i=0; i < m_cT->m_InsinfVec.size();i++)
 	{
-		if (strcmp(InstID,m_cT->m_InsinfVec[i]->iinf.InstrumentID) == 0)
+		if (strcmp(InstID,m_cT->m_InsinfVec[i].iinf.InstrumentID) == 0)
 		{
-			iMul = m_cT->m_InsinfVec[i]->iinf.VolumeMultiple;
+			iMul = m_cT->m_InsinfVec[i].iinf.VolumeMultiple;
 			founded = true;
 			break;
 		}
@@ -54,7 +54,7 @@ void CHiStarApp::LogoutCtp(UINT wParam,LONG lParam)
 {
 	//交易模块登出,行情模块不需要,否则会报错(暂时不知道原因?)
 	m_cT->ReqUserLogout();
-	m_cQ->ReqUserLogout();
+	m_cQ->ReqUserLogout();//行情无法正常登出，如果在未登出的情况下继续登入，会发生访问冲突。
 }
 UINT LoginThread(LPVOID pParam)
 {
@@ -212,19 +212,9 @@ UINT LoginThread(LPVOID pParam)
 		return 0;
 	}
 	((CMainDlg*)(pApp->m_pMainWnd))->addCombInst();//增加合约列表
-	((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.InitAllVecs();
 	((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.InitAllHdrs();
 	((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.FiltInsList();
-	((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstOnRoad.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_onRoadVec.size());
-	((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstOnRoad.Invalidate();
-	((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstOrdInf.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_orderVec.size());
-	((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstOrdInf.Invalidate();
-	((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstInvPosInf.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_InvPosVec.size());
-	((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstInvPosInf.Invalidate();
-	((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstTdInf.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_tradeVec.size());
-	((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstTdInf.Invalidate();
-	((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstAllInsts.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_InsinfVec.size());
-	((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstAllInsts.Invalidate();
+	((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.SynchronizeAllVecs();
 	((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("CTP登陆成功!"),100);
 #endif
 	pApp->m_pLoginCtp = NULL;
@@ -237,4 +227,8 @@ void CHiStarApp::OnQryAccCtp(UINT wParam,LONG lParam){
 			pApp->m_cT->ReqQryTdAcc();
 		}
 	}
+}
+void CHiStarApp::OnUpdateLstCtrl(UINT wParam,LONG lParam){
+	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
+	((CMainDlg*)pApp->m_pMainWnd)->m_statusPage.SynchronizeAllVecs();
 }

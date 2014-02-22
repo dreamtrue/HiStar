@@ -1,7 +1,7 @@
 #pragma once
 #include "colorlistctrl.h"
 #include "afxcmn.h"
-#include "CVector.h"
+
 // CStatusPage 对话框
 
 class CStatusPage : public CDialogEx
@@ -31,25 +31,29 @@ public:
 	////////////////////////////////////////////
 	INSINFEX *m_InstInf;
 	CThostFtdcDepthMarketDataField *m_pDepthMd;
-	CVector<CThostFtdcOrderField*> m_onRoadVec;
+private:
+	std::vector<CThostFtdcOrderField> m_onRoadVec;
 	CThostFtdcTradingAccountField *m_pTdAcc;
 	CThostFtdcNotifyQueryAccountField *m_pNotifyBkYe;
 	CThostFtdcInvestorField *m_pInvInf;
-	CVector<CThostFtdcOrderField*> m_orderVec;
-	CVector<CThostFtdcTradeField*> m_tradeVec;
-	CVector<CThostFtdcInstrumentFieldEx*> m_InsinfVec;
-	CVector<CThostFtdcInstrumentMarginRateField*> m_MargRateVec;
-	CVector<CThostFtdcSettlementInfoField*> m_StmiVec;
-	CVector<CThostFtdcAccountregisterField*> m_AccRegVec;
-	CVector<CThostFtdcTradingCodeField*> m_TdCodeVec;
-	CVector<CThostFtdcInvestorPositionField*> m_InvPosVec;
-	CVector<CThostFtdcRspTransferField*> m_BfTransVec;
+	//与traderspi.h中的vector同步
+	//////////////////////////////////////////////////////
+	std::vector<CThostFtdcOrderField> m_orderVec;
+	std::vector<CThostFtdcTradeField> m_tradeVec;
+	std::vector<CThostFtdcInstrumentFieldEx> m_InsinfVec;
+	std::vector<CThostFtdcInstrumentMarginRateField> m_MargRateVec;
+	std::vector<CThostFtdcSettlementInfoField> m_StmiVec;
+	std::vector<CThostFtdcAccountregisterField> m_AccRegVec;
+	std::vector<CThostFtdcTradingCodeField> m_TdCodeVec;
+	std::vector<CThostFtdcInvestorPositionField> m_InvPosVec;
+	std::vector<CThostFtdcRspTransferField> m_BfTransVec;
+	std::vector<CThostFtdcInstrumentCommissionRateField> m_FeeRateVec;
 	CThostFtdcInstrumentCommissionRateField m_FeeRateRev;
-	CVector<CThostFtdcInstrumentCommissionRateField*> m_FeeRateVec;
+	CTimeSpan m_tsEXnLocal[4];
+public:
 	////////////////////////////////////////////
 	CThostFtdcTradingAccountField m_TdAcc;
-	void InitAllVecs();
-	CTimeSpan m_tsEXnLocal[4];
+	void SynchronizeAllVecs();
 	CColorListCtrl m_LstOnRoad;
 	CColorListCtrl m_LstOrdInf;
 	CColorListCtrl m_LstTdInf;

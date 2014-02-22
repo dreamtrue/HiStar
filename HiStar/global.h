@@ -30,11 +30,11 @@ typedef struct CThostFtdcInstrumentFieldEx
 	TThostFtdcRatioType	CloseTodayRatioByVolume;
 }INSINFEX,*PINSINFEX;
 
-typedef std::vector<CThostFtdcOrderField*> ::iterator VOrd;
-typedef std::vector<CThostFtdcInvestorPositionField*> ::iterator VInvP;
-typedef std::vector<CThostFtdcInstrumentFieldEx*>::iterator VIT_if;
-typedef std::vector<CThostFtdcInstrumentMarginRateField*>::iterator VIT_mr;
-typedef std::vector<CThostFtdcInstrumentCommissionRateField*>::iterator VIT_cf;
+typedef std::vector<CThostFtdcOrderField> ::iterator VOrd;
+typedef std::vector<CThostFtdcInvestorPositionField> ::iterator VInvP;
+typedef std::vector<CThostFtdcInstrumentFieldEx>::iterator VIT_if;
+typedef std::vector<CThostFtdcInstrumentMarginRateField>::iterator VIT_mr;
+typedef std::vector<CThostFtdcInstrumentCommissionRateField>::iterator VIT_cf;
 
 struct SAccountIB{
 	CString  m_accountName;

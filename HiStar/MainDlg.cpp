@@ -208,10 +208,10 @@ void CMainDlg::addCombInst(void)
 	BOOL bRes = FALSE;
 	for (UINT i=0; i < pApp->m_cT->m_InsinfVec.size();i++)
 	{
-		if(pApp->m_cT->m_InsinfVec[i]->iinf.InstrumentID[0] == 'I' 
-			&& pApp->m_cT->m_InsinfVec[i]->iinf.InstrumentID[1] == 'F'){
-				m_basicPage.m_CombInst.AddString(CString(pApp->m_cT->m_InsinfVec[i]->iinf.InstrumentID));
-				m_basicPage.m_CombInst.SetWindowText(CString(pApp->m_cT->m_InsinfVec[i]->iinf.InstrumentID));
+		if(pApp->m_cT->m_InsinfVec[i].iinf.InstrumentID[0] == 'I' 
+			&& pApp->m_cT->m_InsinfVec[i].iinf.InstrumentID[1] == 'F'){
+				m_basicPage.m_CombInst.AddString(CString(pApp->m_cT->m_InsinfVec[i].iinf.InstrumentID));
+				m_basicPage.m_CombInst.SetWindowText(CString(pApp->m_cT->m_InsinfVec[i].iinf.InstrumentID));
 		}
 	}
 }

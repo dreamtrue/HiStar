@@ -3,6 +3,8 @@
 
 #include "StdAfx.h"
 #include "global.h"
+#include "CVector.h"
+
 class CtpTraderSpi : public CThostFtdcTraderSpi
 {
 public:
@@ -276,20 +278,20 @@ public:
 	char m_sTdday[9];
 	char m_sTmBegin[20];
 	////////////////////////////////////////////
-	std::vector<CThostFtdcOrderField*> m_orderVec;
-	std::vector<CThostFtdcTradeField*> m_tradeVec;
-	std::vector<CThostFtdcInstrumentFieldEx*> m_InsinfVec;
-	std::vector<CThostFtdcInstrumentMarginRateField*> m_MargRateVec;
-	std::vector<CThostFtdcSettlementInfoField*> m_StmiVec;
-	std::vector<CThostFtdcAccountregisterField*> m_AccRegVec;
-	std::vector<CThostFtdcTradingCodeField*> m_TdCodeVec;
-	std::vector<CThostFtdcInvestorPositionField*> m_InvPosVec;
-	std::vector<CThostFtdcRspTransferField*> m_BfTransVec;
+	CVector<CThostFtdcOrderField> m_orderVec;
+	CVector<CThostFtdcTradeField> m_tradeVec;
+	CVector<CThostFtdcInstrumentFieldEx> m_InsinfVec;
+	CVector<CThostFtdcInstrumentMarginRateField> m_MargRateVec;
+	CVector<CThostFtdcSettlementInfoField> m_StmiVec;
+	CVector<CThostFtdcAccountregisterField> m_AccRegVec;
+	CVector<CThostFtdcTradingCodeField> m_TdCodeVec;
+	CVector<CThostFtdcInvestorPositionField> m_InvPosVec;
+	CVector<CThostFtdcRspTransferField> m_BfTransVec;
+	CTimeSpan m_tsEXnLocal[4];
 	CThostFtdcInstrumentCommissionRateField m_FeeRateRev;
-	////////////////////////////////////////////
+	//////////////////////////////////////////////////////
 	CThostFtdcTradingAccountField m_TdAcc;
 	CThostFtdcRspInfoField m_RspMsg;
-	CTimeSpan m_tsEXnLocal[4];
 
 private:
   CThostFtdcTraderApi* pUserApi;

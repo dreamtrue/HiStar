@@ -5,7 +5,6 @@ TB  线程安全的vector,效率会降低很多
 #pragma once
 #include <afxmt.h>
 #include <vector>
-using namespace std;
 template<typename T>
 class CVector
 {
@@ -40,6 +39,14 @@ public:
 		m_syncFlag.Unlock();
 		return *this;
 	}
+
+	std::vector<T> GetBuffer(){
+		m_syncFlag.Lock();
+		std::vector<T> vectemp = m_vecCon;
+		m_syncFlag.Unlock();
+		return vectemp;
+	}
+
 	reference operator[](size_type n)
 	{
 		m_syncFlag.Lock();
