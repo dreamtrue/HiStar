@@ -258,17 +258,19 @@ void CtpTraderSpi::OnRspQryTradingAccount(
 	CThostFtdcTradingAccountField *pTradingAccount, 
 	CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 { 
+	CThostFtdcTradingAccountField *pAcc;
 	if (!IsErrorRspInfo(pRspInfo) &&  pTradingAccount)
 	{
-		CThostFtdcTradingAccountField *pAcc = new CThostFtdcTradingAccountField();
+		pAcc = new CThostFtdcTradingAccountField();
 		memcpy(pAcc,pTradingAccount,sizeof(CThostFtdcTradingAccountField));
 		m_TdAcc = *pAcc;
+	}
+	if(bIsLast){
 		if(AfxGetApp()->m_pMainWnd){
-
 			PostMessage(AfxGetApp()->m_pMainWnd->m_hWnd,WM_UPDATE_ACC_CTP,NULL,(LPARAM)pAcc);
 		}
-	}
-	if(bIsLast) SetEvent(g_hEvent);
+		SetEvent(g_hEvent);
+	}	
 }
 
 //INSTRUMENT_ID设成部分字段,例如IF10,就能查出所有IF10打头的头寸
@@ -302,9 +304,11 @@ void CtpTraderSpi::OnRspQryInvestorPosition(
 		if(!founded){
 			m_InvPosVec.push_back(InvPos);
 		}
-		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 	}
-	if(bIsLast) SetEvent(g_hEvent);	
+	if(bIsLast){ 
+		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
+		SetEvent(g_hEvent);
+	}
 }
 
 //INSTRUMENT_ID设成部分字段,例如IF10,就能查出所有IF10打头的头寸
@@ -590,7 +594,6 @@ void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder){
 			founded = true;
 			//修改命令状态
 			m_orderVec[i] = order;
-			PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 			break;
 		}
 	}		
@@ -609,7 +612,6 @@ void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder){
 		m_orderVec.push_back(order);
 		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 	}
-	SetEvent(g_hEvent);
 }
 
 ///成交通知
@@ -726,7 +728,6 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 		/////////////////////////////////////////////////////////////////
 		*/
 	}
-	SetEvent(g_hEvent);
 }
 
 void CtpTraderSpi::OnFrontDisconnected(int nReason){
