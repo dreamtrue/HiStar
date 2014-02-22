@@ -1518,7 +1518,5 @@ bool CtpTraderSpi::IsErrorRspInfo(CThostFtdcRspInfoField *pRspInfo)
 
 void CtpTraderSpi::ShowErrTips(TThostFtdcErrorMsgType ErrorMsg)
 {
-	//TCHAR szMsg[MAX_PATH];
-	//ansi2uni(CP_ACP,ErrorMsg,szMsg);
-	//ShowErroTips(szMsg,MY_TIPS);
+	ShowErroTips(ErrorMsg,MY_TIPS);
 }

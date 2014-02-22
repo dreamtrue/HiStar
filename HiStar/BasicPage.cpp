@@ -252,7 +252,9 @@ void CBasicPage::OnStart()
 	kpp[0] = THOST_FTDC_OF_Open;
 	if(g_bLoginCtpT){
 		if(pApp->m_cT){
-			pApp->m_cT->ReqOrdLimit("IF1406", THOST_FTDC_D_Buy,kpp,2291,1);
+			for(int i = 0;i < 1;i++){
+				pApp->m_cT->ReqOrdLimit("IF1406", THOST_FTDC_D_Buy,kpp,2291,1);
+			}
 		}
 	}
 	//pApp->m_cT->ReqOrdAny("IF1406", THOST_FTDC_D_Buy,kpp,1);

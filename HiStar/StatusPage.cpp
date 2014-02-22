@@ -658,6 +658,7 @@ void CStatusPage::OnGetDispinf2(NMHDR *pNMHDR, LRESULT *pResult)
 		case 4:
 			szTemp=JgOrdStatType(m_orderVec[iItem]->OrderStatus);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
+			break;
 		case 5:
 			szTemp.Format(_T("%f"),m_orderVec[iItem]->LimitPrice);
 			szTemp.TrimRight('0');

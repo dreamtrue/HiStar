@@ -81,6 +81,12 @@ public:
 		m_vecCon.pop_back();
 		m_syncFlag.Unlock();
 	}
+	void Lock(){
+		m_syncFlag.Lock();
+	}
+	void Unlock(){
+		m_syncFlag.Unlock();
+	}
 	void swap(CVector& cc)
 	{
 		m_syncFlag.Lock();
@@ -174,7 +180,6 @@ public:
 		m_syncFlag.Unlock();
 		return ref;
 	}
-	//iterator begin() {return m_vecCon.empty() ? NULL : &*m_vecCon.begin();}
 	iterator begin() {return m_vecCon.begin();}
 	const_iterator begin() const {return m_vecCon.begin();}
 	iterator end() {return m_vecCon.end();}

@@ -6,7 +6,8 @@
 #endif // _MSC_VER > 1000
 // ColorListCtrl.h : header file
 //
-#include   <afxtempl.h>
+#include <afxtempl.h>
+#include <afxcmn.h>
 /////////////////////////////////////////////////////////////////////////////
 // CColorListCtrl window
 
