@@ -72,8 +72,9 @@ public:
 	iterator insert(iterator pos, const T& x)
 	{
 		m_syncFlag.Lock();
-		m_vecCon.insert(pos, x);
+		iterator it = m_vecCon.insert(pos, x);
 		m_syncFlag.Unlock();
+		return it;
 	}
 	bool empty() const {return m_vecCon.empty();}
 	void reserve(size_type n)

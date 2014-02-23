@@ -29,10 +29,10 @@ void CHiStarApp::CreateCtpClient(void)
 		m_TApi->RegisterSpi((CThostFtdcTraderSpi*)m_cT);
 	}
 	if(m_TApi){
-		m_TApi->SubscribePublicTopic(THOST_TERT_RESTART);
+		m_TApi->SubscribePublicTopic(THOST_TERT_QUICK);
 	}
 	if(m_TApi){
-		m_TApi->SubscribePrivateTopic(THOST_TERT_RESTART);
+		m_TApi->SubscribePrivateTopic(THOST_TERT_QUICK);
 	}
 }
 int CHiStarApp::FindInstMul(TThostFtdcInstrumentIDType InstID){
@@ -151,7 +151,7 @@ UINT LoginThread(LPVOID pParam)
 	}
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
-		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("登陆行情成功!"), 20);
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("登陆行情成功!"), 15);
 		ResetEvent(g_hEvent);
 	}	
 	///////////////////////////////////////////////////////////
@@ -160,7 +160,7 @@ UINT LoginThread(LPVOID pParam)
 	}
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
-		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("确认结算单!"), 40);
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("确认结算单!"), 20);
 		ResetEvent(g_hEvent);
 	}
 	else{
@@ -171,11 +171,10 @@ UINT LoginThread(LPVOID pParam)
 	if(pApp->m_cT){
 		pApp->m_cT->ReqQryInst(NULL);
 	}
-
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
 		TRACE(_T("合约完毕返回\n"));
-		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查合约列表!"), 60);
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查合约列表!"), 30);
 		ResetEvent(g_hEvent);
 	}
 	else{
@@ -183,14 +182,13 @@ UINT LoginThread(LPVOID pParam)
 		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查合约列表超时!"), 0);
 		return 0;
 	}
-
 	Sleep(1000);
 	if(pApp->m_cT){
 		pApp->m_cT->ReqQryInvPos(NULL);
 	}
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
-		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查持仓信息!"), 70);
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查持仓信息!"), 40);
 		ResetEvent(g_hEvent);
 	}	
 	else{
@@ -198,14 +196,13 @@ UINT LoginThread(LPVOID pParam)
 		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查持仓信息超时!"), 0);
 		return 0;
 	}
-
 	Sleep(1000);
 	if(pApp->m_cT){
 		pApp->m_cT->ReqQryTdAcc();
 	}
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
-		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查资金账户!"), 80);
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查资金账户!"), 45);
 		ResetEvent(g_hEvent);
 	}	
 	else{
@@ -213,7 +210,6 @@ UINT LoginThread(LPVOID pParam)
 		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查账户超时!"), 0);
 		return 0;
 	}
-
 #ifdef _REAL_CTP_
 	Sleep(1000);
 	if(pApp->m_cT){
@@ -221,7 +217,7 @@ UINT LoginThread(LPVOID pParam)
 	}
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
-		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查银期信息!"), 90);
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查银期信息!"), 50);
 		ResetEvent(g_hEvent);
 	}
 	else{
@@ -229,19 +225,46 @@ UINT LoginThread(LPVOID pParam)
 		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查银期信息超时!"), 0);
 		return 0;
 	}
-
 	Sleep(1000);
 	if(pApp->m_cT){
 		pApp->m_cT->ReqQryTradingCode();
 	}
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
-		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查交易编码!"), 99);
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查交易编码!"), 55);
 		ResetEvent(g_hEvent);
 	}	
 	else{
 		pApp->m_pLoginCtp = NULL;
 		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查交易编码超时!"), 0);
+		return 0;
+	}
+	Sleep(1000);
+	if(pApp->m_cT){
+		pApp->m_cT->ReqQryOrder(NULL);
+	}
+	dwRet = WaitForSingleObject(g_hEvent,INFINITE);
+	if (dwRet==WAIT_OBJECT_0){
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查Order状况!"), 75);
+		ResetEvent(g_hEvent);
+	}	
+	else{
+		pApp->m_pLoginCtp = NULL;
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查Order状况超时!"), 0);
+		return 0;
+	}
+	Sleep(1000);
+	if(pApp->m_cT){
+		pApp->m_cT->ReqQryTrade(NULL);
+	}
+	dwRet = WaitForSingleObject(g_hEvent,INFINITE);
+	if (dwRet==WAIT_OBJECT_0){
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查交易状况!"), 95);
+		ResetEvent(g_hEvent);
+	}	
+	else{
+		pApp->m_pLoginCtp = NULL;
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查交易状况超时!"), 0);
 		return 0;
 	}
 	((CMainDlg*)(pApp->m_pMainWnd))->addCombInst();//增加合约列表

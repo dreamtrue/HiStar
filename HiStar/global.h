@@ -9,7 +9,7 @@
 
 #include <vector>
 
-#define WAIT_MS	5000
+#define WAIT_MS	10000
 
 
 ///合约保证金率

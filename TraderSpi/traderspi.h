@@ -155,6 +155,10 @@ public:
 	virtual void OnRspQryParkedOrderAction(CThostFtdcParkedOrderActionField *pParkedOrderAction, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 	///////////////////////////////////////////////////////////////////////////////////////////////
 
+	virtual void OnRspQryOrder(CThostFtdcOrderField *pOrder, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
+
+	///请求查询成交响应
+	virtual void OnRspQryTrade(CThostFtdcTradeField *pTrade, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 
 public:
 	///用户登录请求
@@ -249,7 +253,6 @@ public:
 	///预埋单录入请求
 	void ReqParkedOrderInsert(CThostFtdcParkedOrderField *ParkedOrder);
 	void ReqParkedOrderAction(CThostFtdcParkedOrderActionField *ParkedOrderAction);
-	
 	///请求查询预埋单
 	void ReqQryParkedOrder(TThostFtdcInstrumentIDType InstrumentID,TThostFtdcExchangeIDType ExchangeID);
 	///请求查询预埋撤单
@@ -258,7 +261,10 @@ public:
 	void ReqRemoveParkedOrder(TThostFtdcParkedOrderIDType ParkedOrder_ID);
 	///请求删除预埋撤单
 	void ReqRemoveParkedOrderAction(TThostFtdcParkedOrderActionIDType ParkedOrderAction_ID);
-
+	///请求查询order
+	void ReqQryOrder(TThostFtdcInstrumentIDType instId);
+	///请求查询成交
+    void ReqQryTrade(TThostFtdcInstrumentIDType instId);
 	//////////////////////////////////////////////////////////////////////
 	// 是否收到成功的响应
 	bool IsErrorRspInfo(CThostFtdcRspInfoField *pRspInfo);

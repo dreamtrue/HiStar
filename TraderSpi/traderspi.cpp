@@ -229,7 +229,6 @@ void CtpTraderSpi::OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument,
 			}
 		}
 		if(!founded){
-			TRACE("添加新合约\n");
 			m_InsinfVec.push_back(InsInf);
 		}
 	}
@@ -290,8 +289,15 @@ void CtpTraderSpi::OnRspQryInvestorPosition(
 	CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 { 
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
-	if(!IsErrorRspInfo(pRspInfo) &&  pInvestorPosition )
+	if(pInvestorPosition && pInvestorPosition->YdPosition != 0){
+		TRACE("%s昨持仓%d\n",pInvestorPosition->InstrumentID,pInvestorPosition->YdPosition);
+	}
+	if(!pInvestorPosition){
+		TRACE("持仓为0\n");
+	}
+	if(!IsErrorRspInfo(pRspInfo)&&pInvestorPosition)
 	{
+		TRACE("%s持仓%d昨仓%d方向%c\n",pInvestorPosition->InstrumentID,pInvestorPosition->Position,pInvestorPosition->YdPosition,pInvestorPosition->PosiDirection);
 		CThostFtdcInvestorPositionField InvPos;
 		memcpy(&InvPos,pInvestorPosition, sizeof(CThostFtdcInvestorPositionField));
 		bool founded = false;
@@ -306,6 +312,90 @@ void CtpTraderSpi::OnRspQryInvestorPosition(
 		}
 	}
 	if(bIsLast){ 
+		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
+		SetEvent(g_hEvent);
+	}
+}
+void CtpTraderSpi::ReqQryOrder(TThostFtdcInstrumentIDType instId){
+	CThostFtdcQryOrderField req;
+	memset(&req,0,sizeof(req));
+	strcpy(req.BrokerID,BROKER_ID);
+	strcpy(req.InvestorID,INVEST_ID);
+	if (instId!=NULL)
+	{strcpy(req.InstrumentID, instId);}	
+	pUserApi->ReqQryOrder(&req, ++m_iRequestID);
+}
+
+void  CtpTraderSpi::OnRspQryOrder(CThostFtdcOrderField *pOrder, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast){
+	if(!IsErrorRspInfo(pRspInfo)&&pOrder){
+		CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
+		CThostFtdcOrderField order;
+		TRACE("OnRtnOrder所有报单通知%s,%s,%c,%d,已经成交%d\r\n",pOrder->OrderRef, pOrder->OrderSysID,pOrder->OrderStatus,pOrder->BrokerOrderSeq,pOrder->VolumeTraded);
+		memcpy(&order,pOrder, sizeof(CThostFtdcOrderField));
+		bool founded = false;UINT i = 0;
+		for(i = 0;i<m_orderVec.size();i++){
+			if(m_orderVec[i].BrokerOrderSeq == order.BrokerOrderSeq) { 
+				founded = true;
+				//修改命令状态
+				m_orderVec[i] = order;
+				break;
+			}
+		}		
+		if(!founded){
+			//将挂单删除，因为这时有消息返回说明已经递送出去了
+			int nRet = ((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.FindOrdInOnRoadVec(order.BrokerOrderSeq);
+			//未加入挂单列表
+			if (nRet==-1){
+				//如果没有,则不做任何动作
+			}
+			else{
+				//挂单返回，表示已经递送出去，将该挂单删除(已经变成委托单或其他)
+			}
+			///////新增加委托单
+			m_orderVec.insert(m_orderVec.begin(),order);//从头部插入
+		}
+	}
+	if(bIsLast) {
+		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
+		SetEvent(g_hEvent);
+	}
+}
+
+void CtpTraderSpi::ReqQryTrade(TThostFtdcInstrumentIDType instId){
+	CThostFtdcQryTradeField req;
+	memset(&req,0,sizeof(req));
+	strcpy(req.BrokerID,BROKER_ID);
+	strcpy(req.InvestorID,INVEST_ID);
+	if (instId!=NULL)
+	{strcpy(req.InstrumentID, instId);}		
+	pUserApi->ReqQryTrade(&req, ++m_iRequestID);
+}
+
+void CtpTraderSpi::OnRspQryTrade(CThostFtdcTradeField *pTrade, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+	if(!IsErrorRspInfo(pRspInfo)&&pTrade){
+		TRACE("成交通知\n");
+		CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
+		CThostFtdcTradeField trade;
+		memcpy(&trade,pTrade,sizeof(CThostFtdcTradeField));
+		bool founded = false;     
+		unsigned int ii = 0;
+		for(ii = 0;ii<m_tradeVec.size();ii++){
+			//strcmp返回0时表示相等
+			if(strcmp(m_tradeVec[ii].TradeID,trade.TradeID) == 0){
+				founded = true;   
+				break;
+			}
+		}
+		//////修改成交单状态
+		if(founded){
+		}
+		///////新增加已成交单 
+		else 
+		{
+			m_tradeVec.insert(m_tradeVec.begin(),trade);
+		}
+	}
+	if(bIsLast) {
 		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 		SetEvent(g_hEvent);
 	}
@@ -594,7 +684,7 @@ void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder){
 			founded = true;
 			//修改命令状态
 			m_orderVec[i] = order;
-			//PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
+			PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 			break;
 		}
 	}		
@@ -610,7 +700,7 @@ void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder){
 		}
 		///////新增加委托单
 		m_orderVec.push_back(order);
-		//PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
+		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 	}
 }
 
