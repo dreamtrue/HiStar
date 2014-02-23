@@ -245,12 +245,12 @@ UINT LoginThread(LPVOID pParam)
 	}
 	dwRet = WaitForSingleObject(g_hEvent,INFINITE);
 	if (dwRet==WAIT_OBJECT_0){
-		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查Order状况!"), 75);
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查指令状态!"), 75);
 		ResetEvent(g_hEvent);
 	}	
 	else{
 		pApp->m_pLoginCtp = NULL;
-		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查Order状况超时!"), 0);
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查指令状态超时!"), 0);
 		return 0;
 	}
 	Sleep(1000);
@@ -259,12 +259,12 @@ UINT LoginThread(LPVOID pParam)
 	}
 	dwRet = WaitForSingleObject(g_hEvent,INFINITE);
 	if (dwRet==WAIT_OBJECT_0){
-		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查交易状况!"), 95);
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查交易状态!"), 95);
 		ResetEvent(g_hEvent);
 	}	
 	else{
 		pApp->m_pLoginCtp = NULL;
-		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查交易状况超时!"), 0);
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查交易状态超时!"), 0);
 		return 0;
 	}
 	((CMainDlg*)(pApp->m_pMainWnd))->addCombInst();//增加合约列表
