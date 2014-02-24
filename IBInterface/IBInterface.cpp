@@ -83,6 +83,7 @@ void CHiStarApp::accountDownloadEnd(const IBString& accountName){
 }
 
 void CHiStarApp::nextValidId( OrderId orderId){
+	m_id = orderId;
 	TRACE("nextValidId\n");
 }
 void CHiStarApp::contractDetails( int reqId, const ContractDetails& contractDetails){

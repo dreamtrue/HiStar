@@ -34,6 +34,9 @@
     <Filter Include="源文件\CtpClient">
       <UniqueIdentifier>{1a00f2fb-ac6e-42e3-9e9e-248eb84411f9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\Index">
+      <UniqueIdentifier>{4aa29d93-8311-4ff1-b41a-930b1fa72d0e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -142,6 +145,12 @@
     </ClCompile>
     <ClCompile Include="BasicPage.cpp">
       <Filter>源文件\Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Index\DealIndex.cpp">
+      <Filter>源文件\Index</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Index\Index.cpp">
+      <Filter>源文件\Index</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

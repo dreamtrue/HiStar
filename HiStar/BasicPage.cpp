@@ -14,6 +14,8 @@
 #endif
 extern HANDLE g_hEvent;
 extern BOOL g_bLoginCtpT;
+extern double g_A50Index;
+extern double g_HS300Index;
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
 class CAboutDlg : public CDialogEx
@@ -70,6 +72,8 @@ void CBasicPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_STATIC01, m_csS1P);
 	DDX_Control(pDX, IDC_STATIC03, m_csB1P);
 	DDX_Control(pDX, IDC_STATIC02, m_csLastP);
+	DDX_Control(pDX, IDC_STATIC_HS300, m_csHs300);
+	DDX_Control(pDX, IDC_STATIC_A50, m_csA50);
 }
 
 BEGIN_MESSAGE_MAP(CBasicPage, CDialogEx)
@@ -126,6 +130,10 @@ BOOL CBasicPage::OnInitDialog()
 	m_csLastP.SetWindowText(_T("0.0"),GREEN);
 	m_csB1P.SetBkColor(WHITE);
 	m_csB1P.SetWindowText(_T("0.0"),GREEN);
+	m_csHs300.SetBkColor(WHITE);
+	m_csHs300.SetWindowText(_T("0.0"),GREEN);
+	m_csA50.SetBkColor(WHITE);
+	m_csA50.SetWindowText(_T("0.0"),GREEN);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -243,17 +251,19 @@ void CBasicPage::RefreshMdPane(void)
 	 m_csS1P.SetDouble(m_depthMd.AskPrice1,CmpPriceColor(m_depthMd.AskPrice1,dPresp));
 	 m_csLastP.SetDouble(m_depthMd.LastPrice,CmpPriceColor(m_depthMd.AskPrice1,dPresp));
 	 m_csB1P.SetDouble(m_depthMd.BidPrice1,CmpPriceColor(m_depthMd.AskPrice1,dPresp));
+	 m_csHs300.SetDouble(g_HS300Index,BLACK);
+	 m_csA50.SetDouble(g_A50Index,BLACK);
 }
 
 void CBasicPage::OnStart()
 {
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	TThostFtdcCombOffsetFlagType kpp;
-	kpp[0] = THOST_FTDC_OF_Open;
+	kpp[0] = THOST_FTDC_OF_CloseToday;
 	if(g_bLoginCtpT){
 		if(pApp->m_cT){
 			for(int i = 0;i < 1;i++){
-				pApp->m_cT->ReqOrdLimit("IF1406", THOST_FTDC_D_Buy,kpp,2291,1);
+				pApp->m_cT->ReqOrdLimit("IF1403", THOST_FTDC_D_Sell,kpp,2203,20);
 			}
 		}
 	}

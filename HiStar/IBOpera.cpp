@@ -16,6 +16,7 @@ void CHiStarApp::OnConnectIB(UINT wParam,LONG lParam){
 		PostOrderStatus(cStatus);
 		m_pIBClient->reqAccountUpdates(true,m_accountIB.m_accountName);
 		m_pIBClient->reqCurrentTime();
+		//m_pIBClient->reqMktDepth(++m_id,m_IBContract,20);
 	}
 }
 void CHiStarApp::OnDisconnectIB(UINT wParam,LONG lParam){

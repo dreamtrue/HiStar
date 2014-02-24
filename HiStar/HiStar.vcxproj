@@ -53,7 +53,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\DIYCtrl;..\TraderSpi;..\api_libs;..\THostFtdc;..\MdSpi;.;..\IBInterface;..\CppClient\lib;..\CppClient\src;..\CppClient\Shared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Index;..\DIYCtrl;..\TraderSpi;..\api_libs;..\THostFtdc;..\MdSpi;.;..\IBInterface;..\CppClient\lib;..\CppClient\src;..\CppClient\Shared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -127,6 +127,8 @@
     <ClCompile Include="..\DIYCtrl\ColorListCtrl.cpp" />
     <ClCompile Include="..\DIYCtrl\ColorStatic.cpp" />
     <ClCompile Include="..\IBInterface\IBInterface.cpp" />
+    <ClCompile Include="..\Index\DealIndex.cpp" />
+    <ClCompile Include="..\Index\Index.cpp" />
     <ClCompile Include="..\MdSpi\mdspi.cpp" />
     <ClCompile Include="..\TraderSpi\traderspi.cpp" />
     <ClCompile Include="AccountPage.cpp" />

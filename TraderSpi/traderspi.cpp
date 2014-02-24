@@ -302,7 +302,8 @@ void CtpTraderSpi::OnRspQryInvestorPosition(
 		memcpy(&InvPos,pInvestorPosition, sizeof(CThostFtdcInvestorPositionField));
 		bool founded = false;
 		for(int i = 0;i < m_InvPosVec.size();i++){
-			if(!strcmp(m_InvPosVec[i].InstrumentID,InvPos.InstrumentID)){
+			//多头和空头是不同的持仓，所以除了判断合约代码还要判断持仓方向。
+			if(!strcmp(m_InvPosVec[i].InstrumentID,InvPos.InstrumentID) && m_InvPosVec[i].PosiDirection == InvPos.PosiDirection){
 				founded = true;
 				break;
 			}
@@ -577,6 +578,7 @@ void CtpTraderSpi::OnRspOrderInsert(CThostFtdcInputOrderField *pInputOrder,
 {
 	if( IsErrorRspInfo(pRspInfo) || (pInputOrder==NULL) )
 	{
+		TRACE(_T("OnRspOrderInsert,%s\n"),pRspInfo->ErrorMsg);
 		TCHAR szErr[MAX_PATH];
 		//ansi2uni(CP_ACP,pRspInfo->ErrorMsg,szErr);
 

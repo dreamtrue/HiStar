@@ -63,6 +63,8 @@ public:
 	CThostFtdcDepthMarketDataField m_depthMd;
 public:
 	afx_msg void OnStart();
+	CColorStatic m_csHs300;
+	CColorStatic m_csA50;
 };
 //其他变量
 const int N = 5;

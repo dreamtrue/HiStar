@@ -32,6 +32,8 @@ CHiStarApp::CHiStarApp()
 	, m_cT(NULL)
 	, m_pLoginCtp(NULL)
 	, m_strPath(_T(""))
+	, m_pIndexThread(NULL)
+	, m_id(0)
 {
 	//定位内存泄漏位置,非常好用
 	//_CrtSetBreakAlloc(958);
@@ -46,6 +48,10 @@ CHiStarApp::CHiStarApp()
 	}
 	//CTP Client
 	CreateCtpClient();
+	//INDEX
+	if(!m_pIndexThread){
+		m_pIndexThread = (CIndex*)AfxBeginThread(RUNTIME_CLASS(CIndex));
+	}
 }
 
 // 唯一的一个 CHiStarApp 对象

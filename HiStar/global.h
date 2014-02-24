@@ -1,5 +1,6 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
+#include <string.h>
 #include "ThostFtdcMdApi.h"
 #include "ThostFtdcTraderApi.h"
 #pragma comment(lib,"..\\api_libs\\thostmduserapi.lib")
@@ -10,7 +11,6 @@
 #include <vector>
 
 #define WAIT_MS	10000
-
 
 ///合约保证金率
 typedef CThostFtdcInstrumentMarginRateField MGRATE,*PMGRATE;
@@ -73,7 +73,7 @@ struct SAccountCtp{
 		strcpy(m_sBROKER_ID,"66666");
 		strcpy(m_sINVESTOR_ID,"10127111");
 		strcpy(m_sPASSWORD,"003180");
-		m_szInst = _T("IF1402");
+		m_szInst = _T("IF1403");
 		*/
 		//模拟系统
 		m_szArTs.Add(_T("tcp://ctpmn1-front1.citicsf.com:51205"));
@@ -84,7 +84,7 @@ struct SAccountCtp{
 		strcpy(m_sBROKER_ID,"1017");
 		strcpy(m_sINVESTOR_ID,"00000037");
 		strcpy(m_sPASSWORD,"123456");
-		m_szInst = _T("IF1402");
+		m_szInst = _T("IF1403");
 		//初始化
 		m_InstInf = new CThostFtdcInstrumentFieldEx();
 		m_pDepthMd = new CThostFtdcDepthMarketDataField();
@@ -1068,5 +1068,21 @@ inline char MapOffset(char src, bool toOrig=true)
 		else if('3'==src){src='J';}
 	}
 	return src;
+}
+//将每日时间化为秒数。
+inline int TThostFtdcTimeTypeToSeconds(TThostFtdcTimeType time)
+{
+	char hur[2],min[2],sec[2];
+	int ihur,imin,isec;
+	hur[0] = time[0];
+	hur[1] = time[1];
+	min[0] = time[3];
+	min[1] = time[4];
+	sec[0] = time[6];
+	sec[1] = time[7];
+	ihur = atoi(hur);
+	imin = atoi(min);
+	isec = atoi(sec);
+	return 3600 * ihur + 60 * imin + isec;
 }
 #endif
