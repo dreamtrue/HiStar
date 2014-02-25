@@ -136,7 +136,9 @@ void CtpMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarket
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	if(pApp->m_pMainWnd){
 		memcpy(&(((CMainDlg*)(pApp->m_pMainWnd))->m_basicPage.m_depthMd),pDepthMarketData,sizeof(CThostFtdcDepthMarketDataField));		
-		PostMessage(AfxGetApp()->m_pMainWnd->m_hWnd,WM_MD_REFRESH,NULL,NULL);
+		if(AfxGetApp()->m_pMainWnd){
+			PostMessage(AfxGetApp()->m_pMainWnd->m_hWnd,WM_MD_REFRESH,NULL,NULL);
+		}
 		if(pApp->m_pHedgeLoop){
 			pApp->m_pHedgeLoop->PostThreadMessage(WM_MD_REFRESH,NULL,NULL);
 		}
