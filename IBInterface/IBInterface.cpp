@@ -2,6 +2,7 @@
 #include "afxdialogex.h"
 #include "HiStar.h"
 #include "global.h"
+#include "UserMsg.h"
 #define NOT_AN_FA_ACCOUNT_ERROR 321
 #define NUM_FA_ERROR_CODES 6
 double g_a50Bid1 = 0.0f,g_a50Ask1 = 0.0f;
@@ -144,6 +145,7 @@ void CHiStarApp::updateMktDepth(TickerId id, int position, int operation, int si
 				}
 			}
 			TRACE("%f %f\r\n",g_a50Bid1,g_a50Ask1);
+			PostMessage(AfxGetApp()->m_pMainWnd->m_hWnd,WM_MD_REFRESH,NULL,NULL);
 		}
 }
 

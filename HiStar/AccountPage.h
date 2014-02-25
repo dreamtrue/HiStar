@@ -21,5 +21,5 @@ protected:
 public:
 	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
 	afx_msg void OnOK(void);
-	afx_msg void OnBnClickedCancel();
+	afx_msg void OnCancel();
 };

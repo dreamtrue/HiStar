@@ -40,6 +40,9 @@
     <Filter Include="源文件\calendar">
       <UniqueIdentifier>{3abaa00f-b2ab-47a6-bcff-24f95d4a0dd2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\Hedge">
+      <UniqueIdentifier>{e997c0d2-5792-4207-99d7-ae2f809957ab}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -97,6 +100,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\calendar\calendar.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Hedge\HedgeLoop.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -160,6 +166,9 @@
     </ClCompile>
     <ClCompile Include="..\calendar\calendar.cpp">
       <Filter>源文件\calendar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Hedge\HedgeLoop.cpp">
+      <Filter>源文件\Hedge</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

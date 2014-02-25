@@ -7,7 +7,9 @@
 #include "global.h"
 #include <atlconv.h>
 #include "MainDlg.h"
+#include "UserMsg.h"
 #pragma warning(disable : 4996)
+double g_ifAsk1 = 0,g_ifBid1 = 0;
 bool g_bOnceM = false;
 BOOL bRecconnect = FALSE;
 BOOL bMdSignal = FALSE;
@@ -129,10 +131,15 @@ void CtpMdSpi::OnRspUnSubMarketData(
 
 void CtpMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData){
 	TRACE("%s,%f,%f.\n",pDepthMarketData->InstrumentID,pDepthMarketData->BidPrice1,pDepthMarketData->AskPrice1);
+	g_ifAsk1 = pDepthMarketData->AskPrice1;
+	g_ifBid1 = pDepthMarketData->BidPrice1;
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	if(pApp->m_pMainWnd){
 		memcpy(&(((CMainDlg*)(pApp->m_pMainWnd))->m_basicPage.m_depthMd),pDepthMarketData,sizeof(CThostFtdcDepthMarketDataField));		
-		((CMainDlg*)(pApp->m_pMainWnd))->m_basicPage.RefreshMdPane();
+		PostMessage(AfxGetApp()->m_pMainWnd->m_hWnd,WM_MD_REFRESH,NULL,NULL);
+		if(pApp->m_pHedgeLoop){
+			pApp->m_pHedgeLoop->PostThreadMessage(WM_MD_REFRESH,NULL,NULL);
+		}
 	}
 }
 

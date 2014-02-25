@@ -105,6 +105,7 @@
   <ItemGroup>
     <ClInclude Include="..\calendar\calendar.h" />
     <ClInclude Include="..\CppClient\Shared\TwsSocketClientErrors.h" />
+    <ClInclude Include="..\Hedge\HedgeLoop.h" />
     <ClInclude Include="..\THostFtdc\ThostFtdcMdApi.h" />
     <ClInclude Include="..\THostFtdc\ThostFtdcTraderApi.h" />
     <ClInclude Include="..\THostFtdc\ThostFtdcUserApiDataType.h" />
@@ -128,6 +129,7 @@
     <ClCompile Include="..\CppClient\src\StdAfx.cpp" />
     <ClCompile Include="..\DIYCtrl\ColorListCtrl.cpp" />
     <ClCompile Include="..\DIYCtrl\ColorStatic.cpp" />
+    <ClCompile Include="..\Hedge\HedgeLoop.cpp" />
     <ClCompile Include="..\IBInterface\IBInterface.cpp" />
     <ClCompile Include="..\Index\DealIndex.cpp" />
     <ClCompile Include="..\Index\Index.cpp" />

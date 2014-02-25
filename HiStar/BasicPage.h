@@ -14,6 +14,11 @@
 #include "colorstatic.h"
 #include "thostftdcuserapistruct.h"
 #include "ColorListCtrl.h"
+#include "e:\新建文件夹\trunk\diyctrl\colorstatic.h"
+#include "e:\新建文件夹\trunk\diyctrl\colorstatic.h"
+#include "e:\新建文件夹\trunk\diyctrl\colorstatic.h"
+#include "e:\新建文件夹\trunk\diyctrl\colorstatic.h"
+#include "e:\新建文件夹\trunk\diyctrl\colorstatic.h"
 
 // CBasicPage 对话框
 class CBasicPage : public CDialogEx
@@ -54,7 +59,7 @@ public:
 	CComboBox m_CombInst;
 	afx_msg void OnInsSelchange();
 	afx_msg void OnOK(void);
-	afx_msg void OnBnClickedCancel();
+	afx_msg void OnCancel();
 	afx_msg void OnReqComboSelMarketDepth();
 	CColorStatic m_csS1P;
 	CColorStatic m_csB1P;
@@ -65,6 +70,14 @@ public:
 	afx_msg void OnStart();
 	CColorStatic m_csHs300;
 	CColorStatic m_csA50;
+	CColorStatic m_csA50Ask1;
+	CColorStatic m_csA50Last;
+	CColorStatic m_csA50Bid1;
+	afx_msg void OnStop();
+	afx_msg void OnPause();
+	afx_msg void OnResume();
+	CColorStatic m_csPremiumHigh;
+	CColorStatic m_csPremiumLow;
 };
 //其他变量
 const int N = 5;

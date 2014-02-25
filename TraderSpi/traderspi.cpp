@@ -234,11 +234,6 @@ void CtpTraderSpi::OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument,
 	}
 	if(bIsLast){
 		TRACE(_T("合约查询完毕\n"));
-		/*
-		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_InsinfVec = pApp->m_cT->m_InsinfVec;
-		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstAllInsts.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_InsinfVec.size());
-		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstAllInsts.Invalidate();
-		*/
 		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 		SetEvent(g_hEvent);
 	}

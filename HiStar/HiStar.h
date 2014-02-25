@@ -16,6 +16,7 @@
 #include "Index.h"
 #include "e:\新建文件夹\trunk\cppclient\shared\contract.h"
 #include "e:\新建文件夹\trunk\cppclient\shared\contract.h"
+#include "e:\新建文件夹\trunk\hedge\hedgeloop.h"
 extern DWORD MainThreadId;
 	// CHiStarApp:
 // 有关此类的实现，请参阅 HiStar.cpp
@@ -122,6 +123,7 @@ public:
 	Contract m_A50Contract;
 	WORD m_LifeA50;
 	TagValueListSPtr m_mktDepthOptions;
+	CHedgeLoop* m_pHedgeLoop;
 };
 
 extern CHiStarApp theApp;

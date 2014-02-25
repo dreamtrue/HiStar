@@ -16,6 +16,8 @@ extern HANDLE g_hEvent;
 extern BOOL g_bLoginCtpT;
 extern double g_A50Index;
 extern double g_HS300Index;
+extern double g_a50Bid1,g_a50Ask1;
+extern double premiumHigh,premiumLow;
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
 class CAboutDlg : public CDialogEx
@@ -45,7 +47,7 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
 	ON_BN_CLICKED(IDOK, &CBasicPage::OnOK)
-	ON_BN_CLICKED(IDCANCEL, &CBasicPage::OnBnClickedCancel)
+	ON_BN_CLICKED(IDCANCEL, &CBasicPage::OnCancel)
 END_MESSAGE_MAP()
 
 
@@ -74,6 +76,11 @@ void CBasicPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_STATIC02, m_csLastP);
 	DDX_Control(pDX, IDC_STATIC_HS300, m_csHs300);
 	DDX_Control(pDX, IDC_STATIC_A50, m_csA50);
+	DDX_Control(pDX, IDC_STATIC_A50ASK1, m_csA50Ask1);
+	DDX_Control(pDX, IDC_STATIC_A50_LAST, m_csA50Last);
+	DDX_Control(pDX, IDC_STATIC_A50_BID1, m_csA50Bid1);
+	DDX_Control(pDX, IDC_STATIC_PREMIUM_HIGH, m_csPremiumHigh);
+	DDX_Control(pDX, IDC_STATIC_PREMIUM_LOW, m_csPremiumLow);
 }
 
 BEGIN_MESSAGE_MAP(CBasicPage, CDialogEx)
@@ -87,6 +94,9 @@ BEGIN_MESSAGE_MAP(CBasicPage, CDialogEx)
 	ON_CBN_SELCHANGE(IDC_COMBO2, &CBasicPage::OnInsSelchange)
 	ON_BN_CLICKED(IDC_BUTTON6, &CBasicPage::OnReqComboSelMarketDepth)
 	ON_BN_CLICKED(IDC_BUTTON7, &CBasicPage::OnStart)
+	ON_BN_CLICKED(IDC_BUTTON8, &CBasicPage::OnStop)
+	ON_BN_CLICKED(IDC_BUTTON9, &CBasicPage::OnPause)
+	ON_BN_CLICKED(IDC_BUTTON2, &CBasicPage::OnResume)
 END_MESSAGE_MAP()
 
 
@@ -124,16 +134,26 @@ BOOL CBasicPage::OnInitDialog()
 	ShowWindow(SW_NORMAL);
 
 	// TODO: 在此添加额外的初始化代码
-	m_csS1P.SetBkColor(WHITE);
-	m_csS1P.SetWindowText(_T("0.0"),GREEN);
-	m_csLastP.SetBkColor(WHITE);
-	m_csLastP.SetWindowText(_T("0.0"),GREEN);
-	m_csB1P.SetBkColor(WHITE);
-	m_csB1P.SetWindowText(_T("0.0"),GREEN);
-	m_csHs300.SetBkColor(WHITE);
-	m_csHs300.SetWindowText(_T("0.0"),GREEN);
-	m_csA50.SetBkColor(WHITE);
-	m_csA50.SetWindowText(_T("0.0"),GREEN);
+	m_csS1P.SetBkColor(ACC_BG);
+	m_csS1P.SetWindowText(_T("0.0"),LITGRAY);
+	m_csLastP.SetBkColor(ACC_BG);
+	m_csLastP.SetWindowText(_T("0.0"),LITGRAY);
+	m_csB1P.SetBkColor(ACC_BG);
+	m_csB1P.SetWindowText(_T("0.0"),LITGRAY);
+	m_csHs300.SetBkColor(ACC_BG);
+	m_csHs300.SetWindowText(_T("0.0"),LITGRAY);
+	m_csA50.SetBkColor(ACC_BG);
+	m_csA50.SetWindowText(_T("0.0"),LITGRAY);
+	m_csA50Bid1.SetBkColor(ACC_BG);
+	m_csA50Bid1.SetWindowText(_T("0.0"),LITGRAY);
+	m_csA50Ask1.SetBkColor(ACC_BG);
+	m_csA50Ask1.SetWindowText(_T("0.0"),LITGRAY);
+	m_csA50Last.SetBkColor(ACC_BG);
+	m_csA50Last.SetWindowText(_T("0.0"),LITGRAY);
+	m_csPremiumHigh.SetBkColor(ACC_BG);
+	m_csPremiumHigh.SetWindowText(_T("0.0"),LITGRAY);
+	m_csPremiumLow.SetBkColor(ACC_BG);
+	m_csPremiumLow.SetWindowText(_T("0.0"),LITGRAY);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -228,7 +248,7 @@ void CBasicPage::OnOK(void)
 	//屏蔽掉对OK的响应
 }
 
-void CBasicPage::OnBnClickedCancel(){
+void CBasicPage::OnCancel(){
 
 }
 
@@ -253,19 +273,40 @@ void CBasicPage::RefreshMdPane(void)
 	 m_csB1P.SetDouble(m_depthMd.BidPrice1,CmpPriceColor(m_depthMd.AskPrice1,dPresp));
 	 m_csHs300.SetDouble(g_HS300Index,BLACK);
 	 m_csA50.SetDouble(g_A50Index,BLACK);
+	 m_csA50Bid1.SetDouble(g_a50Bid1,BLACK);
+	 m_csA50Ask1.SetDouble(g_a50Ask1,BLACK);
+	 m_csPremiumHigh.SetDouble(premiumHigh,BLACK);
+	 m_csPremiumLow.SetDouble(premiumLow,BLACK);
 }
 
 void CBasicPage::OnStart()
 {
-	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
-	TThostFtdcCombOffsetFlagType kpp;
-	kpp[0] = THOST_FTDC_OF_Open;
-	if(g_bLoginCtpT){
-		if(pApp->m_cT){
-			for(int i = 0;i < 1;i++){
-				pApp->m_cT->ReqOrdLimit("IF1403", THOST_FTDC_D_Sell,kpp,2203,20);
-			}
-		}
+	if(!(((CHiStarApp*)AfxGetApp())->m_pHedgeLoop)){
+		((CHiStarApp*)AfxGetApp())->m_pHedgeLoop = (CHedgeLoop*)AfxBeginThread(RUNTIME_CLASS(CHedgeLoop));
 	}
-	//pApp->m_cT->ReqOrdAny("IF1406", THOST_FTDC_D_Buy,kpp,1);
+}
+
+
+void CBasicPage::OnStop()
+{
+	if(((CHiStarApp*)AfxGetApp())->m_pHedgeLoop){
+		((CHiStarApp*)AfxGetApp())->m_pHedgeLoop->PostThreadMessage(WM_QUIT,NULL,NULL);
+	}
+    ((CHiStarApp*)AfxGetApp())->m_pHedgeLoop = NULL;
+}
+
+
+void CBasicPage::OnPause()
+{
+	if(((CHiStarApp*)AfxGetApp())->m_pHedgeLoop){
+		((CHiStarApp*)AfxGetApp())->m_pHedgeLoop->m_isPause = true;
+	}
+}
+
+
+void CBasicPage::OnResume()
+{
+	if(((CHiStarApp*)AfxGetApp())->m_pHedgeLoop){
+		((CHiStarApp*)AfxGetApp())->m_pHedgeLoop->m_isPause = false;
+	}
 }

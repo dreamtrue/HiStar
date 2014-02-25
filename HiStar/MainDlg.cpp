@@ -32,8 +32,9 @@ BEGIN_MESSAGE_MAP(CMainDlg, CDialogEx)
 	ON_MESSAGE(WM_ERRORS, &CMainDlg::OnErrors)
 	ON_MESSAGE(WM_UPDATE_ACC_CTP,&CMainDlg::OnUpdateAccCtp)
 	ON_WM_TIMER()
-	ON_BN_CLICKED(IDOK, &CMainDlg::OnBnClickedOk)
+	ON_BN_CLICKED(IDOK, &CMainDlg::OnOk)
 	ON_NOTIFY(TCN_SELCHANGE, IDC_TAB, &CMainDlg::OnTcnSelchangeTab)
+	ON_MESSAGE(WM_MD_REFRESH, &CMainDlg::OnRefreshMdPane)
 END_MESSAGE_MAP()
 
 
@@ -104,7 +105,7 @@ void CMainDlg::OnTimer(UINT_PTR nIDEvent)
 }
 
 
-void CMainDlg::OnBnClickedOk()
+void CMainDlg::OnOk()
 {
 	CDialogEx::OnOK();
 }
@@ -242,4 +243,10 @@ void CMainDlg::OnTcnSelchangeTab(NMHDR *pNMHDR, LRESULT *pResult)
 		m_basicPage.ShowWindow(false);
 	}
 	*pResult = 0;
+}
+
+afx_msg LRESULT CMainDlg::OnRefreshMdPane(WPARAM wParam, LPARAM lParam)
+{
+	m_basicPage.RefreshMdPane();
+	return 0;
 }

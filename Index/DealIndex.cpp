@@ -8,8 +8,8 @@
 CString m_URL = _T("http://hq.sinajs.cn/list=");
 double price[TOTAL];
 double volume[TOTAL] = {A50PL,HS300PL};
-double g_A50Index;
-double g_HS300Index;
+double g_A50Index = 0;
+double g_HS300Index = 0;
 int GetIndexData(void)
 {
 	CInternetSession mySession(NULL,0);

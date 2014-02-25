@@ -39,8 +39,8 @@ void CStatusPage::DoDataExchange(CDataExchange* pDX)
 
 
 BEGIN_MESSAGE_MAP(CStatusPage, CDialogEx)
-	ON_BN_CLICKED(IDOK, &CStatusPage::OnBnClickedOk)
-	ON_BN_CLICKED(IDCANCEL, &CStatusPage::OnBnClickedCancel)
+	ON_BN_CLICKED(IDOK, &CStatusPage::OnOk)
+	ON_BN_CLICKED(IDCANCEL, &CStatusPage::OnCancel)
 	ON_NOTIFY(TCN_SELCHANGE, IDC_TAB1, &CStatusPage::OnTcnSelchangeTab1)
 	ON_NOTIFY(NM_DBLCLK, IDC_LIST7, OnNMDblclkOnroad)
 	ON_NOTIFY(NM_CLICK, IDC_LIST7, OnNMClkLstOnroad)
@@ -71,14 +71,14 @@ END_MESSAGE_MAP()
 // CStatusPage 消息处理程序
 
 
-void CStatusPage::OnBnClickedOk()
+void CStatusPage::OnOk()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	//CDialogEx::OnOK();
 }
 
 
-void CStatusPage::OnBnClickedCancel()
+void CStatusPage::OnCancel()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	//CDialogEx::OnCancel();
@@ -109,7 +109,7 @@ BOOL CStatusPage::OnInitDialog()
 void CStatusPage::InitAllHdrs(void)
 {
 	TCHAR* lpHdrs0[ONROAD_ITMES] = {_T("单号"),_T("合约"),_T("买卖"),_T("开平"),_T("未成"),_T("价格"),_T("时间"),_T("报单引用"),_T("冻结金")};
-	int iWidths0[ONROAD_ITMES] = {1,46,34,34,34,46,60,60,60};
+	int iWidths0[ONROAD_ITMES] = {46,46,34,34,34,46,60,60,60};
 	int i;
 	int total_cx = 0;
 	LVCOLUMN lvcolumn;
@@ -129,7 +129,7 @@ void CStatusPage::InitAllHdrs(void)
 /////////////////////////////////////////////////////////////////////////////////////////////
 	TCHAR* lpHdrs1[ORDER_ITMES] = {_T("单号"),_T("合约"),_T("买卖"),_T("开平"),_T("状态"),_T("价格"),_T("报量"),_T("未成"),
 						_T("已成"),_T("均价"),_T("时间"),_T("序列号"),_T("冻保证金"),_T("冻手续费"),_T("详细状态"),};
-	int iWidths1[ORDER_ITMES] = {1,46,34,34,60,46,34,34,34,46,60,60,60,60,120};
+	int iWidths1[ORDER_ITMES] = {46,46,34,34,60,46,34,34,34,46,60,60,60,60,120};
 	total_cx = 0;
 	memset(&lvcolumn, 0, sizeof(lvcolumn));
 	
@@ -186,7 +186,7 @@ void CStatusPage::InitAllHdrs(void)
 	
 	TCHAR* lpHdrs4[ALLINST_ITMES] = {_T("代码"),_T("合约"),_T("合约名"),_T("交易所"),_T("乘数"),_T("点差"),
 	_T("类型"),_T("最后日期"),_T("保证金率"),_T("手续费率")};
-	int iWidths4[ALLINST_ITMES] = {26,46,80,46,34,34,34,60,60,120};
+	int iWidths4[ALLINST_ITMES] = {36,46,80,46,34,34,34,60,60,120};
 	total_cx = 0;
 	memset(&lvcolumn, 0, sizeof(lvcolumn));
 	
