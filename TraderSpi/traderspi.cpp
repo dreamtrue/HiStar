@@ -344,7 +344,7 @@ void  CtpTraderSpi::OnRspQryOrder(CThostFtdcOrderField *pOrder, CThostFtdcRspInf
 		}		
 		if(!founded){
 			//将挂单删除，因为这时有消息返回说明已经递送出去了
-			int nRet = ((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.FindOrdInOnRoadVec(order.BrokerOrderSeq);
+			int nRet = ((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.FindOrdInOnRoadVec(order.OrderRef);
 			//未加入挂单列表
 			if (nRet==-1){
 				//如果没有,则不做任何动作
@@ -473,7 +473,7 @@ void CtpTraderSpi::ReqOrdLimit(TThostFtdcInstrumentIDType instId,TThostFtdcDirec
 	req.UserForceClose = 0;   //用户强评标志:否
 
 	pUserApi->ReqOrderInsert(&req, ++m_iRequestID);
-
+	m_onRoadVec.push_back(req);
 }
 
 ///市价单
@@ -504,6 +504,7 @@ void CtpTraderSpi::ReqOrdAny(TThostFtdcInstrumentIDType instId,TThostFtdcDirecti
 	req.UserForceClose = 0;   //用户强评标志:否
 
 	pUserApi->ReqOrderInsert(&req, ++m_iRequestID);	
+	m_onRoadVec.push_back(req);
 }
 
 void CtpTraderSpi::ReqOrdCondition(TThostFtdcInstrumentIDType instId,TThostFtdcDirectionType dir, TThostFtdcCombOffsetFlagType kpp,
@@ -535,6 +536,7 @@ void CtpTraderSpi::ReqOrdCondition(TThostFtdcInstrumentIDType instId,TThostFtdcD
 	req.UserForceClose = 0;   //用户强评标志:否
 
 	pUserApi->ReqOrderInsert(&req, ++m_iRequestID);
+	m_onRoadVec.push_back(req);
 }
 
 /*
@@ -571,6 +573,7 @@ void CtpTraderSpi::ReqOrdFAOK(TThostFtdcInstrumentIDType instId,TThostFtdcDirect
 	req.UserForceClose = 0;   //用户强评标志:否
 
 	pUserApi->ReqOrderInsert(&req, ++m_iRequestID);
+	m_onRoadVec.push_back(req);
 }
 
 void CtpTraderSpi::OnRspOrderInsert(CThostFtdcInputOrderField *pInputOrder, 
@@ -692,7 +695,7 @@ void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder){
 	}		
 	if(!founded){
 		//将挂单删除，因为这时有消息返回说明已经递送出去了
-		int nRet = ((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.FindOrdInOnRoadVec(order.BrokerOrderSeq);
+		int nRet = ((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.FindOrdInOnRoadVec(order.OrderRef);
 		//未加入挂单列表
 		if (nRet==-1){
 			//如果没有,则不做任何动作

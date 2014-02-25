@@ -32,7 +32,7 @@ public:
 	INSINFEX *m_InstInf;
 	CThostFtdcDepthMarketDataField *m_pDepthMd;
 private:
-	std::vector<CThostFtdcOrderField> m_onRoadVec;
+	std::vector<CThostFtdcInputOrderField> m_onRoadVec;
 	CThostFtdcTradingAccountField *m_pTdAcc;
 	CThostFtdcNotifyQueryAccountField *m_pNotifyBkYe;
 	CThostFtdcInvestorField *m_pInvInf;
@@ -90,7 +90,7 @@ public:
 	int FindInstMul(TThostFtdcInstrumentIDType InstID);
 	int FindOrdInOrderVec(TThostFtdcSequenceNoType BkrOrdSeq);
 	int FindOrdInOnRoadLst(TThostFtdcSequenceNoType BkrOrdSeq);
-	int FindOrdInOnRoadVec(TThostFtdcSequenceNoType BkrOrdSeq);
+	int FindOrdInOnRoadVec(TThostFtdcOrderRefType OrderRef);
 	void OnCancelAll();
 	void FiltInsList();
 

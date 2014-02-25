@@ -108,7 +108,7 @@ BOOL CStatusPage::OnInitDialog()
 }
 void CStatusPage::InitAllHdrs(void)
 {
-	TCHAR* lpHdrs0[ONROAD_ITMES] = {_T("单号"),_T("合约"),_T("买卖"),_T("开平"),_T("未成"),_T("价格"),_T("时间"),_T("序列号"),_T("冻结金")};
+	TCHAR* lpHdrs0[ONROAD_ITMES] = {_T("单号"),_T("合约"),_T("买卖"),_T("开平"),_T("未成"),_T("价格"),_T("时间"),_T("报单引用"),_T("冻结金")};
 	int iWidths0[ONROAD_ITMES] = {1,46,34,34,34,46,60,60,60};
 	int i;
 	int total_cx = 0;
@@ -265,6 +265,7 @@ void CStatusPage::SynchronizeAllVecs()
 {
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	///////这里的vector均进行了同步，其他比如m_FeeRateRev等不进行更新，故没有同步
+	m_onRoadVec = pApp->m_cT->m_onRoadVec.GetBuffer();
 	m_orderVec = pApp->m_cT->m_orderVec.GetBuffer();
 	m_tradeVec = pApp->m_cT->m_tradeVec.GetBuffer();
 	m_InsinfVec = pApp->m_cT->m_InsinfVec.GetBuffer();
@@ -281,15 +282,6 @@ void CStatusPage::SynchronizeAllVecs()
 	for (int i=0;i<4;i++)
 	{
 		m_tsEXnLocal[i] = pApp->m_cT->m_tsEXnLocal[i];
-	}
-	///////////////////////////////////////////////////
-	for(VOrd odIt=m_onRoadVec.begin(); odIt!=m_onRoadVec.end();)
-	{
-		//在对列中的擦除
-		if((*odIt).OrderStatus !='1' && (*odIt).OrderStatus !='3'  )
-		{odIt = m_onRoadVec.erase(odIt);}
-		else
-			++odIt;
 	}
 	//////////////////////////////////////////////////
 	for(VInvP vip=m_InvPosVec.begin(); vip!=m_InvPosVec.end();)
@@ -600,7 +592,6 @@ void CStatusPage::OnGetDispinf1(NMHDR *pNMHDR, LRESULT *pResult)
 		switch(pItem->iSubItem)
 		{
 		case 0:
-			lstrcpy(pItem->pszText,m_onRoadVec[iItem].OrderSysID);
 			break;
 		case 1: 
 			lstrcpy(pItem->pszText,m_onRoadVec[iItem].InstrumentID);
@@ -614,7 +605,7 @@ void CStatusPage::OnGetDispinf1(NMHDR *pNMHDR, LRESULT *pResult)
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 4:
-			szTemp.Format(_T("%d"),m_onRoadVec[iItem].VolumeTotal);
+			szTemp.Format(_T("%d"),m_onRoadVec[iItem].VolumeTotalOriginal);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 5:
@@ -625,11 +616,9 @@ void CStatusPage::OnGetDispinf1(NMHDR *pNMHDR, LRESULT *pResult)
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 6:
-			lstrcpy(pItem->pszText,m_onRoadVec[iItem].InsertTime);
 			break;
 		case 7:
-			szTemp.Format(_T("%d"),m_onRoadVec[iItem].BrokerOrderSeq);
-			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
+			lstrcpy(pItem->pszText,m_onRoadVec[iItem].OrderRef);
 			break;
 		case 8:
 			lstrcpy(pItem->pszText,UNCOMP);
@@ -945,12 +934,12 @@ int CStatusPage::FindOrdInOnRoadLst(TThostFtdcSequenceNoType BkrOrdSeq)
 	return (-1);
 }
 
-int CStatusPage::FindOrdInOnRoadVec(TThostFtdcSequenceNoType BkrOrdSeq)
+int CStatusPage::FindOrdInOnRoadVec(TThostFtdcOrderRefType OrderRef)
 {	
 	UINT i=0;
 	for(i=0; i<m_onRoadVec.size(); i++)
 	{
-		if(m_onRoadVec[i].BrokerOrderSeq == BkrOrdSeq) 
+		if(m_onRoadVec[i].OrderRef == OrderRef) 
 		{ return i;}
 	}
 	return (-1);
@@ -960,7 +949,7 @@ void  CStatusPage::OnCancelAll()
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	for (UINT i=0;i<m_onRoadVec.size();i++)
 	{
-		pApp->m_cT->ReqOrderCancel(m_onRoadVec[i].BrokerOrderSeq);	
+		pApp->m_cT->ReqOrderCancel(m_onRoadVec[i].InstrumentID,m_onRoadVec[i].OrderRef);	
 		//m_LstOnRoad.DeleteItem(0);
 	}
 }

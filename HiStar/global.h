@@ -30,7 +30,7 @@ typedef struct CThostFtdcInstrumentFieldEx
 	TThostFtdcRatioType	CloseTodayRatioByVolume;
 }INSINFEX,*PINSINFEX;
 
-typedef std::vector<CThostFtdcOrderField> ::iterator VOrd;
+typedef std::vector<CThostFtdcInputOrderField> ::iterator VOrd;
 typedef std::vector<CThostFtdcInvestorPositionField> ::iterator VInvP;
 typedef std::vector<CThostFtdcInstrumentFieldEx>::iterator VIT_if;
 typedef std::vector<CThostFtdcInstrumentMarginRateField>::iterator VIT_mr;
@@ -53,7 +53,6 @@ struct SAccountCtp{
 	//账户信息
 	INSINFEX *m_InstInf;
 	CThostFtdcDepthMarketDataField *m_pDepthMd;
-	std::vector<CThostFtdcOrderField*> m_onRoadVec;
 	CThostFtdcTradingAccountField *m_pTdAcc;
 	CThostFtdcNotifyQueryAccountField *m_pNotifyBkYe;
 	CThostFtdcInvestorField *m_pInvInf;
@@ -82,12 +81,12 @@ struct SAccountCtp{
 		memset(&m_sINVESTOR_ID, 0, sizeof(m_sINVESTOR_ID));
 		memset(&m_sPASSWORD, 0, sizeof(m_sPASSWORD));
 		strcpy(m_sBROKER_ID,"1017");
-		strcpy(m_sINVESTOR_ID,"00000037");
+		strcpy(m_sINVESTOR_ID,"00000035");
 		strcpy(m_sPASSWORD,"123456");
 		m_szInst = _T("IF1403");
 		//初始化
 		m_InstInf = new CThostFtdcInstrumentFieldEx();
-		m_pDepthMd = new CThostFtdcDepthMarketDataField();
+	    m_pDepthMd = new CThostFtdcDepthMarketDataField();
 		m_pTdAcc = new CThostFtdcTradingAccountField();
 		m_pInvInf = new CThostFtdcInvestorField();
 		m_pNotifyBkYe = new CThostFtdcNotifyQueryAccountField();

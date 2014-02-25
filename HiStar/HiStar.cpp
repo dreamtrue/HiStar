@@ -6,6 +6,7 @@
 #include "HiStar.h"
 #include "MainDlg.h"
 #include "UserMsg.h"
+#include "calendar.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -164,4 +165,30 @@ void CHiStarApp::PostErrors(CString str)
 {
 	CString *pErrors = new CString(str);
 	PostMessage(AfxGetMainWnd()->m_hWnd,WM_ERRORS,(UINT)pErrors,NULL);
+}
+
+void CHiStarApp::SetIFContract(void)
+{
+	//重新设置合约,自动换月
+	SYSTEMTIME sys;
+	GetLocalTime(&sys);
+	WORD ifFinal = ifFinalDay(sys.wYear,sys.wMonth);
+	CString insID;
+	if(ifFinal - sys.wDay <= 3){
+	}
+	//到最后一天的前一天换合约
+	if(sys.wDay < ifFinal){
+		insID.Format(_T("%.4d%.2d"),sys.wYear,sys.wMonth);
+	}
+	else{
+		if(sys.wMonth < 12){
+			insID.Format(_T("%.4d%.2d"),sys.wYear,sys.wMonth + 1);
+		}
+		else{//年末
+			insID.Format(_T("%.4d%.2d"),sys.wYear + 1,1);
+		}
+	}
+	//多字节编码里的字母数字和ASCII是兼容的，所以才用CString和char[]在这儿效果一样。
+	//为了保持这种兼容，本程序只能采用多字节编码，否则会出错的。
+	m_accountCtp.m_szInst = _T("IF") + insID.Right(4);
 }

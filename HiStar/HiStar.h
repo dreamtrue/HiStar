@@ -102,6 +102,7 @@ public:
 	CThostFtdcTraderApi* m_TApi;
 	CtpMdSpi* m_cQ;
 	CtpTraderSpi* m_cT;
+	void SetIFContract(void);
 	void CreateCtpClient(void);
 	void LoginCtp(UINT wParam,LONG lParam);
 	void LogoutCtp(UINT wParam,LONG lParam);

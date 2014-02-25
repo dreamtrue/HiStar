@@ -52,6 +52,7 @@ int CHiStarApp::FindInstMul(TThostFtdcInstrumentIDType InstID){
 }
 void CHiStarApp::LoginCtp(UINT wParam,LONG lParam)
 {
+	SetIFContract();//…Ë÷√IF∫œ‘º
 	if (!m_pLoginCtp)
 	{
 		AfxBeginThread((AFX_THREADPROC)LoginThread,this);

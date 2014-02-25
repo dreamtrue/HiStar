@@ -259,7 +259,7 @@ void CBasicPage::OnStart()
 {
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	TThostFtdcCombOffsetFlagType kpp;
-	kpp[0] = THOST_FTDC_OF_CloseToday;
+	kpp[0] = THOST_FTDC_OF_Open;
 	if(g_bLoginCtpT){
 		if(pApp->m_cT){
 			for(int i = 0;i < 1;i++){
