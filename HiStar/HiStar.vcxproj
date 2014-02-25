@@ -53,7 +53,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Index;..\DIYCtrl;..\TraderSpi;..\api_libs;..\THostFtdc;..\MdSpi;.;..\IBInterface;..\CppClient\lib;..\CppClient\src;..\CppClient\Shared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\calendar;..\Index;..\DIYCtrl;..\TraderSpi;..\api_libs;..\THostFtdc;..\MdSpi;.;..\IBInterface;..\CppClient\lib;..\CppClient\src;..\CppClient\Shared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -78,7 +78,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\DIYCtrl;..\api_libs;..\TraderSpi;..\THostFtdc;..\MdSpi;..\CppClient\Shared;..\CppClient\lib;..\CppClient\src;.;..\IBInterface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\calendar;..\DIYCtrl;..\api_libs;..\TraderSpi;..\THostFtdc;..\MdSpi;..\CppClient\Shared;..\CppClient\lib;..\CppClient\src;.;..\IBInterface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -103,6 +103,7 @@
     <None Include="res\HiStar.rc2" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\calendar\calendar.h" />
     <ClInclude Include="..\CppClient\Shared\TwsSocketClientErrors.h" />
     <ClInclude Include="..\THostFtdc\ThostFtdcMdApi.h" />
     <ClInclude Include="..\THostFtdc\ThostFtdcTraderApi.h" />
@@ -120,6 +121,7 @@
     <ClInclude Include="UserMsg.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\calendar\calendar.cpp" />
     <ClCompile Include="..\CppClient\Shared\HScrollListBox.cpp" />
     <ClCompile Include="..\CppClient\src\EClientSocket.cpp" />
     <ClCompile Include="..\CppClient\src\EClientSocketBase.cpp" />

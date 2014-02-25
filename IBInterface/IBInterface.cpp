@@ -4,6 +4,8 @@
 #include "global.h"
 #define NOT_AN_FA_ACCOUNT_ERROR 321
 #define NUM_FA_ERROR_CODES 6
+double g_a50Bid1 = 0.0f,g_a50Ask1 = 0.0f;
+int g_a50Bid1Size = 0,g_a50Ask1Size = 0;
 static int faErrorCodes[NUM_FA_ERROR_CODES] =
 { 503, 504, 505, 522, 1100, NOT_AN_FA_ACCOUNT_ERROR} ;
 extern HANDLE g_hEvent;
@@ -86,21 +88,27 @@ void CHiStarApp::nextValidId( OrderId orderId){
 	m_id = orderId;
 	TRACE("nextValidId\n");
 }
+
 void CHiStarApp::contractDetails( int reqId, const ContractDetails& contractDetails){
 	TRACE("contractDetails\n");
 }
+
 void CHiStarApp::bondContractDetails( int reqId, const ContractDetails& contractDetails){
 	TRACE("bondContractDetails\n");
 }
+
 void CHiStarApp::contractDetailsEnd( int reqId){
 	TRACE("contractDetailsEnd\n");
 }
+
 void CHiStarApp::execDetails( int reqId, const Contract& contract, const Execution& execution){
 	TRACE("execDetails\n");
 }
+
 void CHiStarApp::execDetailsEnd( int reqId){
 	TRACE("execDetailsEnd\n");
 }
+
 void CHiStarApp::error(const int id, const int errorCode, const IBString errorString){
 	TRACE("error\n");
 	CString errorStr("Id: ");
@@ -119,17 +127,35 @@ void CHiStarApp::error(const int id, const int errorCode, const IBString errorSt
 		faError |= (errorCode == faErrorCodes[ctr]) ;
 	}
 }
+
 void CHiStarApp::updateMktDepth(TickerId id, int position, int operation, int side,
 	double price, int size){
-		TRACE("updateMktDepth\n");
+		if(position == 0){
+			if(side == 1){
+				if(price != g_a50Bid1){
+					g_a50Bid1 = price;
+					g_a50Bid1Size = size;
+				}
+			}
+			else{
+				if(price != g_a50Ask1){
+					g_a50Ask1 = price;
+					g_a50Ask1Size = size;
+				}
+			}
+			TRACE("%f %f\r\n",g_a50Bid1,g_a50Ask1);
+		}
 }
+
 void CHiStarApp::updateMktDepthL2(TickerId id, int position, IBString marketMaker, int operation,
 	int side, double price, int size){
 		TRACE("updateMktDepthL2\n");
 }
+
 void CHiStarApp::updateNewsBulletin(int msgId, int msgType, const IBString& newsMessage, const IBString& originExch){
 	TRACE("updateNewsBulletin\n");
 }
+
 void CHiStarApp::managedAccounts( const IBString& accountsList){
 	CString cStatus;
 	m_accountIB.m_accountName = accountsList;
@@ -140,64 +166,83 @@ void CHiStarApp::managedAccounts( const IBString& accountsList){
 void CHiStarApp::receiveFA(faDataType pFaDataType, const IBString& cxml){
 	TRACE("receiveFA\n");
 }
+
 void CHiStarApp::historicalData(TickerId reqId, const IBString& date, double open, double high, 
 	double low, double close, int volume, int barCount, double WAP, int hasGaps){
 		TRACE("historicalData\n");
 }
+
 void CHiStarApp::scannerParameters(const IBString &xml){
 	TRACE("scannerParameters\n");
 }
+
 void CHiStarApp::scannerData(int reqId, int rank, const ContractDetails &contractDetails,
 	const IBString &distance, const IBString &benchmark, const IBString &projection,
 	const IBString &legsStr){
 		TRACE("scannerData\n");
 }
+
 void CHiStarApp::scannerDataEnd(int reqId){
 	TRACE("scannerDataEnd\n");
 }
+
 void CHiStarApp::realtimeBar(TickerId reqId, long time, double open, double high, double low, double close,
 	long volume, double wap, int count){
 		TRACE("realtimeBar\n");
 }
+
 void CHiStarApp::currentTime(long time){
 	TRACE("currentTime\n");
 }
+
 void CHiStarApp::fundamentalData(TickerId reqId, const IBString& data){
 	TRACE("fundamentalData\n");
 }
+
 void CHiStarApp::deltaNeutralValidation(int reqId, const UnderComp& underComp){
 	TRACE("deltaNeutralValidation\n");
 }
+
 void CHiStarApp::tickSnapshotEnd( int reqId){
 	TRACE("tickSnapshotEnd\n");
 }
+
 void CHiStarApp::marketDataType( TickerId reqId, int marketDataType){
 	TRACE("marketDataType\n");
 }
+
 void CHiStarApp::commissionReport( const CommissionReport &commissionReport){
 	TRACE("commissionReport\n");
 }
+
 void CHiStarApp::position( const IBString& account, const Contract& contract, int position, double avgCost){
 	TRACE("position\n");
 }
+
 void CHiStarApp::positionEnd(){
 	TRACE("positionEnd\n");
 }
+
 void CHiStarApp::accountSummary( int reqId, const IBString& account, const IBString& tag, const IBString& value, const IBString& curency){
 	TRACE("accountSummary\n");
 }
+
 void CHiStarApp::accountSummaryEnd( int reqId){
 	TRACE("accountSummaryEnd\n");
 }
+
 void CHiStarApp::verifyMessageAPI( const IBString& apiData){
 	TRACE("verifyMessageAPI\n");
 }
+
 void CHiStarApp::verifyCompleted( bool isSuccessful, const IBString& errorText){
 	TRACE("verifyCompleted\n");
 }
+
 void CHiStarApp::displayGroupList( int reqId, const IBString& groups){
 	TRACE("displayGroupList\n");
 }
+
 void CHiStarApp::displayGroupUpdated( int reqId, const IBString& contractInfo){
 	TRACE("displayGroupUpdated\n");
 }

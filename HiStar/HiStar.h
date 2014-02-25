@@ -15,6 +15,7 @@
 #include "traderspi.h"
 #include "Index.h"
 #include "e:\新建文件夹\trunk\cppclient\shared\contract.h"
+#include "e:\新建文件夹\trunk\cppclient\shared\contract.h"
 extern DWORD MainThreadId;
 	// CHiStarApp:
 // 有关此类的实现，请参阅 HiStar.cpp
@@ -91,17 +92,12 @@ public:
 // 实现
 	DECLARE_MESSAGE_MAP()
 	//进程消息
-	void OnConnectIB(UINT wParam,LONG lParam);
-	void OnDisconnectIB(UINT wParam,LONG lParam);
 	void PostOrderStatus(CString str);
 	void PostErrors(CString str);
 public:
-	//IB系统
-	bool faError;
-	SAccountIB m_accountIB;
-	SAccountCtp m_accountCtp;
-	EClient* m_pIBClient;
 	//CTP系统
+	bool faError;
+	SAccountCtp m_accountCtp;
 	CThostFtdcMdApi* m_MApi;
 	CThostFtdcTraderApi* m_TApi;
 	CtpMdSpi* m_cQ;
@@ -115,8 +111,16 @@ public:
 	int FindInstMul(TThostFtdcInstrumentIDType InstID);
 	CString m_strPath;
 	CIndex* m_pIndexThread;
+	//IB系统
 	long m_id;
-	Contract m_IBContract;
+	SAccountIB m_accountIB;
+	EClient* m_pIBClient;
+	void SetA50Contract();
+	void OnConnectIB(UINT wParam,LONG lParam);
+	void OnDisconnectIB(UINT wParam,LONG lParam);
+	Contract m_A50Contract;
+	WORD m_LifeA50;
+	TagValueListSPtr m_mktDepthOptions;
 };
 
 extern CHiStarApp theApp;
