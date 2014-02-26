@@ -10,15 +10,8 @@
 #include "hscrolllistbox.h"
 #include "afxwin.h"
 #include "colorstatic.h"
-#include "colorstatic.h"
-#include "colorstatic.h"
 #include "thostftdcuserapistruct.h"
 #include "ColorListCtrl.h"
-#include "e:\新建文件夹\trunk\diyctrl\colorstatic.h"
-#include "e:\新建文件夹\trunk\diyctrl\colorstatic.h"
-#include "e:\新建文件夹\trunk\diyctrl\colorstatic.h"
-#include "e:\新建文件夹\trunk\diyctrl\colorstatic.h"
-#include "e:\新建文件夹\trunk\diyctrl\colorstatic.h"
 
 // CBasicPage 对话框
 class CBasicPage : public CDialogEx
