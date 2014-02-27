@@ -42,6 +42,7 @@ private:
 	std::vector<CThostFtdcTradeField> m_tradeVec;
 	std::vector<CThostFtdcInstrumentFieldEx> m_InsinfVec;
 	std::vector<CThostFtdcInvestorPositionField> m_InvPosVec;
+	std::vector<CThostFtdcInvestorPositionDetailField> m_InvPosDetailVec;
 	CTimeSpan m_tsEXnLocal[4];
 	std::vector<CThostFtdcInstrumentMarginRateField> m_MargRateVec;
 	std::vector<CThostFtdcSettlementInfoField> m_StmiVec;

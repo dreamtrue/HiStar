@@ -412,11 +412,31 @@ void CtpTraderSpi::ReqQryInvPosEx(TThostFtdcInstrumentIDType instId)
 void CtpTraderSpi::OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDetailField *pInvestorPositionDetail, 
 	CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
-	if( !IsErrorRspInfo(pRspInfo) &&  pInvestorPositionDetail)
+	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
+	if(!IsErrorRspInfo(pRspInfo) && pInvestorPositionDetail)
 	{
-
+		CThostFtdcInvestorPositionDetailField InvPosDetail;
+		memcpy(&InvPosDetail,pInvestorPositionDetail, sizeof(CThostFtdcInvestorPositionDetailField));
+		bool founded = false;
+		int i = 0;
+		for(i = 0;i < m_InvPosDetailVec.size();i++){
+			if(strcmp(m_InvPosDetailVec[i].InstrumentID,InvPosDetail.InstrumentID) == 0 && m_InvPosDetailVec[i].TradeID == InvPosDetail.TradeID){
+				founded = true;
+				break;
+			}
+		}
+		if(!founded){
+			m_InvPosDetailVec.push_back(InvPosDetail);
+		}
+		else{
+			//已经找到,就更新下
+			m_InvPosDetailVec[i] = InvPosDetail;
+		}
 	}
-	if(bIsLast) SetEvent(g_hEvent);
+	if(bIsLast){ 
+		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
+		SetEvent(g_hEvent);
+	}
 }
 
 void CtpTraderSpi::ReqQryInvPosCombEx(TThostFtdcInstrumentIDType instId)

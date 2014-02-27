@@ -166,8 +166,8 @@ void CStatusPage::InitAllHdrs(void)
 	}
 	
 	///////////////////////////////////////////////////////////////////////////////
-	TCHAR* lpHdrs3[INVPOS_ITMES] = {_T("合约"),_T("买卖"),_T("总持仓"),_T("可平量"),_T("持仓均价"),_T("持仓盈亏"),_T("占保证金"),_T("总盈亏")};
-	int iWidths3[INVPOS_ITMES] = {46,34,46,46,60,60,60,60};
+	TCHAR* lpHdrs3[INVPOS_ITMES] = {_T("开仓日期"),_T("成交ID"),_T("合约"),_T("买卖"),_T("持仓"),_T("可平量"),_T("持仓价"),_T("持仓盈亏"),_T("占保证金")};
+	int iWidths3[INVPOS_ITMES] = {46,46,34,46,46,60,60,60,60};
 	total_cx = 0;
 	memset(&lvcolumn, 0, sizeof(lvcolumn));
 	
@@ -269,6 +269,7 @@ void CStatusPage::SynchronizeAllVecs()
 	m_orderVec = pApp->m_cT->m_orderVec.GetBuffer();
 	m_tradeVec = pApp->m_cT->m_tradeVec.GetBuffer();
 	m_InsinfVec = pApp->m_cT->m_InsinfVec.GetBuffer();
+	m_InvPosDetailVec =  pApp->m_cT->m_InvPosDetailVec.GetBuffer();
 	FiltInsList();//排序
 	m_MargRateVec = pApp->m_cT->m_MargRateVec.GetBuffer();
 	m_StmiVec = pApp->m_cT->m_StmiVec.GetBuffer();
@@ -296,7 +297,8 @@ void CStatusPage::SynchronizeAllVecs()
 	m_LstOnRoad.Invalidate();
 	m_LstOrdInf.SetItemCountEx(m_orderVec.size());
 	m_LstOrdInf.Invalidate();
-	m_LstInvPosInf.SetItemCountEx(m_InvPosVec.size());
+	//m_LstInvPosInf.SetItemCountEx(m_InvPosVec.size());
+	m_LstInvPosInf.SetItemCountEx(m_InvPosDetailVec.size());
 	m_LstInvPosInf.Invalidate();
 	m_LstTdInf.SetItemCountEx(m_tradeVec.size());
 	m_LstTdInf.Invalidate();
@@ -708,61 +710,57 @@ void CStatusPage::OnGetDispinf3(NMHDR *pNMHDR, LRESULT *pResult)
 	NMLVDISPINFO *pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pNMHDR);
 	LV_ITEM* pItem= &(pDispInfo)->item;
 	int iItem= pItem->iItem;
-	if(iItem >= m_InvPosVec.size())return;
+	//if(iItem >= m_InvPosVec.size())return;
+	if(iItem >= m_InvPosDetailVec.size())return;
 	if(pItem->mask & LVIF_TEXT)
 	{
 		CString szTemp = _T("");
 		int iLen=0;
-		double dAvPrice;
 		switch(pItem->iSubItem)
 		{
 		case 0:
-			lstrcpy(pItem->pszText,m_InvPosVec[iItem].InstrumentID);
+			lstrcpy(pItem->pszText,m_InvPosDetailVec[iItem].OpenDate);
 			break;
-		case 1: 
-			szTemp = JgBsType(m_InvPosVec[iItem].PosiDirection-2);
+		case 1:
+			szTemp.Format(_T("%f"),m_InvPosDetailVec[iItem].TradeID);
+			szTemp.TrimRight('0');
+			iLen = szTemp.GetLength();
+			if (szTemp.Mid(iLen-1,1)==_T(".")) {szTemp.TrimRight(_T("."));}
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 2:
-			szTemp.Format(_T("%d"),m_InvPosVec[iItem].YdPosition+m_InvPosVec[iItem].Position);
-			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
+			lstrcpy(pItem->pszText,m_InvPosDetailVec[iItem].InstrumentID);
 			break;
-		case 3:
-			{
-				if (m_InvPosVec[iItem].PosiDirection == '2')
-				{
-					iLen = m_InvPosVec[iItem].YdPosition+m_InvPosVec[iItem].Position-m_InvPosVec[iItem].ShortFrozen;
-					szTemp.Format(_T("%d"),iLen);
-				}
-				if (m_InvPosVec[iItem].PosiDirection == '3')
-				{
-					iLen = m_InvPosVec[iItem].YdPosition+m_InvPosVec[iItem].Position-m_InvPosVec[iItem].LongFrozen;
-					szTemp.Format(_T("%d"),iLen);
-				}
-			}
+		case 3: 
+			szTemp = JgBsType(m_InvPosDetailVec[iItem].Direction);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 4:
-			dAvPrice = m_InvPosVec[iItem].PositionCost/(m_InvPosVec[iItem].YdPosition+m_InvPosVec[iItem].Position)/(FindInstMul(m_InvPosVec[iItem].InstrumentID));
-			szTemp.Format(_T("%.3f"),dAvPrice);
+			szTemp.Format(_T("%d"),m_InvPosDetailVec[iItem].Volume - m_InvPosDetailVec[iItem].CloseVolume);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 5:
-			szTemp.Format(_T("%f"),m_InvPosVec[iItem].PositionProfit);
-			szTemp.TrimRight('0');
-			iLen = szTemp.GetLength();
-			if (szTemp.Mid(iLen-1,1)==_T(".")) {szTemp.TrimRight(_T("."));}
+			iLen = m_InvPosDetailVec[iItem].Volume - m_InvPosDetailVec[iItem].CloseVolume;
+			szTemp.Format(_T("%d"),iLen);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 6:
-			szTemp.Format(_T("%f"),m_InvPosVec[iItem].UseMargin);
+			szTemp.Format(_T("%.3f"),m_InvPosDetailVec[iItem].OpenPrice);
+			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
+			break;
+		case 7:
+			szTemp.Format(_T("%f"),m_InvPosDetailVec[iItem].PositionProfitByTrade);
 			szTemp.TrimRight('0');
 			iLen = szTemp.GetLength();
 			if (szTemp.Mid(iLen-1,1)==_T(".")) {szTemp.TrimRight(_T("."));}
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
-		case 7:
-			lstrcpy(pItem->pszText,UNCOMP);
+		case 8:
+			szTemp.Format(_T("%f"),m_InvPosDetailVec[iItem].Margin);
+			szTemp.TrimRight('0');
+			iLen = szTemp.GetLength();
+			if (szTemp.Mid(iLen-1,1)==_T(".")) {szTemp.TrimRight(_T("."));}
+			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		}
 	}
