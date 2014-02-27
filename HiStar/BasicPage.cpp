@@ -281,20 +281,23 @@ void CBasicPage::RefreshMdPane(void)
 
 void CBasicPage::OnStart()
 {
+	TThostFtdcCombOffsetFlagType kpp;
+	kpp[0] = '0';
+	((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit("IF1406",THOST_FTDC_D_Buy,kpp,2160,1);
+
 	if(!(((CHiStarApp*)AfxGetApp())->m_pHedgeLoop)){
 		((CHiStarApp*)AfxGetApp())->m_pHedgeLoop = (CHedgeLoop*)AfxBeginThread(RUNTIME_CLASS(CHedgeLoop));
 	}
 }
 
-
 void CBasicPage::OnStop()
 {
 	if(((CHiStarApp*)AfxGetApp())->m_pHedgeLoop){
-		((CHiStarApp*)AfxGetApp())->m_pHedgeLoop->PostThreadMessage(WM_QUIT,NULL,NULL);
+		CHedgeLoop * pTemp = ((CHiStarApp*)AfxGetApp())->m_pHedgeLoop;//用临时指针代替，然后再在线程推出前将m_pHedgeLoop = NULL
+		((CHiStarApp*)AfxGetApp())->m_pHedgeLoop = NULL;
+		pTemp->PostThreadMessage(WM_QUIT,NULL,NULL);
 	}
-    ((CHiStarApp*)AfxGetApp())->m_pHedgeLoop = NULL;
 }
-
 
 void CBasicPage::OnPause()
 {

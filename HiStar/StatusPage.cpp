@@ -937,7 +937,7 @@ int CStatusPage::FindOrdInOnRoadVec(TThostFtdcOrderRefType OrderRef)
 	UINT i=0;
 	for(i=0; i<m_onRoadVec.size(); i++)
 	{
-		if(m_onRoadVec[i].OrderRef == OrderRef) 
+		if(!strcmp(m_onRoadVec[i].OrderRef,OrderRef)) 
 		{ return i;}
 	}
 	return (-1);

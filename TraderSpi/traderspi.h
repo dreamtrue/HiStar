@@ -239,4 +239,5 @@ private:
 	CThostFtdcTraderApi* pUserApi;
   public:
 	void ClearAllVectors();
+	int FindOrdInOnRoadVec(TThostFtdcOrderRefType OrderRef);
 };

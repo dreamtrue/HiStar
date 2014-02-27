@@ -339,13 +339,14 @@ void  CtpTraderSpi::OnRspQryOrder(CThostFtdcOrderField *pOrder, CThostFtdcRspInf
 		}		
 		if(!founded){
 			//将挂单删除，因为这时有消息返回说明已经递送出去了
-			int nRet = ((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.FindOrdInOnRoadVec(order.OrderRef);
+			int nRet = FindOrdInOnRoadVec(order.OrderRef);
 			//未加入挂单列表
 			if (nRet==-1){
 				//如果没有,则不做任何动作
 			}
 			else{
 				//挂单返回，表示已经递送出去，将该挂单删除(已经变成委托单或其他)
+				m_onRoadVec.erase(nRet);
 			}
 			///////新增加委托单
 			m_orderVec.insert(m_orderVec.begin(),order);//从头部插入
@@ -489,6 +490,7 @@ void CtpTraderSpi::ReqOrdLimit(TThostFtdcInstrumentIDType instId,TThostFtdcDirec
 
 	pUserApi->ReqOrderInsert(&req, ++m_iRequestID);
 	m_onRoadVec.push_back(req);
+	PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 }
 
 ///市价单
@@ -520,6 +522,7 @@ void CtpTraderSpi::ReqOrdAny(TThostFtdcInstrumentIDType instId,TThostFtdcDirecti
 
 	pUserApi->ReqOrderInsert(&req, ++m_iRequestID);	
 	m_onRoadVec.push_back(req);
+	PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 }
 
 void CtpTraderSpi::ReqOrdCondition(TThostFtdcInstrumentIDType instId,TThostFtdcDirectionType dir, TThostFtdcCombOffsetFlagType kpp,
@@ -552,6 +555,7 @@ void CtpTraderSpi::ReqOrdCondition(TThostFtdcInstrumentIDType instId,TThostFtdcD
 
 	pUserApi->ReqOrderInsert(&req, ++m_iRequestID);
 	m_onRoadVec.push_back(req);
+	PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 }
 
 /*
@@ -589,49 +593,22 @@ void CtpTraderSpi::ReqOrdFAOK(TThostFtdcInstrumentIDType instId,TThostFtdcDirect
 
 	pUserApi->ReqOrderInsert(&req, ++m_iRequestID);
 	m_onRoadVec.push_back(req);
+	PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 }
 
 void CtpTraderSpi::OnRspOrderInsert(CThostFtdcInputOrderField *pInputOrder, 
 	CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
-	if( IsErrorRspInfo(pRspInfo) || (pInputOrder==NULL) )
+	if(IsErrorRspInfo(pRspInfo) || (pInputOrder == NULL))
 	{
-		TRACE(_T("OnRspOrderInsert,%s\n"),pRspInfo->ErrorMsg);
-		TCHAR szErr[MAX_PATH];
-		//ansi2uni(CP_ACP,pRspInfo->ErrorMsg,szErr);
-
-		/////////////////////////////////////////////////////////////////////
-		CString szItems[ORDER_ITMES],szStat;
-
-		szItems[0].Empty();
-		//ansi2uni(CP_ACP,pInputOrder->InstrumentID,szItems[1].GetBuffer(MAX_PATH));
-		szItems[2]=JgBsType(pInputOrder->Direction);
-		szItems[3]=JgOcType(pInputOrder->CombOffsetFlag[0]);
-
-		szItems[4]=_GERR;
-
-		szItems[5].Format(_T("%f"),pInputOrder->LimitPrice);
-		szItems[5].TrimRight('0');
-		int iLen = szItems[5].GetLength();
-		if (szItems[5].Mid(iLen-1,1)==_T(".")) {szItems[5].TrimRight(_T("."));}
-
-		szItems[6].Format(_T("%d"),pInputOrder->VolumeTotalOriginal);
-
-		////////////////////////////////////////////////////////
-		szStat.Format(_T("失败:%s,%s,%s"),szItems[1],szItems[2],szItems[3]);
-
-		szItems[7].Format(_T("%d"),pInputOrder->VolumeTotalOriginal);
-		szItems[8] = _T("0");
-
-
-		szItems[9] = szItems[5];
-		getCurTime(szItems[10]);
-		szItems[11] =  _T("―");
-		szItems[12] =  _T("0");
-		szItems[13] =  _T("0");
-		szItems[14]= szErr;
+		if(pInputOrder){
+			for(int i = 0;i < m_onRoadVec.size();i++){
+				if(!strcmp(m_onRoadVec[i].OrderRef,pInputOrder->OrderRef)){
+					TRACE(_T("OnRspOrderInsert,%s\n"),pRspInfo->ErrorMsg);
+				}
+			}
+		}
 	}
-	if(bIsLast) SetEvent(g_hEvent);	
 }
 
 void CtpTraderSpi::ReqOrderCancel(TThostFtdcSequenceNoType orderSeq)
@@ -710,13 +687,15 @@ void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder){
 	}		
 	if(!founded){
 		//将挂单删除，因为这时有消息返回说明已经递送出去了
-		int nRet = ((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.FindOrdInOnRoadVec(order.OrderRef);
+		int nRet = FindOrdInOnRoadVec(order.OrderRef);
 		//未加入挂单列表
 		if (nRet==-1){
 			//如果没有,则不做任何动作
 		}
 		else{
 			//挂单返回，表示已经递送出去，将该挂单删除(已经变成委托单或其他)
+			m_onRoadVec.erase(nRet);
+			PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 		}
 		///////新增加委托单
 		m_orderVec.push_back(order);
@@ -741,14 +720,7 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 	}
 	//////修改成交单状态
 	if(founded){
-		/*该处删去,因为成交编号是表示单笔成交,并不是表示单笔委托,分几笔成交的单子将会有几个成交编号
-		//不过是重新覆盖成交信息
-		int VolumeTotal;double PriceAvg;
-		VolumeTotal = m_tradeVec[ii].Volume + trade.Volume;
-		PriceAvg = (m_tradeVec[ii].Price * m_tradeVec[ii].Volume + trade.Price * trade.Volume) / VolumeTotal;
-		m_tradeVec[ii].Volume = VolumeTotal;
-		m_tradeVec[ii].Price = PriceAvg;
-		*/
+
 	}
 	///////新增加已成交单 
 	else 
@@ -1652,4 +1624,15 @@ void CtpTraderSpi::ClearAllVectors(){
 	m_TdCodeVec.clear();
 	m_InvPosVec.clear();
 	m_BfTransVec.clear();
+}
+
+int CtpTraderSpi::FindOrdInOnRoadVec(TThostFtdcOrderRefType OrderRef)
+{	
+	UINT i=0;
+	for(i=0; i<m_onRoadVec.size(); i++)
+	{
+		if(!strcmp(m_onRoadVec[i].OrderRef,OrderRef)) 
+		{ return i;}
+	}
+	return (-1);
 }
