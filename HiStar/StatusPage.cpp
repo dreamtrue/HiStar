@@ -722,11 +722,7 @@ void CStatusPage::OnGetDispinf3(NMHDR *pNMHDR, LRESULT *pResult)
 			lstrcpy(pItem->pszText,m_InvPosDetailVec[iItem].OpenDate);
 			break;
 		case 1:
-			szTemp.Format(_T("%f"),m_InvPosDetailVec[iItem].TradeID);
-			szTemp.TrimRight('0');
-			iLen = szTemp.GetLength();
-			if (szTemp.Mid(iLen-1,1)==_T(".")) {szTemp.TrimRight(_T("."));}
-			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
+			lstrcpy(pItem->pszText,m_InvPosDetailVec[iItem].TradeID);
 			break;
 		case 2:
 			lstrcpy(pItem->pszText,m_InvPosDetailVec[iItem].InstrumentID);
@@ -749,10 +745,7 @@ void CStatusPage::OnGetDispinf3(NMHDR *pNMHDR, LRESULT *pResult)
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 7:
-			szTemp.Format(_T("%f"),m_InvPosDetailVec[iItem].PositionProfitByTrade);
-			szTemp.TrimRight('0');
-			iLen = szTemp.GetLength();
-			if (szTemp.Mid(iLen-1,1)==_T(".")) {szTemp.TrimRight(_T("."));}
+			szTemp.Format(_T("%f"),(m_InvPosDetailVec[iItem].Volume - m_InvPosDetailVec[iItem].CloseVolume) * (m_InvPosDetailVec[iItem].LastSettlementPrice - m_InvPosDetailVec[iItem].OpenPrice));
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 8:
