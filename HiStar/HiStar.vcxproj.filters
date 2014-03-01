@@ -167,7 +167,7 @@
     <ClCompile Include="..\calendar\calendar.cpp">
       <Filter>源文件\calendar</Filter>
     </ClCompile>
-    <ClCompile Include="..\Hedge\HedgeLoop.cpp">
+    <ClCompile Include="..\Hedge\HedgePostProcessing.cpp">
       <Filter>源文件\Hedge</Filter>
     </ClCompile>
   </ItemGroup>

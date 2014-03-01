@@ -301,3 +301,5 @@ void CHiStarApp::OnUpdateLstCtrl(UINT wParam,LONG lParam){
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	((CMainDlg*)pApp->m_pMainWnd)->m_statusPage.SynchronizeAllVecs();
 }
+
+

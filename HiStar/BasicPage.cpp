@@ -12,6 +12,7 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+extern bool isHedgeLoopingPause;
 extern HANDLE g_hEvent;
 extern BOOL g_bLoginCtpT;
 extern double g_A50Index;
@@ -283,33 +284,23 @@ void CBasicPage::OnStart()
 {
 	TThostFtdcCombOffsetFlagType kpp;
 	kpp[0] = '0';
-	((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit("IF1406",THOST_FTDC_D_Buy,kpp,2160,1);
-
-	if(!(((CHiStarApp*)AfxGetApp())->m_pHedgeLoop)){
-		((CHiStarApp*)AfxGetApp())->m_pHedgeLoop = (CHedgeLoop*)AfxBeginThread(RUNTIME_CLASS(CHedgeLoop));
-	}
+	((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit("IF1403",THOST_FTDC_D_Buy,kpp,2160,1);
 }
 
 void CBasicPage::OnStop()
 {
-	if(((CHiStarApp*)AfxGetApp())->m_pHedgeLoop){
-		CHedgeLoop * pTemp = ((CHiStarApp*)AfxGetApp())->m_pHedgeLoop;//用临时指针代替，然后再在线程推出前将m_pHedgeLoop = NULL
-		((CHiStarApp*)AfxGetApp())->m_pHedgeLoop = NULL;
-		pTemp->PostThreadMessage(WM_QUIT,NULL,NULL);
-	}
+	TThostFtdcCombOffsetFlagType kpp;
+	kpp[0] = THOST_FTDC_OF_CloseToday;
+	((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit("IF1403",THOST_FTDC_D_Buy,kpp,2160,1);
 }
 
 void CBasicPage::OnPause()
 {
-	if(((CHiStarApp*)AfxGetApp())->m_pHedgeLoop){
-		((CHiStarApp*)AfxGetApp())->m_pHedgeLoop->m_isPause = true;
-	}
+	isHedgeLoopingPause = true;
 }
 
 
 void CBasicPage::OnResume()
 {
-	if(((CHiStarApp*)AfxGetApp())->m_pHedgeLoop){
-		((CHiStarApp*)AfxGetApp())->m_pHedgeLoop->m_isPause = false;
-	}
+	isHedgeLoopingPause = false;
 }

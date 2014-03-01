@@ -16,7 +16,7 @@
 #include "Index.h"
 #include "contract.h"
 #include "contract.h"
-#include "hedgeloop.h"
+#include "HedgePostProcessing.h"
 extern DWORD MainThreadId;
 	// CHiStarApp:
 // 有关此类的实现，请参阅 HiStar.cpp
@@ -109,6 +109,7 @@ public:
 	void LogoutCtp(UINT wParam,LONG lParam);
 	void OnQryAccCtp(UINT wParam,LONG lParam);
 	void OnUpdateLstCtrl(UINT wParam,LONG lParam);
+	void OnHedgeLooping(UINT wParam,LONG lParam);
 	CWinThread* m_pLoginCtp;
 	int FindInstMul(TThostFtdcInstrumentIDType InstID);
 	CString m_strPath;
@@ -116,14 +117,14 @@ public:
 	//IB系统
 	long m_id;
 	SAccountIB m_accountIB;
-	EClient* m_pIBClient;
+	EClient* m_pIBClient;//EClient是一个纯虚类接口,被继承并实现。
 	void SetA50Contract();
 	void OnConnectIB(UINT wParam,LONG lParam);
 	void OnDisconnectIB(UINT wParam,LONG lParam);
 	Contract m_A50Contract;
 	WORD m_LifeA50;
 	TagValueListSPtr m_mktDepthOptions;
-	CHedgeLoop* m_pHedgeLoop;
+	CHedgePostProcessing* m_pHedgePostProcessing;
 };
 
 extern CHiStarApp theApp;

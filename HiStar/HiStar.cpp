@@ -20,6 +20,7 @@ BEGIN_MESSAGE_MAP(CHiStarApp, CWinApp)
 	ON_THREAD_MESSAGE(WM_LOGOUT_CTP,LogoutCtp)
 	ON_THREAD_MESSAGE(WM_QRY_ACC_CTP,OnQryAccCtp)
 	ON_THREAD_MESSAGE(WM_UPDATE_LSTCTRL,OnUpdateLstCtrl)
+	ON_THREAD_MESSAGE(WM_MD_REFRESH,OnHedgeLooping)
 END_MESSAGE_MAP()
 
 // CHiStarApp 构造
@@ -35,7 +36,7 @@ CHiStarApp::CHiStarApp()
 	, m_strPath(_T(""))
 	, m_pIndexThread(NULL)
 	, m_id(0)
-	, m_pHedgeLoop(NULL)
+	, m_pHedgePostProcessing(NULL)
 {
 	//定位内存泄漏位置,非常好用
 	//_CrtSetBreakAlloc(958);
@@ -53,6 +54,10 @@ CHiStarApp::CHiStarApp()
 	//INDEX
 	if(!m_pIndexThread){
 		m_pIndexThread = (CIndex*)AfxBeginThread(RUNTIME_CLASS(CIndex));
+	}
+	//交易后处理线程
+	if(!(((CHiStarApp*)AfxGetApp())->m_pHedgePostProcessing)){
+		((CHiStarApp*)AfxGetApp())->m_pHedgePostProcessing = (CHedgePostProcessing*)AfxBeginThread(RUNTIME_CLASS(CHedgePostProcessing));
 	}
 }
 
@@ -154,6 +159,7 @@ CHiStarApp::~CHiStarApp(void)
 		delete m_cQ;
 		m_cQ = NULL;
 	}
+	m_pHedgePostProcessing = NULL;
 }
 
 void CHiStarApp::PostOrderStatus(CString str)

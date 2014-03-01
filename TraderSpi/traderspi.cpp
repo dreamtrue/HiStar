@@ -261,7 +261,7 @@ void CtpTraderSpi::OnRspQryTradingAccount(
 	}
 	if(bIsLast){
 		if(AfxGetApp()->m_pMainWnd){
-			PostMessage(AfxGetApp()->m_pMainWnd->m_hWnd,WM_UPDATE_ACC_CTP,NULL,(LPARAM)pAcc);
+			PostMessage(AfxGetApp()->m_pMainWnd->GetSafeHwnd(),WM_UPDATE_ACC_CTP,NULL,(LPARAM)pAcc);
 		}
 		SetEvent(g_hEvent);
 	}	
@@ -462,7 +462,7 @@ void CtpTraderSpi::OnRspQryInvestorPositionCombineDetail(CThostFtdcInvestorPosit
 }
 
 void CtpTraderSpi::ReqOrdLimit(TThostFtdcInstrumentIDType instId,TThostFtdcDirectionType dir,
-	TThostFtdcCombOffsetFlagType kpp,TThostFtdcPriceType price,   TThostFtdcVolumeType vol)
+	TThostFtdcCombOffsetFlagType kpp,TThostFtdcPriceType price,TThostFtdcVolumeType vol)
 {
 	CThostFtdcInputOrderField req;
 	memset(&req, 0, sizeof(req));	
@@ -604,7 +604,7 @@ void CtpTraderSpi::OnRspOrderInsert(CThostFtdcInputOrderField *pInputOrder,
 		if(pInputOrder){
 			for(int i = 0;i < m_onRoadVec.size();i++){
 				if(!strcmp(m_onRoadVec[i].OrderRef,pInputOrder->OrderRef)){
-					TRACE(_T("OnRspOrderInsert,%s\n"),pRspInfo->ErrorMsg);
+					TRACE(_T("OnRspOrderInsert,%s\n"),pRspInfo->ErrorMsg);//暂时不对挂单状态进行更新
 				}
 			}
 		}

@@ -130,7 +130,7 @@
     <ClCompile Include="..\CppClient\src\StdAfx.cpp" />
     <ClCompile Include="..\DIYCtrl\ColorListCtrl.cpp" />
     <ClCompile Include="..\DIYCtrl\ColorStatic.cpp" />
-    <ClCompile Include="..\Hedge\HedgeLoop.cpp" />
+    <ClCompile Include="..\Hedge\HedgePostProcessing.cpp" />
     <ClCompile Include="..\IBInterface\IBInterface.cpp" />
     <ClCompile Include="..\Index\DealIndex.cpp" />
     <ClCompile Include="..\Index\Index.cpp" />
