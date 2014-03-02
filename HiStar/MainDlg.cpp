@@ -109,6 +109,10 @@ void CMainDlg::OnTimer(UINT_PTR nIDEvent)
 
 void CMainDlg::OnOk()
 {
+	//退出时先断开连接，可以防止内存出错。
+	if(((CHiStarApp*)AfxGetApp())->m_pIBClient){
+		((CHiStarApp*)AfxGetApp())->m_pIBClient->eDisconnect();
+	}
 	CDialogEx::OnOK();
 }
 
