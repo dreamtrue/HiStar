@@ -18,6 +18,11 @@
 #include "contract.h"
 #include "HedgePostProcessing.h"
 extern DWORD MainThreadId;
+struct HoldDetail{
+	double HedgePrice;
+	int HedgeNum;
+	int HedgeSection;//开仓时所在的Section
+};
 	// CHiStarApp:
 // 有关此类的实现，请参阅 HiStar.cpp
 //
@@ -125,6 +130,8 @@ public:
 	WORD m_LifeA50;
 	TagValueListSPtr m_mktDepthOptions;
 	CHedgePostProcessing* m_pHedgePostProcessing;
+	int ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag);
+	CString m_HedgeStatusOut;
 };
 
 extern CHiStarApp theApp;

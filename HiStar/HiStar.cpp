@@ -37,6 +37,7 @@ CHiStarApp::CHiStarApp()
 	, m_pIndexThread(NULL)
 	, m_id(0)
 	, m_pHedgePostProcessing(NULL)
+	, m_HedgeStatusOut(_T(""))
 {
 	//定位内存泄漏位置,非常好用
 	//_CrtSetBreakAlloc(958);

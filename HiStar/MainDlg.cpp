@@ -75,7 +75,7 @@ BOOL CMainDlg::OnInitDialog(void)
 	//保存当前选择
 	m_CurSelTab = 0;
 	//设定定时器
-	m_timerID = SetTimer(1,10000,NULL);
+	m_timerID = SetTimer(1,3000,NULL);
 	return 0;
 }
 
@@ -102,6 +102,8 @@ void CMainDlg::OnTimer(UINT_PTR nIDEvent)
 	//账户登录了才能查询信息
 	PostThreadMessage(GetCurrentThreadId(),WM_QRY_ACC_CTP,NULL,NULL);
 	CDialogEx::OnTimer(nIDEvent);
+	//测试策略使用，定时刷新
+	PostThreadMessage(MainThreadId,WM_MD_REFRESH,NULL,NULL);
 }
 
 
