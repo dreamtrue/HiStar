@@ -43,6 +43,9 @@
     <Filter Include="源文件\Hedge">
       <UniqueIdentifier>{e997c0d2-5792-4207-99d7-ae2f809957ab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\MXHQ">
+      <UniqueIdentifier>{561ff03c-fe20-472e-a2b5-3eda3e8693d0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -103,6 +106,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\Hedge\HedgeLoop.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Index\Index.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Index\DealIndex.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -169,6 +178,9 @@
     </ClCompile>
     <ClCompile Include="..\Hedge\HedgePostProcessing.cpp">
       <Filter>源文件\Hedge</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MSHQ\MSHQ.cpp">
+      <Filter>源文件\MXHQ</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

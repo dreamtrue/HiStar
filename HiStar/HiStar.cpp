@@ -38,6 +38,7 @@ CHiStarApp::CHiStarApp()
 	, m_id(0)
 	, m_pHedgePostProcessing(NULL)
 	, m_HedgeStatusOut(_T(""))
+	, m_pMSHQ(NULL)
 {
 	//定位内存泄漏位置,非常好用
 	//_CrtSetBreakAlloc(958);
@@ -55,6 +56,10 @@ CHiStarApp::CHiStarApp()
 	//INDEX
 	if(!m_pIndexThread){
 		m_pIndexThread = (CIndex*)AfxBeginThread(RUNTIME_CLASS(CIndex));
+	}
+	//MSHQ 从通达信获取的实时行情
+	if(!m_pMSHQ){
+		m_pMSHQ = (CMSHQ*)AfxBeginThread(RUNTIME_CLASS(CMSHQ));
 	}
 	//交易后处理线程
 	if(!(((CHiStarApp*)AfxGetApp())->m_pHedgePostProcessing)){

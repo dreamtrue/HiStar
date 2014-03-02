@@ -9,6 +9,16 @@
 #include <math.h>
 #define OPEN true
 #define CLOSE false
+struct HedgeTask{
+	int NeedBuyA50;
+	int NeedSellA50;
+	int NeedSellCloseIf;
+	int NeedBuyOpenIf;
+	int NeedBuyCloseIf;
+	int NeedSellOpenIf;
+};
+extern double g_A50IndexMSHQ;
+extern double g_HS300IndexMSHQ;
 int MultiA50 = 12;//A50乘数
 double MarginA50 = 625.0,MarginIF = 120000.0;
 double USDtoRMB = 6.07;//汇率
@@ -19,12 +29,18 @@ double deviation = 0,DeviationSell = 0,DeviationBuy = 0;
 extern double g_a50Bid1,g_a50Ask1;
 extern double g_ifAsk1,g_ifBid1;
 extern double g_A50Index,g_HS300Index;
+/////////////////////////////////Hedge变量///////////////////////////////////////////////
+int MultiPos = 1;//持仓乘数
+//梯级，一共21个分割点,分割成22(=21+1)个区间
+double HedgeLadder[21] = {   -200, -180, -160, -140, -120, -100, -80, -60, -40, -20, -10,  20,  40,  60,  80,  100,  120,  140,  160,  180,  200};
+int PositionAimUnit[22] = {10,    9,    8,    7,    6,    5,    4,   3,   2,   1,   0,   0,  -1,  -2,  -3,  -4,  -5,    -6,   -7,   -8,   -9,   -10};//默认持仓目标单位（没有乘以乘数）
+int PositionAim[22];
+double MaxProfitAim = 20.0,MinProfitAim = 20.0;//最小盈利目标，最大盈利目标（不分多空）
 ///////////////////////////////////////////////////////
 int NetPositionA50 = 0,PositionIFb = 0,PositionIFs = 0;//净持仓,需要计算;IF分空头净持仓和多头净持仓
 double AvailIB = 8000.0,AvailCtp = 250000.0;//可用资金，需要计算
 ////////////////////////////////////////////////////////
 char buffer[1000];
-double DeviationSell_save,DeviationBuy_save;
 std::vector<HoldDetail> HedgeHold;
 double DealA50Price(bool isBuy, double A50Price);
 void CalcDeviation();
@@ -53,36 +69,32 @@ int CHedgePostProcessing::ExitInstance()
 }
 
 BEGIN_MESSAGE_MAP(CHedgePostProcessing, CWinThread)
-
+	ON_THREAD_MESSAGE(WM_BEGIN_POST_PROCESSING,PostProcessing)
 END_MESSAGE_MAP()
 
 
 void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
-	int MultiPos = 1;//持仓乘数
-	//梯级，一共21个分割点,分割成22(=21+1)个区间
-	double HedgeLadder[21] = {   -200, -180, -160, -140, -120, -100, -80, -60, -40, -20, -10,  20,  40,  60,  80,  100,  120,  140,  160,  180,  200};
-	int PositionAimUnit[22] = {10,    9,    8,    7,    6,    5,    4,   3,   2,   1,   0,   0,  -1,  -2,  -3,  -4,  -5,    -6,   -7,   -8,   -9,   -10};//默认持仓目标单位（没有乘以乘数）
-	int PositionAim[22];
+			//应该完成的任务统计
+	for(int i= 0;i < 22;i++){
+		PositionAim[i] = PositionAimUnit[i] * MultiPos;
+	}
 	//默认盈利目标,一共22个区间，包含左右两个无边界区间
 	double DefaultProfitAimBuy[22],DefaultProfitAimSell[22],ProfitAimBuy[22],ProfitAimSell[22];
-	double MaxProfitAim = 20.0,MinProfitAim = 20.0;//最小盈利目标，最大盈利目标（不分多空）
 	int netPosition = 0;//净持仓
 	int SupposedBuyOpen = 0,SupposedSellOpen = 0;
 	int SupposedSectionBuyOpen = 0,SupposedSectionSellOpen = 0;
-	//增加这两个变量主要是考虑两侧边界可能已经饱和，这是isSupposedBuy或isSupposedSell将仍然保持false，表示无需任何操作
+	//增加这两个变量主要是考虑两侧边界可能已经饱和，这时isSupposedBuy或isSupposedSell将仍然保持false，表示无需任何操作
 	bool isSupposedBuyOpen = false,isSupposedSellOpen = false;
 	int CurrentSectionBuy = 0,CurrentSectionSell = 0;//当前所在的区间,Buy和Sell分别表示以买价和卖价计算
-	CString PREMIUM;	
 	CalcDeviation();
 	//测试用，给一个随机的DeviationSell和DeviationBuy
+	/*
 	DeviationSell = rand() % 120 - 60;
 	DeviationBuy = DeviationSell - 6.5;
 	sprintf(buffer,_T("当前买偏差%f\r\n"),DeviationBuy);m_HedgeStatusOut = m_HedgeStatusOut + buffer;
 	sprintf(buffer,_T("当前卖偏差%f\r\n"),DeviationSell);m_HedgeStatusOut = m_HedgeStatusOut + buffer;
+	*/
 	/////////////////////////////////////////////////
-	DeviationSell_save = DeviationSell;
-	DeviationBuy_save = DeviationBuy;	
-
 	if(isHedgeLoopingPause){//暂停
 		sprintf(buffer,_T("暂停\r\n"));m_HedgeStatusOut = m_HedgeStatusOut + buffer;
 		return;
@@ -91,17 +103,15 @@ void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
 	if(IsWindow(hEdit)){
 		::SendMessage(hEdit,WM_SETTEXT,0,(LPARAM)(LPCTSTR)m_HedgeStatusOut);
 	}
-	/*
 	if(_isnan(datumDiff) != 0 || _isnan(premium)!=0 ||_isnan(deviation)!=0){
-	return;//判断非零值错误
+		return;//判断非零值错误
 	}
 	if(g_a50Bid1 < 1 || g_a50Ask1 < 1 || g_ifAsk1 < 1 || g_ifBid1 < 1 || g_A50Index < 1 || g_HS300Index < 1){
-	return;
+		return;
 	}
 	if(fabs(premium) > 300 || fabs(premium) < 0.01){
-	return;//排除开盘时有可能报价不全导致的错误溢价计算
+		return;//排除开盘时有可能报价不全导致的错误溢价计算
 	}
-	*/
 	//统计净持仓
 	for(int i = 0;i < HedgeHold.size();i++){
 		netPosition = netPosition + HedgeHold[i].HedgeNum;
@@ -152,9 +162,6 @@ void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
 	m_HedgeStatusOut = m_HedgeStatusOut + buffer;
 	sprintf(buffer,_T("当前卖价区间%d,左%f,右%f\r\n"),CurrentSectionSell,HedgeLadder[CurrentSectionSell - 1],HedgeLadder[CurrentSectionSell]);
 	m_HedgeStatusOut = m_HedgeStatusOut + buffer;
-	for(int i= 0;i < 22;i++){
-		PositionAim[i] = PositionAimUnit[i] * MultiPos;
-	}
 	for(int i = 0;i < 22;i++){
 		if(i < 20){
 			DefaultProfitAimBuy[i] = HedgeLadder[i + 1] -  HedgeLadder[i];
@@ -397,9 +404,17 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 		}
 	}
 	//测试，统计下持仓
+	//临时以此做统计,认为所有的任务都会瞬间成交。
 	PositionIFb = PositionIFb - NeedSellCloseIf + NeedBuyOpenIf;
 	PositionIFs = PositionIFs - NeedBuyCloseIf + NeedSellOpenIf;
 	NetPositionA50 = NetPositionA50 + NeedBuyA50 - NeedSellA50;
+
+	//应该完成的任务统计
+	HedgeTask *pTask = new HedgeTask;
+	pTask->NeedBuyA50 = NeedBuyA50;pTask->NeedSellA50 = NeedSellA50;
+	pTask->NeedBuyCloseIf = NeedBuyCloseIf;pTask->NeedBuyOpenIf = NeedBuyOpenIf;
+	pTask->NeedSellCloseIf = NeedSellCloseIf;pTask->NeedSellOpenIf = NeedSellOpenIf;
+	m_pHedgePostProcessing->PostThreadMessage(WM_BEGIN_POST_PROCESSING,NULL,(UINT)pTask);
 	////////////////////////////////////////////////////////////
 	//IF下单
 	TThostFtdcCombOffsetFlagType kpp;
@@ -410,25 +425,25 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 	if(NeedBuyOpenIf > 0){
 		kpp[0] = THOST_FTDC_OF_Open;
 		if(((CHiStarApp*)AfxGetApp())->m_cT){
-			((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Buy,kpp,2160,1);
+			((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Buy,kpp,g_ifAsk1 + 20.0,NeedBuyOpenIf);
 		}
 	}
 	if(NeedBuyCloseIf > 0){
 		kpp[0] = THOST_FTDC_OF_Close;
 		if(((CHiStarApp*)AfxGetApp())->m_cT){
-			((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Buy,kpp,2160,1);
+			((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Buy,kpp,g_ifAsk1 + 20.0,NeedBuyCloseIf);
 		}
 	}
 	if(NeedSellOpenIf > 0){
 		kpp[0] = THOST_FTDC_OF_Open;
 		if(((CHiStarApp*)AfxGetApp())->m_cT){
-			((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Sell,kpp,2160,1);
+			((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Sell,kpp,g_ifBid1 - 20.0,NeedSellOpenIf);
 		}
 	}
 	if(NeedSellCloseIf > 0){
 		kpp[0] = THOST_FTDC_OF_Close;
 		if(((CHiStarApp*)AfxGetApp())->m_cT){
-			((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Sell,kpp,2160,1);
+			((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Sell,kpp,g_ifBid1 - 20.0,NeedSellCloseIf);
 		}
 	}
 	//A50下单
@@ -437,7 +452,7 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 			if(NeedBuyA50 - NeedSellA50 > 0){
 				((CHiStarApp*)AfxGetApp())->m_IBOrder.action = "BUY";
 				((CHiStarApp*)AfxGetApp())->m_IBOrder.totalQuantity = NeedBuyA50 - NeedSellA50;
-				((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice = DealA50Price(true,g_a50Ask1);
+				((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice = DealA50Price(true,g_a50Ask1 + 100.0);
 				if(((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice < 1.0){
 					sprintf(buffer,_T("A50买价小于1.0,异常\r\n"));m_HedgeStatusOut = m_HedgeStatusOut + buffer;
 				}
@@ -448,7 +463,7 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 			else if(NeedBuyA50 - NeedSellA50 < 0){
 				((CHiStarApp*)AfxGetApp())->m_IBOrder.action = "SELL";
 				((CHiStarApp*)AfxGetApp())->m_IBOrder.totalQuantity = -(NeedBuyA50 - NeedSellA50);
-				((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice = DealA50Price(false,g_a50Bid1);
+				((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice = DealA50Price(false,g_a50Bid1 - 100.0);
 				if(((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice < 1.0){
 					sprintf(buffer,_T("A50买价小于1.0,异常\r\n"));m_HedgeStatusOut = m_HedgeStatusOut + buffer;
 				}
@@ -460,8 +475,10 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 	}
 	return 0;
 }
-
+//后处理暂时不做了
 void CHedgePostProcessing::PostProcessing(UINT wParam,LONG lParam){
+	HedgeTask task = *(HedgeTask *)lParam;
+	delete (HedgeTask *)lParam;
 
 
 }
@@ -489,9 +506,22 @@ double DealA50Price(bool isBuy, double A50Price)
 }
 
 void CalcDeviation(){
-	premium = (g_a50Bid1 + g_a50Ask1) / 2.0 - (g_ifAsk1 + g_ifBid1) / 2.0 * g_A50Index / g_HS300Index;
-	premiumHigh = g_a50Ask1 - g_ifBid1 * g_A50Index / g_HS300Index;
-	premiumLow = g_a50Bid1 - g_ifAsk1 * g_A50Index / g_HS300Index;
+	double A50Index = 0.0,HS300Index = 0.0;
+	if(fabs(g_A50IndexMSHQ - g_A50Index) / g_A50Index > 0.01){
+		A50Index = g_A50Index;
+	}
+	else{
+		A50Index = g_A50IndexMSHQ;
+	}
+	if(fabs(g_HS300IndexMSHQ - g_HS300Index) / g_HS300Index > 0.01){
+		HS300Index = g_HS300Index;
+	}
+	else{
+		HS300Index = g_HS300IndexMSHQ;
+	}
+	premium = (g_a50Bid1 + g_a50Ask1) / 2.0 - (g_ifAsk1 + g_ifBid1) / 2.0 * A50Index / HS300Index;
+	premiumHigh = g_a50Ask1 - g_ifBid1 * A50Index / HS300Index;
+	premiumLow = g_a50Bid1 - g_ifAsk1 * A50Index / HS300Index;
 	deviation = premium - datumDiff;
 	DeviationSell = premiumHigh - datumDiff;
 	DeviationBuy = premiumLow - datumDiff;

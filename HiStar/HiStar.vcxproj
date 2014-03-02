@@ -43,7 +43,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <LibraryPath>$(LibraryPath)</LibraryPath>
-    <EmbedManifest>true</EmbedManifest>
+    <EmbedManifest>false</EmbedManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -54,7 +54,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Hedge;..\calendar;..\Index;..\DIYCtrl;..\TraderSpi;..\api_libs;..\THostFtdc;..\MdSpi;.;..\IBInterface;..\CppClient\lib;..\CppClient\src;..\CppClient\Shared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\MSHQ;..\Hedge;..\calendar;..\Index;..\DIYCtrl;..\TraderSpi;..\api_libs;..\THostFtdc;..\MdSpi;.;..\IBInterface;..\CppClient\lib;..\CppClient\src;..\CppClient\Shared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -79,7 +79,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\calendar;..\DIYCtrl;..\api_libs;..\TraderSpi;..\THostFtdc;..\MdSpi;..\CppClient\Shared;..\CppClient\lib;..\CppClient\src;.;..\IBInterface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\MSHQ;..\calendar;..\DIYCtrl;..\api_libs;..\TraderSpi;..\THostFtdc;..\MdSpi;..\CppClient\Shared;..\CppClient\lib;..\CppClient\src;.;..\IBInterface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -107,6 +107,8 @@
     <ClInclude Include="..\calendar\calendar.h" />
     <ClInclude Include="..\CppClient\Shared\TwsSocketClientErrors.h" />
     <ClInclude Include="..\Hedge\HedgeLoop.h" />
+    <ClInclude Include="..\Index\DealIndex.h" />
+    <ClInclude Include="..\Index\Index.h" />
     <ClInclude Include="..\THostFtdc\ThostFtdcMdApi.h" />
     <ClInclude Include="..\THostFtdc\ThostFtdcTraderApi.h" />
     <ClInclude Include="..\THostFtdc\ThostFtdcUserApiDataType.h" />
@@ -135,6 +137,7 @@
     <ClCompile Include="..\Index\DealIndex.cpp" />
     <ClCompile Include="..\Index\Index.cpp" />
     <ClCompile Include="..\MdSpi\mdspi.cpp" />
+    <ClCompile Include="..\MSHQ\MSHQ.cpp" />
     <ClCompile Include="..\TraderSpi\traderspi.cpp" />
     <ClCompile Include="AccountPage.cpp" />
     <ClCompile Include="CtpOpera.cpp" />

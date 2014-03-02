@@ -5,6 +5,7 @@
 #include "UserMsg.h"
 #define NOT_AN_FA_ACCOUNT_ERROR 321
 #define NUM_FA_ERROR_CODES 6
+extern double AvailIB;
 double g_a50Bid1 = 0.0f,g_a50Ask1 = 0.0f;
 int g_a50Bid1Size = 0,g_a50Ask1Size = 0;
 static int faErrorCodes[NUM_FA_ERROR_CODES] =
@@ -56,9 +57,10 @@ void CHiStarApp::connectionClosed(){
 
 void CHiStarApp::updateAccountValue(const IBString& key, const IBString& val,
 	const IBString& currency, const IBString& accountName){
-	TRACE("updateAccountValue\n");
+	//TRACE("updateAccountValue\n");
 	if(key == "AvailableFunds" && currency == "USD"){
 		TRACE("IB可用资金 %.f USD\r\n",atof(val));
+		AvailIB = atof(val);
 	}
 	if(key == "NetLiquidation" && currency == "USD"){
 	}
@@ -111,7 +113,6 @@ void CHiStarApp::execDetailsEnd( int reqId){
 }
 
 void CHiStarApp::error(const int id, const int errorCode, const IBString errorString){
-	TRACE("error\n");
 	CString errorStr("Id: ");
 	char buf[20];
 	_itoa_s(id, buf, 10);
@@ -124,6 +125,7 @@ void CHiStarApp::error(const int id, const int errorCode, const IBString errorSt
 	errorStr += "Error Msg: ";
 	errorStr += errorString;
 	PostErrors(errorStr);
+	TRACE("%s\r\n",errorStr);
 	for (int ctr=0; ctr < NUM_FA_ERROR_CODES; ctr++) {
 		faError |= (errorCode == faErrorCodes[ctr]) ;
 	}

@@ -131,7 +131,7 @@ void CtpMdSpi::OnRspUnSubMarketData(
 }
 
 void CtpMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData){
-	TRACE("%s,%f,%f\n",pDepthMarketData->InstrumentID,pDepthMarketData->BidPrice1,pDepthMarketData->AskPrice1);
+	//TRACE("%s,%f,%f\n",pDepthMarketData->InstrumentID,pDepthMarketData->BidPrice1,pDepthMarketData->AskPrice1);
 	g_ifAsk1 = pDepthMarketData->AskPrice1;
 	g_ifBid1 = pDepthMarketData->BidPrice1;
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();

@@ -8,7 +8,7 @@
 #include "UserMsg.h"
 extern BOOL g_bLoginCtpT;
 // CMainDlg 对话框
-
+extern double AvailCtp;
 IMPLEMENT_DYNAMIC(CMainDlg, CDialogEx)
 
 CMainDlg::CMainDlg(CWnd* pParent /*=NULL*/)
@@ -103,7 +103,9 @@ void CMainDlg::OnTimer(UINT_PTR nIDEvent)
 	PostThreadMessage(GetCurrentThreadId(),WM_QRY_ACC_CTP,NULL,NULL);
 	CDialogEx::OnTimer(nIDEvent);
 	//测试策略使用，定时刷新
+	/*
 	PostThreadMessage(MainThreadId,WM_MD_REFRESH,NULL,NULL);
+	*/
 }
 
 
@@ -192,6 +194,7 @@ afx_msg LRESULT CMainDlg::OnUpdateAccCtp(WPARAM wParam, LPARAM lParam)
 	double dValidProf = dDymProf-pApp->m_accountCtp.m_pTdAcc->CurrMargin-pApp->m_accountCtp.m_pTdAcc->FrozenMargin-pApp->m_accountCtp.m_pTdAcc->FrozenCommission-pApp->m_accountCtp.m_pTdAcc->DeliveryMargin+pApp->m_accountCtp.m_pTdAcc->Credit;
 	szTemp.Format(_T("%.2f"),dValidProf); outStrAs4(szTemp);
 	szLine += FormatLine(_T("= 可用金额:"),szTemp,_T(" "),41);
+	AvailCtp = dValidProf;
 
 	szLine += FormatLine(_T(""),_T(""),_T("="),42);
 	szLine += FormatLine(_T(""),_T(""),_T("="),42);
