@@ -17,6 +17,7 @@
 #include "contract.h"
 #include "contract.h"
 #include "HedgePostProcessing.h"
+#include "e:\新建文件夹\trunk\cppclient\shared\order.h"
 extern DWORD MainThreadId;
 struct HoldDetail{
 	double HedgePrice;
@@ -132,6 +133,7 @@ public:
 	CHedgePostProcessing* m_pHedgePostProcessing;
 	int ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag);
 	CString m_HedgeStatusOut;
+	Order m_IBOrder;
 };
 
 extern CHiStarApp theApp;

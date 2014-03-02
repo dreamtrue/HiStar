@@ -283,7 +283,7 @@ void CBasicPage::RefreshMdPane(void)
 void CBasicPage::OnStart()
 {
 	TThostFtdcCombOffsetFlagType kpp;
-	kpp[0] = '0';
+	kpp[0] = THOST_FTDC_OF_Open;
 	((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit("IF1403",THOST_FTDC_D_Buy,kpp,2160,1);
 }
 

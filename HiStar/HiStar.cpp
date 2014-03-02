@@ -60,6 +60,9 @@ CHiStarApp::CHiStarApp()
 	if(!(((CHiStarApp*)AfxGetApp())->m_pHedgePostProcessing)){
 		((CHiStarApp*)AfxGetApp())->m_pHedgePostProcessing = (CHedgePostProcessing*)AfxBeginThread(RUNTIME_CLASS(CHedgePostProcessing));
 	}
+	//IB Order初始化
+	m_IBOrder.orderType = "LMT";
+	m_IBOrder.whatIf = false;
 }
 
 // 唯一的一个 CHiStarApp 对象
