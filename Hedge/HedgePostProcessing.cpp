@@ -87,7 +87,7 @@ END_MESSAGE_MAP()
 
 
 void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
-    HWND hEdit = ::GetDlgItem(((CMainDlg*)m_pMainWnd)->m_basicPage.m_hWnd,IDC_RICHEDIT21);
+    HWND hEdit = ::GetDlgItem(((CMainDlg*)m_pMainWnd)->m_basicPage.m_hWnd,IDC_RICHEDIT_STATUS);
     if(hedgeTaskStatus == NEW_HEDGE){
 		HedgeHoldTemp = HedgeHold;
         for(int i= 0;i < 22;i++){
@@ -313,7 +313,7 @@ void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
 }
 
 int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
-    HWND hEdit = ::GetDlgItem(((CMainDlg*)m_pMainWnd)->m_basicPage.m_hWnd,IDC_RICHEDIT21);
+    HWND hEdit = ::GetDlgItem(((CMainDlg*)m_pMainWnd)->m_basicPage.m_hWnd,IDC_RICHEDIT_STATUS);
     int NeedBuyA50 = 0,NeedSellA50 = 0;
     int NeedBuyOpenIf = 0,NeedBuyCloseIf = 0,NeedSellOpenIf = 0,NeedSellCloseIf = 0;
     int PredictPositionA50 = 0;
@@ -510,7 +510,7 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 
 //ºó´¦Àí
 void CHedgePostProcessing::PostProcessing(UINT wParam,LONG lParam){
-	HWND hEdit = ::GetDlgItem(((CMainDlg*)m_pMainWnd)->m_basicPage.m_hWnd,IDC_RICHEDIT21);
+	HWND hEdit = ::GetDlgItem(((CMainDlg*)m_pMainWnd)->m_basicPage.m_hWnd,IDC_RICHEDIT_STATUS);
 	MSG msg;BOOL bRet;
 	double idcurrent;
 	while((bRet = GetMessage(&msg,NULL,WM_BEGIN_POST_PROCESSING,WM_BEGIN_POST_PROCESSING)) != 0){
