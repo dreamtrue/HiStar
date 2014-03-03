@@ -146,7 +146,7 @@ void CHiStarApp::updateMktDepth(TickerId id, int position, int operation, int si
 					g_a50Ask1Size = size;
 				}
 			}
-			TRACE("%f %f\r\n",g_a50Bid1,g_a50Ask1);
+			//TRACE("%f %f\r\n",g_a50Bid1,g_a50Ask1);
 			if(AfxGetApp()->m_pMainWnd){
 				PostMessage(AfxGetApp()->m_pMainWnd->GetSafeHwnd(),WM_MD_REFRESH,NULL,NULL);
 			}

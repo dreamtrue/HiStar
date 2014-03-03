@@ -178,7 +178,7 @@ int CMSHQ::OpenHQFile()
 		}
 		//自定义数组检查，看是否完全初始化
 		for(int j = 0;j < StockSlfList.GetCount();j++){
-			TRACE("股票%s，位置%d,交易所%c\r\n",StockSlfList[j].Code,StockSlfList[j].index,StockSlfList[j].exchange);
+			//TRACE("股票%s，位置%d,交易所%c\r\n",StockSlfList[j].Code,StockSlfList[j].index,StockSlfList[j].exchange);
 			if(StockSlfList[j].index < 0){
 				TRACE("%s未完成初始化\r\n",StockSlfList[j].Code);
 				return 2;

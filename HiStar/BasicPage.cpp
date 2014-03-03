@@ -282,16 +282,12 @@ void CBasicPage::RefreshMdPane(void)
 
 void CBasicPage::OnStart()
 {
-	TThostFtdcCombOffsetFlagType kpp;
-	kpp[0] = THOST_FTDC_OF_Open;
-	((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit("IF1403",THOST_FTDC_D_Buy,kpp,2160,1);
+
 }
 
 void CBasicPage::OnStop()
 {
-	TThostFtdcCombOffsetFlagType kpp;
-	kpp[0] = THOST_FTDC_OF_CloseToday;
-	((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit("IF1403",THOST_FTDC_D_Buy,kpp,2160,1);
+
 }
 
 void CBasicPage::OnPause()

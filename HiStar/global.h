@@ -57,7 +57,6 @@ struct SAccountCtp{
 	CThostFtdcNotifyQueryAccountField *m_pNotifyBkYe;
 	CThostFtdcInvestorField *m_pInvInf;
 	SAccountCtp(){
-		/*
 		m_szArTs.Add(_T("tcp://ctp1-front1.citicsf.com:41205"));
 		m_szArTs.Add(_T("tcp://ctp1-front3.citicsf.com:41205"));
 		m_szArTs.Add(_T("tcp://ctp1-front13.citicsf.com:41205"));
@@ -73,7 +72,7 @@ struct SAccountCtp{
 		strcpy(m_sINVESTOR_ID,"10127111");
 		strcpy(m_sPASSWORD,"003180");
 		m_szInst = _T("IF1403");
-		*/
+		/*
 		//模拟系统
 		m_szArTs.Add(_T("tcp://ctpmn1-front1.citicsf.com:51205"));
         m_szArMd.Add(_T("tcp://ctpmn1-front1.citicsf.com:51213"));
@@ -84,6 +83,7 @@ struct SAccountCtp{
 		strcpy(m_sINVESTOR_ID,"00000037");
 		strcpy(m_sPASSWORD,"123456");
 		m_szInst = _T("IF1403");
+		*/
 		//初始化
 		m_InstInf = new CThostFtdcInstrumentFieldEx();
 	    m_pDepthMd = new CThostFtdcDepthMarketDataField();

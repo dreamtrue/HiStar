@@ -17,12 +17,13 @@ struct HedgeTask{
 	int NeedBuyCloseIf;
 	int NeedSellOpenIf;
 };
+double MultiInsA50 = 1.0;double MultiInsIf = 300.0;//合约每个点的价值
 extern double g_A50IndexMSHQ;
 extern double g_HS300IndexMSHQ;
-int MultiA50 = 12;//A50乘数
-double MarginA50 = 625.0,MarginIF = 120000.0;
+int MultiA50 = 1;//A50乘数
+double MarginA50 = 625.0,MarginIF = 0.15;
 double USDtoRMB = 6.07;//汇率
-double datumDiff = 0;
+double datumDiff = 40;
 bool isHedgeLoopingPause = true;
 double premium = 0,premiumHigh = 0,premiumLow = 0;
 double deviation = 0,DeviationSell = 0,DeviationBuy = 0;
@@ -74,7 +75,6 @@ END_MESSAGE_MAP()
 
 
 void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
-			//应该完成的任务统计
 	for(int i= 0;i < 22;i++){
 		PositionAim[i] = PositionAimUnit[i] * MultiPos;
 	}
@@ -96,7 +96,7 @@ void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
 	*/
 	/////////////////////////////////////////////////
 	if(isHedgeLoopingPause){//暂停
-		sprintf(buffer,_T("暂停\r\n"));m_HedgeStatusOut = m_HedgeStatusOut + buffer;
+		//sprintf(buffer,_T("暂停\r\n"));m_HedgeStatusOut = m_HedgeStatusOut + buffer;
 		return;
 	}
 	HWND hEdit = ::GetDlgItem(((CMainDlg*)m_pMainWnd)->m_basicPage.m_hWnd,IDC_RICHEDIT21);
@@ -116,7 +116,7 @@ void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
 	for(int i = 0;i < HedgeHold.size();i++){
 		netPosition = netPosition + HedgeHold[i].HedgeNum;
 	}
-	sprintf(buffer,_T("净持仓%d\r\n"),netPosition);m_HedgeStatusOut = m_HedgeStatusOut + buffer;
+	//sprintf(buffer,_T("净持仓%d\r\n"),netPosition);m_HedgeStatusOut = m_HedgeStatusOut + buffer;
 	for(int i = 1;i < 21;i++){
 		if(HedgeLadder[i - 1] > HedgeLadder[i]){
 			sprintf(buffer,_T("错误的梯级\r\n"));m_HedgeStatusOut = m_HedgeStatusOut + buffer;
@@ -158,10 +158,10 @@ void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
 			}
 		}
 	}
-	sprintf(buffer,_T("当前买价区间%d,左%f,右%f\r\n"),CurrentSectionBuy,HedgeLadder[CurrentSectionBuy - 1],HedgeLadder[CurrentSectionBuy]);
-	m_HedgeStatusOut = m_HedgeStatusOut + buffer;
-	sprintf(buffer,_T("当前卖价区间%d,左%f,右%f\r\n"),CurrentSectionSell,HedgeLadder[CurrentSectionSell - 1],HedgeLadder[CurrentSectionSell]);
-	m_HedgeStatusOut = m_HedgeStatusOut + buffer;
+	//sprintf(buffer,_T("当前买价区间%d,左%f,右%f\r\n"),CurrentSectionBuy,HedgeLadder[CurrentSectionBuy - 1],HedgeLadder[CurrentSectionBuy]);
+	//m_HedgeStatusOut = m_HedgeStatusOut + buffer;
+	//sprintf(buffer,_T("当前卖价区间%d,左%f,右%f\r\n"),CurrentSectionSell,HedgeLadder[CurrentSectionSell - 1],HedgeLadder[CurrentSectionSell]);
+	//m_HedgeStatusOut = m_HedgeStatusOut + buffer;
 	for(int i = 0;i < 22;i++){
 		if(i < 20){
 			DefaultProfitAimBuy[i] = HedgeLadder[i + 1] -  HedgeLadder[i];
@@ -197,7 +197,7 @@ void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
 					ReqHedgeOrder(&HedgeHold[i],CLOSE);
 					HedgeHold.erase(HedgeHold.begin() + i);
 					i--;
-					sprintf(buffer,_T("======================END======================\r\n"));
+					sprintf(buffer,_T("======================END01======================\r\n"));
 					return;
 				}
 			}
@@ -209,7 +209,7 @@ void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
 					ReqHedgeOrder(&HedgeHold[i],CLOSE);
 					HedgeHold.erase(HedgeHold.begin() + i);
 					i--;
-					sprintf(buffer,_T("======================END======================\r\n"));
+					sprintf(buffer,_T("======================END02======================\r\n"));
 					m_HedgeStatusOut = m_HedgeStatusOut + buffer;
 					return;
 				}
@@ -223,7 +223,7 @@ void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
 					ReqHedgeOrder(&HedgeHold[i],CLOSE);
 					HedgeHold.erase(HedgeHold.begin() + i);
 					i--;
-					sprintf(buffer,_T("======================END======================\r\n"));
+					sprintf(buffer,_T("======================END03======================\r\n"));
 					m_HedgeStatusOut = m_HedgeStatusOut + buffer;
 					return;
 				}
@@ -235,7 +235,7 @@ void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
 					ReqHedgeOrder(&HedgeHold[i],CLOSE);
 					HedgeHold.erase(HedgeHold.begin() + i);
 					i--;
-					sprintf(buffer,_T("======================END======================\r\n"));
+					sprintf(buffer,_T("======================END04======================\r\n"));
 					m_HedgeStatusOut = m_HedgeStatusOut + buffer;
 					return;
 				}
@@ -247,8 +247,8 @@ void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
 			SupposedSellOpen = min(netPosition,0) - PositionAim[i];
 			SupposedSectionSellOpen = i;
 			isSupposedSellOpen = true;
-			sprintf(buffer,_T("期望卖开%d期望区间%d,左%f,右%f\r\n"),SupposedSellOpen,i,HedgeLadder[i - 1],HedgeLadder[i]);
-			m_HedgeStatusOut = m_HedgeStatusOut + buffer;
+			//sprintf(buffer,_T("期望卖开%d期望区间%d,左%f,右%f\r\n"),SupposedSellOpen,i,HedgeLadder[i - 1],HedgeLadder[i]);
+			//m_HedgeStatusOut = m_HedgeStatusOut + buffer;
 			break;
 		}
 	}
@@ -257,8 +257,8 @@ void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
 			SupposedBuyOpen = -(max(netPosition,0) - PositionAim[i]);
 			SupposedSectionBuyOpen = i;
 			isSupposedBuyOpen = true;
-			sprintf(buffer,_T("期望买开%d期望区间%d,左%f,右%f\r\n"),SupposedBuyOpen,i,HedgeLadder[i - 1],HedgeLadder[i]);
-			m_HedgeStatusOut = m_HedgeStatusOut + buffer;
+			//sprintf(buffer,_T("期望买开%d期望区间%d,左%f,右%f\r\n"),SupposedBuyOpen,i,HedgeLadder[i - 1],HedgeLadder[i]);
+			//m_HedgeStatusOut = m_HedgeStatusOut + buffer;
 			break;
 		}
 	}
@@ -274,7 +274,7 @@ void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
 			m_HedgeStatusOut = m_HedgeStatusOut + buffer;
 			HedgeHold.push_back(newhold);
 			ReqHedgeOrder(&newhold,OPEN);
-			sprintf(buffer,_T("======================END======================\r\n"));
+			sprintf(buffer,_T("======================END05======================\r\n"));
 			m_HedgeStatusOut = m_HedgeStatusOut + buffer;
 			return;
 		}
@@ -290,13 +290,13 @@ void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
 			m_HedgeStatusOut = m_HedgeStatusOut + buffer;
 			HedgeHold.push_back(newhold);
 			ReqHedgeOrder(&newhold,OPEN);
-			sprintf(buffer,_T("======================END======================\r\n"));
+			sprintf(buffer,_T("======================END06======================\r\n"));
 			m_HedgeStatusOut = m_HedgeStatusOut + buffer;
 			return;
 		}
 	}
-	sprintf(buffer,_T("======================END======================\r\n"));
-	m_HedgeStatusOut = m_HedgeStatusOut + buffer;
+	//sprintf(buffer,_T("======================END0======================\r\n"));
+	//m_HedgeStatusOut = m_HedgeStatusOut + buffer;
 }
 
 int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
@@ -378,27 +378,32 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 			}
 		}
 	}
+	SYSTEMTIME sys;
+	GetLocalTime(&sys);
+	sprintf(buffer,_T("%2d:%2d:%2d:%3d\r\n"),sys.wHour,sys.wMinute,sys.wSecond,sys.wMilliseconds);m_HedgeStatusOut = m_HedgeStatusOut + buffer;
 	sprintf(buffer,_T("操作:\r\n买A50--%d手\r\n,卖A50--%d手\r\n,买开IF---%d手\r\n,买平IF---%d手\r\n,卖开IF---%d手\r\n,卖平IF---%d手\r\n"),NeedBuyA50,NeedSellA50,NeedBuyOpenIf,NeedBuyCloseIf,NeedSellOpenIf,NeedSellCloseIf);
 	m_HedgeStatusOut = m_HedgeStatusOut + buffer;
+	sprintf(buffer,"A50指数%f,HS300指数%f, %f, %f, %f, %f, %f\r\n",g_A50IndexMSHQ,g_HS300IndexMSHQ,g_ifBid1,g_ifAsk1,g_a50Bid1,g_a50Ask1);m_HedgeStatusOut = m_HedgeStatusOut + buffer;
+	sprintf(buffer,"premiumHigh%f,premiumLow%f\r\n",g_a50Ask1 - g_ifBid1 * g_A50IndexMSHQ / g_HS300IndexMSHQ,g_a50Bid1 - g_ifAsk1 * g_A50IndexMSHQ / g_HS300IndexMSHQ);m_HedgeStatusOut = m_HedgeStatusOut + buffer;	
 	////////////////////////////////////////////////////////////////////////////////////
 	//IB表示需要新的保证金
 	if(abs(PredictPositionA50) > abs(NetPositionA50)){
-		NeedNewMarginA50 = MarginA50 * (abs(PredictPositionA50) - abs(NetPositionA50));
+		NeedNewMarginA50 = MultiInsA50 * MarginA50 * (abs(PredictPositionA50) - abs(NetPositionA50));
 		if(NeedNewMarginA50 - AvailIB > 1000.0){
 			sprintf(buffer,_T("IB保证金不足,需要%f\r\n"),NeedNewMarginA50);
 			m_HedgeStatusOut = m_HedgeStatusOut + buffer;
-			sprintf(buffer,_T("======================END======================\r\n"));
+			sprintf(buffer,_T("======================END07======================\r\n"));
 			m_HedgeStatusOut = m_HedgeStatusOut + buffer;
 			return -1;
 		}
 	}
 	//IF需要新的保证金
 	if(PredictPositionIFs + PredictPositionIFb > PositionIFb + PositionIFs){
-		NeedNewMarginIF = MarginIF * (PredictPositionIFs + PredictPositionIFb - (PositionIFb + PositionIFs));
+		NeedNewMarginIF = (g_ifAsk1 + g_ifBid1) / 2.0 *  MultiInsIf * MarginIF * (PredictPositionIFs + PredictPositionIFb - (PositionIFb + PositionIFs));
 		if(NeedNewMarginIF - AvailCtp > 6000.0){
 			sprintf(buffer,_T("CTP保证金不足,需要%f\r\n"),NeedNewMarginIF);
 			m_HedgeStatusOut = m_HedgeStatusOut + buffer;
-			sprintf(buffer,_T("======================END======================\r\n"));
+			sprintf(buffer,_T("======================END08======================\r\n"));
 			m_HedgeStatusOut = m_HedgeStatusOut + buffer;
 			return -1;
 		}
@@ -425,25 +430,25 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 	if(NeedBuyOpenIf > 0){
 		kpp[0] = THOST_FTDC_OF_Open;
 		if(((CHiStarApp*)AfxGetApp())->m_cT){
-			((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Buy,kpp,g_ifAsk1 + 20.0,NeedBuyOpenIf);
+			((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Buy,kpp,g_ifAsk1 + 20.0 - 60.0,NeedBuyOpenIf);
 		}
 	}
 	if(NeedBuyCloseIf > 0){
 		kpp[0] = THOST_FTDC_OF_Close;
 		if(((CHiStarApp*)AfxGetApp())->m_cT){
-			((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Buy,kpp,g_ifAsk1 + 20.0,NeedBuyCloseIf);
+			((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Buy,kpp,g_ifAsk1 + 20.0 - 60.0,NeedBuyCloseIf);
 		}
 	}
 	if(NeedSellOpenIf > 0){
 		kpp[0] = THOST_FTDC_OF_Open;
 		if(((CHiStarApp*)AfxGetApp())->m_cT){
-			((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Sell,kpp,g_ifBid1 - 20.0,NeedSellOpenIf);
+			((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Sell,kpp,g_ifBid1 - 20.0 + 60.0,NeedSellOpenIf);
 		}
 	}
 	if(NeedSellCloseIf > 0){
 		kpp[0] = THOST_FTDC_OF_Close;
 		if(((CHiStarApp*)AfxGetApp())->m_cT){
-			((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Sell,kpp,g_ifBid1 - 20.0,NeedSellCloseIf);
+			((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Sell,kpp,g_ifBid1 - 20.0 + 60.0,NeedSellCloseIf);
 		}
 	}
 	//A50下单
@@ -452,7 +457,7 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 			if(NeedBuyA50 - NeedSellA50 > 0){
 				((CHiStarApp*)AfxGetApp())->m_IBOrder.action = "BUY";
 				((CHiStarApp*)AfxGetApp())->m_IBOrder.totalQuantity = NeedBuyA50 - NeedSellA50;
-				((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice = DealA50Price(true,g_a50Ask1 + 100.0);
+				((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice = DealA50Price(true,g_a50Ask1 + 100.0 - 200);
 				if(((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice < 1.0){
 					sprintf(buffer,_T("A50买价小于1.0,异常\r\n"));m_HedgeStatusOut = m_HedgeStatusOut + buffer;
 				}
@@ -463,7 +468,7 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 			else if(NeedBuyA50 - NeedSellA50 < 0){
 				((CHiStarApp*)AfxGetApp())->m_IBOrder.action = "SELL";
 				((CHiStarApp*)AfxGetApp())->m_IBOrder.totalQuantity = -(NeedBuyA50 - NeedSellA50);
-				((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice = DealA50Price(false,g_a50Bid1 - 100.0);
+				((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice = DealA50Price(false,g_a50Bid1 - 100.0 + 200);
 				if(((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice < 1.0){
 					sprintf(buffer,_T("A50买价小于1.0,异常\r\n"));m_HedgeStatusOut = m_HedgeStatusOut + buffer;
 				}
@@ -508,16 +513,20 @@ double DealA50Price(bool isBuy, double A50Price)
 void CalcDeviation(){
 	double A50Index = 0.0,HS300Index = 0.0;
 	if(fabs(g_A50IndexMSHQ - g_A50Index) / g_A50Index > 0.01){
+		//TRACE("over 0.1,MS%f,SN%f\r\n",g_A50IndexMSHQ,g_A50Index);
 		A50Index = g_A50Index;
 	}
 	else{
 		A50Index = g_A50IndexMSHQ;
+		TRACE("MS,SN,%f,%f\r\n",g_A50IndexMSHQ,g_A50Index);
 	}
 	if(fabs(g_HS300IndexMSHQ - g_HS300Index) / g_HS300Index > 0.01){
+		//TRACE("over 0.1,MS%f,SN%f\r\n",g_HS300IndexMSHQ,g_HS300Index);
 		HS300Index = g_HS300Index;
 	}
 	else{
 		HS300Index = g_HS300IndexMSHQ;
+		//TRACE("MS%f,SN%f\r\n",g_HS300IndexMSHQ,g_HS300Index);
 	}
 	premium = (g_a50Bid1 + g_a50Ask1) / 2.0 - (g_ifAsk1 + g_ifBid1) / 2.0 * A50Index / HS300Index;
 	premiumHigh = g_a50Ask1 - g_ifBid1 * A50Index / HS300Index;
