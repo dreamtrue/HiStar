@@ -9,7 +9,7 @@
 #include <math.h>
 #define OPEN true
 #define CLOSE false
-double datumDiff = -10;
+double datumDiff = 0.0;
 double MultiInsA50 = 1.0;double MultiInsIf = 300.0;//合约每个点的价值
 extern double g_A50IndexMSHQ;
 extern double g_HS300IndexMSHQ;
@@ -98,7 +98,6 @@ void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
 		//增加这两个变量主要是考虑两侧边界可能已经饱和，这时isSupposedBuy或isSupposedSell将仍然保持false，表示无需任何操作
 		bool isSupposedBuyOpen = false,isSupposedSellOpen = false;
 		int CurrentSectionBuy = 0,CurrentSectionSell = 0;//当前所在的区间,Buy和Sell分别表示以买价和卖价计算
-		CalcDeviation();
 		//测试用，给一个随机的DeviationSell和DeviationBuy
 		/*
 		DeviationSell = rand() % 120 - 60;
@@ -106,8 +105,9 @@ void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
 		sprintf(buffer,_T("当前买偏差%f\r\n"),DeviationBuy);m_HedgeStatusOut = m_HedgeStatusOut + buffer;
 		sprintf(buffer,_T("当前卖偏差%f\r\n"),DeviationSell);m_HedgeStatusOut = m_HedgeStatusOut + buffer;
 		*/
-		g_ifBid1 = 2163.6;g_ifAsk1 = 2163.8;
+		//g_ifBid1 = 2163.6;g_ifAsk1 = 2163.8;
 		////////////////////////结束测试//////////////////////////////
+		CalcDeviation();
 		if(isHedgeLoopingPause){//暂停
 			//sprintf(buffer,_T("暂停\r\n"));m_HedgeStatusOut = m_HedgeStatusOut + buffer;
 			return;
@@ -534,30 +534,30 @@ void CHedgePostProcessing::PostProcessing(UINT wParam,LONG lParam){
 			case WM_RTN_INSERT:
 				{
 					TRACE("收到WM_RTN_INSERT\r\n");
-					CThostFtdcInputOrderField orderInsert = *(CThostFtdcInputOrderField*)lParam;
-					delete (CThostFtdcInputOrderField*)lParam;
+					CThostFtdcInputOrderField *pOrderInsert = (CThostFtdcInputOrderField *)msg.lParam;
 					for(int i = 0;i < hedgetask.ifalltask.size();i++){
-						if(hedgetask.ifalltask[i].ref == atoi(orderInsert.OrderRef)){
+						if(hedgetask.ifalltask[i].ref == atoi(pOrderInsert->OrderRef)){
 							hedgetask.ifalltask[i].bReceivedInsertRtn = true;
 						}
 					}
+					delete (CThostFtdcInputOrderField*)msg.lParam;
 					break;
 				}
 			case WM_RTN_ORDER:
 				{
 					TRACE("收到WM_RTN_ORDER\r\n");
-					CThostFtdcOrderField orderRtn = *(CThostFtdcOrderField*)lParam;
-					delete (CThostFtdcOrderField*)lParam;
+					CThostFtdcOrderField *pOrderRtn = (CThostFtdcOrderField *)msg.lParam;
 					for(int i = 0;i < hedgetask.ifalltask.size();i++){
-						if(hedgetask.ifalltask[i].ref == atoi(orderRtn.OrderRef)){
-							if(orderRtn.OrderStatus == THOST_FTDC_OST_AllTraded || orderRtn.OrderStatus == THOST_FTDC_OST_Canceled 
-								|| orderRtn.OrderStatus == THOST_FTDC_OST_NoTradeNotQueueing || orderRtn.OrderStatus == THOST_FTDC_OST_PartTradedNotQueueing){
-									hedgetask.ifalltask[i].traded = orderRtn.VolumeTraded;
-									hedgetask.ifalltask[i].sysid = atoi(orderRtn.OrderSysID);
+						if(hedgetask.ifalltask[i].ref == atoi(pOrderRtn->OrderRef)){
+							if(pOrderRtn->OrderStatus == THOST_FTDC_OST_AllTraded || pOrderRtn->OrderStatus == THOST_FTDC_OST_Canceled 
+								|| pOrderRtn->OrderStatus == THOST_FTDC_OST_NoTradeNotQueueing || pOrderRtn->OrderStatus == THOST_FTDC_OST_PartTradedNotQueueing){
+									hedgetask.ifalltask[i].traded = pOrderRtn->VolumeTraded;
+									hedgetask.ifalltask[i].sysid = atoi(pOrderRtn->OrderSysID);
 									hedgetask.ifalltask[i].bReceivedAllOrder = true;
 							}			
 						}
 					}
+					delete (CThostFtdcOrderField*)msg.lParam;
 					break;
 				}
 			}
@@ -583,14 +583,14 @@ void CHedgePostProcessing::PostProcessing(UINT wParam,LONG lParam){
 			}
 			else{
 				TRACE("收到WM_RTN_TRADE\r\n");
-				CThostFtdcTradeField tradeRtn = *(CThostFtdcTradeField*)lParam;
-				delete (CThostFtdcTradeField*)lParam;
+				CThostFtdcTradeField *pTradeRtn = (CThostFtdcTradeField *)msg.lParam;
 				for(int i = 0;i < hedgetask.ifalltask.size();i++){
-					if(hedgetask.ifalltask[i].sysid == atoi(tradeRtn.OrderSysID)){
-						hedgetask.ifalltask[i].receivedTradedVolume = hedgetask.ifalltask[i].receivedTradedVolume + tradeRtn.Volume;
-						hedgetask.ifalltask[i].receivedValue = hedgetask.ifalltask[i].receivedValue + tradeRtn.Price * tradeRtn.Volume;	
+					if(hedgetask.ifalltask[i].sysid == atoi(pTradeRtn->OrderSysID)){
+						hedgetask.ifalltask[i].receivedTradedVolume = hedgetask.ifalltask[i].receivedTradedVolume + pTradeRtn->Volume;
+						hedgetask.ifalltask[i].receivedValue = hedgetask.ifalltask[i].receivedValue + pTradeRtn->Price * pTradeRtn->Volume;	
 					}
 				}
+				delete (CThostFtdcTradeField*)msg.lParam;
 				bool bBreakGetMsg = true;
 				for(int i = 0;i < hedgetask.ifalltask.size();i++){
 					if(hedgetask.ifalltask[i].receivedTradedVolume != hedgetask.ifalltask[i].traded){
@@ -612,17 +612,17 @@ void CHedgePostProcessing::PostProcessing(UINT wParam,LONG lParam){
 		}
 		else{
 			TRACE("WM_RTN_ORDER_IB\r\n");
-			OrderStatus status = *(OrderStatus*)lParam; 
-			delete (OrderStatus*)lParam;
+			OrderStatus *pStatus = (OrderStatus *)msg.lParam; 
 			for(int i = 0;i < hedgetask.a50alltask.size();i++){
-				if(hedgetask.a50alltask[i].id == status.orderId){
-					if(status.status == CString("Cancelled") || status.status == CString("ApiCancelled") || hedgetask.a50alltask[i].volumeRecord == status.filled){
-						hedgetask.a50alltask[i].traded = status.filled;
-						hedgetask.a50alltask[i].avgPrice = status.avgFillPrice;
+				if(hedgetask.a50alltask[i].id == pStatus->orderId){
+					if(pStatus->status == CString("Cancelled") || pStatus->status == CString("ApiCancelled") || hedgetask.a50alltask[i].volumeRecord == pStatus->filled){
+						hedgetask.a50alltask[i].traded = pStatus->filled;
+						hedgetask.a50alltask[i].avgPrice = pStatus->avgFillPrice;
 						hedgetask.a50alltask[i].bReceivedAllStatus = true;
 					}
 				}
 			}
+			delete (OrderStatus*)msg.lParam;
 			bool bBreakGetMsg = true;
 			for(int i = 0;i < hedgetask.a50alltask.size();i++){
 				if(!hedgetask.a50alltask[i].bReceivedAllStatus){
