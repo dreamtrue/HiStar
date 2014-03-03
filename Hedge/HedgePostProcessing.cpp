@@ -35,6 +35,7 @@ double AvailIB = 0.0,AvailCtp = 0.0;//可用资金，需要计算
 char buffer[1000];
 std::vector<HoldDetail> HedgeHoldTemp;//临时使用的，先用这个进行预计算，最后同步到HedgeHold
 std::vector<HoldDetail> HedgeHold;
+int idHold = 0;//持仓id
 struct A50Task{
     int volumeRecord;char direction;//'l'表示长仓,'s'表示短舱
     double priceRecord;int id;int traded;double avgPrice;
@@ -87,8 +88,8 @@ END_MESSAGE_MAP()
 
 void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
     HWND hEdit = ::GetDlgItem(((CMainDlg*)m_pMainWnd)->m_basicPage.m_hWnd,IDC_RICHEDIT21);
-    HedgeHoldTemp = HedgeHold;
     if(hedgeTaskStatus == NEW_HEDGE){
+		HedgeHoldTemp = HedgeHold;
         for(int i= 0;i < 22;i++){
             PositionAim[i] = PositionAimUnit[i] * MultiPos;
         }
@@ -280,6 +281,7 @@ void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
                 newhold.HedgeSection = CurrentSectionSell;
                 sprintf(buffer,_T("需要开仓%d手,价格%f,所在区间%d,左%f,右%f\r\n"),newhold.HedgeNum,newhold.HedgePrice,newhold.HedgeSection,HedgeLadder[newhold.HedgeSection - 1],HedgeLadder[newhold.HedgeSection]);
                 hedgeStatusPrint = hedgeStatusPrint + buffer;
+				newhold.id = ++idHold;
                 HedgeHoldTemp.push_back(newhold);
                 ReqHedgeOrder(&newhold,OPEN);
                 sprintf(buffer,_T("======================END05======================\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
@@ -295,6 +297,7 @@ void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
                 newhold.HedgeSection = CurrentSectionBuy;
                 sprintf(buffer,_T("需要开仓%d手,价格%f,所在区间%d,左%f,右%f\r\n"),newhold.HedgeNum,newhold.HedgePrice,newhold.HedgeSection,HedgeLadder[newhold.HedgeSection - 1],HedgeLadder[newhold.HedgeSection]);
                 hedgeStatusPrint = hedgeStatusPrint + buffer;
+				newhold.id = ++idHold;
                 HedgeHoldTemp.push_back(newhold);
                 ReqHedgeOrder(&newhold,OPEN);
                 sprintf(buffer,_T("======================END06======================\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
@@ -500,7 +503,7 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
     }
     //开始后处理
     if(m_pHedgePostProcessing){
-        m_pHedgePostProcessing->PostThreadMessage(WM_BEGIN_POST_PROCESSING,NULL,NULL);
+        m_pHedgePostProcessing->PostThreadMessage(WM_BEGIN_POST_PROCESSING,NULL,pHD->id);
     }
     return 0;
 }
@@ -509,10 +512,12 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 void CHedgePostProcessing::PostProcessing(UINT wParam,LONG lParam){
 	HWND hEdit = ::GetDlgItem(((CMainDlg*)m_pMainWnd)->m_basicPage.m_hWnd,IDC_RICHEDIT21);
 	MSG msg;BOOL bRet;
+	double idcurrent;
 	while((bRet = GetMessage(&msg,NULL,WM_BEGIN_POST_PROCESSING,WM_BEGIN_POST_PROCESSING)) != 0){
 		if (!bRet){// handle the error and possibly exit
 		}
 		else{
+			idcurrent = lParam;
 			break;//已经开始，往下正式进行处理。
 		}
 	}
@@ -625,30 +630,56 @@ void CHedgePostProcessing::PostProcessing(UINT wParam,LONG lParam){
 			if(bBreakGetMsg) break;
 		}
 	}
-	HedgeHold = HedgeHoldTemp;//更新Hole持仓
 	//具体持仓统计
+	double t_totalValueIf = 0.0;int t_totalTradedIf = 0;double t_avgPriceIf = 0.0;
 	for(int i = 0;i < hedgetask.ifalltask.size();i++){
 		if(hedgetask.ifalltask[i].direction == THOST_FTDC_D_Buy && hedgetask.ifalltask[i].offset[0] == THOST_FTDC_OF_Open){
 			longIf = longIf + hedgetask.ifalltask[i].traded;
+			t_totalTradedIf = t_totalTradedIf + hedgetask.ifalltask[i].traded;
+			t_totalValueIf = t_totalValueIf + hedgetask.ifalltask[i].receivedValue;
 		}
 		else if(hedgetask.ifalltask[i].direction == THOST_FTDC_D_Buy && hedgetask.ifalltask[i].offset[0] == THOST_FTDC_OF_Close){
 			shortIf = shortIf - hedgetask.ifalltask[i].traded;
+			t_totalTradedIf = t_totalTradedIf + hedgetask.ifalltask[i].traded;
+			t_totalValueIf = t_totalValueIf + hedgetask.ifalltask[i].receivedValue;
 		}
 		else if(hedgetask.ifalltask[i].direction == THOST_FTDC_D_Sell && hedgetask.ifalltask[i].offset[0] == THOST_FTDC_OF_Open){
 			shortIf = shortIf + hedgetask.ifalltask[i].traded;
+			t_totalTradedIf = t_totalTradedIf - hedgetask.ifalltask[i].traded;
+			t_totalValueIf = t_totalValueIf - hedgetask.ifalltask[i].receivedValue;
 		}
 		else{
 			longIf = longIf - hedgetask.ifalltask[i].traded;
+			t_totalTradedIf = t_totalTradedIf - hedgetask.ifalltask[i].traded;
+			t_totalValueIf = t_totalValueIf - hedgetask.ifalltask[i].receivedValue;
 		}
 	}
+	if(t_totalTradedIf != 0){
+		t_avgPriceIf = fabs(t_totalValueIf / t_totalTradedIf);
+	}
+	double t_totalValueA50 = 0.0;int t_totalTradedA50 = 0;double t_avgPriceA50 = 0.0;
 	for(int i = 0;i < hedgetask.a50alltask.size();i++){
 		if( hedgetask.a50alltask[i].direction == 'l'){
 			netPositionA50 = netPositionA50 + hedgetask.a50alltask[i].traded;
+			t_totalTradedA50 = t_totalTradedA50 + hedgetask.a50alltask[i].traded;
+			t_totalValueA50 = t_totalValueA50 + hedgetask.a50alltask[i].traded * hedgetask.a50alltask[i].avgPrice;
 		}
 		else{
 			netPositionA50 = netPositionA50 - hedgetask.a50alltask[i].traded;
+			t_totalTradedA50 = t_totalTradedA50 - hedgetask.a50alltask[i].traded;
+			t_totalValueA50 = t_totalValueA50 - hedgetask.a50alltask[i].traded * hedgetask.a50alltask[i].avgPrice;
 		}
 	}
+	if(t_totalTradedA50 != 0){
+		t_avgPriceA50 = fabs(t_totalValueA50 / t_totalTradedA50);
+	}
+	for(int i = 0;i < HedgeHoldTemp.size();i++){
+		if(HedgeHoldTemp[i].id == idcurrent){
+			HedgeHoldTemp[i].HedgePrice = t_avgPriceA50 - t_avgPriceIf * g_A50IndexMSHQ / g_HS300IndexMSHQ;
+		}
+	}
+	sprintf(buffer,_T("对冲成本%f\r\n"),t_avgPriceA50 - t_avgPriceIf * g_A50IndexMSHQ / g_HS300IndexMSHQ);hedgeStatusPrint = hedgeStatusPrint + buffer;
+	HedgeHold = HedgeHoldTemp;//更新Hold持仓
 	hedgeTaskStatus = NEW_HEDGE;
 	sprintf(buffer,_T("对冲结束\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
 	Sleep(30000);//休息30秒,为了让系统有时间更新账户信息
