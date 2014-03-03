@@ -98,6 +98,7 @@ BEGIN_MESSAGE_MAP(CBasicPage, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON8, &CBasicPage::OnStop)
 	ON_BN_CLICKED(IDC_BUTTON9, &CBasicPage::OnPause)
 	ON_BN_CLICKED(IDC_BUTTON2, &CBasicPage::OnResume)
+	ON_BN_CLICKED(IDC_BUTTON_TEST, &CBasicPage::OnBnClickedTest)
 END_MESSAGE_MAP()
 
 
@@ -299,4 +300,9 @@ void CBasicPage::OnPause()
 void CBasicPage::OnResume()
 {
 	isHedgeLoopingPause = false;
+}
+
+void CBasicPage::OnBnClickedTest()
+{
+	((CHiStarApp*)AfxGetApp())->OnHedgeLooping(NULL,NULL);
 }

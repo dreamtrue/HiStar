@@ -71,6 +71,7 @@ public:
 	afx_msg void OnResume();
 	CColorStatic m_csPremiumHigh;
 	CColorStatic m_csPremiumLow;
+	afx_msg void OnBnClickedTest();
 };
 //其他变量
 const int N = 5;
