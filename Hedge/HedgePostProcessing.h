@@ -1,5 +1,7 @@
 #pragma once
 
+///////////////////////////////////////////////
+
 // CHedgePostProcessing
 
 class CHedgePostProcessing : public CWinThread

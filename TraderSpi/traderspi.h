@@ -166,7 +166,7 @@ public:
 	void ReqQryInvPosEx(TThostFtdcInstrumentIDType instId);
 	void ReqQryInvPosCombEx(TThostFtdcInstrumentIDType instId);	
 	///普通限价单
-	void ReqOrdLimit(TThostFtdcInstrumentIDType instId,TThostFtdcDirectionType dir, 
+	int ReqOrdLimit(TThostFtdcInstrumentIDType instId,TThostFtdcDirectionType dir, 
 		TThostFtdcCombOffsetFlagType kpp,TThostFtdcPriceType price,TThostFtdcVolumeType vol);
 	///市价单
 	void ReqOrdAny(TThostFtdcInstrumentIDType instId,TThostFtdcDirectionType dir, 

@@ -3,6 +3,8 @@
 #include "HiStar.h"
 #include "UserMsg.h"
 #include "Maindlg.h"
+#include <stdlib.h>
+#include "HedgePostProcessing.h"
 #pragma warning(disable :4996)
 extern HANDLE g_hEvent;
 BOOL g_bRecconnectT = FALSE;
@@ -326,7 +328,7 @@ void  CtpTraderSpi::OnRspQryOrder(CThostFtdcOrderField *pOrder, CThostFtdcRspInf
 	if(!IsErrorRspInfo(pRspInfo)&&pOrder){
 		CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 		CThostFtdcOrderField order;
-		TRACE("OnRtnOrder所有报单通知%s,%s,%c,%d,已经成交%d\r\n",pOrder->OrderRef, pOrder->OrderSysID,pOrder->OrderStatus,pOrder->BrokerOrderSeq,pOrder->VolumeTraded);
+		//TRACE("OnRtnOrder所有报单通知%s,%s,%c,%d,已经成交%d\r\n",pOrder->OrderRef, pOrder->OrderSysID,pOrder->OrderStatus,pOrder->BrokerOrderSeq,pOrder->VolumeTraded);
 		memcpy(&order,pOrder, sizeof(CThostFtdcOrderField));
 		bool founded = false;UINT i = 0;
 		for(i = 0;i<m_orderVec.size();i++){
@@ -461,7 +463,7 @@ void CtpTraderSpi::OnRspQryInvestorPositionCombineDetail(CThostFtdcInvestorPosit
 	if(bIsLast) SetEvent(g_hEvent);
 }
 
-void CtpTraderSpi::ReqOrdLimit(TThostFtdcInstrumentIDType instId,TThostFtdcDirectionType dir,
+int CtpTraderSpi::ReqOrdLimit(TThostFtdcInstrumentIDType instId,TThostFtdcDirectionType dir,
 	TThostFtdcCombOffsetFlagType kpp,TThostFtdcPriceType price,TThostFtdcVolumeType vol)
 {
 	CThostFtdcInputOrderField req;
@@ -470,6 +472,7 @@ void CtpTraderSpi::ReqOrdLimit(TThostFtdcInstrumentIDType instId,TThostFtdcDirec
 	strcpy(req.InvestorID, INVEST_ID); 
 	strcpy(req.InstrumentID, instId); 	
 	strcpy(req.OrderRef, m_sOrdRef);
+	int orderref = atoi(m_sOrdRef);
 	int nextOrderRef = atoi(m_sOrdRef);
 	sprintf(m_sOrdRef, "%d", ++nextOrderRef);
 
@@ -491,6 +494,7 @@ void CtpTraderSpi::ReqOrdLimit(TThostFtdcInstrumentIDType instId,TThostFtdcDirec
 	pUserApi->ReqOrderInsert(&req, ++m_iRequestID);
 	m_onRoadVec.push_back(req);
 	PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
+	return orderref;
 }
 
 ///市价单
@@ -608,6 +612,12 @@ void CtpTraderSpi::OnRspOrderInsert(CThostFtdcInputOrderField *pInputOrder,
 				}
 			}
 		}
+		CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
+		if(pApp->m_pHedgePostProcessing){
+			CThostFtdcInputOrderField *pInputOrderRtn = new CThostFtdcInputOrderField;
+			memcpy(pInputOrderRtn,pInputOrder,sizeof(CThostFtdcInputOrderField));
+			pApp->m_pHedgePostProcessing->PostThreadMessage(WM_RTN_INSERT,NULL,(UINT)pInputOrderRtn);
+		}
 	}
 }
 
@@ -701,6 +711,12 @@ void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder){
 		m_orderVec.push_back(order);
 		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 	}
+	//后处理
+	if(pApp->m_pHedgePostProcessing){
+		CThostFtdcOrderField *pOrderPost = new CThostFtdcOrderField;
+		memcpy(pOrderPost,pOrder,sizeof(CThostFtdcOrderField));
+		pApp->m_pHedgePostProcessing->PostThreadMessage(WM_RTN_ORDER,NULL,(UINT)pOrderPost);
+	}
 }
 
 ///成交通知
@@ -720,95 +736,18 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 	}
 	//////修改成交单状态
 	if(founded){
-
 	}
 	///////新增加已成交单 
 	else 
 	{
 		m_tradeVec.push_back(trade);
 		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
-		/*
-		//有关持仓的计算暂时取消??????
-		/////////////////////////刷新持仓////////////////////////////////
-		bool bExist = false;//是否存在该持仓
-		unsigned int j = 0;
-		for(j = 0;j<m_InvPosVec.size();j++)
-		{
-		//到持仓列表里搜索
-		if (strcmp(trade->InstrumentID,m_InvPosVec[j]->InstrumentID) == 0){ 
-		bExist = true; 
-		break;
-		}	
-		}
-		if (bExist){//在持仓列表里,只需要更新持仓状态
-		if (trade->Direction == THOST_FTDC_D_Buy){
-		m_InvPosVec[j]->Position = m_InvPosVec[j]->Position + trade->Volume;
-		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_InvPosVec[j]->Position = ((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_InvPosVec[j]->Position + trade->Volume;
-		//持仓均价暂时无法计算？
-		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstInvPosInf.Invalidate();
-		switch(trade->OffsetFlag){
-		case THOST_FTDC_OF_Open:
-		break;
-		case THOST_FTDC_OF_Close:
-
-		break;
-		case THOST_FTDC_OF_CloseToday:
-
-		break;
-		case THOST_FTDC_OF_CloseYesterday:
-
-		break;
-		case THOST_FTDC_OF_ForceOff:
-
-		break;
-		case THOST_FTDC_OF_LocalForceClose:
-
-		break;			
-		}
-		}
-		if (trade->Direction == THOST_FTDC_D_Sell)
-		{
-		m_InvPosVec[j]->Position = m_InvPosVec[j]->Position - trade->Volume;
-		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_InvPosVec[j]->Position = ((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_InvPosVec[j]->Position - trade->Volume;
-		//持仓均价暂时无法计算？
-		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstInvPosInf.Invalidate();
-		switch(trade->OffsetFlag){
-		case THOST_FTDC_OF_Open:
-		break;
-		case THOST_FTDC_OF_Close:
-		break;
-		case THOST_FTDC_OF_CloseToday:
-		break;
-		case THOST_FTDC_OF_CloseYesterday:
-		break;
-		case THOST_FTDC_OF_ForceOff:
-		break;
-		case THOST_FTDC_OF_LocalForceClose:
-		break;			
-		}
-		}
-		}
-		else{
-		CThostFtdcInvestorPositionField* newInvPos = new CThostFtdcInvestorPositionField();
-		ZeroMemory(newInvPos,sizeof(CThostFtdcInvestorPositionField));
-		int iMul = pApp->FindInstMul(trade->InstrumentID);//合约乘数
-		strcpy(newInvPos->InstrumentID,trade->InstrumentID);
-		strcpy(newInvPos->BrokerID,trade->BrokerID);
-		strcpy(newInvPos->InvestorID,trade->InvestorID);
-		newInvPos->PosiDirection = trade->Direction + 2;
-		newInvPos->HedgeFlag = trade->HedgeFlag;
-		newInvPos->PositionDate = (strcmp(m_sTdday,trade->TradeDate)==0)?THOST_FTDC_PSD_Today:THOST_FTDC_PSD_History;
-		newInvPos->Position = trade->Volume;
-		newInvPos->OpenVolume = trade->Volume;
-		newInvPos->OpenAmount = trade->Volume * trade->Price * iMul;
-		newInvPos->PositionCost = trade->Volume * trade->Price * iMul;
-		m_InvPosVec.push_back(newInvPos);
-		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_InvPosVec.push_back(newInvPos);
-		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstInvPosInf.SetItemCountEx(((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_InvPosVec.size());
-		((CMainDlg*)(pApp->m_pMainWnd))->m_statusPage.m_LstInvPosInf.Invalidate();
-		}
-		/////////////////////////////////////////////////////////////////
-		*/
+	}
+	//后处理
+	if(pApp->m_pHedgePostProcessing){
+		CThostFtdcTradeField *pTradePost = new CThostFtdcTradeField;
+		memcpy(pTradePost,pTrade,sizeof(CThostFtdcTradeField));
+		pApp->m_pHedgePostProcessing->PostThreadMessage(WM_RTN_TRADE,NULL,(UINT)pTradePost);
 	}
 }
 

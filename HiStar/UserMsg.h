@@ -11,4 +11,8 @@
 #define WM_UPDATE_LSTCTRL WM_USER+8
 #define WM_MD_REFRESH WM_USER+9
 #define WM_BEGIN_POST_PROCESSING WM_USER+10
+#define WM_RTN_INSERT WM_USER+11//报单返回
+#define WM_RTN_ORDER WM_USER+12 //命令返回
+#define WM_RTN_TRADE WM_USER+13 //成交返回
+#define WM_RTN_ORDER_IB WM_USER+14 //IB命令返回
 #endif

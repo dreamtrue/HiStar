@@ -25,6 +25,11 @@ struct HoldDetail{
 	int HedgeNum;
 	int HedgeSection;//开仓时所在的Section
 };
+struct OrderStatus{
+	OrderId orderId;IBString status;int filled;
+	int remaining;double avgFillPrice;int permId;int parentId;
+	double lastFillPrice;int clientId;IBString whyHeld;
+};
 	// CHiStarApp:
 // 有关此类的实现，请参阅 HiStar.cpp
 //

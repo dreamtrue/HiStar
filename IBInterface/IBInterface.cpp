@@ -37,6 +37,20 @@ void CHiStarApp::orderStatus( OrderId orderId, const IBString &status, int fille
 	int remaining, double avgFillPrice, int permId, int parentId,
 	double lastFillPrice, int clientId, const IBString& whyHeld){
 		TRACE("orderStatus\n");
+		if(m_pHedgePostProcessing){
+			OrderStatus * pOrderStatus = new OrderStatus;
+			pOrderStatus->orderId = orderId;
+			pOrderStatus->status = status;
+			pOrderStatus->filled = filled;
+			pOrderStatus->remaining = remaining;
+			pOrderStatus->avgFillPrice = avgFillPrice;
+			pOrderStatus->permId = permId;
+			pOrderStatus->parentId = parentId;
+			pOrderStatus->lastFillPrice = lastFillPrice;
+			pOrderStatus->clientId = clientId;
+			pOrderStatus->whyHeld = whyHeld;
+			m_pHedgePostProcessing->PostThreadMessage(WM_RTN_ORDER_IB,NULL,(UINT)pOrderStatus);
+		}		
 }
 void CHiStarApp::openOrder( OrderId orderId, const Contract&, const Order&, const OrderState&){
 	TRACE("openOrder\n");
