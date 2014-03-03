@@ -11,9 +11,9 @@
 #define CLOSE false
 double datumDiff = 0.0;
 double MultiInsA50 = 1.0;double MultiInsIf = 300.0;//合约每个点的价值
+int MultiA50 = 12;//A50乘数
 extern double g_A50IndexMSHQ;
 extern double g_HS300IndexMSHQ;
-int MultiA50 = 1;//A50乘数
 double MarginA50 = 625.0,MarginIF = 0.15;
 double USDtoRMB = 6.07;//汇率
 bool isHedgeLoopingPause = true;
@@ -436,7 +436,9 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 		m_pHedgePostProcessing->PostThreadMessage(WM_PREPARE_POST_PROCESSING,NULL,NULL);
 	}
 	////////////////////////////////////////////////////////////
+	//////千万注意要先清零,否则将会导致意想不到的错误。
 	IfTask iftask;A50Task a50task;
+	memset(&hedgetask,0,sizeof(hedgetask));memset(&iftask,0,sizeof(iftask));memset(&a50task,0,sizeof(a50task));
 	////////////////////////////////////////////////////////////
 	//IF下单
 	TThostFtdcCombOffsetFlagType kpp;
@@ -554,6 +556,7 @@ void CHedgePostProcessing::PostProcessing(UINT wParam,LONG lParam){
 									hedgetask.ifalltask[i].traded = pOrderRtn->VolumeTraded;
 									hedgetask.ifalltask[i].sysid = atoi(pOrderRtn->OrderSysID);
 									hedgetask.ifalltask[i].bReceivedAllOrder = true;
+									TRACE("Order,ref%d,最终状态%c\r\n",atoi(pOrderRtn->OrderRef),pOrderRtn->OrderStatus);
 							}			
 						}
 					}
@@ -611,7 +614,7 @@ void CHedgePostProcessing::PostProcessing(UINT wParam,LONG lParam){
 		if (!bRet){
 		}
 		else{
-			TRACE("WM_RTN_ORDER_IB\r\n");
+			TRACE("收到WM_RTN_ORDER_IB\r\n");
 			OrderStatus *pStatus = (OrderStatus *)msg.lParam; 
 			for(int i = 0;i < hedgetask.a50alltask.size();i++){
 				if(hedgetask.a50alltask[i].id == pStatus->orderId){
