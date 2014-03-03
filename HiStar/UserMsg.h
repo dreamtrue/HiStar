@@ -10,9 +10,12 @@
 #define WM_QRY_ACC_CTP WM_USER+7
 #define WM_UPDATE_LSTCTRL WM_USER+8
 #define WM_MD_REFRESH WM_USER+9
-#define WM_BEGIN_POST_PROCESSING WM_USER+10
+#define WM_BEGIN_POST_PROCESSING WM_USER+10 //开始进行后处理
+//WM_RTN_INSERT,WM_RTN_ORDER消息值必须紧靠WM_RTN_INSERT < WM_RTN_ORDER以供处理消息时使用
 #define WM_RTN_INSERT WM_USER+11//报单返回
 #define WM_RTN_ORDER WM_USER+12 //命令返回
+///////////////////////////////////////////////////////////////////////////////////////
 #define WM_RTN_TRADE WM_USER+13 //成交返回
 #define WM_RTN_ORDER_IB WM_USER+14 //IB命令返回
+#define WM_PREPARE_POST_PROCESSING WM_USER+15 //为后处理做准备
 #endif

@@ -9,16 +9,7 @@
 #include <math.h>
 #define OPEN true
 #define CLOSE false
-double datumDiff = 40;
-struct HedgeTask{
-	int NeedBuyA50;long idBuyA50;int NeedSellA50;long idSellA50;int NeedSellCloseIf;int refSellCloseIf;int NeedBuyOpenIf;int refBuyOpenIf;
-	int NeedBuyCloseIf;int refBuyCloseIf;int NeedSellOpenIf;int refSellOpenIf;
-	HedgeTask();
-};
-HedgeTask::HedgeTask(){
-	NeedBuyA50 = -1;idBuyA50 = -1;NeedSellA50 = -1;idSellA50 = -1;NeedSellCloseIf = -1;refSellCloseIf = -1;NeedBuyOpenIf = -1;
-	refBuyOpenIf = -1;NeedBuyCloseIf = -1;refBuyCloseIf = -1;NeedSellOpenIf = -1;refSellOpenIf = -1;
-}
+double datumDiff = -10;
 double MultiInsA50 = 1.0;double MultiInsIf = 300.0;//合约每个点的价值
 extern double g_A50IndexMSHQ;
 extern double g_HS300IndexMSHQ;
@@ -44,6 +35,21 @@ double AvailIB = 0.0,AvailCtp = 0.0;//可用资金，需要计算
 ////////////////////////////////////////////////////////
 char buffer[1000];
 std::vector<HoldDetail> HedgeHold;
+struct A50Task{
+	int volumeRecord;char direction;//'l'表示长仓,'s'表示短舱
+	double priceRecord;int id;int traded;double avgPrice;
+	bool bReceivedAllStatus;
+};
+struct IfTask{
+	int volumeRecord;TThostFtdcDirectionType direction;TThostFtdcCombOffsetFlagType offset;
+	double priceRecord;int ref;int sysid;int traded;double avgPrice;
+	bool bReceivedInsertRtn;bool bReceivedAllOrder;int receivedTradedVolume;double receivedValue;
+};
+struct HedgeTask{
+	std::vector<A50Task> a50alltask;
+	std::vector<IfTask>  ifalltask;
+};
+HedgeTask hedgetask;
 //对冲交易初始状态
 #define NEW_HEDGE 'n'
 #define WAITING_FOR_OLD 'w'
@@ -75,7 +81,7 @@ int CHedgePostProcessing::ExitInstance()
 }
 
 BEGIN_MESSAGE_MAP(CHedgePostProcessing, CWinThread)
-	ON_THREAD_MESSAGE(WM_BEGIN_POST_PROCESSING,PostProcessing)
+	ON_THREAD_MESSAGE(WM_PREPARE_POST_PROCESSING,PostProcessing)
 END_MESSAGE_MAP()
 
 
@@ -100,7 +106,8 @@ void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
 		sprintf(buffer,_T("当前买偏差%f\r\n"),DeviationBuy);m_HedgeStatusOut = m_HedgeStatusOut + buffer;
 		sprintf(buffer,_T("当前卖偏差%f\r\n"),DeviationSell);m_HedgeStatusOut = m_HedgeStatusOut + buffer;
 		*/
-		/////////////////////////////////////////////////
+		g_ifBid1 = 2163.6;g_ifAsk1 = 2163.8;
+		////////////////////////结束测试//////////////////////////////
 		if(isHedgeLoopingPause){//暂停
 			//sprintf(buffer,_T("暂停\r\n"));m_HedgeStatusOut = m_HedgeStatusOut + buffer;
 			return;
@@ -420,23 +427,18 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 	}
 	//测试，统计下持仓
 	//临时以此做统计,认为所有的任务都会瞬间成交。
-	PositionIFb = PositionIFb - NeedSellCloseIf + NeedBuyOpenIf;
-	PositionIFs = PositionIFs - NeedBuyCloseIf + NeedSellOpenIf;
-	NetPositionA50 = NetPositionA50 + NeedBuyA50 - NeedSellA50;
-
-	//应该完成的任务统计
-	HedgeTask *pTask = new HedgeTask;
-	pTask->NeedBuyA50 = NeedBuyA50;pTask->NeedSellA50 = NeedSellA50;
-	pTask->NeedBuyCloseIf = NeedBuyCloseIf;pTask->NeedBuyOpenIf = NeedBuyOpenIf;
-	pTask->NeedSellCloseIf = NeedSellCloseIf;pTask->NeedSellOpenIf = NeedSellOpenIf;
+	//PositionIFb = PositionIFb - NeedSellCloseIf + NeedBuyOpenIf;
+	//PositionIFs = PositionIFs - NeedBuyCloseIf + NeedSellOpenIf;
+	//NetPositionA50 = NetPositionA50 + NeedBuyA50 - NeedSellA50;
 
 	TaskStatus = WAITING_FOR_OLD;//标记等待状态，在等待状态下对冲循环不会有新的任务
 	if(m_pHedgePostProcessing){
-		m_pHedgePostProcessing->PostThreadMessage(WM_BEGIN_POST_PROCESSING,NULL,(UINT)pTask);
+		m_pHedgePostProcessing->PostThreadMessage(WM_PREPARE_POST_PROCESSING,NULL,NULL);
 	}
 	////////////////////////////////////////////////////////////
+	IfTask iftask;A50Task a50task;
+	////////////////////////////////////////////////////////////
 	//IF下单
-	int orderref = 0;
 	TThostFtdcCombOffsetFlagType kpp;
 	char szInst[MAX_PATH];
 	uni2ansi(CP_ACP,((CHiStarApp*)AfxGetApp())->m_accountCtp.m_szInst,szInst);
@@ -445,29 +447,33 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 	if(NeedBuyOpenIf > 0){
 		kpp[0] = THOST_FTDC_OF_Open;
 		if(((CHiStarApp*)AfxGetApp())->m_cT){
-			orderref = ((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Buy,kpp,g_ifAsk1 + 20.0 - 60.0,NeedBuyOpenIf);
-			pTask->refBuyOpenIf = orderref;
+			iftask.ref = ((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Buy,kpp,g_ifAsk1 + 20.0 - 60.0,NeedBuyOpenIf);
+			iftask.direction = THOST_FTDC_D_Buy;iftask.offset[0] = THOST_FTDC_OF_Open;iftask.priceRecord = g_ifAsk1;iftask.volumeRecord = NeedBuyOpenIf;
+			hedgetask.ifalltask.push_back(iftask);
 		}
 	}
 	if(NeedBuyCloseIf > 0){
 		kpp[0] = THOST_FTDC_OF_Close;
 		if(((CHiStarApp*)AfxGetApp())->m_cT){
-			orderref = ((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Buy,kpp,g_ifAsk1 + 20.0 - 60.0,NeedBuyCloseIf);
-			pTask->refBuyCloseIf = orderref;
+			iftask.ref = ((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Buy,kpp,g_ifAsk1 + 20.0 - 60.0,NeedBuyCloseIf);
+			iftask.direction = THOST_FTDC_D_Buy;iftask.offset[0] = THOST_FTDC_OF_Close;iftask.priceRecord = g_ifAsk1;iftask.volumeRecord = NeedBuyCloseIf;
+			hedgetask.ifalltask.push_back(iftask);
 		}
 	}
 	if(NeedSellOpenIf > 0){
 		kpp[0] = THOST_FTDC_OF_Open;
 		if(((CHiStarApp*)AfxGetApp())->m_cT){
-			orderref = ((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Sell,kpp,g_ifBid1 - 20.0 + 60.0,NeedSellOpenIf);
-			pTask->refSellOpenIf = orderref;
+			iftask.ref = ((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Sell,kpp,g_ifBid1 - 20.0 + 60.0,NeedSellOpenIf);
+			iftask.direction = THOST_FTDC_D_Sell;iftask.offset[0] = THOST_FTDC_OF_Open;iftask.priceRecord = g_ifBid1;iftask.volumeRecord = NeedSellOpenIf;
+			hedgetask.ifalltask.push_back(iftask);
 		}
 	}
 	if(NeedSellCloseIf > 0){
 		kpp[0] = THOST_FTDC_OF_Close;
 		if(((CHiStarApp*)AfxGetApp())->m_cT){
-			orderref = ((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Sell,kpp,g_ifBid1 - 20.0 + 60.0,NeedSellCloseIf);
-			pTask->refSellCloseIf = orderref;
+			iftask.ref = ((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Sell,kpp,g_ifBid1 - 20.0 + 60.0,NeedSellCloseIf);
+			iftask.direction = THOST_FTDC_D_Sell;iftask.offset[0] = THOST_FTDC_OF_Close;iftask.priceRecord = g_ifBid1;iftask.volumeRecord = NeedSellCloseIf;
+			hedgetask.ifalltask.push_back(iftask);
 		}
 	}
 	//A50下单
@@ -482,7 +488,8 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 				}
 				if(((CHiStarApp*)AfxGetApp())->m_pIBClient){
 					((CHiStarApp*)AfxGetApp())->m_pIBClient->placeOrder(++((CHiStarApp*)AfxGetApp())->m_id,((CHiStarApp*)AfxGetApp())->m_A50Contract,((CHiStarApp*)AfxGetApp())->m_IBOrder);
-					pTask->idBuyA50 = ((CHiStarApp*)AfxGetApp())->m_id;
+					a50task.id = ((CHiStarApp*)AfxGetApp())->m_id;a50task.volumeRecord = NeedBuyA50 - NeedSellA50;a50task.direction = 'l';a50task.priceRecord = g_a50Ask1;
+					hedgetask.a50alltask.push_back(a50task);
 				}
 			}
 			else if(NeedBuyA50 - NeedSellA50 < 0){
@@ -494,40 +501,135 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 				}
 				if(((CHiStarApp*)AfxGetApp())->m_pIBClient){
 					((CHiStarApp*)AfxGetApp())->m_pIBClient->placeOrder(++((CHiStarApp*)AfxGetApp())->m_id,((CHiStarApp*)AfxGetApp())->m_A50Contract,((CHiStarApp*)AfxGetApp())->m_IBOrder);
-					pTask->idSellA50 = ((CHiStarApp*)AfxGetApp())->m_id;
+					a50task.id = ((CHiStarApp*)AfxGetApp())->m_id;a50task.volumeRecord = -(NeedBuyA50 - NeedSellA50);a50task.direction = 's';a50task.priceRecord = g_a50Bid1;
+					hedgetask.a50alltask.push_back(a50task);
 				}
 			}
 		}
 	}
+	//开始后处理
+	if(m_pHedgePostProcessing){
+		m_pHedgePostProcessing->PostThreadMessage(WM_BEGIN_POST_PROCESSING,NULL,NULL);
+	}
 	return 0;
 }
+
 //后处理
 void CHedgePostProcessing::PostProcessing(UINT wParam,LONG lParam){
-	HedgeTask task = *(HedgeTask *)lParam;
-	delete (HedgeTask *)lParam;
-	MSG msg;bool bRet;
-	while((bRet = GetMessage(&msg,NULL,WM_RTN_ORDER,WM_RTN_ORDER)) != 0){
-		if (bRet == -1){// handle the error and possibly exit
+	MSG msg;BOOL bRet;
+	while((bRet = GetMessage(&msg,NULL,WM_BEGIN_POST_PROCESSING,WM_BEGIN_POST_PROCESSING)) != 0){
+		if (!bRet){// handle the error and possibly exit
 		}
 		else{
-			TRACE("收到WM_RTN_ORDER\r\n");
+			break;//已经开始，往下正式进行处理。
+		}
+	}
+	//检索两种消息，分别是WM_RTN_INSERT和WM_RTN_ORDER
+	while((bRet = GetMessage(&msg,NULL,WM_RTN_INSERT,WM_RTN_ORDER)) != 0){
+		if (!bRet){
+		}
+		else{
+			switch(msg.message)
+			{
+			case WM_RTN_INSERT:
+				{
+					TRACE("收到WM_RTN_INSERT\r\n");
+					CThostFtdcInputOrderField orderInsert = *(CThostFtdcInputOrderField*)lParam;
+					delete (CThostFtdcInputOrderField*)lParam;
+					for(int i = 0;i < hedgetask.ifalltask.size();i++){
+						if(hedgetask.ifalltask[i].ref == atoi(orderInsert.OrderRef)){
+							hedgetask.ifalltask[i].bReceivedInsertRtn = true;
+						}
+					}
+					break;
+				}
+			case WM_RTN_ORDER:
+				{
+					TRACE("收到WM_RTN_ORDER\r\n");
+					CThostFtdcOrderField orderRtn = *(CThostFtdcOrderField*)lParam;
+					delete (CThostFtdcOrderField*)lParam;
+					for(int i = 0;i < hedgetask.ifalltask.size();i++){
+						if(hedgetask.ifalltask[i].ref == atoi(orderRtn.OrderRef)){
+							if(orderRtn.OrderStatus == THOST_FTDC_OST_AllTraded || orderRtn.OrderStatus == THOST_FTDC_OST_Canceled 
+								|| orderRtn.OrderStatus == THOST_FTDC_OST_NoTradeNotQueueing || orderRtn.OrderStatus == THOST_FTDC_OST_PartTradedNotQueueing){
+									hedgetask.ifalltask[i].traded = orderRtn.VolumeTraded;
+									hedgetask.ifalltask[i].sysid = atoi(orderRtn.OrderSysID);
+									hedgetask.ifalltask[i].bReceivedAllOrder = true;
+							}			
+						}
+					}
+					break;
+				}
+			}
+			bool bBreakGetMsg = true;
+			for(int i = 0;i < hedgetask.ifalltask.size();i++){
+				if(!(hedgetask.ifalltask[i].bReceivedAllOrder || hedgetask.ifalltask[i].bReceivedInsertRtn)){
+					bBreakGetMsg = false;break;
+				}
+			}
+			if(bBreakGetMsg) break;
+		}
+	}
+	//检查是否有成交量,可能都被取消而没有成交量
+	bool bVolumeTraded = false;
+	for(int i = 0;i < hedgetask.ifalltask.size();i++){
+		if(hedgetask.ifalltask[i].traded > 0){
+			bVolumeTraded = true;break;
+		}
+	}
+	if(bVolumeTraded){
+		while((bRet = GetMessage(&msg,NULL,WM_RTN_TRADE,WM_RTN_TRADE)) != 0){
+			if (!bRet){
+			}
+			else{
+				TRACE("收到WM_RTN_TRADE\r\n");
+				CThostFtdcTradeField tradeRtn = *(CThostFtdcTradeField*)lParam;
+				delete (CThostFtdcTradeField*)lParam;
+				for(int i = 0;i < hedgetask.ifalltask.size();i++){
+					if(hedgetask.ifalltask[i].sysid == atoi(tradeRtn.OrderSysID)){
+						hedgetask.ifalltask[i].receivedTradedVolume = hedgetask.ifalltask[i].receivedTradedVolume + tradeRtn.Volume;
+						hedgetask.ifalltask[i].receivedValue = hedgetask.ifalltask[i].receivedValue + tradeRtn.Price * tradeRtn.Volume;	
+					}
+				}
+				bool bBreakGetMsg = true;
+				for(int i = 0;i < hedgetask.ifalltask.size();i++){
+					if(hedgetask.ifalltask[i].receivedTradedVolume != hedgetask.ifalltask[i].traded){
+						bBreakGetMsg = false;break;
+					}
+				}
+				if(bBreakGetMsg) break;
+			}
+		}
+		///calc avg price
+		for(int i = 0;i < hedgetask.ifalltask.size();i++){
+			hedgetask.ifalltask[i].avgPrice = hedgetask.ifalltask[i].receivedValue / hedgetask.ifalltask[i].receivedTradedVolume;
 
 		}
 	}
-	while((bRet = GetMessage(&msg,NULL,WM_RTN_TRADE,WM_RTN_ORDER)) != 0){
-		if (bRet == -1){// handle the error and possibly exit
-		}
-		else{
-			TRACE("收到WM_RTN_TRADE\r\n");
 
-		}
-	}
-	while((bRet = GetMessage(&msg,NULL,WM_RTN_ORDER_IB,WM_RTN_ORDER)) != 0){
-		if (bRet == -1){// handle the error and possibly exit
+	while((bRet = GetMessage(&msg,NULL,WM_RTN_ORDER_IB,WM_RTN_ORDER_IB)) != 0){
+		if (!bRet){
 		}
 		else{
 			TRACE("WM_RTN_ORDER_IB\r\n");
-
+			OrderStatus status = *(OrderStatus*)lParam; 
+			delete (OrderStatus*)lParam;
+			for(int i = 0;i < hedgetask.a50alltask.size();i++){
+				if(hedgetask.a50alltask[i].id == status.orderId){
+					if(status.status == CString("Cancelled") || status.status == CString("ApiCancelled") || hedgetask.a50alltask[i].volumeRecord == status.filled){
+						hedgetask.a50alltask[i].traded = status.filled;
+						hedgetask.a50alltask[i].avgPrice = status.avgFillPrice;
+						hedgetask.a50alltask[i].bReceivedAllStatus = true;
+					}
+				}
+			}
+			bool bBreakGetMsg = true;
+			for(int i = 0;i < hedgetask.a50alltask.size();i++){
+				if(!hedgetask.a50alltask[i].bReceivedAllStatus){
+					bBreakGetMsg = false;
+				}
+			}
+			if(bBreakGetMsg) break;
 		}
 	}
 }
