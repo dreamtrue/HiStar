@@ -709,7 +709,7 @@ void CStatusPage::OnGetDispinf3(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	NMLVDISPINFO *pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pNMHDR);
 	LV_ITEM* pItem= &(pDispInfo)->item;
-	int iItem= pItem->iItem;
+	unsigned int iItem= pItem->iItem;
 	//if(iItem >= m_InvPosVec.size())return;
 	if(iItem >= m_InvPosDetailVec.size())return;
 	if(pItem->mask & LVIF_TEXT)
@@ -827,7 +827,7 @@ void CStatusPage::OnGetDispinf5(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	NMLVDISPINFO *pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pNMHDR);
 	LV_ITEM* pItem= &(pDispInfo)->item;
-	int iItem= pItem->iItem;
+	unsigned int iItem = pItem->iItem;
 	if(iItem >= m_InsinfVec.size())return;
 	CString szTemp;
 	if(pItem->mask & LVIF_TEXT)

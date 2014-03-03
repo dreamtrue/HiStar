@@ -224,7 +224,7 @@ void CtpTraderSpi::OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument,
 		ZeroMemory(&InsInf,sizeof(INSINFEX));
 		memcpy(&InsInf,pInstrument,sizeof(INSTINFO));
 		bool founded = false;
-		for(int i = 0;i < m_InsinfVec.size();i++){
+		for(unsigned int i = 0;i < m_InsinfVec.size();i++){
 			if(!strcmp(m_InsinfVec[i].iinf.InstrumentID,InsInf.iinf.InstrumentID)){
 				founded = true;
 				break;
@@ -298,7 +298,7 @@ void CtpTraderSpi::OnRspQryInvestorPosition(
 		CThostFtdcInvestorPositionField InvPos;
 		memcpy(&InvPos,pInvestorPosition, sizeof(CThostFtdcInvestorPositionField));
 		bool founded = false;
-		for(int i = 0;i < m_InvPosVec.size();i++){
+		for(unsigned int i = 0;i < m_InvPosVec.size();i++){
 			//多头和空头是不同的持仓，所以除了判断合约代码还要判断持仓方向。
 			if(!strcmp(m_InvPosVec[i].InstrumentID,InvPos.InstrumentID) && m_InvPosVec[i].PosiDirection == InvPos.PosiDirection){
 				founded = true;
@@ -421,7 +421,7 @@ void CtpTraderSpi::OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDeta
 		CThostFtdcInvestorPositionDetailField InvPosDetail;
 		memcpy(&InvPosDetail,pInvestorPositionDetail, sizeof(CThostFtdcInvestorPositionDetailField));
 		bool founded = false;
-		int i = 0;
+		unsigned int i = 0;
 		for(i = 0;i < m_InvPosDetailVec.size();i++){
 			if(strcmp(m_InvPosDetailVec[i].InstrumentID,InvPosDetail.InstrumentID) == 0 && m_InvPosDetailVec[i].TradeID == InvPosDetail.TradeID){
 				founded = true;
@@ -606,7 +606,7 @@ void CtpTraderSpi::OnRspOrderInsert(CThostFtdcInputOrderField *pInputOrder,
 	if(IsErrorRspInfo(pRspInfo) || (pInputOrder == NULL))
 	{
 		if(pInputOrder){
-			for(int i = 0;i < m_onRoadVec.size();i++){
+			for(unsigned int i = 0;i < m_onRoadVec.size();i++){
 				if(!strcmp(m_onRoadVec[i].OrderRef,pInputOrder->OrderRef)){
 					TRACE(_T("OnRspOrderInsert,%s\n"),pRspInfo->ErrorMsg);//暂时不对挂单状态进行更新
 				}

@@ -125,7 +125,7 @@ void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
             return;//排除开盘时有可能报价不全导致的错误溢价计算
         }
         //统计净持仓
-        for(int i = 0;i < HedgeHoldTemp.size();i++){
+        for(unsigned int i = 0;i < HedgeHoldTemp.size();i++){
             netPosition = netPosition + HedgeHoldTemp[i].HedgeNum;
         }
         //sprintf(buffer,_T("净持仓%d\r\n"),netPosition);hedgeStatusPrint = hedgeStatusPrint + buffer;
@@ -198,7 +198,7 @@ void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
         //这么做因为持仓和资金只有在每个循环的开始才计算，中途不计算,
         //所以完成一个操作后返回重新计算持仓和资金才能进行下一个操作。
         //平仓操作
-        for(int i = 0;i < HedgeHoldTemp.size();i++){
+        for(unsigned int i = 0;i < HedgeHoldTemp.size();i++){
             if(HedgeHoldTemp[i].HedgeNum > 0){//多头持仓
                 if(HedgeHoldTemp[i].HedgeSection == 21){
                     //需要平仓
@@ -532,7 +532,7 @@ void CHedgePostProcessing::PostProcessing(UINT wParam,LONG lParam){
 				{
 					sprintf(buffer,"收到WM_RTN_INSERT\r\n");hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
 					CThostFtdcInputOrderField *pOrderInsert = (CThostFtdcInputOrderField *)msg.lParam;
-					for(int i = 0;i < hedgetask.ifalltask.size();i++){
+					for(unsigned int i = 0;i < hedgetask.ifalltask.size();i++){
 						if(hedgetask.ifalltask[i].ref == atoi(pOrderInsert->OrderRef)){
 							hedgetask.ifalltask[i].bReceivedInsertRtn = true;
 						}
@@ -544,7 +544,7 @@ void CHedgePostProcessing::PostProcessing(UINT wParam,LONG lParam){
 				{
 					sprintf(buffer,"收到WM_RTN_ORDER\r\n");hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
 					CThostFtdcOrderField *pOrderRtn = (CThostFtdcOrderField *)msg.lParam;
-					for(int i = 0;i < hedgetask.ifalltask.size();i++){
+					for(unsigned int i = 0;i < hedgetask.ifalltask.size();i++){
 						if(hedgetask.ifalltask[i].ref == atoi(pOrderRtn->OrderRef)){
 							if(pOrderRtn->OrderStatus == THOST_FTDC_OST_AllTraded || pOrderRtn->OrderStatus == THOST_FTDC_OST_Canceled 
 								|| pOrderRtn->OrderStatus == THOST_FTDC_OST_NoTradeNotQueueing || pOrderRtn->OrderStatus == THOST_FTDC_OST_PartTradedNotQueueing){
@@ -560,7 +560,7 @@ void CHedgePostProcessing::PostProcessing(UINT wParam,LONG lParam){
 				}
 			}
 			bool bBreakGetMsg = true;
-			for(int i = 0;i < hedgetask.ifalltask.size();i++){
+			for(unsigned int i = 0;i < hedgetask.ifalltask.size();i++){
 				if(!(hedgetask.ifalltask[i].bReceivedAllOrder || hedgetask.ifalltask[i].bReceivedInsertRtn)){
 					bBreakGetMsg = false;break;
 				}
@@ -570,7 +570,7 @@ void CHedgePostProcessing::PostProcessing(UINT wParam,LONG lParam){
 	}
 	//检查是否有成交量,可能都被取消而没有成交量
 	bool bVolumeTraded = false;
-	for(int i = 0;i < hedgetask.ifalltask.size();i++){
+	for(unsigned int i = 0;i < hedgetask.ifalltask.size();i++){
 		if(hedgetask.ifalltask[i].traded > 0){
 			bVolumeTraded = true;break;
 		}
@@ -582,7 +582,7 @@ void CHedgePostProcessing::PostProcessing(UINT wParam,LONG lParam){
 			else{
 				sprintf(buffer,"收到WM_RTN_TRADE\r\n");hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW
 				CThostFtdcTradeField *pTradeRtn = (CThostFtdcTradeField *)msg.lParam;
-				for(int i = 0;i < hedgetask.ifalltask.size();i++){
+				for(unsigned int i = 0;i < hedgetask.ifalltask.size();i++){
 					if(hedgetask.ifalltask[i].sysid == atoi(pTradeRtn->OrderSysID)){
 						hedgetask.ifalltask[i].receivedTradedVolume = hedgetask.ifalltask[i].receivedTradedVolume + pTradeRtn->Volume;
 						hedgetask.ifalltask[i].receivedValue = hedgetask.ifalltask[i].receivedValue + pTradeRtn->Price * pTradeRtn->Volume;	
@@ -590,7 +590,7 @@ void CHedgePostProcessing::PostProcessing(UINT wParam,LONG lParam){
 				}
 				delete (CThostFtdcTradeField*)msg.lParam;
 				bool bBreakGetMsg = true;
-				for(int i = 0;i < hedgetask.ifalltask.size();i++){
+				for(unsigned int i = 0;i < hedgetask.ifalltask.size();i++){
 					if(hedgetask.ifalltask[i].receivedTradedVolume != hedgetask.ifalltask[i].traded){
 						bBreakGetMsg = false;break;
 					}
@@ -599,7 +599,7 @@ void CHedgePostProcessing::PostProcessing(UINT wParam,LONG lParam){
 			}
 		}
 		///calc avg price
-		for(int i = 0;i < hedgetask.ifalltask.size();i++){
+		for(unsigned int i = 0;i < hedgetask.ifalltask.size();i++){
 			hedgetask.ifalltask[i].avgPrice = hedgetask.ifalltask[i].receivedValue / hedgetask.ifalltask[i].receivedTradedVolume;
 
 		}
@@ -611,7 +611,7 @@ void CHedgePostProcessing::PostProcessing(UINT wParam,LONG lParam){
 		else{
 			sprintf(buffer,"收到WM_RTN_ORDER_IB\r\n");hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
 			OrderStatus *pStatus = (OrderStatus *)msg.lParam; 
-			for(int i = 0;i < hedgetask.a50alltask.size();i++){
+			for(unsigned int i = 0;i < hedgetask.a50alltask.size();i++){
 				if(hedgetask.a50alltask[i].id == pStatus->orderId){
 					if(pStatus->status == CString("Cancelled") || pStatus->status == CString("ApiCancelled") || hedgetask.a50alltask[i].volumeRecord == pStatus->filled){
 						hedgetask.a50alltask[i].traded = pStatus->filled;
@@ -622,7 +622,7 @@ void CHedgePostProcessing::PostProcessing(UINT wParam,LONG lParam){
 			}
 			delete (OrderStatus*)msg.lParam;
 			bool bBreakGetMsg = true;
-			for(int i = 0;i < hedgetask.a50alltask.size();i++){
+			for(unsigned int i = 0;i < hedgetask.a50alltask.size();i++){
 				if(!hedgetask.a50alltask[i].bReceivedAllStatus){
 					bBreakGetMsg = false;
 				}
@@ -632,7 +632,7 @@ void CHedgePostProcessing::PostProcessing(UINT wParam,LONG lParam){
 	}
 	//具体持仓统计
 	double t_totalValueIf = 0.0;int t_totalTradedIf = 0;double t_avgPriceIf = 0.0;
-	for(int i = 0;i < hedgetask.ifalltask.size();i++){
+	for(unsigned int i = 0;i < hedgetask.ifalltask.size();i++){
 		if(hedgetask.ifalltask[i].direction == THOST_FTDC_D_Buy && hedgetask.ifalltask[i].offset[0] == THOST_FTDC_OF_Open){
 			longIf = longIf + hedgetask.ifalltask[i].traded;
 			t_totalTradedIf = t_totalTradedIf + hedgetask.ifalltask[i].traded;
@@ -658,7 +658,7 @@ void CHedgePostProcessing::PostProcessing(UINT wParam,LONG lParam){
 		t_avgPriceIf = fabs(t_totalValueIf / t_totalTradedIf);
 	}
 	double t_totalValueA50 = 0.0;int t_totalTradedA50 = 0;double t_avgPriceA50 = 0.0;
-	for(int i = 0;i < hedgetask.a50alltask.size();i++){
+	for(unsigned int i = 0;i < hedgetask.a50alltask.size();i++){
 		if( hedgetask.a50alltask[i].direction == 'l'){
 			netPositionA50 = netPositionA50 + hedgetask.a50alltask[i].traded;
 			t_totalTradedA50 = t_totalTradedA50 + hedgetask.a50alltask[i].traded;
@@ -673,7 +673,7 @@ void CHedgePostProcessing::PostProcessing(UINT wParam,LONG lParam){
 	if(t_totalTradedA50 != 0){
 		t_avgPriceA50 = fabs(t_totalValueA50 / t_totalTradedA50);
 	}
-	for(int i = 0;i < HedgeHoldTemp.size();i++){
+	for(unsigned int i = 0;i < HedgeHoldTemp.size();i++){
 		if(HedgeHoldTemp[i].id == idcurrent){
 			HedgeHoldTemp[i].HedgePrice = t_avgPriceA50 - t_avgPriceIf * g_A50IndexMSHQ / g_HS300IndexMSHQ;
 		}
