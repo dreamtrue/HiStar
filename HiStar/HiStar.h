@@ -138,7 +138,6 @@ public:
 	TagValueListSPtr m_mktDepthOptions;
 	CHedgePostProcessing* m_pHedgePostProcessing;
 	int ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag);
-	CString m_HedgeStatusOut;
 	Order m_IBOrder;
 	CMSHQ* m_pMSHQ;
 };
