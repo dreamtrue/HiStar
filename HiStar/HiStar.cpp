@@ -140,8 +140,10 @@ BOOL CHiStarApp::InitInstance()
 
 CHiStarApp::~CHiStarApp(void)
 {
-	delete m_pIBClient;
-	m_pIBClient = NULL;
+	if(m_pIBClient){
+		delete m_pIBClient;
+		m_pIBClient = NULL;
+	}
 	if(m_TApi){
 		m_TApi->RegisterSpi(NULL);
 	}
@@ -168,7 +170,9 @@ CHiStarApp::~CHiStarApp(void)
 		delete m_cQ;
 		m_cQ = NULL;
 	}
-	m_pHedgePostProcessing = NULL;
+	if(m_pHedgePostProcessing){
+		m_pHedgePostProcessing = NULL;
+	}
 }
 
 void CHiStarApp::PostOrderStatus(CString str)

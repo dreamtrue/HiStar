@@ -18,6 +18,11 @@ CMainDlg::CMainDlg(CWnd* pParent /*=NULL*/)
 
 CMainDlg::~CMainDlg()
 {
+	if(((CHiStarApp*)AfxGetApp())->m_pIBClient){
+		((CHiStarApp*)AfxGetApp())->m_pIBClient->eDisconnect();
+		delete ((CHiStarApp*)AfxGetApp())->m_pIBClient;
+		((CHiStarApp*)AfxGetApp())->m_pIBClient = NULL;
+	}
 }
 
 void CMainDlg::DoDataExchange(CDataExchange* pDX)
@@ -111,10 +116,6 @@ void CMainDlg::OnTimer(UINT_PTR nIDEvent)
 
 void CMainDlg::OnOk()
 {
-	//退出时先断开连接，可以防止内存出错。
-	if(((CHiStarApp*)AfxGetApp())->m_pIBClient){
-		((CHiStarApp*)AfxGetApp())->m_pIBClient->eDisconnect();
-	}
 	CDialogEx::OnOK();
 }
 
