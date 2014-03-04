@@ -12,6 +12,8 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+extern double costLine;
+extern double datumDiff;
 extern bool isHedgeLoopingPause;
 extern HANDLE g_hEvent;
 extern BOOL g_bLoginCtpT;
@@ -82,6 +84,8 @@ void CBasicPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_STATIC_A50_BID1, m_csA50Bid1);
 	DDX_Control(pDX, IDC_STATIC_PREMIUM_HIGH, m_csPremiumHigh);
 	DDX_Control(pDX, IDC_STATIC_PREMIUM_LOW, m_csPremiumLow);
+	DDX_Text(pDX, IDC_COST_LINE,costLine);
+	DDX_Text(pDX, IDC_DATUMDIFF,datumDiff);
 }
 
 BEGIN_MESSAGE_MAP(CBasicPage, CDialogEx)
@@ -99,6 +103,7 @@ BEGIN_MESSAGE_MAP(CBasicPage, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON9, &CBasicPage::OnPause)
 	ON_BN_CLICKED(IDC_BUTTON2, &CBasicPage::OnResume)
 	ON_BN_CLICKED(IDC_BUTTON_TEST, &CBasicPage::OnBnClickedTest)
+	ON_BN_CLICKED(IDC_UPDATE, &CBasicPage::OnBnClickedUpdate)
 END_MESSAGE_MAP()
 
 
@@ -156,6 +161,9 @@ BOOL CBasicPage::OnInitDialog()
 	m_csPremiumHigh.SetWindowText(_T("0.0"),LITGRAY);
 	m_csPremiumLow.SetBkColor(ACC_BG);
 	m_csPremiumLow.SetWindowText(_T("0.0"),LITGRAY);
+	//
+	SetDlgItemText(IDC_COST_LINE,TEXT(_T("成本基线")));
+	SetDlgItemText(IDC_DATUMDIFF,TEXT(_T("对冲基线")));
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -305,4 +313,10 @@ void CBasicPage::OnResume()
 void CBasicPage::OnBnClickedTest()
 {
 	((CHiStarApp*)AfxGetApp())->OnHedgeLooping(NULL,NULL);
+}
+
+
+void CBasicPage::OnBnClickedUpdate()
+{
+	UpdateData();
 }

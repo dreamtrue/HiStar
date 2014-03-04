@@ -21,7 +21,8 @@
 #include "order.h"
 extern DWORD MainThreadId;
 struct HoldDetail{
-	double HedgePrice;
+	double adjustedCost;//根据基线调整后的成本
+	double originalCost;//原始成本
 	int HedgeNum;
 	int HedgeSection;//开仓时所在的Section
 	int id;//序号
