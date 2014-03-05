@@ -58,7 +58,7 @@ CHiStarApp::CHiStarApp()
 	}
 	//MSHQ 从通达信获取的实时行情
 	if(!m_pMSHQ){
-		m_pMSHQ = (CMSHQ*)AfxBeginThread(RUNTIME_CLASS(CMSHQ));
+		//m_pMSHQ = (CMSHQ*)AfxBeginThread(RUNTIME_CLASS(CMSHQ));
 	}
 	//交易后处理线程
 	if(!(((CHiStarApp*)AfxGetApp())->m_pHedgePostProcessing)){
