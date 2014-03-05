@@ -11,8 +11,6 @@ double costLine = 0.0;
 double datumDiff = 0.0;
 double pointValueA50 = 1.0;double pointValueIf = 300.0;//合约每个点的价值
 int MultiA50 = 12;//A50乘数
-extern double g_A50IndexMSHQ;
-extern double g_HS300IndexMSHQ;
 double MarginA50 = 625.0,MarginIf = 0.15;
 double USDtoRMB = 6.07;//汇率
 bool isHedgeLoopingPause = true;
@@ -21,7 +19,10 @@ double deviation = 0,DeviationSell = 0,DeviationBuy = 0;
 extern double g_a50Bid1,g_a50Ask1;
 extern double g_ifAsk1,g_ifBid1;
 extern double g_A50Index,g_HS300Index;
+extern double g_A50IndexMSHQ,g_HS300IndexMSHQ;
+double A50Index = 0.0,HS300Index = 0.0;//本程序实际所用指数
 CString hedgeStatusPrint;
+void SelectIndex();
 /////////////////////////////////Hedge变量///////////////////////////////////////////////
 int MultiPos = 1;//持仓乘数
 //梯级，一共21个分割点,分割成22(=21+1)个区间
@@ -89,6 +90,7 @@ END_MESSAGE_MAP()
 
 void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
     HWND hEdit = ::GetDlgItem(((CMainDlg*)m_pMainWnd)->m_basicPage.m_hWnd,IDC_RICHEDIT_STATUS);
+	SelectIndex();
     if(hedgeTaskStatus == NEW_HEDGE){
 		HedgeHoldTemp = HedgeHold;
 		//调整成本
@@ -123,7 +125,7 @@ void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
         if(_isnan(datumDiff) != 0 || _isnan(premium)!=0 ||_isnan(deviation)!=0){
             return;//判断非零值错误
         }
-        if(g_a50Bid1 < 1 || g_a50Ask1 < 1 || g_ifAsk1 < 1 || g_ifBid1 < 1 || g_A50Index < 1 || g_HS300Index < 1){
+        if(g_a50Bid1 < 1 || g_a50Ask1 < 1 || g_ifAsk1 < 1 || g_ifBid1 < 1 || A50Index < 1 || HS300Index < 1){
             return;
         }
         if(fabs(premium) > 300 || fabs(premium) < 0.01){
@@ -402,8 +404,8 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
     sprintf(buffer,_T("%2d:%2d:%2d:%3d\r\n"),sys.wHour,sys.wMinute,sys.wSecond,sys.wMilliseconds);hedgeStatusPrint = hedgeStatusPrint + buffer;
     sprintf(buffer,_T("操作:\r\n买A50--%d手\r\n,卖A50--%d手\r\n,买开IF---%d手\r\n,买平IF---%d手\r\n,卖开IF---%d手\r\n,卖平IF---%d手\r\n"),NeedBuyA50,NeedSellA50,NeedBuyOpenIf,NeedBuyCloseIf,NeedSellOpenIf,NeedSellCloseIf);
     hedgeStatusPrint = hedgeStatusPrint + buffer;
-    sprintf(buffer,"A50指数%f,HS300指数%f, %f, %f, %f, %f, %f\r\n",g_A50IndexMSHQ,g_HS300IndexMSHQ,g_ifBid1,g_ifAsk1,g_a50Bid1,g_a50Ask1);hedgeStatusPrint = hedgeStatusPrint + buffer;
-    sprintf(buffer,"premiumHigh%f,premiumLow%f\r\n",g_a50Ask1 - g_ifBid1 * g_A50IndexMSHQ / g_HS300IndexMSHQ,g_a50Bid1 - g_ifAsk1 * g_A50IndexMSHQ / g_HS300IndexMSHQ);hedgeStatusPrint = hedgeStatusPrint + buffer;
+    sprintf(buffer,"A50指数%f,HS300指数%f, %f, %f, %f, %f, %f\r\n",A50Index,HS300Index,g_ifBid1,g_ifAsk1,g_a50Bid1,g_a50Ask1);hedgeStatusPrint = hedgeStatusPrint + buffer;
+    sprintf(buffer,"premiumHigh%f,premiumLow%f\r\n",g_a50Ask1 - g_ifBid1 * A50Index / HS300Index,g_a50Bid1 - g_ifAsk1 * A50Index / HS300Index);hedgeStatusPrint = hedgeStatusPrint + buffer;
     ////////////////////////////////////////////////////////////////////////////////////
     //IB表示需要新的保证金
     if(abs(PredictPositionA50) > abs(netPositionA50)){
@@ -679,10 +681,11 @@ void CHedgePostProcessing::PostProcessing(UINT wParam,LONG lParam){
 	}
 	for(unsigned int i = 0;i < HedgeHoldTemp.size();i++){
 		if(HedgeHoldTemp[i].id == idcurrent){
-			HedgeHoldTemp[i].originalCost = t_avgPriceA50 - t_avgPriceIf * g_A50IndexMSHQ / g_HS300IndexMSHQ;
+			HedgeHoldTemp[i].originalCost = t_avgPriceA50 - t_avgPriceIf * A50Index / HS300Index;
 		}
 	}
-	sprintf(buffer,_T("对冲成本%f\r\n"),t_avgPriceA50 - t_avgPriceIf * g_A50IndexMSHQ / g_HS300IndexMSHQ);hedgeStatusPrint = hedgeStatusPrint + buffer;
+	SelectIndex();
+	sprintf(buffer,_T("对冲成本%f\r\n"),t_avgPriceA50 - t_avgPriceIf * A50Index / HS300Index);hedgeStatusPrint = hedgeStatusPrint + buffer;
 	HedgeHold = HedgeHoldTemp;//更新Hold持仓
 	hedgeTaskStatus = NEW_HEDGE;
 	sprintf(buffer,_T("对冲结束\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
@@ -711,24 +714,26 @@ double DealA50Price(bool isBuy, double A50Price)
     return rtn;
 }
 
+void SelectIndex(){
+	if(fabs(g_A50Index - g_A50IndexMSHQ) > 15.0){
+		//TRACE("over 0.1,MS%f,SN%f\r\n",g_A50Index,g_A50Index);
+		A50Index = g_A50Index;
+	}
+	else{
+		A50Index = g_A50IndexMSHQ;
+		TRACE("MS,SN,%f,%f\r\n",g_A50Index,g_A50Index);
+	}
+	if(fabs(g_HS300Index - g_HS300IndexMSHQ) > 5.0){
+		//TRACE("over 0.1,MS%f,SN%f\r\n",g_HS300Index,g_HS300Index);
+		HS300Index = g_HS300Index;
+	}
+	else{
+		HS300Index = g_HS300IndexMSHQ;
+		//TRACE("MS%f,SN%f\r\n",g_HS300Index,g_HS300Index);
+	}
+}
+
 void CalcDeviation(){
-    double A50Index = 0.0,HS300Index = 0.0;
-    if(fabs(g_A50IndexMSHQ - g_A50Index) / g_A50Index > 0.01){
-        //TRACE("over 0.1,MS%f,SN%f\r\n",g_A50IndexMSHQ,g_A50Index);
-        A50Index = g_A50Index;
-    }
-    else{
-        A50Index = g_A50IndexMSHQ;
-        TRACE("MS,SN,%f,%f\r\n",g_A50IndexMSHQ,g_A50Index);
-    }
-    if(fabs(g_HS300IndexMSHQ - g_HS300Index) / g_HS300Index > 0.01){
-        //TRACE("over 0.1,MS%f,SN%f\r\n",g_HS300IndexMSHQ,g_HS300Index);
-        HS300Index = g_HS300Index;
-    }
-    else{
-        HS300Index = g_HS300IndexMSHQ;
-        //TRACE("MS%f,SN%f\r\n",g_HS300IndexMSHQ,g_HS300Index);
-    }
     premium = (g_a50Bid1 + g_a50Ask1) / 2.0 - (g_ifAsk1 + g_ifBid1) / 2.0 * A50Index / HS300Index;
     premiumHigh = g_a50Ask1 - g_ifBid1 * A50Index / HS300Index;
     premiumLow = g_a50Bid1 - g_ifAsk1 * A50Index / HS300Index;
