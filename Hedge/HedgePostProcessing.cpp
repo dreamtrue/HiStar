@@ -516,15 +516,15 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 }
 
 //后处理
-void CHedgePostProcessing::PostProcessing(UINT wParam,LONG lParam){
+void CHedgePostProcessing::PostProcessing(UINT t_wParam,LONG t_lParam){
 	HWND hEdit = ::GetDlgItem(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->m_basicPage.m_hWnd,IDC_RICHEDIT_STATUS);
 	MSG msg;BOOL bRet;
-	double idcurrent;
+	long idHedgeCurrent;
 	while((bRet = GetMessage(&msg,NULL,WM_BEGIN_POST_PROCESSING,WM_BEGIN_POST_PROCESSING)) != 0){
 		if (!bRet){// handle the error and possibly exit
 		}
 		else{
-			idcurrent = lParam;
+			idHedgeCurrent = msg.lParam;
 			break;//已经开始，往下正式进行处理。
 		}
 	}
@@ -680,7 +680,7 @@ void CHedgePostProcessing::PostProcessing(UINT wParam,LONG lParam){
 		t_avgPriceA50 = fabs(t_totalValueA50 / t_totalTradedA50);
 	}
 	for(unsigned int i = 0;i < HedgeHoldTemp.size();i++){
-		if(HedgeHoldTemp[i].id == idcurrent){
+		if(HedgeHoldTemp[i].id == idHedgeCurrent){
 			HedgeHoldTemp[i].originalCost = t_avgPriceA50 - t_avgPriceIf * A50Index / HS300Index;
 		}
 	}
