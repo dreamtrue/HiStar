@@ -60,17 +60,15 @@ public:
 	void RefreshMdPane(void);
 	CThostFtdcDepthMarketDataField m_depthMd;
 public:
-	afx_msg void OnStart();
 	CColorStatic m_csHs300;
 	CColorStatic m_csA50;
 	CColorStatic m_csA50Ask1;
 	CColorStatic m_csA50Last;
 	CColorStatic m_csA50Bid1;
-	afx_msg void OnStop();
 	afx_msg void OnPause();
 	afx_msg void OnResume();
-	CColorStatic m_csPremiumHigh;
-	CColorStatic m_csPremiumLow;
+	CColorStatic m_csHedgePriceHigh;
+	CColorStatic m_csHedgePriceLow;
 	afx_msg void OnBnClickedTest();
 	afx_msg void OnBnClickedUpdate();
 };

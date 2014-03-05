@@ -12,7 +12,6 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-extern double costLine;
 extern double datumDiff;
 extern bool isHedgeLoopingPause;
 extern HANDLE g_hEvent;
@@ -83,9 +82,8 @@ void CBasicPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_STATIC_A50ASK1, m_csA50Ask1);
 	DDX_Control(pDX, IDC_STATIC_A50_LAST, m_csA50Last);
 	DDX_Control(pDX, IDC_STATIC_A50_BID1, m_csA50Bid1);
-	DDX_Control(pDX, IDC_STATIC_PREMIUM_HIGH, m_csPremiumHigh);
-	DDX_Control(pDX, IDC_STATIC_PREMIUM_LOW, m_csPremiumLow);
-	DDX_Text(pDX, IDC_COST_LINE,costLine);
+	DDX_Control(pDX, IDC_HEDGEPRICE_HIGH, m_csHedgePriceHigh);
+	DDX_Control(pDX, IDC_HEDGEPRICE_LOW , m_csHedgePriceLow);
 	DDX_Text(pDX, IDC_DATUMDIFF,datumDiff);
 	DDX_Text(pDX, IDC_MINPROFIT,MinProfitAim);
 	DDX_Text(pDX, IDC_MAXPROFIT,MaxProfitAim);
@@ -101,8 +99,6 @@ BEGIN_MESSAGE_MAP(CBasicPage, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON5, &CBasicPage::OnLogoutCtp)
 	ON_CBN_SELCHANGE(IDC_COMBO2, &CBasicPage::OnInsSelchange)
 	ON_BN_CLICKED(IDC_BUTTON6, &CBasicPage::OnReqComboSelMarketDepth)
-	ON_BN_CLICKED(IDC_BUTTON7, &CBasicPage::OnStart)
-	ON_BN_CLICKED(IDC_BUTTON8, &CBasicPage::OnStop)
 	ON_BN_CLICKED(IDC_BUTTON9, &CBasicPage::OnPause)
 	ON_BN_CLICKED(IDC_BUTTON2, &CBasicPage::OnResume)
 	ON_BN_CLICKED(IDC_BUTTON_TEST, &CBasicPage::OnBnClickedTest)
@@ -160,15 +156,15 @@ BOOL CBasicPage::OnInitDialog()
 	m_csA50Ask1.SetWindowText(_T("0.0"),LITGRAY);
 	m_csA50Last.SetBkColor(ACC_BG);
 	m_csA50Last.SetWindowText(_T("0.0"),LITGRAY);
-	m_csPremiumHigh.SetBkColor(ACC_BG);
-	m_csPremiumHigh.SetWindowText(_T("0.0"),LITGRAY);
-	m_csPremiumLow.SetBkColor(ACC_BG);
-	m_csPremiumLow.SetWindowText(_T("0.0"),LITGRAY);
+	m_csHedgePriceHigh.SetBkColor(ACC_BG);
+	m_csHedgePriceHigh.SetWindowText(_T("0.0"),LITGRAY);
+	m_csHedgePriceLow.SetBkColor(ACC_BG);
+	m_csHedgePriceLow.SetWindowText(_T("0.0"),LITGRAY);
 	//
-	SetDlgItemText(IDC_COST_LINE,TEXT(_T("成本基线")));
-	SetDlgItemText(IDC_DATUMDIFF,TEXT(_T("对冲基线")));
-	SetDlgItemText(IDC_MINPROFIT,TEXT(_T("最小目标")));
-	SetDlgItemText(IDC_MAXPROFIT,TEXT(_T("最大目标")));
+	SetDlgItemText(IDC_COST_ADJUST,TEXT(_T("0.0")));
+	SetDlgItemText(IDC_DATUMDIFF,TEXT(_T("0.0")));
+	SetDlgItemText(IDC_MINPROFIT,TEXT(_T("20.0")));
+	SetDlgItemText(IDC_MAXPROFIT,TEXT(_T("20.0")));
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -290,18 +286,8 @@ void CBasicPage::RefreshMdPane(void)
 	 m_csA50.SetDouble(g_A50Index,BLACK);
 	 m_csA50Bid1.SetDouble(g_a50Bid1,BLACK);
 	 m_csA50Ask1.SetDouble(g_a50Ask1,BLACK);
-	 m_csPremiumHigh.SetDouble(premiumHigh,BLACK);
-	 m_csPremiumLow.SetDouble(premiumLow,BLACK);
-}
-
-void CBasicPage::OnStart()
-{
-
-}
-
-void CBasicPage::OnStop()
-{
-
+	 m_csHedgePriceHigh.SetDouble(premiumHigh - datumDiff,BLACK);
+	 m_csHedgePriceLow.SetDouble(premiumLow - datumDiff,BLACK);
 }
 
 void CBasicPage::OnPause()

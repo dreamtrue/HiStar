@@ -40,9 +40,10 @@ CHiStarApp::CHiStarApp()
 	, m_pMSHQ(NULL)
 {
 	//定位内存泄漏位置,非常好用
-	//_CrtSetBreakAlloc(958);
-	//_CrtSetBreakAlloc(638);
-	//_CrtSetBreakAlloc(638);
+	//_CrtSetBreakAlloc(538);
+	//_CrtSetBreakAlloc(152);
+	//_CrtSetBreakAlloc(151);
+	//_CrtSetBreakAlloc(149);
 	MainThreadId = GetCurrentThreadId();
 	// 支持重新启动管理器
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;
