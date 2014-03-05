@@ -721,7 +721,7 @@ void SelectIndex(){
 	}
 	else{
 		A50Index = g_A50IndexMSHQ;
-		TRACE("MS,SN,%f,%f\r\n",g_A50Index,g_A50Index);
+		TRACE("MS,SN,%f,%f\r\n",g_A50IndexMSHQ,g_A50Index);
 	}
 	if(fabs(g_HS300Index - g_HS300IndexMSHQ) > 5.0){
 		//TRACE("over 0.1,MS%f,SN%f\r\n",g_HS300Index,g_HS300Index);
@@ -729,7 +729,7 @@ void SelectIndex(){
 	}
 	else{
 		HS300Index = g_HS300IndexMSHQ;
-		//TRACE("MS%f,SN%f\r\n",g_HS300Index,g_HS300Index);
+		//TRACE("MS%f,SN%f\r\n",g_HS300IndexMSHQ,g_HS300Index);
 	}
 }
 
