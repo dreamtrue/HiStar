@@ -142,6 +142,7 @@ public:
 	int ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag);
 	Order m_IBOrder;
 	CMSHQ* m_pMSHQ;
+	int iniFileInput(void);
 };
 
 extern CHiStarApp theApp;

@@ -21,6 +21,7 @@ extern double g_HS300Index;
 extern double g_a50Bid1,g_a50Ask1;
 extern double premiumHigh,premiumLow;
 extern double MaxProfitAim,MinProfitAim;
+extern int MultiPos;
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
 class CAboutDlg : public CDialogEx
@@ -87,6 +88,7 @@ void CBasicPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_DATUMDIFF,datumDiff);
 	DDX_Text(pDX, IDC_MINPROFIT,MinProfitAim);
 	DDX_Text(pDX, IDC_MAXPROFIT,MaxProfitAim);
+	DDX_Text(pDX,IDC_MULTI_POS,MultiPos);
 }
 
 BEGIN_MESSAGE_MAP(CBasicPage, CDialogEx)
@@ -165,7 +167,7 @@ BOOL CBasicPage::OnInitDialog()
 	SetDlgItemText(IDC_DATUMDIFF,TEXT(_T("0.0")));
 	SetDlgItemText(IDC_MINPROFIT,TEXT(_T("20.0")));
 	SetDlgItemText(IDC_MAXPROFIT,TEXT(_T("20.0")));
-
+	SetDlgItemText(IDC_MULTI_POS,TEXT(_T("1")));
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 

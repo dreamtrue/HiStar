@@ -7,9 +7,13 @@
 #include "MainDlg.h"
 #include "UserMsg.h"
 #include "calendar.h"
+#include <fstream>
+#include <sstream>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+std::fstream fileInput;
+extern std::vector<HoldDetail> HedgeHold;
 HANDLE g_hEvent;
 // CHiStarApp
 BEGIN_MESSAGE_MAP(CHiStarApp, CWinApp)
@@ -44,6 +48,7 @@ CHiStarApp::CHiStarApp()
 	//_CrtSetBreakAlloc(152);
 	//_CrtSetBreakAlloc(151);
 	//_CrtSetBreakAlloc(149);
+	iniFileInput();
 	MainThreadId = GetCurrentThreadId();
 	// 支持重新启动管理器
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;
@@ -59,7 +64,7 @@ CHiStarApp::CHiStarApp()
 	}
 	//MSHQ 从通达信获取的实时行情
 	if(!m_pMSHQ){
-		m_pMSHQ = (CMSHQ*)AfxBeginThread(RUNTIME_CLASS(CMSHQ));
+		//m_pMSHQ = (CMSHQ*)AfxBeginThread(RUNTIME_CLASS(CMSHQ));
 	}
 	//交易后处理线程
 	if(!(((CHiStarApp*)AfxGetApp())->m_pHedgePostProcessing)){
@@ -212,4 +217,64 @@ void CHiStarApp::SetIFContract(void)
 	//多字节编码里的字母数字和ASCII是兼容的，所以才用CString和char[]在这儿效果一样。
 	//为了保持这种兼容，本程序只能采用多字节编码，否则会出错的。
 	m_accountCtp.m_szInst = _T("IF") + insID.Right(4);
+}
+
+int CHiStarApp::iniFileInput(void)
+{
+	fileInput.open("histar.ini");
+	std::vector<std::string> inputData;
+	std::string str,str01,str02,str03,str04;
+	while(getline(fileInput,str)){
+		TRACE("%s\r\n",str.c_str());
+		std::stringstream stream(str);
+		stream >> str01;
+		if(str01.c_str()[0] == '*'){continue;}
+		else if(str01 == "@account"){
+			while(getline(fileInput,str)){
+				stream.clear();stream.str("");stream << str;
+				stream >> str01 >> str02 >> str03;
+				if(str01.c_str()[0] == '*'){continue;}
+				if(str01 == "@end")break;
+				memset(&m_accountCtp.m_sBROKER_ID, 0, sizeof(m_accountCtp.m_sBROKER_ID));
+				memset(&m_accountCtp.m_sINVESTOR_ID, 0, sizeof(m_accountCtp.m_sINVESTOR_ID));
+				memset(&m_accountCtp.m_sPASSWORD, 0, sizeof(m_accountCtp.m_sPASSWORD));
+				strcpy(m_accountCtp.m_sINVESTOR_ID,str01.c_str());
+				strcpy(m_accountCtp.m_sPASSWORD,str02.c_str());
+				strcpy(m_accountCtp.m_sBROKER_ID,str03.c_str());
+			}
+		}
+		else if(str01 == "@hedgehold"){
+			while(getline(fileInput,str)){
+				stream.clear();stream.str("");stream << str;
+				stream >> str01 >> str02 >> str03 >> str04;
+				if(str01.c_str()[0] == '*'){continue;}
+				if(str01 == "@end")break;
+				HoldDetail hd;
+				hd.id = atol(str01.c_str());
+				hd.HedgeNum = atoi(str02.c_str());
+				hd.HedgeSection = atoi(str03.c_str());
+				hd.originalCost = atof(str04.c_str());
+				HedgeHold.push_back(hd);
+			}
+		}
+		else if(str01 == "@md_address"){
+			while(getline(fileInput,str)){
+				stream.clear();stream.str("");stream << str;
+				stream >> str01;
+				if(str01.c_str()[0] == '*'){continue;}
+				if(str == "@end")break;
+				m_accountCtp.m_szArMd.Add(str01.c_str());
+			}
+		}
+		else if(str01 == "@td_address"){
+			while(getline(fileInput,str)){
+				stream.clear();stream.str("");stream << str;
+				stream >> str01;
+				if(str01.c_str()[0] == '*'){continue;}
+				if(str == "@end")break;
+				m_accountCtp.m_szArTs.Add(str01.c_str());
+			}
+		}
+	}
+	return 0;
 }

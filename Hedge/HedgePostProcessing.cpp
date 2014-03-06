@@ -36,7 +36,7 @@ double AvailIB = 0.0,AvailCtp = 0.0;//可用资金，需要计算
 char buffer[1000];
 std::vector<HoldDetail> HedgeHoldTemp;//临时使用的，先用这个进行预计算，最后同步到HedgeHold
 std::vector<HoldDetail> HedgeHold;
-int idHold = 0;//持仓id
+long maxIdHold = 0;//最大持仓id
 struct A50Task{
     int volumeRecord;char direction;//'l'表示长仓,'s'表示短舱
     double priceRecord;int id;int traded;double avgPrice;
@@ -89,6 +89,10 @@ END_MESSAGE_MAP()
 
 void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
     HWND hEdit = ::GetDlgItem(((CMainDlg*)m_pMainWnd)->m_basicPage.m_hWnd,IDC_RICHEDIT_STATUS);
+	//求最大持仓id
+	for(unsigned int i = 0;i < HedgeHold.size();i++){
+		maxIdHold = max(maxIdHold,HedgeHold[i].id);
+	}
 	SelectIndex();
     if(hedgeTaskStatus == NEW_HEDGE){
 		HedgeHoldTemp = HedgeHold;
@@ -287,7 +291,7 @@ void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
                 newhold.HedgeSection = CurrentSectionSell;
                 sprintf(buffer,_T("需要开仓%d手,相对价格%f,所在区间%d,左%f,右%f\r\n"),newhold.HedgeNum,newhold.adjustedCost,newhold.HedgeSection,HedgeLadder[newhold.HedgeSection - 1],HedgeLadder[newhold.HedgeSection]);
                 hedgeStatusPrint = hedgeStatusPrint + buffer;
-				newhold.id = ++idHold;
+				newhold.id = ++maxIdHold;
                 HedgeHoldTemp.push_back(newhold);
                 ReqHedgeOrder(&newhold,OPEN);
                 sprintf(buffer,_T("======================END05======================\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
@@ -304,7 +308,7 @@ void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
                 newhold.HedgeSection = CurrentSectionBuy;
                 sprintf(buffer,_T("需要开仓%d手,相对价格%f,所在区间%d,左%f,右%f\r\n"),newhold.HedgeNum,newhold.adjustedCost,newhold.HedgeSection,HedgeLadder[newhold.HedgeSection - 1],HedgeLadder[newhold.HedgeSection]);
                 hedgeStatusPrint = hedgeStatusPrint + buffer;
-				newhold.id = ++idHold;
+				newhold.id = ++maxIdHold;
                 HedgeHoldTemp.push_back(newhold);
                 ReqHedgeOrder(&newhold,OPEN);
                 sprintf(buffer,_T("======================END06======================\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;

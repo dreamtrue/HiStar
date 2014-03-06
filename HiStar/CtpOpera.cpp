@@ -89,6 +89,7 @@ UINT LoginThread(LPVOID pParam)
 	char szTd[MAX_PATH],szMd[MAX_PATH];
 	for (i=0;i<iTdSvr;i++){
 		iLen = pApp->m_accountCtp.m_szArTs[i].GetLength();
+		TRACE("%s\r\n",pApp->m_accountCtp.m_szArTs[i]);
 		uni2ansi(CP_ACP,pApp->m_accountCtp.m_szArTs[i].GetBuffer(iLen),szTd);
 		pApp->m_accountCtp.m_szArTs[i].ReleaseBuffer();
 		if(pApp->m_TApi){
@@ -142,6 +143,7 @@ UINT LoginThread(LPVOID pParam)
 	for (i=0;i<iTdSvr;i++){
 		iLen = pApp->m_accountCtp.m_szArMd[i].GetLength();
 		uni2ansi(CP_ACP,pApp->m_accountCtp.m_szArMd[i].GetBuffer(iLen),szMd);
+		TRACE("%s\r\n",pApp->m_accountCtp.m_szArMd[i]);
 		pApp->m_accountCtp.m_szArMd[i].ReleaseBuffer();
 		if(pApp->m_MApi){
 			pApp->m_MApi->RegisterFront(szMd);
