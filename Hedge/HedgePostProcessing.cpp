@@ -3,6 +3,7 @@
 #include "HedgePostProcessing.h"
 #include "UserMsg.h"
 #include "MainDlg.h"
+#include "calendar.h"
 #include <math.h>
 #define SHOW if(IsWindow(hEdit)){::SendMessage(hEdit,WM_SETTEXT,0,(LPARAM)(LPCTSTR)hedgeStatusPrint);}
 #define OPEN true
@@ -88,7 +89,23 @@ END_MESSAGE_MAP()
 
 
 void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
-    HWND hEdit = ::GetDlgItem(((CMainDlg*)m_pMainWnd)->m_basicPage.m_hWnd,IDC_RICHEDIT_STATUS);
+	HWND hEdit = ::GetDlgItem(((CMainDlg*)m_pMainWnd)->m_basicPage.m_hWnd,IDC_RICHEDIT_STATUS);
+	//获取系统时间
+	SYSTEMTIME sys;
+	GetLocalTime(&sys);
+	//非交易日返回
+	if(!isTradeDay(sys.wYear,sys.wMonth,sys.wDay))
+	{
+		return;
+	}
+	//非常规交易时间
+	if((sys.wHour == 9 && sys.wMinute < 10) || 
+		(sys.wHour == 15 && sys.wMinute > 15) ||
+		(sys.wHour == 11 && sys.wMinute > 30) ||
+		(sys.wHour == 12)||
+		(sys.wHour < 9) || (sys.wHour > 15)){
+			return;
+	}
 	//求最大持仓id
 	for(unsigned int i = 0;i < HedgeHold.size();i++){
 		maxIdHold = max(maxIdHold,HedgeHold[i].id);
@@ -720,7 +737,7 @@ double DealA50Price(bool isBuy, double A50Price)
 
 void SelectIndex(){
 	if(fabs(g_A50Index - g_A50IndexMSHQ) > 15.0){
-		//TRACE("over 0.1,MS%f,SN%f\r\n",g_A50Index,g_A50Index);
+		TRACE("over 0.1,MS%f,SN%f\r\n",g_A50IndexMSHQ,g_A50Index);
 		A50Index = g_A50Index;
 	}
 	else{
