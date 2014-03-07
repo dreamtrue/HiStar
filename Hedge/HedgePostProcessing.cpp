@@ -88,7 +88,7 @@ BEGIN_MESSAGE_MAP(CHedgePostProcessing, CWinThread)
 END_MESSAGE_MAP()
 
 
-void CHiStarApp::OnHedgeLooping(UINT wParam,LONG lParam){
+void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 	HWND hEdit = ::GetDlgItem(((CMainDlg*)m_pMainWnd)->m_basicPage.m_hWnd,IDC_RICHEDIT_STATUS);
 	//获取系统时间
 	SYSTEMTIME sys;
@@ -535,7 +535,7 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 }
 
 //后处理
-void CHedgePostProcessing::PostProcessing(UINT t_wParam,LONG t_lParam){
+void CHedgePostProcessing::PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 	HWND hEdit = ::GetDlgItem(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->m_basicPage.m_hWnd,IDC_RICHEDIT_STATUS);
 	MSG msg;BOOL bRet;
 	long idHedgeCurrent = -1;

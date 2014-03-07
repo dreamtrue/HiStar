@@ -50,7 +50,7 @@ int CHiStarApp::FindInstMul(TThostFtdcInstrumentIDType InstID){
 	if (founded){return iMul;}
 	return (-1);
 }
-void CHiStarApp::LoginCtp(UINT wParam,LONG lParam)
+void CHiStarApp::LoginCtp(WPARAM wParam,LPARAM lParam)
 {
 	SetIFContract();//设置IF合约
 	if (!m_pLoginCtp)
@@ -59,7 +59,7 @@ void CHiStarApp::LoginCtp(UINT wParam,LONG lParam)
 		m_pLoginCtp = NULL;
 	}
 }
-void CHiStarApp::LogoutCtp(UINT wParam,LONG lParam)
+void CHiStarApp::LogoutCtp(WPARAM wParam,LPARAM lParam)
 {
 	//交易模块登出,行情模块不需要,否则会报错(暂时不知道原因?)
 	if(m_cT){
@@ -291,7 +291,7 @@ UINT LoginThread(LPVOID pParam)
 	pApp->m_pLoginCtp = NULL;
 	return 0;
 }
-void CHiStarApp::OnQryAccCtp(UINT wParam,LONG lParam){
+void CHiStarApp::OnQryAccCtp(WPARAM wParam,LPARAM lParam){
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	if(g_bLoginCtpT){
 		if(pApp->m_cT){
@@ -299,7 +299,7 @@ void CHiStarApp::OnQryAccCtp(UINT wParam,LONG lParam){
 		}
 	}
 }
-void CHiStarApp::OnUpdateLstCtrl(UINT wParam,LONG lParam){
+void CHiStarApp::OnUpdateLstCtrl(WPARAM wParam,LPARAM lParam){
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	((CMainDlg*)pApp->m_pMainWnd)->m_statusPage.SynchronizeAllVecs();
 }

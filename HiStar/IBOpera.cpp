@@ -4,7 +4,7 @@
 #include "calendar.h"
 extern HANDLE g_hEvent;
 //IB交易系统
-void CHiStarApp::OnConnectIB(UINT wParam,LONG lParam){
+void CHiStarApp::OnConnectIB(WPARAM wParam,LPARAM lParam){
 	UINT clientID = 0;
 	CString cStatus;
 	cStatus.Format( "Connecting to Tws using clientId %d ...",clientID);
@@ -22,7 +22,7 @@ void CHiStarApp::OnConnectIB(UINT wParam,LONG lParam){
 	}
 }
 
-void CHiStarApp::OnDisconnectIB(UINT wParam,LONG lParam){
+void CHiStarApp::OnDisconnectIB(WPARAM wParam,LPARAM lParam){
 	m_pIBClient->eDisconnect();
 }
 

@@ -119,11 +119,11 @@ public:
 	CtpTraderSpi* m_cT;
 	void SetIFContract(void);
 	void CreateCtpClient(void);
-	void LoginCtp(UINT wParam,LONG lParam);
-	void LogoutCtp(UINT wParam,LONG lParam);
-	void OnQryAccCtp(UINT wParam,LONG lParam);
-	void OnUpdateLstCtrl(UINT wParam,LONG lParam);
-	void OnHedgeLooping(UINT wParam,LONG lParam);
+	void LoginCtp(WPARAM wParam,LPARAM lParam);
+	void LogoutCtp(WPARAM wParam,LPARAM lParam);
+	void OnQryAccCtp(WPARAM wParam,LPARAM lParam);
+	void OnUpdateLstCtrl(WPARAM wParam,LPARAM lParam);
+	void OnHedgeLooping(WPARAM wParam,LPARAM lParam);
 	CWinThread* m_pLoginCtp;
 	int FindInstMul(TThostFtdcInstrumentIDType InstID);
 	CString m_strPath;
@@ -133,8 +133,8 @@ public:
 	SAccountIB m_accountIB;
 	EClient* m_pIBClient;//EClient是一个纯虚类接口,被继承并实现。
 	void SetA50Contract();
-	void OnConnectIB(UINT wParam,LONG lParam);
-	void OnDisconnectIB(UINT wParam,LONG lParam);
+	void OnConnectIB(WPARAM wParam,LPARAM lParam);
+	void OnDisconnectIB(WPARAM wParam,LPARAM lParam);
 	Contract m_A50Contract;
 	WORD m_LifeA50;
 	TagValueListSPtr m_mktDepthOptions;
