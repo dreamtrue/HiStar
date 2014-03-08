@@ -188,4 +188,9 @@
       <Filter>资源文件</Filter>
     </ResourceCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\..\..\..\..\..\Program Files (x86)\MySQL\mysql-5.7.2-m12-win32\lib\libmysql.lib">
+      <Filter>资源文件</Filter>
+    </Library>
+  </ItemGroup>
 </Project>

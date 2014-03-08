@@ -42,6 +42,7 @@ CHiStarApp::CHiStarApp()
 	, m_id(0)
 	, m_pHedgePostProcessing(NULL)
 	, m_pMSHQ(NULL)
+	, conn(NULL)
 {
 	//定位内存泄漏位置,非常好用
 	//_CrtSetBreakAlloc(538);
@@ -49,6 +50,7 @@ CHiStarApp::CHiStarApp()
 	//_CrtSetBreakAlloc(151);
 	//_CrtSetBreakAlloc(149);
 	iniFileInput();
+	iniSql();
 	MainThreadId = GetCurrentThreadId();
 	// 支持重新启动管理器
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;
@@ -146,6 +148,10 @@ BOOL CHiStarApp::InitInstance()
 
 CHiStarApp::~CHiStarApp(void)
 {
+	if(conn){
+		mysql_close(conn);
+		conn = NULL;
+	}
 	if(m_pIBClient){
 		delete m_pIBClient;
 		m_pIBClient = NULL;
@@ -277,4 +283,31 @@ int CHiStarApp::iniFileInput(void)
 		}
 	}
 	return 0;
+}
+
+void CHiStarApp::iniSql(void)
+{
+	SYSTEMTIME sys;
+	GetLocalTime(&sys);
+	char name[100];
+	sprintf(name,"%04d%02dmarket",sys.wYear,sys.wMonth);
+	m_marketTableName = name;
+	conn = mysql_init(NULL); 
+	if(conn == NULL) {
+		TRACE("Error %u: %s\n", mysql_errno(conn), mysql_error(conn));      
+		exit(1);  
+	}  
+	if(conn){
+		if(mysql_real_connect(conn,"rdsnqzb3iqzqyeb.mysql.rds.aliyuncs.com","dbwgnn1gn0u90u6n","203891", "dbwgnn1gn0u90u6n",0,NULL,0) == NULL) 
+		{      
+			TRACE("Error %u: %s\n", mysql_errno(conn), mysql_error(conn));     
+			exit(1);  
+		}  
+	}
+	if(conn){
+		if(mysql_query(conn,"CREATE TABLE IF NOT EXISTS " + m_marketTableName + "(datetime DATETIME,millisecond INT,a50index VARCHAR(20),a50bid VARCHAR(20),a50ask VARCHAR(20),hs300index VARCHAR(20),hs300bid VARCHAR(20),hs300ask VARCHAR(20))")) 
+		{      
+			TRACE("Error %u: %s\n", mysql_errno(conn), mysql_error(conn));      
+		}
+	}
 }

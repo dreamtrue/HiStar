@@ -16,6 +16,8 @@
 #include "Index.h"
 #include "contract.h"
 #include "contract.h"
+#include "my_global.h"
+#include "mysql.h"
 #include "HedgePostProcessing.h"
 #include "MSHQ.h"
 #include "order.h"
@@ -143,6 +145,9 @@ public:
 	Order m_IBOrder;
 	CMSHQ* m_pMSHQ;
 	int iniFileInput(void);
+	void iniSql(void);
+	MYSQL *conn; 
+	CString m_marketTableName;
 };
 
 extern CHiStarApp theApp;

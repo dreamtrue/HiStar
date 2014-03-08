@@ -29,13 +29,13 @@ class CAboutDlg : public CDialogEx
 public:
 	CAboutDlg();
 
-// 对话框数据
+	// 对话框数据
 	enum { IDD = IDD_ABOUTBOX };
 
-	protected:
+protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 
-// 实现
+	// 实现
 protected:
 	DECLARE_MESSAGE_MAP()
 };
@@ -279,17 +279,28 @@ void CBasicPage::OnReqComboSelMarketDepth()
 
 void CBasicPage::RefreshMdPane(void)
 {
-	 double dPresp=m_depthMd.PreSettlementPrice;
-	 double dUpD = m_depthMd.LastPrice-dPresp;
-	 m_csS1P.SetDouble(m_depthMd.AskPrice1,CmpPriceColor(m_depthMd.AskPrice1,dPresp));
-	 m_csLastP.SetDouble(m_depthMd.LastPrice,CmpPriceColor(m_depthMd.AskPrice1,dPresp));
-	 m_csB1P.SetDouble(m_depthMd.BidPrice1,CmpPriceColor(m_depthMd.AskPrice1,dPresp));
-	 m_csHs300.SetDouble(g_HS300Index,BLACK);
-	 m_csA50.SetDouble(g_A50Index,BLACK);
-	 m_csA50Bid1.SetDouble(g_a50Bid1,BLACK);
-	 m_csA50Ask1.SetDouble(g_a50Ask1,BLACK);
-	 m_csHedgePriceHigh.SetDouble(premiumHigh - datumDiff,BLACK);
-	 m_csHedgePriceLow.SetDouble(premiumLow - datumDiff,BLACK);
+	double dPresp=m_depthMd.PreSettlementPrice;
+	double dUpD = m_depthMd.LastPrice-dPresp;
+	m_csS1P.SetDouble(m_depthMd.AskPrice1,CmpPriceColor(m_depthMd.AskPrice1,dPresp));
+	m_csLastP.SetDouble(m_depthMd.LastPrice,CmpPriceColor(m_depthMd.AskPrice1,dPresp));
+	m_csB1P.SetDouble(m_depthMd.BidPrice1,CmpPriceColor(m_depthMd.AskPrice1,dPresp));
+	m_csHs300.SetDouble(g_HS300Index,BLACK);
+	m_csA50.SetDouble(g_A50Index,BLACK);
+	m_csA50Bid1.SetDouble(g_a50Bid1,BLACK);
+	m_csA50Ask1.SetDouble(g_a50Ask1,BLACK);
+	m_csHedgePriceHigh.SetDouble(premiumHigh - datumDiff,BLACK);
+	m_csHedgePriceLow.SetDouble(premiumLow - datumDiff,BLACK);
+	SYSTEMTIME sys;
+	GetLocalTime(&sys);
+	char price[1000],datetime[100];
+	if(((CHiStarApp*)AfxGetApp())->conn){
+		sprintf(datetime,"'%d-%d-%d %d:%d:%d',%d,",sys.wYear,sys.wMonth,sys.wDay,sys.wHour,sys.wMinute,sys.wSecond,sys.wMilliseconds);
+		sprintf(price,"%f,%f,%f,%f,%f,%f",g_A50Index,g_a50Bid1,g_a50Ask1,g_HS300Index,m_depthMd.BidPrice1,m_depthMd.AskPrice1);
+		CString insertdata = "INSERT INTO " + ((CHiStarApp*)AfxGetApp())->m_marketTableName + " (datetime,millisecond,a50index,a50bid,a50ask,hs300index,hs300bid,hs300ask) VALUES (" + CString(datetime) + CString(price) +")";
+		if(mysql_query(((CHiStarApp*)AfxGetApp())->conn,insertdata.GetBuffer())){
+			TRACE("Error %u: %s\n", mysql_errno(((CHiStarApp*)AfxGetApp())->conn), mysql_error(((CHiStarApp*)AfxGetApp())->conn));
+		}
+	}	
 }
 
 void CBasicPage::OnPause()
