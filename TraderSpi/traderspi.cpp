@@ -9,6 +9,7 @@
 extern HANDLE g_hEvent;
 BOOL g_bRecconnectT = FALSE;
 BOOL g_bLoginCtpT = FALSE;
+extern int longIf,shortIf;
 bool g_bOnceT = FALSE;//交易系统是否曾经登陆过，如果登陆过则是TRUE,否则FALSE
 //网络故障恢复正常后 自动重连
 void CtpTraderSpi::OnFrontConnected()
@@ -308,12 +309,27 @@ void CtpTraderSpi::OnRspQryInvestorPosition(
 		if(!founded){
 			m_InvPosVec.push_back(InvPos);
 		}
+		//初始化IF持仓
+		CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
+		char szInst[MAX_PATH];
+		uni2ansi(CP_ACP,pApp->m_accountCtp.m_szInst,szInst);
+		if(!strcmp(szInst,pInvestorPosition->InstrumentID)){
+			if(pInvestorPosition->PosiDirection == THOST_FTDC_PD_Long){
+				TRACE("IF长仓%d\r\n",pInvestorPosition->PosiDirection);
+				longIf = pInvestorPosition->Position;
+			}
+			else if(pInvestorPosition->PosiDirection == THOST_FTDC_PD_Short){
+				shortIf = pInvestorPosition->Position;
+				TRACE("IF短仓%d\r\n",pInvestorPosition->PosiDirection);
+			}
+		}
 	}
 	if(bIsLast){ 
 		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 		SetEvent(g_hEvent);
 	}
 }
+
 void CtpTraderSpi::ReqQryOrder(TThostFtdcInstrumentIDType instId){
 	CThostFtdcQryOrderField req;
 	memset(&req,0,sizeof(req));

@@ -11,6 +11,7 @@ int g_a50Bid1Size = 0,g_a50Ask1Size = 0;
 static int faErrorCodes[NUM_FA_ERROR_CODES] =
 { 503, 504, 505, 522, 1100, NOT_AN_FA_ACCOUNT_ERROR} ;
 extern HANDLE g_hEvent;
+extern int netPositionA50;
 DWORD MainThreadId = 0;
 //IB交易系统
 void CHiStarApp::tickPrice( TickerId tickerId, TickType field, double price, int canAutoExecute){
@@ -236,7 +237,10 @@ void CHiStarApp::commissionReport( const CommissionReport &commissionReport){
 }
 
 void CHiStarApp::position( const IBString& account, const Contract& contract, int position, double avgCost){
-	TRACE("position\n");
+	if(m_A50Contract.symbol == contract.symbol && m_A50Contract.expiry == contract.expiry){
+		netPositionA50 = position;
+		TRACE("A50持仓%d\r\n",position);
+	}
 }
 
 void CHiStarApp::positionEnd(){

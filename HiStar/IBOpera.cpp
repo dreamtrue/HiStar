@@ -18,6 +18,7 @@ void CHiStarApp::OnConnectIB(WPARAM wParam,LPARAM lParam){
 		m_pIBClient->reqAccountUpdates(true,m_accountIB.m_accountName);
 		m_pIBClient->reqCurrentTime();
 		SetA50Contract();//ÉèÖÃA50ºÏÔ¼
+		m_pIBClient->reqPositions();
 		m_pIBClient->reqMktDepth(++m_id,m_A50Contract,20,m_mktDepthOptions);
 	}
 }

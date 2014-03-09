@@ -292,6 +292,8 @@ void CHiStarApp::iniSql(void)
 	char name[100];
 	sprintf(name,"%04d%02dmarket",sys.wYear,sys.wMonth);
 	m_marketTableName = name;
+	sprintf(name,"%04d%02dstatusIb",sys.wYear,sys.wMonth);
+    m_statusTableIbName = name;
 	conn = mysql_init(NULL); 
 	if(conn == NULL) {
 		TRACE("Error %u: %s\n", mysql_errno(conn), mysql_error(conn));      
@@ -306,6 +308,12 @@ void CHiStarApp::iniSql(void)
 	}
 	if(conn){
 		if(mysql_query(conn,"CREATE TABLE IF NOT EXISTS " + m_marketTableName + "(datetime DATETIME,millisecond INT,a50index VARCHAR(20),a50bid VARCHAR(20),a50ask VARCHAR(20),hs300index VARCHAR(20),hs300bid VARCHAR(20),hs300ask VARCHAR(20))")) 
+		{      
+			TRACE("Error %u: %s\n", mysql_errno(conn), mysql_error(conn));      
+		}
+	}
+	if(conn){
+		if(mysql_query(conn,"CREATE TABLE IF NOT EXISTS " + m_statusTableIbName + "(datetime DATETIME,millisecond INT,a50index VARCHAR(20),a50bid VARCHAR(20),a50ask VARCHAR(20),hs300index VARCHAR(20),hs300bid VARCHAR(20),hs300ask VARCHAR(20))")) 
 		{      
 			TRACE("Error %u: %s\n", mysql_errno(conn), mysql_error(conn));      
 		}
