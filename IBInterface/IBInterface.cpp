@@ -237,7 +237,7 @@ void CHiStarApp::commissionReport( const CommissionReport &commissionReport){
 }
 
 void CHiStarApp::position( const IBString& account, const Contract& contract, int position, double avgCost){
-	if(m_A50Contract.symbol == contract.symbol && m_A50Contract.expiry == contract.expiry){
+	if(m_A50Contract.symbol == contract.symbol && m_A50Contract.expiry == contract.expiry.Left(6)){
 		netPositionA50 = position;
 		TRACE("A50³Ö²Ö%d\r\n",position);
 	}
