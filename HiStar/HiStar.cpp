@@ -290,9 +290,9 @@ void CHiStarApp::iniSql(void)
 	SYSTEMTIME sys;
 	GetLocalTime(&sys);
 	char name[100];
-	sprintf(name,"%04d%02dmarket",sys.wYear,sys.wMonth);
+	sprintf(name,"%04d%02d%02dmarket",sys.wYear,sys.wMonth,sys.wDay);
 	m_marketTableName = name;
-	sprintf(name,"%04d%02dstatusIb",sys.wYear,sys.wMonth);
+	sprintf(name,"%04d%02d%02dstatusIb",sys.wYear,sys.wMonth,sys.wDay);
     m_statusTableIbName = name;
 	conn = mysql_init(NULL); 
 	if(conn == NULL) {

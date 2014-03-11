@@ -153,17 +153,19 @@ void CHiStarApp::updateMktDepth(TickerId id, int position, int operation, int si
 				if(price != g_a50Bid1){
 					g_a50Bid1 = price;
 					g_a50Bid1Size = size;
+					if(AfxGetApp()->m_pMainWnd){
+						PostMessage(AfxGetApp()->m_pMainWnd->GetSafeHwnd(),WM_MD_REFRESH,NULL,NULL);
+					}
 				}
 			}
 			else{
 				if(price != g_a50Ask1){
 					g_a50Ask1 = price;
 					g_a50Ask1Size = size;
+					if(AfxGetApp()->m_pMainWnd){
+						PostMessage(AfxGetApp()->m_pMainWnd->GetSafeHwnd(),WM_MD_REFRESH,NULL,NULL);
+					}
 				}
-			}
-			//TRACE("%f %f\r\n",g_a50Bid1,g_a50Ask1);
-			if(AfxGetApp()->m_pMainWnd){
-				PostMessage(AfxGetApp()->m_pMainWnd->GetSafeHwnd(),WM_MD_REFRESH,NULL,NULL);
 			}
 		}
 }

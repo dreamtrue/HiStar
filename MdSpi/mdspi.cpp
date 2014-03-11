@@ -131,16 +131,15 @@ void CtpMdSpi::OnRspUnSubMarketData(
 }
 
 void CtpMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData){
-	//TRACE("%s,%f,%f\n",pDepthMarketData->InstrumentID,pDepthMarketData->BidPrice1,pDepthMarketData->AskPrice1);
-	g_ifAsk1 = pDepthMarketData->AskPrice1;
-	g_ifBid1 = pDepthMarketData->BidPrice1;
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
-	if(pApp->m_pMainWnd){
-		memcpy(&(((CMainDlg*)(pApp->m_pMainWnd))->m_basicPage.m_depthMd),pDepthMarketData,sizeof(CThostFtdcDepthMarketDataField));		
-		if(AfxGetApp()->m_pMainWnd){
+	if(pDepthMarketData->AskPrice1 != g_ifAsk1 || pDepthMarketData->BidPrice1 != g_ifBid1){
+		g_ifAsk1 = pDepthMarketData->AskPrice1;
+		g_ifBid1 = pDepthMarketData->BidPrice1;
+		if(pApp->m_pMainWnd){
+			memcpy(&(((CMainDlg*)(pApp->m_pMainWnd))->m_basicPage.m_depthMd),pDepthMarketData,sizeof(CThostFtdcDepthMarketDataField));		
 			PostMessage(AfxGetApp()->m_pMainWnd->GetSafeHwnd(),WM_MD_REFRESH,NULL,NULL);
-			PostThreadMessage(MainThreadId,WM_MD_REFRESH,NULL,NULL);
 		}
+		PostThreadMessage(MainThreadId,WM_MD_REFRESH,NULL,NULL);
 	}
 }
 
