@@ -315,12 +315,12 @@ void CtpTraderSpi::OnRspQryInvestorPosition(
 		uni2ansi(CP_ACP,pApp->m_accountCtp.m_szInst,szInst);
 		if(!strcmp(szInst,pInvestorPosition->InstrumentID)){
 			if(pInvestorPosition->PosiDirection == THOST_FTDC_PD_Long){
-				TRACE("IF³¤²Ö%d\r\n",pInvestorPosition->PosiDirection);
+				TRACE("IF³¤²Ö%d\r\n",pInvestorPosition->Position);
 				longIf = pInvestorPosition->Position;
 			}
 			else if(pInvestorPosition->PosiDirection == THOST_FTDC_PD_Short){
 				shortIf = pInvestorPosition->Position;
-				TRACE("IF¶Ì²Ö%d\r\n",pInvestorPosition->PosiDirection);
+				TRACE("IF¶Ì²Ö%d\r\n",pInvestorPosition->Position);
 			}
 		}
 	}

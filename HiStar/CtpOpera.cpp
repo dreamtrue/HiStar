@@ -186,7 +186,6 @@ UINT LoginThread(LPVOID pParam)
 		return 0;
 	}
 	Sleep(1000);
-	/*
 	if(pApp->m_cT){
 		pApp->m_cT->ReqQryInvPos(NULL);
 	}
@@ -200,13 +199,13 @@ UINT LoginThread(LPVOID pParam)
 		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查持仓信息超时!"), 0);
 		return 0;
 	}
-	*/
+	Sleep(1000);
 	if(pApp->m_cT){
 		pApp->m_cT->ReqQryInvPosEx(NULL);
 	}
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
-		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查持仓明细信息!"), 40);
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查持仓明细信息!"), 45);
 		ResetEvent(g_hEvent);
 	}	
 	else{
@@ -220,7 +219,7 @@ UINT LoginThread(LPVOID pParam)
 	}
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
-		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查资金账户!"), 45);
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查资金账户!"), 50);
 		ResetEvent(g_hEvent);
 	}	
 	else{
@@ -235,7 +234,7 @@ UINT LoginThread(LPVOID pParam)
 	}
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
-		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查银期信息!"), 50);
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查银期信息!"), 60);
 		ResetEvent(g_hEvent);
 	}
 	else{
@@ -249,7 +248,7 @@ UINT LoginThread(LPVOID pParam)
 	}
 	dwRet = WaitForSingleObject(g_hEvent,WAIT_MS);
 	if (dwRet==WAIT_OBJECT_0){
-		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查交易编码!"), 55);
+		((CMainDlg*)pApp->m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查交易编码!"), 65);
 		ResetEvent(g_hEvent);
 	}	
 	else{
