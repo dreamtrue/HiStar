@@ -10,7 +10,7 @@
 #define CLOSE false
 double datumDiff = 0.0;
 double pointValueA50 = 1.0;double pointValueIf = 300.0;//合约每个点的价值
-int MultiA50 = 12;//A50乘数
+int MultiA50 = 16;//A50乘数
 double MarginA50 = 625.0,MarginIf = 0.15;
 double USDtoRMB = 6.07;//汇率
 bool isHedgeLoopingPause = true;
