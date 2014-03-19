@@ -8,6 +8,7 @@
 #define SHOW if(IsWindow(hEdit)){::SendMessage(hEdit,WM_SETTEXT,0,(LPARAM)(LPCTSTR)hedgeStatusPrint);}
 #define OPEN true
 #define CLOSE false
+extern DWORD MainThreadId;
 double datumDiff = 0.0;
 double pointValueA50 = 1.0;double pointValueIf = 300.0;//合约每个点的价值
 int MultiA50 = 16;//A50乘数
@@ -277,23 +278,27 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 			}
 		}
 		for(int i = 0;i <= 21;i++){
-			if(min(netPosition,0) > PositionAim[i]){
-				SupposedSellOpen = min(netPosition,0) - PositionAim[i];
-				SupposedSectionSellOpen = i;
-				isSupposedSellOpen = true;
-				//sprintf(buffer,_T("期望卖开%d期望区间%d,左%f,右%f\r\n"),SupposedSellOpen,i,HedgeLadder[i - 1],HedgeLadder[i]);
-				//hedgeStatusPrint = hedgeStatusPrint + buffer;
-				break;
+			if(PositionAim[i] < 0){
+				if(-abs(netPosition) > PositionAim[i]){
+					SupposedSellOpen = -abs(netPosition) - PositionAim[i];
+					SupposedSectionSellOpen = i;
+					isSupposedSellOpen = true;
+					//sprintf(buffer,_T("期望卖开%d期望区间%d,左%f,右%f\r\n"),SupposedSellOpen,i,HedgeLadder[i - 1],HedgeLadder[i]);
+					//hedgeStatusPrint = hedgeStatusPrint + buffer;
+					break;
+				}
 			}
 		}
 		for(int i = 21;i >= 0;i--){
-			if(max(netPosition,0) < PositionAim[i]){
-				SupposedBuyOpen = -(max(netPosition,0) - PositionAim[i]);
-				SupposedSectionBuyOpen = i;
-				isSupposedBuyOpen = true;
-				//sprintf(buffer,_T("期望买开%d期望区间%d,左%f,右%f\r\n"),SupposedBuyOpen,i,HedgeLadder[i - 1],HedgeLadder[i]);
-				//hedgeStatusPrint = hedgeStatusPrint + buffer;
-				break;
+			if(PositionAim[i] > 0){
+				if(abs(netPosition) < PositionAim[i]){
+					SupposedBuyOpen = -(abs(netPosition) - PositionAim[i]);
+					SupposedSectionBuyOpen = i;
+					isSupposedBuyOpen = true;
+					//sprintf(buffer,_T("期望买开%d期望区间%d,左%f,右%f\r\n"),SupposedBuyOpen,i,HedgeLadder[i - 1],HedgeLadder[i]);
+					//hedgeStatusPrint = hedgeStatusPrint + buffer;
+					break;
+				}
 			}
 		}
 		//开仓操作
@@ -713,7 +718,8 @@ void CHedgePostProcessing::PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 	HedgeHold = HedgeHoldTemp;//更新Hold持仓
 	hedgeTaskStatus = NEW_HEDGE;
 	sprintf(buffer,_T("对冲结束\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
-	Sleep(30000);//休息30秒,为了让系统有时间更新账户信息
+	::PostThreadMessage(MainThreadId,WM_QRY_ACC_CTP,NULL,NULL);//更新账户
+	Sleep(3000);
 }
 
 double DealA50Price(bool isBuy, double A50Price)
