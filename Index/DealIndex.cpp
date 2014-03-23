@@ -19,7 +19,7 @@ int GetIndexData(void)
 	int i = 0;
 	myURL = m_URL + _T(A50ID) + _T(HS300ID);
 	try{
-		myHttpFile = (CHttpFile*)mySession.OpenURL(myURL);
+		myHttpFile = (CHttpFile*)mySession.OpenURL(myURL,1,INTERNET_FLAG_RELOAD|INTERNET_FLAG_TRANSFER_ASCII);
 	}
 	catch(CInternetException*pException){
 		pException->Delete();
