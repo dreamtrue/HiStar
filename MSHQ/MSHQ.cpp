@@ -187,7 +187,7 @@ int CMSHQ::OpenHQFile()
 		TRACE("已发现行情镜象文件!\n");
 		return 0;
 	}
-	TRACE("未发现行情镜象文件!\n");
+	//TRACE("未发现行情镜象文件!\n");
 	return 2;
 }
 
@@ -199,7 +199,7 @@ void CMSHQ::UpdateHQ()
 		if(nError == 2){
 			g_A50IndexMSHQ = 0.0;
 			g_HS300IndexMSHQ = 0.0;
-			TRACE("股票数组初始化失败\r\n");
+			//TRACE("股票数组初始化失败\r\n");
 		}
 		return;
 	}

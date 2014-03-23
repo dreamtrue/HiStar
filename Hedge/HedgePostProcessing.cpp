@@ -1,4 +1,6 @@
 #include "stdafx.h"
+#include "afxsock.h"
+#include <afxinet.h> 
 #include "HiStar.h"
 #include "HedgePostProcessing.h"
 #include "UserMsg.h"
@@ -6,6 +8,7 @@
 #include "calendar.h"
 #include <math.h>
 #define SHOW if(IsWindow(hEdit)){::SendMessage(hEdit,WM_SETTEXT,0,(LPARAM)(LPCTSTR)hedgeStatusPrint);}
+int SendMsg(CString msg);
 #define OPEN true
 #define CLOSE false
 extern DWORD MainThreadId;
@@ -431,7 +434,7 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 	sprintf(buffer,_T("%2d:%2d:%2d:%3d\r\n"),sys.wHour,sys.wMinute,sys.wSecond,sys.wMilliseconds);hedgeStatusPrint = hedgeStatusPrint + buffer;
 	sprintf(buffer,_T("操作:\r\n买A50--%d手\r\n,卖A50--%d手\r\n,买开IF---%d手\r\n,买平IF---%d手\r\n,卖开IF---%d手\r\n,卖平IF---%d手\r\n"),NeedBuyA50,NeedSellA50,NeedBuyOpenIf,NeedBuyCloseIf,NeedSellOpenIf,NeedSellCloseIf);
 	hedgeStatusPrint = hedgeStatusPrint + buffer;
-	sprintf(buffer,"A50指数%f,HS300指数%f, %f, %f, %f, %f, %f\r\n",A50Index,HS300Index,g_ifBid1,g_ifAsk1,g_a50Bid1,g_a50Ask1);hedgeStatusPrint = hedgeStatusPrint + buffer;
+	sprintf(buffer,"A50指数%f,HS300指数%f, %f, %f, %f, %f\r\n",A50Index,HS300Index,g_ifBid1,g_ifAsk1,g_a50Bid1,g_a50Ask1);hedgeStatusPrint = hedgeStatusPrint + buffer;
 	sprintf(buffer,"premiumHigh%f,premiumLow%f\r\n",g_a50Ask1 - g_ifBid1 * A50Index / HS300Index,g_a50Bid1 - g_ifAsk1 * A50Index / HS300Index);hedgeStatusPrint = hedgeStatusPrint + buffer;
 	////////////////////////////////////////////////////////////////////////////////////
 	//IB表示需要新的保证金
@@ -714,7 +717,7 @@ void CHedgePostProcessing::PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 		}
 	}
 	SelectIndex();
-	sprintf(buffer,_T("对冲绝对成本%f\r\n"),t_avgPriceA50 - t_avgPriceIf * A50Index / HS300Index);hedgeStatusPrint = hedgeStatusPrint + buffer;
+	sprintf(buffer,_T("HedgeAbsCost:%f,A50:%f,If:%f,A50Index:%f,HS300Index:%f\r\n"),t_avgPriceA50 - t_avgPriceIf * A50Index / HS300Index,t_avgPriceA50,t_avgPriceIf,A50Index,HS300Index);hedgeStatusPrint = hedgeStatusPrint + buffer;SendMsg(buffer);
 	HedgeHold = HedgeHoldTemp;//更新Hold持仓
 	hedgeTaskStatus = NEW_HEDGE;
 	sprintf(buffer,_T("对冲结束\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
@@ -770,4 +773,32 @@ void CalcDeviation(){
 	deviation = premium - datumDiff;
 	DeviationSell = premiumHigh - datumDiff;
 	DeviationBuy = premiumLow - datumDiff;
+}
+
+int SendMsg(CString msg){
+	CInternetSession Session(NULL,0);
+	CHttpFile* HttpFile = NULL;
+	CString URL;
+	CString res;
+	URL = "http://hedgemsg.sinaapp.com/index.php?msg=" + msg;
+	try{
+		HttpFile = (CHttpFile*)Session.OpenURL(URL,1,INTERNET_FLAG_RELOAD|INTERNET_FLAG_TRANSFER_ASCII);
+	}
+	catch(CInternetException*pException){
+		pException->Delete();
+		return -1;//读取失败,返回
+	}
+	if(HttpFile != NULL){
+		try{
+			while(HttpFile->ReadString(res)){}
+		}
+		catch(CInternetException*pException){
+			pException->Delete();
+			return -1;//返回
+		}
+	}
+	HttpFile->Close();
+	delete HttpFile;
+	Session.Close();
+	return 0;
 }
