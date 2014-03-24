@@ -297,13 +297,13 @@ void CHiStarApp::iniSql(void)
 	conn = mysql_init(NULL); 
 	if(conn == NULL) {
 		TRACE("Error %u: %s\n", mysql_errno(conn), mysql_error(conn));      
-		exit(1);  
+		//exit(1);  
 	}  
 	if(conn){
 		if(mysql_real_connect(conn,"rdsnqzb3iqzqyeb.mysql.rds.aliyuncs.com","dbwgnn1gn0u90u6n","203891", "dbwgnn1gn0u90u6n",0,NULL,0) == NULL) 
 		{      
 			TRACE("Error %u: %s\n", mysql_errno(conn), mysql_error(conn));     
-			exit(1);  
+			//exit(1);  
 		}  
 	}
 	if(conn){
