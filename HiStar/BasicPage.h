@@ -71,6 +71,7 @@ public:
 	CColorStatic m_csHedgePriceLow;
 	afx_msg void OnBnClickedTest();
 	afx_msg void OnBnClickedUpdate();
+	double MarginA50;
 };
 //其他变量
 const int N = 5;
