@@ -90,7 +90,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\MySQL\mysql-5.7.2-m12-win32\include;..\MSHQ;..\Hedge;..\calendar;..\Index;..\DIYCtrl;..\TraderSpi;..\api_libs;..\THostFtdc;..\MdSpi;.;..\IBInterface;..\CppClient\lib;..\CppClient\src;..\CppClient\Shared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\mysql-5.7.3-m13-win32\include;..\MSHQ;..\Hedge;..\calendar;..\Index;..\DIYCtrl;..\TraderSpi;..\api_libs;..\THostFtdc;..\MdSpi;.;..\IBInterface;..\CppClient\lib;..\CppClient\src;..\CppClient\Shared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -140,7 +140,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\Hedge;..\Index;C:\Program Files %28x86%29\MySQL\mysql-5.7.2-m12-win32\include;..\MSHQ;..\calendar;..\DIYCtrl;..\api_libs;..\TraderSpi;..\THostFtdc;..\MdSpi;..\CppClient\Shared;..\CppClient\lib;..\CppClient\src;.;..\IBInterface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\Hedge;..\Index;..\MSHQ;..\calendar;..\DIYCtrl;..\api_libs;..\TraderSpi;..\THostFtdc;..\MdSpi;..\CppClient\Shared;..\CppClient\lib;..\CppClient\src;.;..\IBInterface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -239,7 +239,7 @@
     <ResourceCompile Include="HiStar.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="..\..\..\..\..\..\Program Files (x86)\MySQL\mysql-5.7.2-m12-win32\lib\libmysql.lib" />
+    <Library Include="..\mysql-5.7.3-m13-win32\lib\libmysql.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
