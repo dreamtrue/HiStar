@@ -13,6 +13,7 @@
 #define new DEBUG_NEW
 #endif
 std::fstream fileInput;
+bool isReal = true;
 extern std::vector<HoldDetail> HedgeHold;
 HANDLE g_hEvent;
 // CHiStarApp
@@ -26,6 +27,7 @@ BEGIN_MESSAGE_MAP(CHiStarApp, CWinApp)
 	ON_THREAD_MESSAGE(WM_UPDATE_LSTCTRL,OnUpdateLstCtrl)
 	ON_THREAD_MESSAGE(WM_MD_REFRESH,OnHedgeLooping)
 	ON_THREAD_MESSAGE(WM_CONNECT_SQL,OnConnectSql)
+	ON_THREAD_MESSAGE(WM_INI,OnIni)
 END_MESSAGE_MAP()
 
 // CHiStarApp 构造
@@ -50,7 +52,10 @@ CHiStarApp::CHiStarApp()
 	//_CrtSetBreakAlloc(152);
 	//_CrtSetBreakAlloc(151);
 	//_CrtSetBreakAlloc(149);
-	iniFileInput();
+}
+
+void CHiStarApp::OnIni(WPARAM wParam,LPARAM lParam){
+	FileInput();
 	MainThreadId = GetCurrentThreadId();
 	// 支持重新启动管理器
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;
@@ -225,9 +230,14 @@ void CHiStarApp::SetIFContract(void)
 	m_accountCtp.m_szInst = _T("IF") + insID.Right(4);
 }
 
-int CHiStarApp::iniFileInput(void)
+int CHiStarApp::FileInput(void)
 {
-	fileInput.open("histar.ini");
+	if(isReal){
+		fileInput.open("histar.ini");
+	}
+	else{
+		fileInput.open("histar_demo.ini");
+	}
 	std::vector<std::string> inputData;
 	std::string str,str01,str02,str03,str04;
 	while(getline(fileInput,str)){

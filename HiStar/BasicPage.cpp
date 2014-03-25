@@ -9,6 +9,7 @@
 #include "EClientSocket.h"   // C:\JTS\SocketClient\include must be added to include path
 #include "global.h"
 #include "UserMsg.h"
+#include "resource.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -23,6 +24,7 @@ extern double premiumHigh,premiumLow;
 extern double MaxProfitAim,MinProfitAim;
 extern int MultiPos;
 extern double MarginA50;
+extern bool isReal;
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
 class CAboutDlg : public CDialogEx
@@ -109,6 +111,8 @@ BEGIN_MESSAGE_MAP(CBasicPage, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_TEST, &CBasicPage::OnBnClickedTest)
 	ON_BN_CLICKED(IDC_UPDATE, &CBasicPage::OnBnClickedUpdate)
 	ON_BN_CLICKED(IDC_BUTTON7, &CBasicPage::OnIniSql)
+	ON_BN_CLICKED(IDC_CHECK1, &CBasicPage::OnBnClickedCheck1)
+	ON_BN_CLICKED(IDC_BUTTON13, &CBasicPage::OnIni)
 END_MESSAGE_MAP()
 
 
@@ -146,6 +150,7 @@ BOOL CBasicPage::OnInitDialog()
 	ShowWindow(SW_NORMAL);
 
 	// TODO: 在此添加额外的初始化代码
+	((CButton *)GetDlgItem(IDC_CHECK1))->SetCheck(TRUE);
 	m_csS1P.SetBkColor(ACC_BG);
 	m_csS1P.SetWindowText(_T("0.0"),LITGRAY);
 	m_csLastP.SetBkColor(ACC_BG);
@@ -332,4 +337,21 @@ void CBasicPage::OnBnClickedUpdate()
 void CBasicPage::OnIniSql()
 {
 	PostThreadMessage(GetCurrentThreadId(),WM_CONNECT_SQL,NULL,NULL);
+}
+
+void CBasicPage::OnBnClickedCheck1()
+{
+	if (BST_CHECKED == IsDlgButtonChecked(IDC_CHECK1))
+	{
+		isReal = true;
+	}
+	else
+	{
+		isReal = false;
+	}
+}
+
+void CBasicPage::OnIni()
+{
+	PostThreadMessage(GetCurrentThreadId(),WM_INI,NULL,NULL);
 }

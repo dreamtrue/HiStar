@@ -138,6 +138,7 @@ public:
 	void OnConnectIB(WPARAM wParam,LPARAM lParam);
 	void OnDisconnectIB(WPARAM wParam,LPARAM lParam);
 	void OnConnectSql(WPARAM wParam,LPARAM lParam);
+	void OnIni(WPARAM wParam,LPARAM lParam);
 	Contract m_A50Contract;
 	WORD m_LifeA50;
 	TagValueListSPtr m_mktDepthOptions;
@@ -145,7 +146,7 @@ public:
 	int ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag);
 	Order m_IBOrder;
 	CMSHQ* m_pMSHQ;
-	int iniFileInput(void);
+	int FileInput(void);
 	void iniSql(void);
 	MYSQL *conn; 
 	CString m_marketTableName;

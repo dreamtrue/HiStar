@@ -19,4 +19,5 @@
 #define WM_RTN_ORDER_IB WM_USER+14 //IB命令返回
 #define WM_PREPARE_POST_PROCESSING WM_USER+15 //为后处理做准备
 #define WM_CONNECT_SQL WM_USER+16
+#define WM_INI WM_USER+17
 #endif
