@@ -11,11 +11,12 @@
 int SendMsg(CString msg);
 #define OPEN true
 #define CLOSE false
+extern bool isReal;
 extern DWORD MainThreadId;
 double datumDiff = 0.0;
 double pointValueA50 = 1.0;double pointValueIf = 300.0;//合约每个点的价值
 int MultiA50 = 16;//A50乘数
-double MarginA50 = 625.0,MarginIf = 0.15;
+double MarginA50 = 416.0,MarginIf = 0.15;
 double USDtoRMB = 6.07;//汇率
 bool isHedgeLoopingPause = true;
 double premium = 0,premiumHigh = 0,premiumLow = 0;
@@ -96,18 +97,20 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 	//获取系统时间
 	SYSTEMTIME sys;
 	GetLocalTime(&sys);
-	//非交易日返回
-	if(!isTradeDay(sys.wYear,sys.wMonth,sys.wDay))
-	{
-		return;
-	}
-	//非常规交易时间
-	if((sys.wHour == 9 && sys.wMinute < 10) || 
-		(sys.wHour == 15 && sys.wMinute > 15) ||
-		(sys.wHour == 11 && sys.wMinute > 30) ||
-		(sys.wHour == 12)||
-		(sys.wHour < 9) || (sys.wHour > 15)){
+	if(isReal){
+		//非交易日返回
+		if(!isTradeDay(sys.wYear,sys.wMonth,sys.wDay))
+		{
 			return;
+		}
+		//非常规交易时间
+		if((sys.wHour == 9 && sys.wMinute < 10) || 
+			(sys.wHour == 15 && sys.wMinute > 15) ||
+			(sys.wHour == 11 && sys.wMinute > 30) ||
+			(sys.wHour == 12)||
+			(sys.wHour < 9) || (sys.wHour > 15)){
+				return;
+		}
 	}
 	//求最大持仓id
 	for(unsigned int i = 0;i < HedgeHold.size();i++){

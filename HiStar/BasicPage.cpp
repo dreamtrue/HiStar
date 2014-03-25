@@ -62,7 +62,6 @@ END_MESSAGE_MAP()
 
 CBasicPage::CBasicPage(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CBasicPage::IDD, pParent)
-	, MarginA50(0)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }

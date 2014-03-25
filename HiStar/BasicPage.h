@@ -71,7 +71,6 @@ public:
 	CColorStatic m_csHedgePriceLow;
 	afx_msg void OnBnClickedTest();
 	afx_msg void OnBnClickedUpdate();
-	double MarginA50;
 	afx_msg void OnIniSql();
 	afx_msg void OnBnClickedCheck1();
 	afx_msg void OnIni();
