@@ -388,7 +388,7 @@ void CtpTraderSpi::ReqQryTrade(TThostFtdcInstrumentIDType instId){
 
 void CtpTraderSpi::OnRspQryTrade(CThostFtdcTradeField *pTrade, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
 	if(!IsErrorRspInfo(pRspInfo)&&pTrade){
-		TRACE("成交通知\n");
+		TRACE("成交通知,%c\n",pTrade->TradeSource);
 		CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 		CThostFtdcTradeField trade;
 		memcpy(&trade,pTrade,sizeof(CThostFtdcTradeField));
@@ -737,7 +737,7 @@ void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder){
 
 ///成交通知
 void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
-	TRACE("成交通知\n");
+	TRACE("成交通知,%c;\n",pTrade->TradeSource);//THOST_FTDC_TSRC_NORMAL THOST_FTDC_TSRC_QUERY
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	CThostFtdcTradeField trade;
 	memcpy(&trade,pTrade,sizeof(CThostFtdcTradeField));
@@ -759,6 +759,29 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 		m_tradeVec.push_back(trade);
 		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 	}
+	/*
+	//更改持仓明细单
+	if(trade.OffsetFlag == THOST_FTDC_OF_Open){
+		bool foundedInPosDetail = false;
+		for(int ii = 0;ii < m_InvPosDetailVec.size();ii++){
+			if(m_InvPosDetailVec[ii].TradeID == trade.TradeID){
+				foundedInPosDetail = true;
+				break;
+			}
+		}
+		if(!foundedInPosDetail){
+			CThostFtdcInvestorPositionDetailField posDetail;
+			posDetail.Direction = trade.Direction;strcpy(posDetail.InstrumentID,trade.InstrumentID);
+			posDetail.OpenPrice = trade.Price;strcpy(posDetail.OpenDate,trade.TradeDate);
+			strcpy(posDetail.TradeID,trade.TradeID);strcpy(posDetail.TradingDay,trade.TradingDay);
+			posDetail.Volume = trade.Volume;
+			m_InvPosDetailVec.push_back(posDetail);
+		}
+	}
+	else{//平仓
+
+	}
+	*/
 	//后处理
 	if(pApp->m_pHedgePostProcessing){
 		CThostFtdcTradeField *pTradePost = new CThostFtdcTradeField;
@@ -1570,6 +1593,7 @@ void CtpTraderSpi::ShowErrTips(TThostFtdcErrorMsgType ErrorMsg)
 }
 
 void CtpTraderSpi::ClearAllVectors(){
+	m_onRoadVec.clear();
 	m_orderVec.clear();
 	m_tradeVec.clear();
 	m_InsinfVec.clear();
@@ -1579,6 +1603,7 @@ void CtpTraderSpi::ClearAllVectors(){
 	m_TdCodeVec.clear();
 	m_InvPosVec.clear();
 	m_BfTransVec.clear();
+	m_InvPosDetailVec.clear();
 }
 
 int CtpTraderSpi::FindOrdInOnRoadVec(TThostFtdcOrderRefType OrderRef)

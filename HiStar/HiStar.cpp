@@ -52,13 +52,13 @@ CHiStarApp::CHiStarApp()
 	//_CrtSetBreakAlloc(152);
 	//_CrtSetBreakAlloc(151);
 	//_CrtSetBreakAlloc(149);
+	MainThreadId = GetCurrentThreadId();
+	// 支持重新启动管理器
+	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;
 }
 
 void CHiStarApp::OnIni(WPARAM wParam,LPARAM lParam){
 	FileInput();
-	MainThreadId = GetCurrentThreadId();
-	// 支持重新启动管理器
-	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;
 	//IB Client
 	if(!m_pIBClient){
 		m_pIBClient = new EClientSocket( this);
