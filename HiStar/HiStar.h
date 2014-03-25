@@ -137,6 +137,7 @@ public:
 	void SetA50Contract();
 	void OnConnectIB(WPARAM wParam,LPARAM lParam);
 	void OnDisconnectIB(WPARAM wParam,LPARAM lParam);
+	void OnConnectSql(WPARAM wParam,LPARAM lParam);
 	Contract m_A50Contract;
 	WORD m_LifeA50;
 	TagValueListSPtr m_mktDepthOptions;

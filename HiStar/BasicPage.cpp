@@ -108,6 +108,7 @@ BEGIN_MESSAGE_MAP(CBasicPage, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON2, &CBasicPage::OnResume)
 	ON_BN_CLICKED(IDC_BUTTON_TEST, &CBasicPage::OnBnClickedTest)
 	ON_BN_CLICKED(IDC_UPDATE, &CBasicPage::OnBnClickedUpdate)
+	ON_BN_CLICKED(IDC_BUTTON7, &CBasicPage::OnIniSql)
 END_MESSAGE_MAP()
 
 
@@ -244,7 +245,6 @@ void CBasicPage::OnLogoutCtp()
 	PostThreadMessageA(GetCurrentThreadId(),WM_LOGOUT_CTP,NULL,NULL);
 }
 
-
 void CBasicPage::ProgressUpdate(LPCTSTR szMsg, const int nPercentDone)
 {
 	ASSERT (AfxIsValidString(szMsg));
@@ -327,4 +327,9 @@ void CBasicPage::OnBnClickedTest()
 void CBasicPage::OnBnClickedUpdate()
 {
 	UpdateData();
+}
+
+void CBasicPage::OnIniSql()
+{
+	PostThreadMessage(GetCurrentThreadId(),WM_CONNECT_SQL,NULL,NULL);
 }

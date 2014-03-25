@@ -25,6 +25,7 @@ BEGIN_MESSAGE_MAP(CHiStarApp, CWinApp)
 	ON_THREAD_MESSAGE(WM_QRY_ACC_CTP,OnQryAccCtp)
 	ON_THREAD_MESSAGE(WM_UPDATE_LSTCTRL,OnUpdateLstCtrl)
 	ON_THREAD_MESSAGE(WM_MD_REFRESH,OnHedgeLooping)
+	ON_THREAD_MESSAGE(WM_CONNECT_SQL,OnConnectSql)
 END_MESSAGE_MAP()
 
 // CHiStarApp 构造
@@ -50,7 +51,6 @@ CHiStarApp::CHiStarApp()
 	//_CrtSetBreakAlloc(151);
 	//_CrtSetBreakAlloc(149);
 	iniFileInput();
-	iniSql();
 	MainThreadId = GetCurrentThreadId();
 	// 支持重新启动管理器
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;
@@ -285,7 +285,7 @@ int CHiStarApp::iniFileInput(void)
 	return 0;
 }
 
-void CHiStarApp::iniSql(void)
+void CHiStarApp::OnConnectSql(WPARAM wParam,LPARAM lParam)
 {
 	SYSTEMTIME sys;
 	GetLocalTime(&sys);

@@ -72,6 +72,7 @@ public:
 	afx_msg void OnBnClickedTest();
 	afx_msg void OnBnClickedUpdate();
 	double MarginA50;
+	afx_msg void OnIniSql();
 };
 //其他变量
 const int N = 5;
