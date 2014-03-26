@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include "HedgePostProcessing.h"
 #pragma warning(disable :4996)
-extern HANDLE g_hEvent;
 BOOL g_bRecconnectT = FALSE;
 BOOL g_bLoginCtpT = FALSE;
 extern int longIf,shortIf;
@@ -83,7 +82,7 @@ void CtpTraderSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
 			}
 			sprintf(m_sTmBegin,"%02d:%02d:%02d.%03d",curTime.wHour,curTime.wMinute,curTime.wSecond,curTime.wMilliseconds); 
 		}
-		if(bIsLast) SetEvent(g_hEvent);
+		if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 }
 
 const char* CtpTraderSpi::GetTradingDay()
@@ -113,7 +112,7 @@ void CtpTraderSpi::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThos
 		TRACE(_T("已经登出ctpT\n"));
 		g_bLoginCtpT = FALSE;
 	}
-	if(bIsLast) SetEvent(g_hEvent);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 }
 
 void CtpTraderSpi::ReqSettlementInfoConfirm()
@@ -131,7 +130,7 @@ void CtpTraderSpi::OnRspSettlementInfoConfirm(
 {	
 	if( !IsErrorRspInfo(pRspInfo) && pSettlementInfoConfirm){
 	}
-	if(bIsLast) SetEvent(g_hEvent);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 }
 
 void CtpTraderSpi::ReqQryNotice()
@@ -145,7 +144,7 @@ void CtpTraderSpi::ReqQryNotice()
 void CtpTraderSpi::OnRspQryNotice(CThostFtdcNoticeField *pNotice, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
 	if (!IsErrorRspInfo(pRspInfo) &&  pNotice){}
-	if(bIsLast) SetEvent(g_hEvent);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 }
 
 void CtpTraderSpi::ReqQryTdNotice()
@@ -160,7 +159,7 @@ void CtpTraderSpi::ReqQryTdNotice()
 void CtpTraderSpi::OnRspQryTradingNotice(CThostFtdcTradingNoticeField *pTradingNotice, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
 	if (!IsErrorRspInfo(pRspInfo) &&  pTradingNotice){}
-	if(bIsLast) SetEvent(g_hEvent);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 }
 
 void CtpTraderSpi::ReqQrySettlementInfoConfirm()
@@ -175,7 +174,7 @@ void CtpTraderSpi::ReqQrySettlementInfoConfirm()
 void CtpTraderSpi::OnRspQrySettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField *pSettlementInfoConfirm, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
 	if (!IsErrorRspInfo(pRspInfo) &&  pSettlementInfoConfirm){}	
-	if(bIsLast) SetEvent(g_hEvent);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 }
 
 void CtpTraderSpi::ReqQrySettlementInfo(TThostFtdcDateType TradingDay)
@@ -200,7 +199,7 @@ void CtpTraderSpi::OnRspQrySettlementInfo(CThostFtdcSettlementInfoField *pSettle
 	}
 	if(bIsLast) 
 	{ 
-		SetEvent(g_hEvent);
+		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 		//SendNotifyMessage(HWND_BROADCAST,WM_QRYSMI_MSG,0,0);		
 	}
 }
@@ -238,7 +237,7 @@ void CtpTraderSpi::OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument,
 	if(bIsLast){
 		TRACE(_T("合约查询完毕\n"));
 		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
-		SetEvent(g_hEvent);
+		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 	}
 }
 
@@ -266,7 +265,7 @@ void CtpTraderSpi::OnRspQryTradingAccount(
 		if(AfxGetApp()->m_pMainWnd){
 			PostMessage(AfxGetApp()->m_pMainWnd->GetSafeHwnd(),WM_UPDATE_ACC_CTP,NULL,(LPARAM)pAcc);
 		}
-		SetEvent(g_hEvent);
+		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 	}	
 }
 
@@ -326,7 +325,7 @@ void CtpTraderSpi::OnRspQryInvestorPosition(
 	}
 	if(bIsLast){ 
 		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
-		SetEvent(g_hEvent);
+		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 	}
 }
 
@@ -372,7 +371,7 @@ void  CtpTraderSpi::OnRspQryOrder(CThostFtdcOrderField *pOrder, CThostFtdcRspInf
 	}
 	if(bIsLast) {
 		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
-		SetEvent(g_hEvent);
+		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 	}
 }
 
@@ -412,7 +411,7 @@ void CtpTraderSpi::OnRspQryTrade(CThostFtdcTradeField *pTrade, CThostFtdcRspInfo
 	}
 	if(bIsLast) {
 		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
-		SetEvent(g_hEvent);
+		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 	}
 }
 
@@ -454,7 +453,7 @@ void CtpTraderSpi::OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDeta
 	}
 	if(bIsLast){ 
 		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
-		SetEvent(g_hEvent);
+		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 	}
 }
 
@@ -476,7 +475,7 @@ void CtpTraderSpi::OnRspQryInvestorPositionCombineDetail(CThostFtdcInvestorPosit
 	{
 
 	}
-	if(bIsLast) SetEvent(g_hEvent);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 }
 
 int CtpTraderSpi::ReqOrdLimit(TThostFtdcInstrumentIDType instId,TThostFtdcDirectionType dir,
@@ -692,7 +691,7 @@ void CtpTraderSpi::OnRspOrderAction(
 
 		}
 	}
-	if(bIsLast) SetEvent(g_hEvent);	
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);	
 }
 
 ///报单回报
@@ -821,7 +820,7 @@ void CtpTraderSpi::OnRspQryTradingCode(CThostFtdcTradingCodeField *pTradingCode,
 		memcpy(&TdCode, pTradingCode, sizeof(CThostFtdcTradingCodeField));
 		m_TdCodeVec.push_back(TdCode);
 	}
-	if(bIsLast) SetEvent(g_hEvent);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 }
 
 ///请求查询合约保证金率
@@ -845,7 +844,7 @@ void CtpTraderSpi::OnRspQryInstrumentMarginRate(CThostFtdcInstrumentMarginRateFi
 		memcpy(&MaginRate,  pInstrumentMarginRate, sizeof(CThostFtdcInstrumentMarginRateField));
 		m_MargRateVec.push_back(MaginRate);
 	}
-	if(bIsLast) SetEvent(g_hEvent);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 
 }
 
@@ -871,7 +870,7 @@ void CtpTraderSpi::OnRspQryInstrumentCommissionRate(CThostFtdcInstrumentCommissi
 		//FeeRateList.push_back(pFeeRate);
 
 	}
-	if(bIsLast) SetEvent(g_hEvent);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 
 }
 
@@ -896,7 +895,7 @@ void CtpTraderSpi::OnRspQryInvestor(CThostFtdcInvestorField *pInvestor, CThostFt
 
 		//SendNotifyMessage(((CXTraderDlg*)g_pCWnd)->m_hWnd,WM_QRYUSER_MSG,0,(LPARAM)pInv);
 	}
-	if(bIsLast) SetEvent(g_hEvent);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 }
 
 void CtpTraderSpi::ReqUserPwdUpdate(TThostFtdcPasswordType szNewPass,TThostFtdcPasswordType szOldPass)
@@ -923,7 +922,7 @@ void CtpTraderSpi::OnRspUserPasswordUpdate(CThostFtdcUserPasswordUpdateField *pU
 	{
 		ShowErrTips(pRspInfo->ErrorMsg);
 	}
-	if(bIsLast) SetEvent(g_hEvent);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 }
 
 //资金账户密码
@@ -951,7 +950,7 @@ void CtpTraderSpi::OnRspTradingAccountPasswordUpdate(CThostFtdcTradingAccountPas
 	{
 		ShowErrTips(pRspInfo->ErrorMsg);
 	}
-	if(bIsLast) SetEvent(g_hEvent);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 }
 
 void CtpTraderSpi::ReqAuthenticate(TThostFtdcProductInfoType UserProdInf,TThostFtdcAuthCodeType	AuthCode)
@@ -974,7 +973,7 @@ void CtpTraderSpi::OnRspAuthenticate(CThostFtdcRspAuthenticateField *pRspAuthent
 		//memcpy(&g_InvInf,pInvestor,sizeof(CThostFtdcInvestorField));
 		//AfxMessageBox(tName);
 	}
-	if(bIsLast) SetEvent(g_hEvent);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 }
 
 void CtpTraderSpi::ReqQryAccreg()
@@ -996,7 +995,7 @@ void CtpTraderSpi::OnRspQryAccountregister(CThostFtdcAccountregisterField *pAcco
 		memcpy(&AccReg,  pAccountregister, sizeof(CThostFtdcAccountregisterField));
 		m_AccRegVec.push_back(AccReg);
 	}
-	if(bIsLast) SetEvent(g_hEvent);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 }
 
 
@@ -1019,7 +1018,7 @@ void CtpTraderSpi::OnRspQryTransferBank(CThostFtdcTransferBankField *pTransferBa
 		//memcpy(&g_InvInf,pInvestor,sizeof(CThostFtdcInvestorField));
 		//AfxMessageBox(tName);
 	}
-	if(bIsLast) SetEvent(g_hEvent);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 }
 
 void CtpTraderSpi::ReqQryContractBk(TThostFtdcBankIDType BankID,TThostFtdcBankBrchIDType BankBrchID)
@@ -1051,7 +1050,7 @@ void CtpTraderSpi::OnRspQryContractBank(CThostFtdcContractBankField *pContractBa
 		//memcpy(&g_InvInf,pInvestor,sizeof(CThostFtdcInvestorField));
 		//AfxMessageBox(str);
 	}
-	if(bIsLast) SetEvent(g_hEvent);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 }
 
 //////////////////////////////////////////期货发起银行资金转期货请求///////////////////////////////////////
@@ -1084,7 +1083,7 @@ void CtpTraderSpi::OnRspFromBankToFutureByFuture(CThostFtdcReqTransferField *pRe
 
 		ShowErrTips(pRspInfo->ErrorMsg);
 	}
-	if(bIsLast) SetEvent(g_hEvent);	 
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);	 
 }
 ///期货发起银行资金转期货通知
 void CtpTraderSpi::OnRtnFromBankToFutureByFuture(CThostFtdcRspTransferField *pRspTransfer)
@@ -1120,7 +1119,7 @@ void CtpTraderSpi::OnRtnFromBankToFutureByFuture(CThostFtdcRspTransferField *pRs
 
 	}
 
-	//SetEvent(g_hEvent);
+	//PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 }
 
 ///期货发起银行资金转期货错误回报
@@ -1173,7 +1172,7 @@ void CtpTraderSpi::OnRspFromFutureToBankByFuture(CThostFtdcReqTransferField *pRe
 		ShowErrTips(pRspInfo->ErrorMsg);
 	}
 
-	if(bIsLast) SetEvent(g_hEvent);	
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);	
 }
 
 
@@ -1216,7 +1215,7 @@ void CtpTraderSpi::OnRtnFromFutureToBankByFuture(CThostFtdcRspTransferField *pRs
 		}
 	}
 
-	//SetEvent(g_hEvent);
+	//PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 }
 
 ///期货发起期货资金转银行错误回报
@@ -1264,7 +1263,7 @@ void CtpTraderSpi::OnRspQueryBankAccountMoneyByFuture(CThostFtdcReqQueryAccountF
 
 		ShowErrTips(pRspInfo->ErrorMsg);
 	}
-	//if(bIsLast) SetEvent(g_hEvent);	
+	//if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);	
 
 }
 
@@ -1297,7 +1296,7 @@ void CtpTraderSpi::OnRtnQueryBankBalanceByFuture(CThostFtdcNotifyQueryAccountFie
 
 	}
 
-	SetEvent(g_hEvent);	
+	PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);	
 }
 
 ///期货发起查询银行余额错误回报
@@ -1327,7 +1326,7 @@ void CtpTraderSpi::OnRspQryTransferSerial(CThostFtdcTransferSerialField *pTransf
 	{
 		ShowErrTips(pRspInfo->ErrorMsg);	
 	}
-	if(bIsLast) SetEvent(g_hEvent);	
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);	
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1394,7 +1393,7 @@ void CtpTraderSpi::OnRspQryCFMMCTradingAccountKey(CThostFtdcCFMMCTradingAccountK
 		ShellExecuteA(NULL,"open",strMsg,NULL, NULL, SW_SHOW);
 
 	}
-	//if(bIsLast) SetEvent(g_hEvent);	
+	//if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);	
 }
 
 void CtpTraderSpi::ReqQryBkrTdParams()
@@ -1413,7 +1412,7 @@ void CtpTraderSpi::OnRspQryBrokerTradingParams(CThostFtdcBrokerTradingParamsFiel
 	{
 
 	}
-	if(bIsLast) SetEvent(g_hEvent);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 }
 
 void CtpTraderSpi::ReqQryBkrTdAlgos(TThostFtdcExchangeIDType ExhID,TThostFtdcInstrumentIDType instID)
@@ -1435,7 +1434,7 @@ void CtpTraderSpi::OnRspQryBrokerTradingAlgos(CThostFtdcBrokerTradingAlgosField 
 	{
 
 	}
-	if(bIsLast) SetEvent(g_hEvent);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 }
 
 ///预埋单录入请求
@@ -1450,7 +1449,7 @@ void CtpTraderSpi::OnRspParkedOrderInsert(CThostFtdcParkedOrderField *pParkedOrd
 	{
 
 	}
-	if(bIsLast) SetEvent(g_hEvent);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 }
 
 ///预埋撤单录入请求
@@ -1465,7 +1464,7 @@ void CtpTraderSpi::OnRspParkedOrderAction(CThostFtdcParkedOrderActionField *pPar
 	{
 
 	}
-	if(bIsLast) SetEvent(g_hEvent);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 }
 
 ///请求查询预埋单
@@ -1489,7 +1488,7 @@ void CtpTraderSpi::OnRspQryParkedOrder(CThostFtdcParkedOrderField *pParkedOrder,
 	{
 
 	}
-	if(bIsLast) SetEvent(g_hEvent);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 }
 
 ///请求撤销预埋
@@ -1513,7 +1512,7 @@ void CtpTraderSpi::OnRspRemoveParkedOrderAction(CThostFtdcRemoveParkedOrderActio
 	{
 
 	}
-	if(bIsLast) SetEvent(g_hEvent);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 }
 
 ///请求删除预埋单
@@ -1534,7 +1533,7 @@ void CtpTraderSpi::OnRspRemoveParkedOrder(CThostFtdcRemoveParkedOrderField *pRem
 	{
 
 	}
-	if(bIsLast) SetEvent(g_hEvent);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 }
 
 ///请求删除预埋撤单
@@ -1555,7 +1554,7 @@ void CtpTraderSpi::OnRspQryParkedOrderAction(CThostFtdcParkedOrderActionField *p
 	{
 
 	}
-	if(bIsLast) SetEvent(g_hEvent);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 }
 
 void CtpTraderSpi::OnRtnInstrumentStatus(CThostFtdcInstrumentStatusField *pInstrumentStatus)

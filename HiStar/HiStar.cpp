@@ -15,7 +15,6 @@
 std::fstream fileInput;
 bool isReal = true;
 extern std::vector<HoldDetail> HedgeHold;
-HANDLE g_hEvent;
 // CHiStarApp
 BEGIN_MESSAGE_MAP(CHiStarApp, CWinApp)
 	ON_COMMAND(ID_HELP, &CWinApp::OnHelp)

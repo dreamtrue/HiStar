@@ -3,6 +3,7 @@
 
 #include "StdAfx.h"
 #include "ThostFtdcMdApi.h"
+#include <vector>
 class CtpMdSpi : public CThostFtdcMdSpi
 {
 public:
@@ -37,7 +38,7 @@ public:
 public:
 	//LoginDlg* m_pDlg;
 	//void ReqUserLogin(TThostFtdcBrokerIDType	appId);
-	void CtpMdSpi::ReqUserLogin(TThostFtdcBrokerIDType	vAppId,TThostFtdcUserIDType	vUserId,TThostFtdcPasswordType	vPasswd);
+	void ReqUserLogin(TThostFtdcBrokerIDType	vAppId,TThostFtdcUserIDType	vUserId,TThostFtdcPasswordType	vPasswd);
 	void ReqUserLogout();
 	//TThostFtdcUserIDType	userId,	TThostFtdcPasswordType	passwd);
 	void SubscribeMarketData(char *pInst[], int nCount);
@@ -49,6 +50,10 @@ public:
 	TThostFtdcUserIDType m_sINVEST_ID;		// 投资者代码
 private:
 	CThostFtdcMdApi* pUserApi;
+public:
+	std::vector<CString> InstSubscribed;//提交报价的Inst
+	std::vector<CString> InstNeedSubscribe;//预备提交报价的Inst
+	void SynchronizeMarket(std::vector<CString> &InstSubscribed,std::vector<CString> &InstNeedSubscribe);//同步市场，即将需要提交报价的提交，需要撤销报价的撤销
 };
 
 #endif

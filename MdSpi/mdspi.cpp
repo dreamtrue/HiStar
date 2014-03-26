@@ -67,13 +67,9 @@ void CtpMdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
 		TRACE("OnRspUserLogin\n");
 		CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 		if (!IsErrorRspInfo(pRspInfo) && pRspUserLogin){
-			///订阅行情深度
-			char szInst[MAX_PATH];
-			uni2ansi(CP_ACP,pApp->m_accountCtp.m_szInst,szInst);
-			LPSTR* pInst = new LPSTR;
-			pInst[0] = szInst;
-			SubscribeMarketData(pInst,1);
+			SynchronizeMarket(InstSubscribed,InstNeedSubscribe);//同步订阅市场
 		}
+		if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 }
 
 void CtpMdSpi::ReqUserLogout(){
@@ -99,7 +95,58 @@ void CtpMdSpi::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtd
 
 void CtpMdSpi::SubscribeMarketData(char *pInst[], int nCount)
 {
-	pUserApi->SubscribeMarketData(pInst, nCount); 
+	for(int i = 0;i < nCount;i++){
+		CString str = pInst[i];
+		TRACE("%s,%s,%d\n",pInst[i],str,sizeof(pInst[i]));
+		bool founded = false;
+		for(unsigned int j = 0;j < InstSubscribed.size();j++){
+			if(InstSubscribed[j] == str){
+				std::vector<CString>::iterator it = InstSubscribed.begin() + j;
+				founded = true;
+				break;
+			}
+		}
+		if(!founded){
+			InstSubscribed.push_back(str);
+		}
+	}
+	pUserApi->SubscribeMarketData(pInst, nCount);
+}
+
+//同步市场
+void CtpMdSpi::SynchronizeMarket(std::vector<CString> &InstSubscribed,std::vector<CString> &InstNeedSubscribe){
+	//订阅
+	for(unsigned int i = 0;i < InstNeedSubscribe.size();i++){
+		bool founded = false;
+		for(unsigned int j = 0;j < InstSubscribed.size();j++){
+			if(InstNeedSubscribe[i] == InstSubscribed[j]){
+				founded = true;break;
+			}
+		}
+		if(!founded){
+			char szInst[MAX_PATH];
+			uni2ansi(CP_ACP,InstNeedSubscribe[i].GetBuffer(),szInst);
+			LPSTR* pInst = new LPSTR;
+			pInst[0] = szInst;
+			SubscribeMarketData(pInst,1);
+		}
+	}
+	//取消多余的订阅
+	for(unsigned int ii = 0;ii < InstSubscribed.size();ii++){
+		bool founded = false;
+		for(unsigned int jj = 0;jj < InstNeedSubscribe.size();jj++){
+			if(InstNeedSubscribe[jj] == InstSubscribed[ii]){
+				founded = true;break;
+			}
+		}
+		if(!founded){
+			char szInst[MAX_PATH];
+			uni2ansi(CP_ACP,InstSubscribed[ii].GetBuffer(),szInst);
+			LPSTR* pInst = new LPSTR;
+			pInst[0] = szInst;
+			UnSubscribeMarketData(pInst,1);
+		}
+	}
 }
 
 void CtpMdSpi::OnRspSubMarketData(
@@ -115,6 +162,17 @@ void CtpMdSpi::OnRspSubMarketData(
 }
 
 void CtpMdSpi::UnSubscribeMarketData(char *pInst[], int nCount){
+	for(int i = 0;i < nCount;i++){
+		CString str = pInst[i];
+		for(unsigned int j = 0;j < InstSubscribed.size();j++){
+			if(InstSubscribed[j] == str){
+				std::vector<CString>::iterator it = InstSubscribed.begin() + j;
+				InstSubscribed.erase(it);
+				j--;
+			}
+		}
+		InstSubscribed.push_back(str);
+	}
 	pUserApi->UnSubscribeMarketData(pInst, nCount);
 }
 

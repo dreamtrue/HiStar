@@ -15,7 +15,6 @@
 #endif
 extern double datumDiff;
 extern bool isHedgeLoopingPause;
-extern HANDLE g_hEvent;
 extern BOOL g_bLoginCtpT;
 extern double g_A50Index;
 extern double g_HS300Index;

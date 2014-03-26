@@ -10,7 +10,6 @@ double g_a50Bid1 = 0.0f,g_a50Ask1 = 0.0f;
 int g_a50Bid1Size = 0,g_a50Ask1Size = 0;
 static int faErrorCodes[NUM_FA_ERROR_CODES] =
 { 503, 504, 505, 522, 1100, NOT_AN_FA_ACCOUNT_ERROR} ;
-extern HANDLE g_hEvent;
 extern int netPositionA50;
 DWORD MainThreadId = 0;
 //IB交易系统

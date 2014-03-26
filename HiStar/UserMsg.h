@@ -20,4 +20,5 @@
 #define WM_PREPARE_POST_PROCESSING WM_USER+15 //为后处理做准备
 #define WM_CONNECT_SQL WM_USER+16
 #define WM_INI WM_USER+17
+#define WM_NOTIFY_EVENT WM_USER+18 //替代原先event的通知信息
 #endif

@@ -2,7 +2,6 @@
 #include "HiStar.h"
 #include "global.h"
 #include "calendar.h"
-extern HANDLE g_hEvent;
 //IB交易系统
 void CHiStarApp::OnConnectIB(WPARAM wParam,LPARAM lParam){
 	UINT clientID = 0;
