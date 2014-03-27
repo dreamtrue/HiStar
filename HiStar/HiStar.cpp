@@ -27,6 +27,9 @@ BEGIN_MESSAGE_MAP(CHiStarApp, CWinApp)
 	ON_THREAD_MESSAGE(WM_MD_REFRESH,OnHedgeLooping)
 	ON_THREAD_MESSAGE(WM_CONNECT_SQL,OnConnectSql)
 	ON_THREAD_MESSAGE(WM_INI,OnIni)
+	ON_THREAD_MESSAGE(WM_SYNCHRONIZEMARKET,OnSynchronizeMarket)
+	ON_THREAD_MESSAGE(WM_LOGIN_TD,LoginCtpTD)
+	ON_THREAD_MESSAGE(WM_LOGIN_MD,LoginCtpMD)
 END_MESSAGE_MAP()
 
 // CHiStarApp 构造
@@ -38,7 +41,6 @@ CHiStarApp::CHiStarApp()
 	, m_TApi(NULL)
 	, m_cQ(NULL)
 	, m_cT(NULL)
-	, m_pLoginCtp(NULL)
 	, m_strPath(_T(""))
 	, m_pIndexThread(NULL)
 	, m_id(0)
@@ -58,6 +60,8 @@ CHiStarApp::CHiStarApp()
 
 void CHiStarApp::OnIni(WPARAM wParam,LPARAM lParam){
 	FileInput();
+	SetIFContract();//设置IF合约
+	SetA50Contract();//设置A50合约
 	//IB Client
 	if(!m_pIBClient){
 		m_pIBClient = new EClientSocket( this);
@@ -124,7 +128,6 @@ BOOL CHiStarApp::InitInstance()
 	// 例如修改为公司或组织名
 	SetRegistryKey(_T("应用程序向导生成的本地应用程序"));
 
-	//CBasicPage dlg;
 	CMainDlg dlg;
 	m_pMainWnd = &dlg;
 	INT_PTR nResponse = dlg.DoModal();
@@ -327,4 +330,8 @@ void CHiStarApp::OnConnectSql(WPARAM wParam,LPARAM lParam)
 			TRACE("Error %u: %s\n", mysql_errno(conn), mysql_error(conn));      
 		}
 	}
+}
+
+void CHiStarApp::OnSynchronizeMarket(WPARAM wParam,LPARAM lParam){
+
 }

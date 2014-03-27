@@ -20,7 +20,7 @@ CIndex::~CIndex()
 
 BOOL CIndex::InitInstance()
 {
-	_timerID = SetTimer(NULL,0,(UINT)1000,timerFun); 
+	_timerID = SetTimer(NULL,0,(UINT)3000,timerFun); 
 	return TRUE;
 }
 

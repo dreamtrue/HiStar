@@ -34,6 +34,43 @@ void CHiStarApp::CreateCtpClient(void)
 	if(m_TApi){
 		m_TApi->SubscribePrivateTopic(THOST_TERT_QUICK);
 	}
+	m_MApi = CThostFtdcMdApi::CreateFtdcMdApi(m_strPath);
+	if(m_MApi){
+		if(m_cQ){
+			delete m_cQ;
+			m_cQ = new CtpMdSpi(m_MApi);
+		}
+		else{
+			m_cQ = new CtpMdSpi(m_MApi);
+		}
+	}
+	if(m_MApi){
+		m_MApi->RegisterSpi(m_cQ);
+	}
+	//初始化交易API,注册多个前置备用
+	int iTdSvr = m_accountCtp.m_szArTs.GetSize();
+	int i =0,iLen;
+	char szTd[MAX_PATH],szMd[MAX_PATH];
+	for (i=0;i<iTdSvr;i++){
+		iLen = m_accountCtp.m_szArTs[i].GetLength();
+		TRACE("%s\r\n",m_accountCtp.m_szArTs[i]);
+		uni2ansi(CP_ACP,m_accountCtp.m_szArTs[i].GetBuffer(iLen),szTd);
+		m_accountCtp.m_szArTs[i].ReleaseBuffer();
+		if(m_TApi){
+			m_TApi->RegisterFront(szTd);
+		}
+	}
+	//CTP行情系统
+	int iMdSvr = m_accountCtp.m_szArMd.GetSize();
+	for (i=0;i<iTdSvr;i++){
+		iLen = m_accountCtp.m_szArMd[i].GetLength();
+		uni2ansi(CP_ACP,m_accountCtp.m_szArMd[i].GetBuffer(iLen),szMd);
+		TRACE("%s\r\n",m_accountCtp.m_szArMd[i]);
+		m_accountCtp.m_szArMd[i].ReleaseBuffer();
+		if(m_MApi){
+			m_MApi->RegisterFront(szMd);
+		}
+	}
 }
 int CHiStarApp::FindInstMul(TThostFtdcInstrumentIDType InstID){
 	bool founded=false;
@@ -53,195 +90,21 @@ int CHiStarApp::FindInstMul(TThostFtdcInstrumentIDType InstID){
 
 void CHiStarApp::LoginCtp(WPARAM wParam,LPARAM lParam)
 {
-	SetIFContract();//设置IF合约
-	if (!m_pLoginCtp)
-	{
-		m_pLoginCtp = NULL;
-		if(!(CMainDlg*)m_pMainWnd){
-			return;
-		} 
-		//初始化交易API,注册多个前置备用
-		int iTdSvr = m_accountCtp.m_szArTs.GetSize();
-		int i =0,iLen;
-		char szTd[MAX_PATH],szMd[MAX_PATH];
-		for (i=0;i<iTdSvr;i++){
-			iLen = m_accountCtp.m_szArTs[i].GetLength();
-			TRACE("%s\r\n",m_accountCtp.m_szArTs[i]);
-			uni2ansi(CP_ACP,m_accountCtp.m_szArTs[i].GetBuffer(iLen),szTd);
-			m_accountCtp.m_szArTs[i].ReleaseBuffer();
-			if(m_TApi){
-				m_TApi->RegisterFront(szTd);
-			}
+	if(!(CMainDlg*)m_pMainWnd){
+		return;
+	}
+	if (!bIsInit){	
+		if(m_TApi){
+			m_TApi->Init();
 		}
-		if (!bIsInit){	
-			if(m_TApi){
-				m_TApi->Init();
-			}
-			bIsInit = TRUE;
-		}
-		else{
-			if(m_cT){
-				m_cT->ReqUserLogin(m_accountCtp.m_sBROKER_ID,m_accountCtp.m_sINVESTOR_ID,m_accountCtp.m_sPASSWORD);
-			}
-		}
-		MSG msg;BOOL bRet;
-		while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
-			if (!bRet){
-			}
-			else{
-				((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("联线交易平台成功!"), 10);break;
-			}
-		}
-		if(m_cT){
-			if (m_cT->IsErrorRspInfo(&m_cT->m_RspMsg)){
-				//登陆失败
-				((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("交易登陆错误!"), 0);
-				m_pLoginCtp = NULL;
-				return;
-			}
-		}
-		//CTP行情系统
-		m_MApi = CThostFtdcMdApi::CreateFtdcMdApi(m_strPath);
-		if(m_MApi){
-			if(m_cQ){
-				delete m_cQ;
-				m_cQ = new CtpMdSpi(m_MApi);
-			}
-			else{
-				m_cQ = new CtpMdSpi(m_MApi);
-			}
-		}
-		if(m_MApi){
-			m_MApi->RegisterSpi(m_cQ);
-		}
-		int iMdSvr = m_accountCtp.m_szArMd.GetSize();
-		for (i=0;i<iTdSvr;i++){
-			iLen = m_accountCtp.m_szArMd[i].GetLength();
-			uni2ansi(CP_ACP,m_accountCtp.m_szArMd[i].GetBuffer(iLen),szMd);
-			TRACE("%s\r\n",m_accountCtp.m_szArMd[i]);
-			m_accountCtp.m_szArMd[i].ReleaseBuffer();
-			if(m_MApi){
-				m_MApi->RegisterFront(szMd);
-			}
-		}
-		//合约初始化
-		m_cQ->InstNeedSubscribe.push_back(m_accountCtp.m_szInst);
 		if(m_MApi){
 			m_MApi->Init();
 		}
-		while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
-			if (!bRet){
-			}
-			else{
-				((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("登陆行情成功!"), 15);break;
-			}
-		}
-		///////////////////////////////////////////////////////////
-		if(m_cT){
-			m_cT->ReqSettlementInfoConfirm();
-		}
-		while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
-			if (!bRet){
-			}
-			else{
-				((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("确认结算单!"), 20);break;
-			}
-		}
-		if(m_cT){
-			m_cT->ReqQryInst(NULL);
-		}
-		while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
-			if (!bRet){
-			}
-			else{
-				((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查合约列表!"), 30);break;
-			}
-		}
-		Sleep(1000);
-		if(m_cT){
-			m_cT->ReqQryInvPos(NULL);
-		}
-		while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
-			if (!bRet){
-			}
-			else{
-				((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查持仓信息!"), 40);break;
-			}
-		}
-		Sleep(1000);
-		if(m_cT){
-			m_cT->ReqQryInvPosEx(NULL);
-		}
-		while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
-			if (!bRet){
-			}
-			else{
-				((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查持仓明细信息!"), 45);break;
-			}
-		}
-		Sleep(1000);
-		if(m_cT){
-			m_cT->ReqQryTdAcc();
-		}
-		while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
-			if (!bRet){
-			}
-			else{
-				((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查资金账户!"), 50);break;
-			}
-		}
-#ifdef _REAL_CTP_
-		Sleep(1000);
-		if(m_cT){
-			m_cT->ReqQryAccreg();
-		}
-		while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
-			if (!bRet){
-			}
-			else{
-				((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查银期信息!"), 60);break;
-			}
-		}
-		Sleep(1000);
-		if(m_cT){
-			m_cT->ReqQryTradingCode();
-		}
-		while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
-			if (!bRet){
-			}
-			else{
-				((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查交易编码!"), 65);break;
-			}
-		}
-		Sleep(1000);
-		if(m_cT){
-			m_cT->ReqQryOrder(NULL);
-		}
-		while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
-			if (!bRet){
-			}
-			else{
-				((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查指令状态!"), 75);break;
-			}
-		}
-		Sleep(1000);
-		if(m_cT){
-			m_cT->ReqQryTrade(NULL);
-		}
-		while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
-			if (!bRet){
-			}
-			else{
-				((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查交易状态!"), 95);break;
-			}
-		}
-		((CMainDlg*)(m_pMainWnd))->addCombInst();//增加合约列表
-		((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("CTP登陆成功!"),100);
-#endif
-		m_pLoginCtp = NULL;
+		bIsInit = TRUE;
 	}
 	return;
 }
+
 void CHiStarApp::LogoutCtp(WPARAM wParam,LPARAM lParam)
 {
 	//交易模块登出,行情模块不需要,否则会报错(暂时不知道原因?)
@@ -249,11 +112,148 @@ void CHiStarApp::LogoutCtp(WPARAM wParam,LPARAM lParam)
 		m_cT->ReqUserLogout();
 	}
 	if(m_cQ){
-		m_cQ->ReqUserLogout();//行情无法正常登出，如果在未登出的情况下继续登入，会发生访问冲突；故采用release方式直接删除
-		m_cQ = NULL;
-		delete m_cQ;
-		m_MApi = NULL;//需要将行情API设为NULL，因为已经release
+		m_cQ->ReqUserLogout();
 	}
+}
+
+void CHiStarApp::LoginCtpMD(WPARAM wParam,LPARAM lParam){
+	MSG msg;BOOL bRet;
+	//合约初始化
+	if(m_cQ){
+		m_cQ->InstMustSubscribe.push_back(m_accountCtp.m_szInst);
+	}
+	if(m_cQ){
+		m_cQ->ReqUserLogin(m_accountCtp.m_sBROKER_ID,m_accountCtp.m_sINVESTOR_ID,m_accountCtp.m_sPASSWORD);
+	}
+	while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
+		if (!bRet){}else{break;}
+	}
+	if(m_cQ){
+		m_cQ->SynchronizeMarket(m_cQ->InstSubscribed,m_cQ->InstMustSubscribe,m_cT->m_InvPosDetailVec.GetBuffer());
+	}
+}
+
+void CHiStarApp::LoginCtpTD(WPARAM wParam,LPARAM lParam){
+	MSG msg;BOOL bRet;
+	if(m_cT){
+		m_cT->ReqUserLogin(m_accountCtp.m_sBROKER_ID,m_accountCtp.m_sINVESTOR_ID,m_accountCtp.m_sPASSWORD);
+	}
+	while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
+		if (!bRet){
+		}
+		else{
+			((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("联线交易平台成功!"), 10);break;
+		}
+	}
+	if(m_cT){
+		if (m_cT->IsErrorRspInfo(&m_cT->m_RspMsg)){
+			//登陆失败
+			((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("交易登陆错误!"), 0);
+			return;
+		}
+	}
+	if(m_cT){
+		m_cT->ReqSettlementInfoConfirm();
+	}
+	while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
+		if (!bRet){
+		}
+		else{
+			((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("确认结算单!"), 20);break;
+		}
+	}
+	if(m_cT){
+		m_cT->ReqQryInst(NULL);
+	}
+	while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
+		if (!bRet){
+		}
+		else{
+			((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查合约列表!"), 30);break;
+		}
+	}
+	Sleep(1000);
+	if(m_cT){
+		m_cT->ReqQryInvPos(NULL);
+	}
+	while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
+		if (!bRet){
+		}
+		else{
+			((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查持仓信息!"), 40);break;
+		}
+	}
+	Sleep(1000);
+	if(m_cT){
+		m_cT->ReqQryInvPosEx(NULL);
+	}
+	while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
+		if (!bRet){
+		}
+		else{
+			((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查持仓明细信息!"), 45);
+			break;
+		}
+	}
+	Sleep(1000);
+	if(m_cT){
+		m_cT->ReqQryTdAcc();
+	}
+	while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
+		if (!bRet){
+		}
+		else{
+			((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查资金账户!"), 50);break;
+		}
+	}
+#ifdef _REAL_CTP_
+	Sleep(1000);
+	if(m_cT){
+		m_cT->ReqQryAccreg();
+	}
+	while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
+		if (!bRet){
+		}
+		else{
+			((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查银期信息!"), 60);break;
+		}
+	}
+	Sleep(1000);
+	if(m_cT){
+		m_cT->ReqQryTradingCode();
+	}
+	while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
+		if (!bRet){
+		}
+		else{
+			((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查交易编码!"), 65);break;
+		}
+	}
+	Sleep(1000);
+	if(m_cT){
+		m_cT->ReqQryOrder(NULL);
+	}
+	while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
+		if (!bRet){
+		}
+		else{
+			((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查指令状态!"), 75);break;
+		}
+	}
+	Sleep(1000);
+	if(m_cT){
+		m_cT->ReqQryTrade(NULL);
+	}
+	while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
+		if (!bRet){
+		}
+		else{
+			((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查交易状态!"), 95);break;
+		}
+	}
+	((CMainDlg*)(m_pMainWnd))->addCombInst();//增加合约列表
+	((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("CTP登陆成功!"),100);
+#endif
 }
 
 void CHiStarApp::OnQryAccCtp(WPARAM wParam,LPARAM lParam){

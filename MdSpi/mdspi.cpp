@@ -31,27 +31,9 @@ void CtpMdSpi::OnHeartBeatWarning(int nTimeLapse){
 
 void CtpMdSpi::OnFrontConnected(){
 	TRACE("OnFrontConnected\n");
-	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
-	if (g_bOnceM){
-		bRecconnect = TRUE;
-		ReqUserLogin(pApp->m_accountCtp.m_sBROKER_ID,pApp->m_accountCtp.m_sINVESTOR_ID,pApp->m_accountCtp.m_sPASSWORD);
-		bMdSignal = TRUE;
-	}
-	else{
-		ReqUserLogin(pApp->m_accountCtp.m_sBROKER_ID,pApp->m_accountCtp.m_sINVESTOR_ID,pApp->m_accountCtp.m_sPASSWORD);
-		g_bOnceM = true;
-		bMdSignal = TRUE;
-	}
+	PostThreadMessage(MainThreadId,WM_LOGIN_MD,NULL,NULL);
 }
-/*
-void CtpMdSpi::ReqUserLogin(TThostFtdcBrokerIDType	appId){
-	CThostFtdcReqUserLoginField req;
-	memset(&req, 0, sizeof(req));
-	strcpy(req.BrokerID, appId);
-	strcpy(m_sBkrID,appId);
-	pUserApi->ReqUserLogin(&req, ++m_iRequestID);
-}
-*/
+
 void CtpMdSpi::ReqUserLogin(TThostFtdcBrokerIDType	vAppId,TThostFtdcUserIDType	vUserId,TThostFtdcPasswordType	vPasswd){
 	CThostFtdcReqUserLoginField req;
 	memset(&req, 0, sizeof(req));
@@ -67,28 +49,16 @@ void CtpMdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
 		TRACE("OnRspUserLogin\n");
 		CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 		if (!IsErrorRspInfo(pRspInfo) && pRspUserLogin){
-			SynchronizeMarket(InstSubscribed,InstNeedSubscribe);//同步订阅市场
 		}
 		if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 }
 
-void CtpMdSpi::ReqUserLogout(){
-	/*
-	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
-	CThostFtdcUserLogoutField req;
-	memset(&req, 0, sizeof(req));
-	strcpy(req.BrokerID, m_sBkrID);
-	strcpy(req.UserID, m_sINVEST_ID);
-	pUserApi->ReqUserLogout(&req, ++m_iRequestID);
-	*/
-	pUserApi->RegisterSpi(NULL);
-	pUserApi->Release();
-}
+void CtpMdSpi::ReqUserLogout(){}
 
 ///登出请求响应
 void CtpMdSpi::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast){
 	TRACE("OnRspUserLogoutM\n");
-	if( !IsErrorRspInfo(pRspInfo) && pUserLogout){}
+	if(!IsErrorRspInfo(pRspInfo) && pUserLogout){}
 }
 
 //TThostFtdcInstrumentIDType instId
@@ -114,7 +84,15 @@ void CtpMdSpi::SubscribeMarketData(char *pInst[], int nCount)
 }
 
 //同步市场
-void CtpMdSpi::SynchronizeMarket(std::vector<CString> &InstSubscribed,std::vector<CString> &InstNeedSubscribe){
+void CtpMdSpi::SynchronizeMarket(std::vector<CString> &InstSubscribed,std::vector<CString> &InstMustSubscribe,std::vector<CThostFtdcInvestorPositionDetailField> &InvPosDetailVec){
+	std::vector<CString> InvPos;
+	for(unsigned int j = 0;j < InvPosDetailVec.size();j++){
+		CString str;str = InvPosDetailVec[j].InstrumentID;
+		InvPos.push_back(str);
+	}
+	std::vector<CString> InstNeedSubscribe;
+	InstNeedSubscribe.insert(InstNeedSubscribe.begin(),InstMustSubscribe.begin(),InstMustSubscribe.end());
+	InstNeedSubscribe.insert(InstNeedSubscribe.begin(),InvPos.begin(),InvPos.end());
 	//订阅
 	for(unsigned int i = 0;i < InstNeedSubscribe.size();i++){
 		bool founded = false;

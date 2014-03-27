@@ -10,24 +10,11 @@ BOOL g_bRecconnectT = FALSE;
 BOOL g_bLoginCtpT = FALSE;
 extern int longIf,shortIf;
 bool g_bOnceT = FALSE;//交易系统是否曾经登陆过，如果登陆过则是TRUE,否则FALSE
+void sortPosDetailbyTime(std::vector<CThostFtdcInvestorPositionDetailField> &posdetail);//将持仓明细按照时间排序
 //网络故障恢复正常后 自动重连
 void CtpTraderSpi::OnFrontConnected()
 {
-	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
-	if (g_bOnceT)
-	{
-		g_bRecconnectT = TRUE;
-		ReqUserLogin(pApp->m_accountCtp.m_sBROKER_ID,pApp->m_accountCtp.m_sINVESTOR_ID,pApp->m_accountCtp.m_sPASSWORD);
-		SYSTEMTIME curTime;
-		::GetLocalTime(&curTime);
-		CString	szT;
-		szT.Format(_T("%02d:%02d:%02d CTP重登录"), curTime.wHour, curTime.wMinute, curTime.wSecond);	
-	}	
-	else
-	{//第一次登陆
-		ReqUserLogin(pApp->m_accountCtp.m_sBROKER_ID,pApp->m_accountCtp.m_sINVESTOR_ID,pApp->m_accountCtp.m_sPASSWORD);
-		g_bOnceT = true;
-	}
+	PostThreadMessage(MainThreadId,WM_LOGIN_TD,NULL,NULL);
 }
 
 void CtpTraderSpi::ReqUserLogin(TThostFtdcBrokerIDType	vAppId,TThostFtdcUserIDType	vUserId,TThostFtdcPasswordType	vPasswd)
@@ -758,11 +745,10 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 		m_tradeVec.push_back(trade);
 		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 	}
-	/*
 	//更改持仓明细单
 	if(trade.OffsetFlag == THOST_FTDC_OF_Open){
 		bool foundedInPosDetail = false;
-		for(int ii = 0;ii < m_InvPosDetailVec.size();ii++){
+		for(unsigned int ii = 0;ii < m_InvPosDetailVec.size();ii++){
 			if(m_InvPosDetailVec[ii].TradeID == trade.TradeID){
 				foundedInPosDetail = true;
 				break;
@@ -778,9 +764,11 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 		}
 	}
 	else{//平仓
+		//持仓按照时间排序
+
+		//删除持仓
 
 	}
-	*/
 	//后处理
 	if(pApp->m_pHedgePostProcessing){
 		CThostFtdcTradeField *pTradePost = new CThostFtdcTradeField;
@@ -1614,4 +1602,8 @@ int CtpTraderSpi::FindOrdInOnRoadVec(TThostFtdcOrderRefType OrderRef)
 		{ return i;}
 	}
 	return (-1);
+}
+
+void sortPosDetailbyTime(std::vector<CThostFtdcInvestorPositionDetailField> &posdetail){
+
 }

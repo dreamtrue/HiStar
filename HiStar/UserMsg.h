@@ -21,4 +21,7 @@
 #define WM_CONNECT_SQL WM_USER+16
 #define WM_INI WM_USER+17
 #define WM_NOTIFY_EVENT WM_USER+18 //替代原先event的通知信息
+#define WM_SYNCHRONIZEMARKET WM_USER+19 //同步市场信息
+#define WM_LOGIN_TD WM_USER+20 
+#define WM_LOGIN_MD WM_USER+21
 #endif
