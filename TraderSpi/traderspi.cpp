@@ -4,13 +4,30 @@
 #include "UserMsg.h"
 #include "Maindlg.h"
 #include <stdlib.h>
+#include <algorithm>
 #include "HedgePostProcessing.h"
 #pragma warning(disable :4996)
 BOOL g_bRecconnectT = FALSE;
 BOOL g_bLoginCtpT = FALSE;
 extern int longIf,shortIf;
 bool g_bOnceT = FALSE;//交易系统是否曾经登陆过，如果登陆过则是TRUE,否则FALSE
-void sortPosDetailbyTime(std::vector<CThostFtdcInvestorPositionDetailField> &posdetail);//将持仓明细按照时间排序
+bool CmpByTime(const CThostFtdcInvestorPositionDetailField first,const CThostFtdcInvestorPositionDetailField second) 
+{    
+	if(strcmp(first.OpenDate,second.OpenDate) < 0){
+		return true;
+	}
+	else if(strcmp(first.OpenDate,second.OpenDate) > 0){
+		return false;
+	}
+	else{
+		if(strcmp(first.TradeID,second.TradeID) < 0){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+}
 //网络故障恢复正常后 自动重连
 void CtpTraderSpi::OnFrontConnected()
 {
@@ -439,6 +456,7 @@ void CtpTraderSpi::OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDeta
 		}
 	}
 	if(bIsLast){ 
+		sort(m_InvPosDetailVec.begin(),m_InvPosDetailVec.end(),CmpByTime);
 		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 	}
@@ -764,10 +782,30 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 		}
 	}
 	else{//平仓
-		//持仓按照时间排序
-
-		//删除持仓
-
+		sort(m_InvPosDetailVec.begin(),m_InvPosDetailVec.end(),CmpByTime);//排序
+		int closeNum = trade.Volume;TThostFtdcDirectionType closeDirection;
+		if(trade.Direction == THOST_FTDC_D_Buy){closeDirection = THOST_FTDC_D_Sell;}
+		else{closeDirection = THOST_FTDC_D_Buy;}
+		for(unsigned int i = 0;i < m_InvPosDetailVec.size();i++){		
+			if(strcmp(m_InvPosDetailVec[i].InstrumentID,trade.InstrumentID) == 0 && m_InvPosDetailVec[i].Direction == closeDirection){
+				if(m_InvPosDetailVec[i].Volume > closeNum){
+					m_InvPosDetailVec[i].Volume = m_InvPosDetailVec[i].Volume - closeNum;
+					break;
+				}
+				else if(m_InvPosDetailVec[i].Volume == closeNum){
+					CVector<CThostFtdcInvestorPositionDetailField>::iterator it = m_InvPosDetailVec.begin() + i;
+					m_InvPosDetailVec.erase(it);
+					i--;
+					break;
+				}
+				else{
+					CVector<CThostFtdcInvestorPositionDetailField>::iterator it = m_InvPosDetailVec.begin() + i;
+					m_InvPosDetailVec.erase(it);
+					i--;
+					closeNum = closeNum - trade.Volume;
+				}
+			}
+		}
 	}
 	//后处理
 	if(pApp->m_pHedgePostProcessing){
@@ -1602,8 +1640,4 @@ int CtpTraderSpi::FindOrdInOnRoadVec(TThostFtdcOrderRefType OrderRef)
 		{ return i;}
 	}
 	return (-1);
-}
-
-void sortPosDetailbyTime(std::vector<CThostFtdcInvestorPositionDetailField> &posdetail){
-
 }
