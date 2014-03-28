@@ -14,7 +14,7 @@
 #endif
 std::fstream fileInput;
 bool isReal = true;
-extern std::vector<HoldDetail> HedgeHold;
+extern CVector<HoldDetail> HedgeHold;
 // CHiStarApp
 BEGIN_MESSAGE_MAP(CHiStarApp, CWinApp)
 	ON_COMMAND(ID_HELP, &CWinApp::OnHelp)
@@ -23,6 +23,7 @@ BEGIN_MESSAGE_MAP(CHiStarApp, CWinApp)
 	ON_THREAD_MESSAGE(WM_LOGIN_CTP,LoginCtp)
 	ON_THREAD_MESSAGE(WM_LOGOUT_CTP,LogoutCtp)
 	ON_THREAD_MESSAGE(WM_QRY_ACC_CTP,OnQryAccCtp)
+	ON_THREAD_MESSAGE(WM_UPDATE_HEDGEHOLD,OnUpdateHedgeHold)
 	ON_THREAD_MESSAGE(WM_UPDATE_LSTCTRL,OnUpdateLstCtrl)
 	ON_THREAD_MESSAGE(WM_MD_REFRESH,OnHedgeLooping)
 	ON_THREAD_MESSAGE(WM_CONNECT_SQL,OnConnectSql)
@@ -83,6 +84,8 @@ void CHiStarApp::OnIni(WPARAM wParam,LPARAM lParam){
 	//IB Order初始化
 	m_IBOrder.orderType = "LMT";
 	m_IBOrder.whatIf = false;
+	//更新持仓
+	OnUpdateHedgeHold(NULL,NULL);
 }
 
 // 唯一的一个 CHiStarApp 对象

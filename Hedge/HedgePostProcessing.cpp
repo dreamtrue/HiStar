@@ -40,8 +40,8 @@ int netPositionA50 = 0,longIf = 0,shortIf = 0;//净持仓,需要计算;IF分空头净持仓和
 double AvailIB = 0.0,AvailCtp = 0.0;//可用资金，需要计算
 ////////////////////////////////////////////////////////
 char buffer[1000];
-std::vector<HoldDetail> HedgeHoldTemp;//临时使用的，先用这个进行预计算，最后同步到HedgeHold
-std::vector<HoldDetail> HedgeHold;
+CVector<HoldDetail> HedgeHoldTemp;//临时使用的，先用这个进行预计算，最后同步到HedgeHold
+CVector<HoldDetail> HedgeHold;
 long maxIdHold = 0;//最大持仓id
 struct A50Task{
 	int volumeRecord;char direction;//'l'表示长仓,'s'表示短舱
@@ -139,8 +139,8 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 		DeviationBuy = DeviationSell - 6.5;
 		g_ifBid1 = 2163.6;g_ifAsk1 = 2163.8;
 		*/
-		//sprintf(buffer,_T("当前买偏差%f\r\n"),DeviationBuy);hedgeStatusPrint = hedgeStatusPrint + buffer;
-		//sprintf(buffer,_T("当前卖偏差%f\r\n"),DeviationSell);hedgeStatusPrint = hedgeStatusPrint + buffer;
+		//sprintf(buffer,_T("当前买偏差%lf\r\n"),DeviationBuy);hedgeStatusPrint = hedgeStatusPrint + buffer;
+		//sprintf(buffer,_T("当前卖偏差%lf\r\n"),DeviationSell);hedgeStatusPrint = hedgeStatusPrint + buffer;
 		////////////////////////结束测试//////////////////////////////
 		CalcDeviation();
 		if(isHedgeLoopingPause){//暂停
@@ -202,9 +202,9 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 				}
 			}
 		}
-		//sprintf(buffer,_T("当前买价区间%d,左%f,右%f\r\n"),CurrentSectionBuy,HedgeLadder[CurrentSectionBuy - 1],HedgeLadder[CurrentSectionBuy]);
+		//sprintf(buffer,_T("当前买价区间%d,左%lf,右%lf\r\n"),CurrentSectionBuy,HedgeLadder[CurrentSectionBuy - 1],HedgeLadder[CurrentSectionBuy]);
 		//hedgeStatusPrint = hedgeStatusPrint + buffer;
-		//sprintf(buffer,_T("当前卖价区间%d,左%f,右%f\r\n"),CurrentSectionSell,HedgeLadder[CurrentSectionSell - 1],HedgeLadder[CurrentSectionSell]);
+		//sprintf(buffer,_T("当前卖价区间%d,左%lf,右%lf\r\n"),CurrentSectionSell,HedgeLadder[CurrentSectionSell - 1],HedgeLadder[CurrentSectionSell]);
 		//hedgeStatusPrint = hedgeStatusPrint + buffer;
 		for(int i = 0;i < 22;i++){
 			if(i < 20){
@@ -223,8 +223,8 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 			ProfitAimBuy[i] = min(ProfitAimBuy[i],MaxProfitAim);
 			ProfitAimSell[i] = max(DefaultProfitAimSell[i],MinProfitAim);
 			ProfitAimSell[i] = min(ProfitAimSell[i],MaxProfitAim);
-			//sprintf(buffer,"区间%d买目标盈利%f,最大盈利%f,最小盈利%f\r\n",i,ProfitAimBuy[i],MaxProfitAim,MinProfitAim);
-			//sprintf(buffer,"区间%d卖目标盈利%f,最大盈利%f,最小盈利%f\r\n",i,ProfitAimSell[i],MaxProfitAim,MinProfitAim);
+			//sprintf(buffer,"区间%d买目标盈利%lf,最大盈利%lf,最小盈利%lf\r\n",i,ProfitAimBuy[i],MaxProfitAim,MinProfitAim);
+			//sprintf(buffer,"区间%d卖目标盈利%lf,最大盈利%lf,最小盈利%lf\r\n",i,ProfitAimSell[i],MaxProfitAim,MinProfitAim);
 		}
 		//每次循环只进行一次开仓或者平仓操作,完成后即return,进入下一个循环;
 		//这么做因为持仓和资金只有在每个循环的开始才计算，中途不计算,
@@ -236,7 +236,7 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 					//需要平仓
 					if(DeviationBuy >= HedgeLadder[20] + ProfitAimBuy[HedgeHoldTemp[i].HedgeSection]){
 						//需要平仓
-						sprintf(buffer,_T("需要平仓%d手,相对价格%f,盈利%f\r\n"),-HedgeHoldTemp[i].HedgeNum,DeviationBuy,DeviationBuy - HedgeHoldTemp[i].adjustedCost);
+						sprintf(buffer,_T("需要平仓%d手,相对价格%lf,盈利%lf\r\n"),-HedgeHoldTemp[i].HedgeNum,DeviationBuy,DeviationBuy - HedgeHoldTemp[i].adjustedCost);
 						hedgeStatusPrint = hedgeStatusPrint + buffer;
 						ReqHedgeOrder(&HedgeHoldTemp[i],CLOSE);
 						HedgeHoldTemp.erase(HedgeHoldTemp.begin() + i);
@@ -248,7 +248,7 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 				else{
 					if(DeviationBuy >= HedgeLadder[HedgeHoldTemp[i].HedgeSection] + ProfitAimBuy[HedgeHoldTemp[i].HedgeSection]){
 						//需要平仓
-						sprintf(buffer,_T("需要平仓%d手,相对价格%f,盈利%f\r\n"),-HedgeHoldTemp[i].HedgeNum,DeviationBuy,DeviationBuy - HedgeHoldTemp[i].adjustedCost);
+						sprintf(buffer,_T("需要平仓%d手,相对价格%lf,盈利%lf\r\n"),-HedgeHoldTemp[i].HedgeNum,DeviationBuy,DeviationBuy - HedgeHoldTemp[i].adjustedCost);
 						hedgeStatusPrint = hedgeStatusPrint + buffer;
 						ReqHedgeOrder(&HedgeHoldTemp[i],CLOSE);
 						HedgeHoldTemp.erase(HedgeHoldTemp.begin() + i);
@@ -261,7 +261,7 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 			else if(HedgeHoldTemp[i].HedgeNum < 0){//空头持仓
 				if(HedgeHoldTemp[i].HedgeSection == 0){
 					if(DeviationSell <= HedgeLadder[0] - ProfitAimSell[HedgeHoldTemp[i].HedgeSection]){
-						sprintf(buffer,_T("需要平仓%d手,相对价格%f,盈利%f\r\n"),-HedgeHoldTemp[i].HedgeNum,DeviationSell,HedgeHoldTemp[i].adjustedCost - DeviationSell);
+						sprintf(buffer,_T("需要平仓%d手,相对价格%lf,盈利%lf\r\n"),-HedgeHoldTemp[i].HedgeNum,DeviationSell,HedgeHoldTemp[i].adjustedCost - DeviationSell);
 						hedgeStatusPrint = hedgeStatusPrint + buffer;
 						ReqHedgeOrder(&HedgeHoldTemp[i],CLOSE);
 						HedgeHoldTemp.erase(HedgeHoldTemp.begin() + i);
@@ -272,7 +272,7 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 				}
 				else{
 					if(DeviationSell <= HedgeLadder[HedgeHoldTemp[i].HedgeSection - 1] - ProfitAimSell[HedgeHoldTemp[i].HedgeSection]){
-						sprintf(buffer,_T("需要平仓%d手,相对价格%f,盈利%f\r\n"),-HedgeHoldTemp[i].HedgeNum,DeviationSell,HedgeHoldTemp[i].adjustedCost - DeviationSell);
+						sprintf(buffer,_T("需要平仓%d手,相对价格%lf,盈利%lf\r\n"),-HedgeHoldTemp[i].HedgeNum,DeviationSell,HedgeHoldTemp[i].adjustedCost - DeviationSell);
 						hedgeStatusPrint = hedgeStatusPrint + buffer;
 						ReqHedgeOrder(&HedgeHoldTemp[i],CLOSE);
 						HedgeHoldTemp.erase(HedgeHoldTemp.begin() + i);
@@ -289,7 +289,7 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 					SupposedSellOpen = -abs(netPosition) - PositionAim[i];
 					SupposedSectionSellOpen = i;
 					isSupposedSellOpen = true;
-					//sprintf(buffer,_T("期望卖开%d期望区间%d,左%f,右%f\r\n"),SupposedSellOpen,i,HedgeLadder[i - 1],HedgeLadder[i]);
+					//sprintf(buffer,_T("期望卖开%d期望区间%d,左%lf,右%lf\r\n"),SupposedSellOpen,i,HedgeLadder[i - 1],HedgeLadder[i]);
 					//hedgeStatusPrint = hedgeStatusPrint + buffer;
 					break;
 				}
@@ -301,7 +301,7 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 					SupposedBuyOpen = -(abs(netPosition) - PositionAim[i]);
 					SupposedSectionBuyOpen = i;
 					isSupposedBuyOpen = true;
-					//sprintf(buffer,_T("期望买开%d期望区间%d,左%f,右%f\r\n"),SupposedBuyOpen,i,HedgeLadder[i - 1],HedgeLadder[i]);
+					//sprintf(buffer,_T("期望买开%d期望区间%d,左%lf,右%lf\r\n"),SupposedBuyOpen,i,HedgeLadder[i - 1],HedgeLadder[i]);
 					//hedgeStatusPrint = hedgeStatusPrint + buffer;
 					break;
 				}
@@ -316,7 +316,7 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 				newhold.adjustedCost = DeviationSell;
 				newhold.originalCost = DeviationSell + datumDiff;
 				newhold.HedgeSection = CurrentSectionSell;
-				sprintf(buffer,_T("需要开仓%d手,相对价格%f,所在区间%d,左%f,右%f\r\n"),newhold.HedgeNum,newhold.adjustedCost,newhold.HedgeSection,HedgeLadder[newhold.HedgeSection - 1],HedgeLadder[newhold.HedgeSection]);
+				sprintf(buffer,_T("需要开仓%d手,相对价格%lf,所在区间%d,左%lf,右%lf\r\n"),newhold.HedgeNum,newhold.adjustedCost,newhold.HedgeSection,HedgeLadder[newhold.HedgeSection - 1],HedgeLadder[newhold.HedgeSection]);
 				hedgeStatusPrint = hedgeStatusPrint + buffer;
 				newhold.id = ++maxIdHold;
 				HedgeHoldTemp.push_back(newhold);
@@ -333,7 +333,7 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 				newhold.adjustedCost = DeviationBuy;
 				newhold.originalCost = DeviationBuy + datumDiff;
 				newhold.HedgeSection = CurrentSectionBuy;
-				sprintf(buffer,_T("需要开仓%d手,相对价格%f,所在区间%d,左%f,右%f\r\n"),newhold.HedgeNum,newhold.adjustedCost,newhold.HedgeSection,HedgeLadder[newhold.HedgeSection - 1],HedgeLadder[newhold.HedgeSection]);
+				sprintf(buffer,_T("需要开仓%d手,相对价格%lf,所在区间%d,左%lf,右%lf\r\n"),newhold.HedgeNum,newhold.adjustedCost,newhold.HedgeSection,HedgeLadder[newhold.HedgeSection - 1],HedgeLadder[newhold.HedgeSection]);
 				hedgeStatusPrint = hedgeStatusPrint + buffer;
 				newhold.id = ++maxIdHold;
 				HedgeHoldTemp.push_back(newhold);
@@ -437,14 +437,14 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 	sprintf(buffer,_T("%2d:%2d:%2d:%3d\r\n"),sys.wHour,sys.wMinute,sys.wSecond,sys.wMilliseconds);hedgeStatusPrint = hedgeStatusPrint + buffer;
 	sprintf(buffer,_T("操作:\r\n买A50--%d手\r\n,卖A50--%d手\r\n,买开IF---%d手\r\n,买平IF---%d手\r\n,卖开IF---%d手\r\n,卖平IF---%d手\r\n"),NeedBuyA50,NeedSellA50,NeedBuyOpenIf,NeedBuyCloseIf,NeedSellOpenIf,NeedSellCloseIf);
 	hedgeStatusPrint = hedgeStatusPrint + buffer;
-	sprintf(buffer,"A50指数%f,HS300指数%f, %f, %f, %f, %f\r\n",A50Index,HS300Index,g_ifBid1,g_ifAsk1,g_a50Bid1,g_a50Ask1);hedgeStatusPrint = hedgeStatusPrint + buffer;
-	sprintf(buffer,"premiumHigh%f,premiumLow%f\r\n",g_a50Ask1 - g_ifBid1 * A50Index / HS300Index,g_a50Bid1 - g_ifAsk1 * A50Index / HS300Index);hedgeStatusPrint = hedgeStatusPrint + buffer;
+	sprintf(buffer,"A50指数%lf,HS300指数%lf, %lf, %lf, %lf, %lf\r\n",A50Index,HS300Index,g_ifBid1,g_ifAsk1,g_a50Bid1,g_a50Ask1);hedgeStatusPrint = hedgeStatusPrint + buffer;
+	sprintf(buffer,"premiumHigh%lf,premiumLow%lf\r\n",g_a50Ask1 - g_ifBid1 * A50Index / HS300Index,g_a50Bid1 - g_ifAsk1 * A50Index / HS300Index);hedgeStatusPrint = hedgeStatusPrint + buffer;
 	////////////////////////////////////////////////////////////////////////////////////
 	//IB表示需要新的保证金
 	if(abs(PredictPositionA50) > abs(netPositionA50)){
 		NeedNewMarginA50 = pointValueA50 * MarginA50 * (abs(PredictPositionA50) - abs(netPositionA50));
 		if(NeedNewMarginA50 - AvailIB > 1000.0){
-			sprintf(buffer,_T("IB保证金不足,需要%f\r\n"),NeedNewMarginA50);
+			sprintf(buffer,_T("IB保证金不足,需要%lf\r\n"),NeedNewMarginA50);
 			hedgeStatusPrint = hedgeStatusPrint + buffer;
 			sprintf(buffer,_T("======================END07======================\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
 			return -1;
@@ -454,7 +454,7 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 	if(PredictshortIf + PredictlongIf > longIf + shortIf){
 		NeedNewMarginIf = (g_ifAsk1 + g_ifBid1) / 2.0 *  pointValueIf * MarginIf * (PredictshortIf + PredictlongIf - (longIf + shortIf));
 		if(NeedNewMarginIf - AvailCtp > 6000.0){
-			sprintf(buffer,_T("CTP保证金不足,需要%f\r\n"),NeedNewMarginIf);
+			sprintf(buffer,_T("CTP保证金不足,需要%lf\r\n"),NeedNewMarginIf);
 			hedgeStatusPrint = hedgeStatusPrint + buffer;
 			sprintf(buffer,_T("======================END08======================\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
 			return -1;
@@ -723,10 +723,11 @@ void CHedgePostProcessing::PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 		}
 	}
 	SelectIndex();
-	sprintf(buffer,_T("HedgeAbsCost:%f,A50:%f,If:%f,A50Index:%f,HS300Index:%f\r\n"),t_avgPriceA50 - t_avgPriceIf * A50Index / HS300Index,t_avgPriceA50,t_avgPriceIf,A50Index,HS300Index);hedgeStatusPrint = hedgeStatusPrint + buffer;SendMsg(buffer);
+	sprintf(buffer,_T("HedgeAbsCost:%lf,A50:%lf,If:%lf,A50Index:%lf,HS300Index:%lf\r\n"),t_avgPriceA50 - t_avgPriceIf * A50Index / HS300Index,t_avgPriceA50,t_avgPriceIf,A50Index,HS300Index);hedgeStatusPrint = hedgeStatusPrint + buffer;SendMsg(buffer);
 	HedgeHold = HedgeHoldTemp;//更新Hold持仓
 	hedgeTaskStatus = NEW_HEDGE;
 	sprintf(buffer,_T("对冲结束\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
+	::PostThreadMessage(MainThreadId,WM_UPDATE_HEDGEHOLD,NULL,NULL);//更新账户
 	::PostThreadMessage(MainThreadId,WM_QRY_ACC_CTP,NULL,NULL);//更新账户
 	Sleep(3000);
 }
@@ -755,20 +756,20 @@ double DealA50Price(bool isBuy, double A50Price)
 
 void SelectIndex(){
 	if(fabs(g_A50Index - g_A50IndexMSHQ) > 15.0){
-		TRACE("over 0.1,MS%f,SN%f\r\n",g_A50IndexMSHQ,g_A50Index);
+		TRACE("over 0.1,MS%lf,SN%lf\r\n",g_A50IndexMSHQ,g_A50Index);
 		A50Index = g_A50Index;
 	}
 	else{
 		A50Index = g_A50IndexMSHQ;
-		TRACE("MS,SN,%f,%f\r\n",g_A50IndexMSHQ,g_A50Index);
+		TRACE("MS,SN,%lf,%lf\r\n",g_A50IndexMSHQ,g_A50Index);
 	}
 	if(fabs(g_HS300Index - g_HS300IndexMSHQ) > 5.0){
-		//TRACE("over 0.1,MS%f,SN%f\r\n",g_HS300Index,g_HS300Index);
+		//TRACE("over 0.1,MS%lf,SN%lf\r\n",g_HS300Index,g_HS300Index);
 		HS300Index = g_HS300Index;
 	}
 	else{
 		HS300Index = g_HS300IndexMSHQ;
-		//TRACE("MS%f,SN%f\r\n",g_HS300IndexMSHQ,g_HS300Index);
+		//TRACE("MS%lf,SN%lf\r\n",g_HS300IndexMSHQ,g_HS300Index);
 	}
 }
 

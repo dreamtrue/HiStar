@@ -127,6 +127,7 @@ public:
 	void LoginCtpTD(WPARAM wParam,LPARAM lParam);
 	void OnQryAccCtp(WPARAM wParam,LPARAM lParam);
 	void OnUpdateLstCtrl(WPARAM wParam,LPARAM lParam);
+	void OnUpdateHedgeHold(WPARAM wParam,LPARAM lParam);
 	void OnHedgeLooping(WPARAM wParam,LPARAM lParam);
 	void OnSynchronizeMarket(WPARAM wParam,LPARAM lParam);
 	int FindInstMul(TThostFtdcInstrumentIDType InstID);

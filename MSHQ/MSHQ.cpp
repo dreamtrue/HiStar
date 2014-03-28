@@ -218,10 +218,10 @@ void CMSHQ::CalcTotalValue(){
 		else{
 			g_totalA50Value = g_totalA50Value + StockSlfList[j].Close * StockSlfList[j].volume;
 		}
-		//TRACE("%s , %f\r\n",StockSlfList[j].Code,StockSlfList[j].Current);
+		//TRACE("%s , %lf\r\n",StockSlfList[j].Code,StockSlfList[j].Current);
 	}
 	for(int j = 50;j < 350;j++){
-		//TRACE("%s , %f\r\n",StockSlfList[j].Code,StockSlfList[j].Current);
+		//TRACE("%s , %lf\r\n",StockSlfList[j].Code,StockSlfList[j].Current);
 		if(StockSlfList[j].Current > 0.000001){
 			g_totalHS300Value = g_totalHS300Value + StockSlfList[j].Current * StockSlfList[j].volume;
 		}
@@ -231,7 +231,7 @@ void CMSHQ::CalcTotalValue(){
 	}
 	g_A50IndexMSHQ = g_totalA50Value / A50totalVolumeRef * A50IndexRef;
 	g_HS300IndexMSHQ = g_totalHS300Value / HS300totalVolumeRef * HS300IndexRef;
-	//TRACE(_T("A50指数%f,HS300指数%f\r\n"),g_A50IndexMSHQ,g_HS300IndexMSHQ);
+	//TRACE(_T("A50指数%lf,HS300指数%lf\r\n"),g_A50IndexMSHQ,g_HS300IndexMSHQ);
 }
 
 void CMSHQ::UpdateSZHQ()

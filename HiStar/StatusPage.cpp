@@ -265,24 +265,26 @@ void CStatusPage::SynchronizeAllVecs()
 {
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	///////这里的vector均进行了同步，其他比如m_FeeRateRev等不进行更新，故没有同步
-	m_onRoadVec = pApp->m_cT->m_onRoadVec.GetBuffer();
-	m_orderVec = pApp->m_cT->m_orderVec.GetBuffer();
-	m_tradeVec = pApp->m_cT->m_tradeVec.GetBuffer();
-	m_InsinfVec = pApp->m_cT->m_InsinfVec.GetBuffer();
-	m_InvPosDetailVec =  pApp->m_cT->m_InvPosDetailVec.GetBuffer();
-	FiltInsList();//排序
-	m_MargRateVec = pApp->m_cT->m_MargRateVec.GetBuffer();
-	m_StmiVec = pApp->m_cT->m_StmiVec.GetBuffer();
-	m_AccRegVec = pApp->m_cT->m_AccRegVec.GetBuffer();
-	m_TdCodeVec = pApp->m_cT->m_TdCodeVec.GetBuffer();
-	m_InvPosVec = pApp->m_cT->m_InvPosVec.GetBuffer();
-	m_BfTransVec = pApp->m_cT->m_BfTransVec.GetBuffer();
-	//////////////////////////
-	m_FeeRateRev = pApp->m_cT->m_FeeRateRev;
-	m_TdAcc = pApp->m_cT->m_TdAcc;
-	for (int i=0;i<4;i++)
-	{
-		m_tsEXnLocal[i] = pApp->m_cT->m_tsEXnLocal[i];
+	if(pApp && pApp->m_cT){//保证在登录后才能进行同步
+		m_onRoadVec = pApp->m_cT->m_onRoadVec.GetBuffer();
+		m_orderVec = pApp->m_cT->m_orderVec.GetBuffer();
+		m_tradeVec = pApp->m_cT->m_tradeVec.GetBuffer();
+		m_InsinfVec = pApp->m_cT->m_InsinfVec.GetBuffer();
+		m_InvPosDetailVec =  pApp->m_cT->m_InvPosDetailVec.GetBuffer();
+		FiltInsList();//排序
+		m_MargRateVec = pApp->m_cT->m_MargRateVec.GetBuffer();
+		m_StmiVec = pApp->m_cT->m_StmiVec.GetBuffer();
+		m_AccRegVec = pApp->m_cT->m_AccRegVec.GetBuffer();
+		m_TdCodeVec = pApp->m_cT->m_TdCodeVec.GetBuffer();
+		m_InvPosVec = pApp->m_cT->m_InvPosVec.GetBuffer();
+		m_BfTransVec = pApp->m_cT->m_BfTransVec.GetBuffer();
+		//////////////////////////
+		m_FeeRateRev = pApp->m_cT->m_FeeRateRev;
+		m_TdAcc = pApp->m_cT->m_TdAcc;
+		for (int i=0;i<4;i++)
+		{
+			m_tsEXnLocal[i] = pApp->m_cT->m_tsEXnLocal[i];
+		}
 	}
 	//////////////////////////////////////////////////
 	for(VInvP vip=m_InvPosVec.begin(); vip!=m_InvPosVec.end();)
@@ -611,7 +613,7 @@ void CStatusPage::OnGetDispinf1(NMHDR *pNMHDR, LRESULT *pResult)
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 5:
-			szTemp.Format(_T("%f"),m_onRoadVec[iItem].LimitPrice);
+			szTemp.Format(_T("%lf"),m_onRoadVec[iItem].LimitPrice);
 			szTemp.TrimRight('0');
 			iLen = szTemp.GetLength();
 			if (szTemp.Mid(iLen-1,1)==_T(".")) {szTemp.TrimRight(_T("."));}
@@ -662,7 +664,7 @@ void CStatusPage::OnGetDispinf2(NMHDR *pNMHDR, LRESULT *pResult)
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 5:
-			szTemp.Format(_T("%f"),m_orderVec[iItem].LimitPrice);
+			szTemp.Format(_T("%lf"),m_orderVec[iItem].LimitPrice);
 			szTemp.TrimRight('0');
 			iLen = szTemp.GetLength();
 			if (szTemp.Mid(iLen-1,1)==_T(".")) {szTemp.TrimRight(_T("."));}
@@ -745,11 +747,11 @@ void CStatusPage::OnGetDispinf3(NMHDR *pNMHDR, LRESULT *pResult)
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 7:
-			szTemp.Format(_T("%f"),m_InvPosDetailVec[iItem].Volume * (m_InvPosDetailVec[iItem].SettlementPrice - m_InvPosDetailVec[iItem].OpenPrice));
+			szTemp.Format(_T("%lf"),m_InvPosDetailVec[iItem].Volume * (m_InvPosDetailVec[iItem].SettlementPrice - m_InvPosDetailVec[iItem].OpenPrice));
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 8:
-			szTemp.Format(_T("%f"),m_InvPosDetailVec[iItem].Margin);
+			szTemp.Format(_T("%lf"),m_InvPosDetailVec[iItem].Margin);
 			szTemp.TrimRight('0');
 			iLen = szTemp.GetLength();
 			if (szTemp.Mid(iLen-1,1)==_T(".")) {szTemp.TrimRight(_T("."));}
@@ -784,7 +786,7 @@ void CStatusPage::OnGetDispinf4(NMHDR *pNMHDR, LRESULT *pResult)
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 3:
-			szTemp.Format(_T("%f"),m_tradeVec[iItemIndex].Price);
+			szTemp.Format(_T("%lf"),m_tradeVec[iItemIndex].Price);
 			szTemp.TrimRight('0');
 			iLen = szTemp.GetLength();
 			if (szTemp.Mid(iLen-1,1)==_T(".")) {szTemp.TrimRight(_T("."));}
@@ -853,7 +855,7 @@ void CStatusPage::OnGetDispinf5(NMHDR *pNMHDR, LRESULT *pResult)
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 5:
-			szTemp.Format(_T("%f"),m_InsinfVec[iItem].iinf.PriceTick);
+			szTemp.Format(_T("%lf"),m_InsinfVec[iItem].iinf.PriceTick);
 			szTemp.TrimRight('0');
 			iLen = szTemp.GetLength();
 			if (szTemp.Mid(iLen-1,1)==_T(".")) {szTemp.TrimRight(_T("."));}

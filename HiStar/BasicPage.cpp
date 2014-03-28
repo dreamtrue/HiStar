@@ -24,6 +24,7 @@ extern double MaxProfitAim,MinProfitAim;
 extern int MultiPos;
 extern double MarginA50;
 extern bool isReal;
+extern CVector<HoldDetail> HedgeHold;
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
 class CAboutDlg : public CDialogEx
@@ -92,6 +93,7 @@ void CBasicPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_MAXPROFIT,MaxProfitAim);
 	DDX_Text(pDX,IDC_MULTI_POS,MultiPos);
 	DDX_Text(pDX,IDC_RICHEDIT23,MarginA50);
+	DDX_Control(pDX, IDC_LIST3, m_LstHedgeStatus);
 }
 
 BEGIN_MESSAGE_MAP(CBasicPage, CDialogEx)
@@ -111,6 +113,9 @@ BEGIN_MESSAGE_MAP(CBasicPage, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON7, &CBasicPage::OnIniSql)
 	ON_BN_CLICKED(IDC_CHECK1, &CBasicPage::OnBnClickedCheck1)
 	ON_BN_CLICKED(IDC_BUTTON13, &CBasicPage::OnIni)
+	ON_NOTIFY(LVN_GETDISPINFO, IDC_LIST3, OnGetHedgeHold)
+	ON_NOTIFY(NM_CLICK, IDC_LIST3, OnNMClkLstHedgeStatus)
+	ON_NOTIFY(NM_DBLCLK,IDC_LIST3,OnNMDblclkLstHedgeStatus)
 END_MESSAGE_MAP()
 
 
@@ -176,6 +181,25 @@ BOOL CBasicPage::OnInitDialog()
 	SetDlgItemText(IDC_MAXPROFIT,TEXT(_T("20.0")));
 	SetDlgItemText(IDC_MULTI_POS,TEXT(_T("1")));
 	SetDlgItemText(IDC_RICHEDIT23,TEXT(_T("416.0")));
+	//初始化列表控件
+	TCHAR* lpHdrs0[ONROAD_ITMES] = {_T("ID"),_T("数量"),_T("所属区域"),_T("原始成本")};
+	int iWidths0[ONROAD_ITMES] = {32,52,68,68};
+	int i;
+	int total_cx = 0;
+	LVCOLUMN lvcolumn;
+	memset(&lvcolumn, 0, sizeof(lvcolumn));
+
+	for (i = 0;i<ONROAD_ITMES ; i++)
+	{
+		lvcolumn.mask     = LVCF_FMT | LVCF_SUBITEM | LVCF_TEXT | LVCF_WIDTH|LVCFMT_IMAGE;
+		lvcolumn.fmt      = LVCFMT_RIGHT;
+		lvcolumn.iSubItem = i;
+		lvcolumn.pszText  = lpHdrs0[i];
+		lvcolumn.cx       = iWidths0[i];
+
+		total_cx += lvcolumn.cx;
+		m_LstHedgeStatus.InsertColumn(i, &lvcolumn);
+	}
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -302,7 +326,7 @@ void CBasicPage::RefreshMdPane(void)
 	char price[1000],datetime[100];
 	if(((CHiStarApp*)AfxGetApp())->conn){
 		sprintf(datetime,"'%d-%d-%d %d:%d:%d',%d,",sys.wYear,sys.wMonth,sys.wDay,sys.wHour,sys.wMinute,sys.wSecond,sys.wMilliseconds);
-		sprintf(price,"%f,%f,%f,%f,%f,%f",g_A50Index,g_a50Bid1,g_a50Ask1,g_HS300Index,m_depthMd.BidPrice1,m_depthMd.AskPrice1);
+		sprintf(price,"%lf,%lf,%lf,%lf,%lf,%lf",g_A50Index,g_a50Bid1,g_a50Ask1,g_HS300Index,m_depthMd.BidPrice1,m_depthMd.AskPrice1);
 		CString insertdata = "INSERT INTO " + ((CHiStarApp*)AfxGetApp())->m_marketTableName + " (datetime,millisecond,a50index,a50bid,a50ask,hs300index,hs300bid,hs300ask) VALUES (" + CString(datetime) + CString(price) +")";
 		if(mysql_query(((CHiStarApp*)AfxGetApp())->conn,insertdata.GetBuffer())){
 			TRACE("Error %u: %s\n", mysql_errno(((CHiStarApp*)AfxGetApp())->conn), mysql_error(((CHiStarApp*)AfxGetApp())->conn));
@@ -326,6 +350,8 @@ void CBasicPage::OnBnClickedTest()
 	PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 	PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 	((CHiStarApp*)AfxGetApp())->OnHedgeLooping(NULL,NULL);
+	m_LstHedgeStatus.Invalidate();
+	m_LstHedgeStatus.SetItemCountEx(HedgeHold.size());
 }
 
 
@@ -354,4 +380,57 @@ void CBasicPage::OnBnClickedCheck1()
 void CBasicPage::OnIni()
 {
 	PostThreadMessage(GetCurrentThreadId(),WM_INI,NULL,NULL);
+}
+
+void CBasicPage::OnGetHedgeHold(NMHDR *pNMHDR, LRESULT *pResult){
+	NMLVDISPINFO *pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pNMHDR);
+	LV_ITEM* pItem= &(pDispInfo)->item;
+	int iItem= HedgeHold.size()-1-pItem->iItem;
+	if(iItem < 0)return;
+	if(pItem->mask & LVIF_TEXT)
+	{
+		CString szTemp = _T("");
+		int iLen=0;CString str;
+		switch(pItem->iSubItem)
+		{
+		case 0:
+			str.Format("%ld",HedgeHold[iItem].id);
+			lstrcpy(pItem->pszText,str);
+			break;
+		case 1: 
+			str.Format("%d",HedgeHold[iItem].HedgeNum);
+			lstrcpy(pItem->pszText,str);
+			break;
+		case 2:
+			str.Format("%d",HedgeHold[iItem].HedgeSection);
+			lstrcpy(pItem->pszText,str);
+			break;
+		case 3:
+			str.Format("%lf",HedgeHold[iItem].originalCost);
+			lstrcpy(pItem->pszText,str);
+			break;
+		}
+	}
+	*pResult = 0;
+}
+
+void CBasicPage::OnNMClkLstHedgeStatus(NMHDR *pNMHDR, LRESULT *pResult){
+
+}
+
+void CBasicPage::OnNMDblclkLstHedgeStatus(NMHDR *pNMHDR, LRESULT *pResult){
+	LPNMITEMACTIVATE pNMIA = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	int nItem = -1;
+	int nSubItem = -1;
+	int iCount = -1;
+	if (pNMIA)
+	{
+		nItem = pNMIA->iItem;
+		nSubItem = pNMIA->iSubItem;
+		iCount = m_LstHedgeStatus.GetItemCount();
+		if(nItem != -1){
+			m_LstHedgeStatus.DeleteItem(nItem);
+			HedgeHold.erase(HedgeHold.begin() + nItem);
+		}
+	}
 }

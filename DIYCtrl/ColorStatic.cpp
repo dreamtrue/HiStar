@@ -109,7 +109,7 @@ void CColorStatic::SetDouble(double dVal,COLORREF crColor,UINT uAlign)
 	}
 	else
 	{
-		szTemp.Format(_T("%f"),dVal);
+		szTemp.Format(_T("%lf"),dVal);
 		
 		szTemp.TrimRight(_T("0"));
 		int iLen = szTemp.GetLength();

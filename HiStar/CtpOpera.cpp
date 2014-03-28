@@ -2,6 +2,8 @@
 #include "HiStar.h"
 #include "MainDlg.h"
 #include "UserMsg.h"
+#include "CVector.h"
+extern CVector<HoldDetail> HedgeHold;
 BOOL bIsInit = FALSE;
 extern BOOL g_bLoginCtpT;
 UINT LoginThread(LPVOID pParam);
@@ -285,9 +287,14 @@ void CHiStarApp::OnQryAccCtp(WPARAM wParam,LPARAM lParam){
 		}
 	}
 }
+
+void CHiStarApp::OnUpdateHedgeHold(WPARAM wParam,LPARAM lParam){
+	((CMainDlg*)m_pMainWnd)->m_basicPage.m_LstHedgeStatus.Invalidate();
+	((CMainDlg*)m_pMainWnd)->m_basicPage.m_LstHedgeStatus.SetItemCountEx(HedgeHold.size());
+}
+
 void CHiStarApp::OnUpdateLstCtrl(WPARAM wParam,LPARAM lParam){
-	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
-	((CMainDlg*)pApp->m_pMainWnd)->m_statusPage.SynchronizeAllVecs();
+	((CMainDlg*)m_pMainWnd)->m_statusPage.SynchronizeAllVecs();
 }
 
 

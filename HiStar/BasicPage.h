@@ -74,6 +74,11 @@ public:
 	afx_msg void OnIniSql();
 	afx_msg void OnBnClickedCheck1();
 	afx_msg void OnIni();
+	CColorListCtrl m_LstHedgeStatus;
+public:
+	void OnGetHedgeHold(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMClkLstHedgeStatus(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMDblclkLstHedgeStatus(NMHDR *pNMHDR, LRESULT *pResult);
 };
 //其他变量
 const int N = 5;
