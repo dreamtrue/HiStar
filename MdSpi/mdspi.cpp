@@ -168,14 +168,27 @@ void CtpMdSpi::OnRspUnSubMarketData(
 
 void CtpMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData){
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
-	if(pDepthMarketData->AskPrice1 != g_ifAsk1 || pDepthMarketData->BidPrice1 != g_ifBid1){
-		g_ifAsk1 = pDepthMarketData->AskPrice1;
-		g_ifBid1 = pDepthMarketData->BidPrice1;
-		if(pApp->m_pMainWnd){
-			memcpy(&(((CMainDlg*)(pApp->m_pMainWnd))->m_basicPage.m_depthMd),pDepthMarketData,sizeof(CThostFtdcDepthMarketDataField));		
-			PostMessage(AfxGetApp()->m_pMainWnd->GetSafeHwnd(),WM_MD_REFRESH,NULL,NULL);
+	bool founded = false;
+	for(unsigned int j = 0;Marketdata.size();j++){
+		if(strcmp(Marketdata[j].InstrumentID,pDepthMarketData->InstrumentID) == 0){
+			Marketdata[j] = *pDepthMarketData;
+			founded = true;
+			break;
 		}
-		PostThreadMessage(MainThreadId,WM_MD_REFRESH,NULL,NULL);
+	}
+	if(!founded){
+		Marketdata.push_back(*pDepthMarketData);
+	}
+	if(strcmp(pDepthMarketData->InstrumentID,pApp->m_accountCtp.m_szInst) == 0){
+		if(pDepthMarketData->AskPrice1 != g_ifAsk1 || pDepthMarketData->BidPrice1 != g_ifBid1){
+			g_ifAsk1 = pDepthMarketData->AskPrice1;
+			g_ifBid1 = pDepthMarketData->BidPrice1;
+			if(pApp->m_pMainWnd){
+				memcpy(&(((CMainDlg*)(pApp->m_pMainWnd))->m_basicPage.m_depthMd),pDepthMarketData,sizeof(CThostFtdcDepthMarketDataField));		
+				PostMessage(AfxGetApp()->m_pMainWnd->GetSafeHwnd(),WM_MD_REFRESH,NULL,NULL);
+			}
+			PostThreadMessage(MainThreadId,WM_MD_REFRESH,NULL,NULL);
+		}
 	}
 }
 

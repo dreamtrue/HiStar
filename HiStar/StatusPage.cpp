@@ -92,8 +92,8 @@ BOOL CStatusPage::OnInitDialog()
 	// TODO:  在此添加额外的初始化
 	m_tab.InsertItem( 0, _T("挂单") );
 	m_tab.InsertItem( 1, _T("委托") );
-	m_tab.InsertItem( 2, _T("持仓") );
-	m_tab.InsertItem( 3, _T("成交") );
+	m_tab.InsertItem( 2, _T("成交") );
+	m_tab.InsertItem( 3, _T("持仓") );
 	m_tab.InsertItem( 4, _T("合约") );
 	m_tab.InsertItem( 5, _T("其它") );
 	m_tab.SetCurSel(0);
@@ -109,7 +109,7 @@ BOOL CStatusPage::OnInitDialog()
 void CStatusPage::InitAllHdrs(void)
 {
 	TCHAR* lpHdrs0[ONROAD_ITMES] = {_T("单号"),_T("合约"),_T("买卖"),_T("开平"),_T("未成"),_T("价格"),_T("时间"),_T("报单引用"),_T("冻结金")};
-	int iWidths0[ONROAD_ITMES] = {46,46,34,34,34,46,60,60,60};
+	int iWidths0[ONROAD_ITMES] = {68,68,68,68,68,68,68,68,68};
 	int i;
 	int total_cx = 0;
 	LVCOLUMN lvcolumn;
@@ -129,7 +129,7 @@ void CStatusPage::InitAllHdrs(void)
 /////////////////////////////////////////////////////////////////////////////////////////////
 	TCHAR* lpHdrs1[ORDER_ITMES] = {_T("单号"),_T("合约"),_T("买卖"),_T("开平"),_T("状态"),_T("价格"),_T("报量"),_T("未成"),
 						_T("已成"),_T("均价"),_T("时间"),_T("序列号"),_T("冻保证金"),_T("冻手续费"),_T("详细状态"),};
-	int iWidths1[ORDER_ITMES] = {46,46,34,34,60,46,34,34,34,46,60,60,60,60,120};
+	int iWidths1[ORDER_ITMES] = {60,68,60,60,60,68,60,60,60,60,60,60,60,60,128};
 	total_cx = 0;
 	memset(&lvcolumn, 0, sizeof(lvcolumn));
 	
@@ -148,7 +148,7 @@ void CStatusPage::InitAllHdrs(void)
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	TCHAR* lpHdrs2[TRADE_ITMES] = {_T("合约"),_T("买卖"),_T("开平"),_T("价格"),_T("手数"),_T("时间"),_T("手续费"),
 		_T("投保"),_T("成交类型"),_T("交易所"),_T("成交编号"),_T("报单编号")};
-	int iWidths2[TRADE_ITMES] = {46,36,40,50,40,60,50,46,60,46,60,60};
+	int iWidths2[TRADE_ITMES] = {68,68,68,68,68,68,68,68,68,68,68,68};
 	total_cx = 0;
 	//LVCOLUMN lvcolumn;
 	memset(&lvcolumn, 0, sizeof(lvcolumn));
@@ -167,7 +167,7 @@ void CStatusPage::InitAllHdrs(void)
 	
 	///////////////////////////////////////////////////////////////////////////////
 	TCHAR* lpHdrs3[INVPOS_ITMES] = {_T("开仓日期"),_T("成交ID"),_T("合约"),_T("买卖"),_T("持仓"),_T("可平量"),_T("持仓价"),_T("持仓盈亏"),_T("占保证金")};
-	int iWidths3[INVPOS_ITMES] = {46,46,34,46,46,60,60,60,60};
+	int iWidths3[INVPOS_ITMES] = {68,68,68,68,68,68,68,68,68};
 	total_cx = 0;
 	memset(&lvcolumn, 0, sizeof(lvcolumn));
 	
@@ -186,7 +186,7 @@ void CStatusPage::InitAllHdrs(void)
 	
 	TCHAR* lpHdrs4[ALLINST_ITMES] = {_T("代码"),_T("合约"),_T("合约名"),_T("交易所"),_T("乘数"),_T("点差"),
 	_T("类型"),_T("最后日期"),_T("保证金率"),_T("手续费率")};
-	int iWidths4[ALLINST_ITMES] = {36,46,80,46,34,34,34,60,60,120};
+	int iWidths4[ALLINST_ITMES] = {68,68,68,68,68,68,68,68,68,68};
 	total_cx = 0;
 	memset(&lvcolumn, 0, sizeof(lvcolumn));
 	
@@ -226,21 +226,21 @@ void CStatusPage::OnTcnSelchangeTab1(NMHDR *pNMHDR, LRESULT *pResult)
 
 		m_LstOrdInf.ShowWindow( SW_SHOW );
 		break;
-	case 2:	
-		m_LstOnRoad.ShowWindow( SW_HIDE );
-		m_LstTdInf.ShowWindow( SW_HIDE );
-		m_LstOrdInf.ShowWindow( SW_HIDE );
-		m_LstAllInsts.ShowWindow( SW_HIDE );
-
-		m_LstInvPosInf.ShowWindow( SW_SHOW );
-		break;
-	case 3:
+	case 2:
 		m_LstOnRoad.ShowWindow( SW_HIDE );
 		m_LstOrdInf.ShowWindow( SW_HIDE );
 		m_LstInvPosInf.ShowWindow( SW_HIDE );
 		m_LstAllInsts.ShowWindow( SW_HIDE );
 
 		m_LstTdInf.ShowWindow( SW_SHOW );
+		break;
+	case 3:	
+		m_LstOnRoad.ShowWindow( SW_HIDE );
+		m_LstTdInf.ShowWindow( SW_HIDE );
+		m_LstOrdInf.ShowWindow( SW_HIDE );
+		m_LstAllInsts.ShowWindow( SW_HIDE );
+
+		m_LstInvPosInf.ShowWindow( SW_SHOW );
 		break;
 	case 4:
 		m_LstOnRoad.ShowWindow( SW_HIDE );

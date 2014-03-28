@@ -4,6 +4,7 @@
 #include "StdAfx.h"
 #include "ThostFtdcMdApi.h"
 #include <vector>
+#include "CVector.h"
 class CtpMdSpi : public CThostFtdcMdSpi
 {
 public:
@@ -53,6 +54,7 @@ private:
 public:
 	std::vector<CString> InstSubscribed;//提交报价的Inst
 	std::vector<CString> InstMustSubscribe;//必须提交报价的Inst
+	CVector<CThostFtdcDepthMarketDataField> Marketdata;
 	void SynchronizeMarket(std::vector<CString> &InstSubscribed,std::vector<CString> &InstMustSubscribe,std::vector<CThostFtdcInvestorPositionDetailField> &InvPosDetailVec);//同步市场，即将需要提交报价的提交，需要撤销报价的撤销
 };
 
