@@ -32,7 +32,7 @@ void CHiStarApp::CreateCtpClient(void)
 		m_TApi->SubscribePublicTopic(THOST_TERT_QUICK);
 	}
 	if(m_TApi){
-		m_TApi->SubscribePrivateTopic(THOST_TERT_RESTART);
+		m_TApi->SubscribePrivateTopic(THOST_TERT_QUICK);
 	}
 	m_MApi = CThostFtdcMdApi::CreateFtdcMdApi(m_strPath);
 	if(m_MApi){
@@ -46,6 +46,10 @@ void CHiStarApp::CreateCtpClient(void)
 	}
 	if(m_MApi){
 		m_MApi->RegisterSpi(m_cQ);
+	}
+	//合约初始化
+	if(m_cQ){
+		m_cQ->InstMustSubscribe.push_back(m_accountCtp.m_szInst);
 	}
 	//初始化交易API,注册多个前置备用
 	int iTdSvr = m_accountCtp.m_szArTs.GetSize();
@@ -138,10 +142,6 @@ void CHiStarApp::LogoutCtp(WPARAM wParam,LPARAM lParam)
 
 void CHiStarApp::LoginCtpMD(WPARAM wParam,LPARAM lParam){
 	MSG msg;BOOL bRet;
-	//合约初始化
-	if(m_cQ){
-		m_cQ->InstMustSubscribe.push_back(m_accountCtp.m_szInst);
-	}
 	if(m_cQ){
 		m_cQ->ReqUserLogin(m_accountCtp.m_sBROKER_ID,m_accountCtp.m_sINVESTOR_ID,m_accountCtp.m_sPASSWORD);
 	}

@@ -745,7 +745,7 @@ void CStatusPage::OnGetDispinf3(NMHDR *pNMHDR, LRESULT *pResult)
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 7:
-			szTemp.Format(_T("%f"),(m_InvPosDetailVec[iItem].Volume - m_InvPosDetailVec[iItem].CloseVolume) * (m_InvPosDetailVec[iItem].LastSettlementPrice - m_InvPosDetailVec[iItem].OpenPrice));
+			szTemp.Format(_T("%f"),m_InvPosDetailVec[iItem].Volume * (m_InvPosDetailVec[iItem].SettlementPrice - m_InvPosDetailVec[iItem].OpenPrice));
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 8:
