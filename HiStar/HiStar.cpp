@@ -333,5 +333,5 @@ void CHiStarApp::OnConnectSql(WPARAM wParam,LPARAM lParam)
 }
 
 void CHiStarApp::OnSynchronizeMarket(WPARAM wParam,LPARAM lParam){
-
+	//ÔÝ¿Õ
 }

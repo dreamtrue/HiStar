@@ -788,11 +788,11 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 		else{closeDirection = THOST_FTDC_D_Buy;}
 		for(unsigned int i = 0;i < m_InvPosDetailVec.size();i++){		
 			if(strcmp(m_InvPosDetailVec[i].InstrumentID,trade.InstrumentID) == 0 && m_InvPosDetailVec[i].Direction == closeDirection){
-				if(m_InvPosDetailVec[i].Volume > closeNum){
-					m_InvPosDetailVec[i].Volume = m_InvPosDetailVec[i].Volume - closeNum;
+				if(m_InvPosDetailVec[i].Volume - m_InvPosDetailVec[i].CloseVolume > closeNum){
+					m_InvPosDetailVec[i].CloseVolume = m_InvPosDetailVec[i].CloseVolume + closeNum;
 					break;
 				}
-				else if(m_InvPosDetailVec[i].Volume == closeNum){
+				else if(m_InvPosDetailVec[i].Volume - m_InvPosDetailVec[i].CloseVolume == closeNum){
 					CVector<CThostFtdcInvestorPositionDetailField>::iterator it = m_InvPosDetailVec.begin() + i;
 					m_InvPosDetailVec.erase(it);
 					i--;
@@ -802,11 +802,13 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 					CVector<CThostFtdcInvestorPositionDetailField>::iterator it = m_InvPosDetailVec.begin() + i;
 					m_InvPosDetailVec.erase(it);
 					i--;
-					closeNum = closeNum - trade.Volume;
+					closeNum = closeNum - (m_InvPosDetailVec[i].Volume - m_InvPosDetailVec[i].CloseVolume);
 				}
 			}
 		}
 	}
+	PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
+	PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 	//ºó´¦Àí
 	if(pApp->m_pHedgePostProcessing){
 		CThostFtdcTradeField *pTradePost = new CThostFtdcTradeField;
