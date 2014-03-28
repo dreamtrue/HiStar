@@ -44,18 +44,18 @@ std::vector<HoldDetail> HedgeHoldTemp;//临时使用的，先用这个进行预计算，最后同步
 std::vector<HoldDetail> HedgeHold;
 long maxIdHold = 0;//最大持仓id
 struct A50Task{
-    int volumeRecord;char direction;//'l'表示长仓,'s'表示短舱
-    double priceRecord;int id;int traded;double avgPrice;
-    bool bReceivedAllStatus;
+	int volumeRecord;char direction;//'l'表示长仓,'s'表示短舱
+	double priceRecord;int id;int traded;double avgPrice;
+	bool bReceivedAllStatus;
 };
 struct IfTask{
-    int volumeRecord;TThostFtdcDirectionType direction;TThostFtdcCombOffsetFlagType offset;
-    double priceRecord;int ref;int sysid;int traded;double avgPrice;
-    bool bReceivedInsertRtn;bool bReceivedAllOrder;int receivedTradedVolume;double receivedValue;
+	int volumeRecord;TThostFtdcDirectionType direction;TThostFtdcCombOffsetFlagType offset;
+	double priceRecord;int ref;int sysid;int traded;double avgPrice;int sessionid;int frontid;
+	bool bReceivedInsertRtn;bool bReceivedAllOrder;int receivedTradedVolume;double receivedValue;
 };
 struct HedgeTask{
-    std::vector<A50Task> a50alltask;
-    std::vector<IfTask>  ifalltask;
+	std::vector<A50Task> a50alltask;
+	std::vector<IfTask>  ifalltask;
 };
 HedgeTask hedgetask;
 //对冲交易初始状态
@@ -68,7 +68,7 @@ void CalcDeviation();
 
 IMPLEMENT_DYNCREATE(CHedgePostProcessing, CWinThread)
 
-    CHedgePostProcessing::CHedgePostProcessing()
+	CHedgePostProcessing::CHedgePostProcessing()
 {
 
 }
@@ -79,17 +79,17 @@ CHedgePostProcessing::~CHedgePostProcessing()
 
 BOOL CHedgePostProcessing::InitInstance()
 {
-    return TRUE;
+	return TRUE;
 }
 
 int CHedgePostProcessing::ExitInstance()
 {
-    TRACE(_T("退出Hedge线程\n"));
-    return CWinThread::ExitInstance();
+	TRACE(_T("退出Hedge线程\n"));
+	return CWinThread::ExitInstance();
 }
 
 BEGIN_MESSAGE_MAP(CHedgePostProcessing, CWinThread)
-    ON_THREAD_MESSAGE(WM_PREPARE_POST_PROCESSING,PostProcessing)
+	ON_THREAD_MESSAGE(WM_PREPARE_POST_PROCESSING,PostProcessing)
 END_MESSAGE_MAP()
 
 void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
@@ -476,6 +476,7 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 	uni2ansi(CP_ACP,((CHiStarApp*)AfxGetApp())->m_accountCtp.m_szInst,szInst);
 	LPSTR* pInst = new LPSTR;
 	pInst[0] = szInst;
+	iftask.frontid = m_cT->m_ifrontId;iftask.sessionid = m_cT->m_isessionId;
 	if(NeedBuyOpenIf > 0){
 		kpp[0] = THOST_FTDC_OF_Open;
 		if(((CHiStarApp*)AfxGetApp())->m_cT){
@@ -569,7 +570,7 @@ void CHedgePostProcessing::PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 			switch(msg.message)
 			{
 			case WM_RTN_INSERT:
-				{
+				{//存在瑕疵，最好用requestid来区分
 					sprintf(buffer,"收到WM_RTN_INSERT\r\n");hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
 					CThostFtdcInputOrderField *pOrderInsert = (CThostFtdcInputOrderField *)msg.lParam;
 					for(unsigned int i = 0;i < hedgetask.ifalltask.size();i++){
@@ -585,14 +586,16 @@ void CHedgePostProcessing::PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 					sprintf(buffer,"收到WM_RTN_ORDER\r\n");hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
 					CThostFtdcOrderField *pOrderRtn = (CThostFtdcOrderField *)msg.lParam;
 					for(unsigned int i = 0;i < hedgetask.ifalltask.size();i++){
-						if(hedgetask.ifalltask[i].ref == atoi(pOrderRtn->OrderRef)){
-							if(pOrderRtn->OrderStatus == THOST_FTDC_OST_AllTraded || pOrderRtn->OrderStatus == THOST_FTDC_OST_Canceled 
-								|| pOrderRtn->OrderStatus == THOST_FTDC_OST_NoTradeNotQueueing || pOrderRtn->OrderStatus == THOST_FTDC_OST_PartTradedNotQueueing){
-									hedgetask.ifalltask[i].traded = pOrderRtn->VolumeTraded;
-									hedgetask.ifalltask[i].sysid = atoi(pOrderRtn->OrderSysID);
-									hedgetask.ifalltask[i].bReceivedAllOrder = true;
-									sprintf(buffer,"Order,ref%d,最终状态%c\r\n",atoi(pOrderRtn->OrderRef),pOrderRtn->OrderStatus);hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
-							}			
+						if(hedgetask.ifalltask[i].ref == atoi(pOrderRtn->OrderRef)
+							&&hedgetask.ifalltask[i].frontid == pOrderRtn->FrontID
+							&&hedgetask.ifalltask[i].sessionid == pOrderRtn->SessionID){
+								if(pOrderRtn->OrderStatus == THOST_FTDC_OST_AllTraded || pOrderRtn->OrderStatus == THOST_FTDC_OST_Canceled 
+									|| pOrderRtn->OrderStatus == THOST_FTDC_OST_NoTradeNotQueueing || pOrderRtn->OrderStatus == THOST_FTDC_OST_PartTradedNotQueueing){
+										hedgetask.ifalltask[i].traded = pOrderRtn->VolumeTraded;
+										hedgetask.ifalltask[i].sysid = atoi(pOrderRtn->OrderSysID);
+										hedgetask.ifalltask[i].bReceivedAllOrder = true;
+										sprintf(buffer,"Order,ref%d,最终状态%c\r\n",atoi(pOrderRtn->OrderRef),pOrderRtn->OrderStatus);hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
+								}			
 						}
 					}
 					delete (CThostFtdcOrderField*)msg.lParam;

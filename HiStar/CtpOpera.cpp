@@ -32,7 +32,7 @@ void CHiStarApp::CreateCtpClient(void)
 		m_TApi->SubscribePublicTopic(THOST_TERT_QUICK);
 	}
 	if(m_TApi){
-		m_TApi->SubscribePrivateTopic(THOST_TERT_QUICK);
+		m_TApi->SubscribePrivateTopic(THOST_TERT_RESTART);
 	}
 	m_MApi = CThostFtdcMdApi::CreateFtdcMdApi(m_strPath);
 	if(m_MApi){

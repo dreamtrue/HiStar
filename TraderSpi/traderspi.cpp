@@ -710,7 +710,7 @@ void CtpTraderSpi::OnRspOrderAction(
 void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder){
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	CThostFtdcOrderField order;
-	TRACE("OnRtnOrder所有报单通知%s,%s,%c,%d,已经成交%d\r\n",pOrder->OrderRef, pOrder->OrderSysID,pOrder->OrderStatus,pOrder->BrokerOrderSeq,pOrder->VolumeTraded);
+	TRACE("OnRtnOrder所有报单通知,前置%d,会话%d,%s,%s,%c,%d,已经成交%d\r\n",pOrder->FrontID,pOrder->SessionID,pOrder->OrderRef, pOrder->OrderSysID,pOrder->OrderStatus,pOrder->BrokerOrderSeq,pOrder->VolumeTraded);
 	memcpy(&order,pOrder, sizeof(CThostFtdcOrderField));
 	bool founded = false;UINT i = 0;
 	for(i = 0;i<m_orderVec.size();i++){
