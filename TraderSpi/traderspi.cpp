@@ -454,7 +454,12 @@ void CtpTraderSpi::OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDeta
 		}
 		else{
 			//已经找到,就更新下
-			m_InvPosDetailVec[i] = InvPosDetail;
+			if(InvPosDetail.Volume != 0){
+				m_InvPosDetailVec[i] = InvPosDetail;
+			}
+			else{
+				m_InvPosDetailVec.erase(m_InvPosDetailVec.begin() + i);
+			}
 		}
 	}
 	if(bIsLast){ 
