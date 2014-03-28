@@ -732,11 +732,11 @@ void CStatusPage::OnGetDispinf3(NMHDR *pNMHDR, LRESULT *pResult)
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 4:
-			szTemp.Format(_T("%d"),m_InvPosDetailVec[iItem].Volume - m_InvPosDetailVec[iItem].CloseVolume);
+			szTemp.Format(_T("%d"),m_InvPosDetailVec[iItem].Volume);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 5:
-			iLen = m_InvPosDetailVec[iItem].Volume - m_InvPosDetailVec[iItem].CloseVolume;
+			iLen = m_InvPosDetailVec[iItem].Volume;
 			szTemp.Format(_T("%d"),iLen);
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;

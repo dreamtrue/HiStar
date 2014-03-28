@@ -391,7 +391,7 @@ void CtpTraderSpi::ReqQryTrade(TThostFtdcInstrumentIDType instId){
 
 void CtpTraderSpi::OnRspQryTrade(CThostFtdcTradeField *pTrade, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
 	if(!IsErrorRspInfo(pRspInfo)&&pTrade){
-		TRACE("成交通知,%c\n",pTrade->TradeSource);
+		//TRACE("成交通知,%c\n",pTrade->TradeSource);
 		CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 		CThostFtdcTradeField trade;
 		memcpy(&trade,pTrade,sizeof(CThostFtdcTradeField));
@@ -448,7 +448,9 @@ void CtpTraderSpi::OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDeta
 			}
 		}
 		if(!founded){
-			m_InvPosDetailVec.push_back(InvPosDetail);
+			if(InvPosDetail.Volume != 0){
+				m_InvPosDetailVec.push_back(InvPosDetail);
+			}
 		}
 		else{
 			//已经找到,就更新下
@@ -788,11 +790,12 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 		else{closeDirection = THOST_FTDC_D_Buy;}
 		for(unsigned int i = 0;i < m_InvPosDetailVec.size();i++){		
 			if(strcmp(m_InvPosDetailVec[i].InstrumentID,trade.InstrumentID) == 0 && m_InvPosDetailVec[i].Direction == closeDirection){
-				if(m_InvPosDetailVec[i].Volume - m_InvPosDetailVec[i].CloseVolume > closeNum){
+				if(m_InvPosDetailVec[i].Volume > closeNum){
 					m_InvPosDetailVec[i].CloseVolume = m_InvPosDetailVec[i].CloseVolume + closeNum;
+					m_InvPosDetailVec[i].Volume = m_InvPosDetailVec[i].Volume - closeNum;
 					break;
 				}
-				else if(m_InvPosDetailVec[i].Volume - m_InvPosDetailVec[i].CloseVolume == closeNum){
+				else if(m_InvPosDetailVec[i].Volume == closeNum){
 					CVector<CThostFtdcInvestorPositionDetailField>::iterator it = m_InvPosDetailVec.begin() + i;
 					m_InvPosDetailVec.erase(it);
 					i--;
@@ -802,7 +805,7 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 					CVector<CThostFtdcInvestorPositionDetailField>::iterator it = m_InvPosDetailVec.begin() + i;
 					m_InvPosDetailVec.erase(it);
 					i--;
-					closeNum = closeNum - (m_InvPosDetailVec[i].Volume - m_InvPosDetailVec[i].CloseVolume);
+					closeNum = closeNum - m_InvPosDetailVec[i].Volume;
 				}
 			}
 		}

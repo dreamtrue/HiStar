@@ -323,6 +323,8 @@ void CBasicPage::OnResume()
 
 void CBasicPage::OnBnClickedTest()
 {
+	PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
+	PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 	((CHiStarApp*)AfxGetApp())->OnHedgeLooping(NULL,NULL);
 }
 
