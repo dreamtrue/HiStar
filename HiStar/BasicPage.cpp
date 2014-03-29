@@ -354,7 +354,7 @@ void CBasicPage::OnBnClickedTest()
 	PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 	PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 	((CHiStarApp*)AfxGetApp())->OnHedgeLooping(NULL,NULL);
-	//SynchronizeAllVecs();
+	SynchronizeAllVecs();
 }
 
 
@@ -386,7 +386,6 @@ void CBasicPage::OnIni()
 }
 
 void CBasicPage::OnGetHedgeHold(NMHDR *pNMHDR, LRESULT *pResult){
-
 	NMLVDISPINFO *pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pNMHDR);
 	LV_ITEM* pItem= &(pDispInfo)->item;
 	int iItem= m_hedgeHold.size()-1-pItem->iItem;
@@ -435,6 +434,7 @@ void CBasicPage::OnNMDblclkLstHedgeStatus(NMHDR *pNMHDR, LRESULT *pResult){
 		if(nItem != -1){
 			m_LstHedgeStatus.DeleteItem(nItem);
 			m_hedgeHold.erase(m_hedgeHold.begin() + nItem);
+			HedgeHold = m_hedgeHold;
 		}
 	}
 }
@@ -450,6 +450,7 @@ void CBasicPage::OnBnClickedButton8()
 	char text[100];int id;int num;int section;double price;memset(text,0,sizeof(text));
 	std::stringstream stream;
 	GetDlgItemTextA(IDC_RICHEDIT24,text,100);
+	if(strcmp(text,"") == 0)return;
 	for(int i = 0;i < 100;i++){
 		if(text[i] == ','){
 			text[i] = ' ';
