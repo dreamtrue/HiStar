@@ -85,10 +85,18 @@ CMSHQ::~CMSHQ()
 BOOL CMSHQ::InitInstance()
 {
 	LoadOption();
+	MSG msg;BOOL bRet;
 	for (;true;)
 	{
-		UpdateHQ();
-		::Sleep(100);
+		if(bRet = ::PeekMessage(&msg,NULL,WM_QUIT,WM_QUIT,PM_NOREMOVE) == TRUE){
+			if(!bRet){}else{
+				break;
+			}
+		}
+		else{
+			UpdateHQ();
+			::Sleep(1000);
+		}
 	}
 	return TRUE;
 }

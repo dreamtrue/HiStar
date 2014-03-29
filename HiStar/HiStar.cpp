@@ -50,10 +50,7 @@ CHiStarApp::CHiStarApp()
 	, conn(NULL)
 {
 	//定位内存泄漏位置,非常好用
-	//_CrtSetBreakAlloc(538);
-	//_CrtSetBreakAlloc(152);
-	//_CrtSetBreakAlloc(151);
-	//_CrtSetBreakAlloc(149);
+	//_CrtSetBreakAlloc(4783);
 	MainThreadId = GetCurrentThreadId();
 	// 支持重新启动管理器
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;
@@ -72,14 +69,17 @@ void CHiStarApp::OnIni(WPARAM wParam,LPARAM lParam){
 	//INDEX
 	if(!m_pIndexThread){
 		m_pIndexThread = (CIndex*)AfxBeginThread(RUNTIME_CLASS(CIndex));
+		m_pIndexThread->m_bAutoDelete = true;
 	}
 	//MSHQ 从通达信获取的实时行情
 	if(!m_pMSHQ){
 		m_pMSHQ = (CMSHQ*)AfxBeginThread(RUNTIME_CLASS(CMSHQ));
+		m_pMSHQ->m_bAutoDelete = true;
 	}
 	//交易后处理线程
-	if(!(((CHiStarApp*)AfxGetApp())->m_pHedgePostProcessing)){
-		((CHiStarApp*)AfxGetApp())->m_pHedgePostProcessing = (CHedgePostProcessing*)AfxBeginThread(RUNTIME_CLASS(CHedgePostProcessing));
+	if(!m_pHedgePostProcessing){
+		m_pHedgePostProcessing = (CHedgePostProcessing*)AfxBeginThread(RUNTIME_CLASS(CHedgePostProcessing));
+		m_pHedgePostProcessing->m_bAutoDelete = true;
 	}
 	//IB Order初始化
 	m_IBOrder.orderType = "LMT";
@@ -193,7 +193,20 @@ CHiStarApp::~CHiStarApp(void)
 		m_cQ = NULL;
 	}
 	if(m_pHedgePostProcessing){
+		::PostThreadMessage(m_pHedgePostProcessing->m_nThreadID, WM_QUIT,0,0);
+		WaitForSingleObject(m_pHedgePostProcessing->m_hThread, INFINITE); 
 		m_pHedgePostProcessing = NULL;
+	}
+	if(m_pIndexThread){
+		::PostThreadMessage(m_pIndexThread->m_nThreadID, WM_QUIT,0,0);
+		WaitForSingleObject(m_pIndexThread->m_hThread, INFINITE);
+		m_pIndexThread = NULL;
+	}
+	//MSHQ 从通达信获取的实时行情
+	if(m_pMSHQ){
+		::PostThreadMessage(m_pMSHQ->m_nThreadID, WM_QUIT,0,0);
+		WaitForSingleObject(m_pMSHQ->m_hThread, INFINITE); 
+		m_pMSHQ = NULL;
 	}
 }
 

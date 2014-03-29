@@ -509,6 +509,7 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 			hedgetask.ifalltask.push_back(iftask);
 		}
 	}
+	delete []pInst;//·ÀÖ¹ÄÚ´æÐ¹Â¶
 	//A50ÏÂµ¥
 	if(abs(NeedBuyA50 - NeedSellA50) != 0){
 		if(((CHiStarApp*)AfxGetApp())->m_pIBClient){

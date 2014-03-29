@@ -107,6 +107,7 @@ void CtpMdSpi::SynchronizeMarket(std::vector<CString> &InstSubscribed,std::vecto
 			LPSTR* pInst = new LPSTR;
 			pInst[0] = szInst;
 			SubscribeMarketData(pInst,1);
+			delete []pInst;
 		}
 	}
 	//取消多余的订阅
@@ -123,6 +124,7 @@ void CtpMdSpi::SynchronizeMarket(std::vector<CString> &InstSubscribed,std::vecto
 			LPSTR* pInst = new LPSTR;
 			pInst[0] = szInst;
 			UnSubscribeMarketData(pInst,1);
+			delete []pInst;
 		}
 	}
 }

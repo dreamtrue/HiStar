@@ -23,38 +23,36 @@ int GetIndexData(void)
 	}
 	catch(CInternetException*pException){
 		pException->Delete();
+		myHttpFile->Close();
+		delete myHttpFile;
+		myHttpFile = NULL;
+		mySession.Close();
+		TRACE("读取指数失败!\r\n");
 		return -1;//读取失败,返回
 	}
 	if(myHttpFile != NULL){
-		try{
-			while(myHttpFile->ReadString(myData))
-			{
-				CString strGet1(_T("")); 
-				CString strGet2(_T(""));
-				CString strGet3(_T(""));
-				double temp = 0;
-				AfxExtractSubString(strGet1,myData,1, _T('\"'));
-				AfxExtractSubString(strGet2,strGet1,3, _T(','));//现在的价格
-				AfxExtractSubString(strGet3,strGet1,2, _T(','));//昨天的价格
-				LPTSTR  chValue = strGet2.GetBuffer( strGet2.GetLength() );
-				LPTSTR  chValueZT = strGet3.GetBuffer( strGet3.GetLength() );
-				double fValue = atof(chValue); //今天的价格
-				double fZT = atof(chValueZT);//昨天的价格
-				strGet2.ReleaseBuffer(); 
-				if(fValue > 0.1){//防止等于0，等于0就用昨天的收盘价
-					price[i] = fValue;
-				}
-				else{
-					price[i] = fZT;
-				}
-				i++;
+		while(myHttpFile->ReadString(myData))
+		{
+			CString strGet1(_T("")); 
+			CString strGet2(_T(""));
+			CString strGet3(_T(""));
+			double temp = 0;
+			AfxExtractSubString(strGet1,myData,1, _T('\"'));
+			AfxExtractSubString(strGet2,strGet1,3, _T(','));//现在的价格
+			AfxExtractSubString(strGet3,strGet1,2, _T(','));//昨天的价格
+			LPTSTR  chValue = strGet2.GetBuffer( strGet2.GetLength() );
+			LPTSTR  chValueZT = strGet3.GetBuffer( strGet3.GetLength() );
+			double fValue = atof(chValue); //今天的价格
+			double fZT = atof(chValueZT);//昨天的价格
+			strGet2.ReleaseBuffer(); 
+			if(fValue > 0.1){//防止等于0，等于0就用昨天的收盘价
+				price[i] = fValue;
 			}
+			else{
+				price[i] = fZT;
+			}
+			i++;
 		}
-		catch(CInternetException*pException){
-			pException->Delete();
-			return -1;//返回
-		}
-
 	}
 	//计算A50和HS300指数
 	double totalValueA50 = 0;
@@ -72,6 +70,7 @@ int GetIndexData(void)
 	g_HS300Index = HS300IndexRef * totalValueHS300 / HS300totalVolumeRef;
 	myHttpFile->Close();
 	delete myHttpFile;
+	myHttpFile = NULL;
 	mySession.Close();
 	return 0;
 }

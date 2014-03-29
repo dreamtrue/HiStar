@@ -310,6 +310,7 @@ void CBasicPage::OnReqComboSelMarketDepth()
 	if(pApp->m_cQ){
 		pApp->m_cQ->SubscribeMarketData(pInst,1);
 	}
+	delete []pInst;
 }
 
 void CBasicPage::RefreshMdPane(void)
