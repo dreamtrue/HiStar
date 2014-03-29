@@ -50,7 +50,7 @@ struct A50Task{
 };
 struct IfTask{
 	int volumeRecord;TThostFtdcDirectionType direction;TThostFtdcCombOffsetFlagType offset;
-	double priceRecord;int ref;int sysid;int traded;double avgPrice;int sessionid;int frontid;
+	double priceRecord;int ref;int sysid;TThostFtdcExchangeIDType ExchangeID;int traded;double avgPrice;int sessionid;int frontid;
 	bool bReceivedInsertRtn;bool bReceivedAllOrder;int receivedTradedVolume;double receivedValue;
 };
 struct HedgeTask{
@@ -593,6 +593,7 @@ void CHedgePostProcessing::PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 									|| pOrderRtn->OrderStatus == THOST_FTDC_OST_NoTradeNotQueueing || pOrderRtn->OrderStatus == THOST_FTDC_OST_PartTradedNotQueueing){
 										hedgetask.ifalltask[i].traded = pOrderRtn->VolumeTraded;
 										hedgetask.ifalltask[i].sysid = atoi(pOrderRtn->OrderSysID);
+										strcpy(hedgetask.ifalltask[i].ExchangeID,pOrderRtn->ExchangeID);
 										hedgetask.ifalltask[i].bReceivedAllOrder = true;
 										sprintf(buffer,"Order,ref%d,◊Ó÷’◊¥Ã¨%c\r\n",atoi(pOrderRtn->OrderRef),pOrderRtn->OrderStatus);hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
 								}			
@@ -626,7 +627,7 @@ void CHedgePostProcessing::PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 				sprintf(buffer," ’µΩWM_RTN_TRADE\r\n");hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW
 					CThostFtdcTradeField *pTradeRtn = (CThostFtdcTradeField *)msg.lParam;
 				for(unsigned int i = 0;i < hedgetask.ifalltask.size();i++){
-					if(hedgetask.ifalltask[i].sysid == atoi(pTradeRtn->OrderSysID)){
+					if(hedgetask.ifalltask[i].sysid == atoi(pTradeRtn->OrderSysID) && strcmp(hedgetask.ifalltask[i].ExchangeID,pTradeRtn->ExchangeID) == 0){
 						hedgetask.ifalltask[i].receivedTradedVolume = hedgetask.ifalltask[i].receivedTradedVolume + pTradeRtn->Volume;
 						hedgetask.ifalltask[i].receivedValue = hedgetask.ifalltask[i].receivedValue + pTradeRtn->Price * pTradeRtn->Volume;	
 					}

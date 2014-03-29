@@ -351,7 +351,7 @@ void  CtpTraderSpi::OnRspQryOrder(CThostFtdcOrderField *pOrder, CThostFtdcRspInf
 		memcpy(&order,pOrder, sizeof(CThostFtdcOrderField));
 		bool founded = false;UINT i = 0;
 		for(i = 0;i<m_orderVec.size();i++){
-			if(m_orderVec[i].BrokerOrderSeq == order.BrokerOrderSeq) { 
+			if(m_orderVec[i].BrokerOrderSeq == order.BrokerOrderSeq && strcmp(m_orderVec[i].BrokerID,order.BrokerID) == 0) { 
 				founded = true;
 				//修改命令状态
 				m_orderVec[i] = order;
@@ -399,7 +399,7 @@ void CtpTraderSpi::OnRspQryTrade(CThostFtdcTradeField *pTrade, CThostFtdcRspInfo
 		unsigned int ii = 0;
 		for(ii = 0;ii<m_tradeVec.size();ii++){
 			//strcmp返回0时表示相等
-			if(strcmp(m_tradeVec[ii].TradeID,trade.TradeID) == 0){
+			if(strcmp(m_tradeVec[ii].TradeID,trade.TradeID) == 0 && strcmp(m_tradeVec[ii].ExchangeID,trade.ExchangeID) == 0){
 				founded = true;   
 				break;
 			}
@@ -442,9 +442,11 @@ void CtpTraderSpi::OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDeta
 		bool founded = false;
 		unsigned int i = 0;
 		for(i = 0;i < m_InvPosDetailVec.size();i++){
-			if(strcmp(m_InvPosDetailVec[i].InstrumentID,InvPosDetail.InstrumentID) == 0 && m_InvPosDetailVec[i].TradeID == InvPosDetail.TradeID){
-				founded = true;
-				break;
+			if(strcmp(m_InvPosDetailVec[i].InstrumentID,InvPosDetail.InstrumentID) == 0 
+				&& m_InvPosDetailVec[i].TradeID == InvPosDetail.TradeID
+				&& m_InvPosDetailVec[i].ExchangeID == InvPosDetail.ExchangeID){
+					founded = true;
+					break;
 			}
 		}
 		if(!founded){
@@ -714,7 +716,7 @@ void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder){
 	memcpy(&order,pOrder, sizeof(CThostFtdcOrderField));
 	bool founded = false;UINT i = 0;
 	for(i = 0;i<m_orderVec.size();i++){
-		if(m_orderVec[i].BrokerOrderSeq == order.BrokerOrderSeq) { 
+		if(m_orderVec[i].BrokerOrderSeq == order.BrokerOrderSeq && strcmp(m_orderVec[i].BrokerID,order.BrokerID) == 0) { 
 			founded = true;
 			//修改命令状态
 			m_orderVec[i] = order;
@@ -756,7 +758,7 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 	unsigned int ii = 0;
 	for(ii = 0;ii<m_tradeVec.size();ii++){
 		//strcmp返回0时表示相等
-		if(strcmp(m_tradeVec[ii].TradeID,trade.TradeID) == 0){
+		if(strcmp(m_tradeVec[ii].TradeID,trade.TradeID) == 0 && strcmp(m_tradeVec[ii].ExchangeID,trade.ExchangeID) == 0){
 			founded = true;   
 			break;
 		}
@@ -774,7 +776,7 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 	if(trade.OffsetFlag == THOST_FTDC_OF_Open){
 		bool foundedInPosDetail = false;
 		for(unsigned int ii = 0;ii < m_InvPosDetailVec.size();ii++){
-			if(m_InvPosDetailVec[ii].TradeID == trade.TradeID){
+			if(m_InvPosDetailVec[ii].TradeID == trade.TradeID && strcmp(m_InvPosDetailVec[ii].ExchangeID,trade.ExchangeID) == 0){
 				foundedInPosDetail = true;
 				break;
 			}
@@ -783,7 +785,8 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 			CThostFtdcInvestorPositionDetailField posDetail;
 			posDetail.Direction = trade.Direction;strcpy(posDetail.InstrumentID,trade.InstrumentID);
 			posDetail.OpenPrice = trade.Price;strcpy(posDetail.OpenDate,trade.TradeDate);
-			strcpy(posDetail.TradeID,trade.TradeID);strcpy(posDetail.TradingDay,trade.TradingDay);
+			strcpy(posDetail.TradeID,trade.TradeID);strcpy(posDetail.ExchangeID,trade.ExchangeID);
+			strcpy(posDetail.TradingDay,trade.TradingDay);
 			posDetail.Volume = trade.Volume;
 			m_InvPosDetailVec.push_back(posDetail);
 		}
