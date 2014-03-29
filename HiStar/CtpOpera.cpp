@@ -289,12 +289,15 @@ void CHiStarApp::OnQryAccCtp(WPARAM wParam,LPARAM lParam){
 }
 
 void CHiStarApp::OnUpdateHedgeHold(WPARAM wParam,LPARAM lParam){
-	((CMainDlg*)m_pMainWnd)->m_basicPage.m_LstHedgeStatus.Invalidate();
-	((CMainDlg*)m_pMainWnd)->m_basicPage.m_LstHedgeStatus.SetItemCountEx(HedgeHold.size());
+	if(m_pMainWnd){
+		((CMainDlg*)m_pMainWnd)->m_basicPage.SynchronizeAllVecs();
+	}
 }
 
 void CHiStarApp::OnUpdateLstCtrl(WPARAM wParam,LPARAM lParam){
-	((CMainDlg*)m_pMainWnd)->m_statusPage.SynchronizeAllVecs();
+	if(m_pMainWnd){
+		((CMainDlg*)m_pMainWnd)->m_statusPage.SynchronizeAllVecs();
+	}
 }
 
 

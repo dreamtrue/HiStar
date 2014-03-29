@@ -12,6 +12,7 @@
 #include "colorstatic.h"
 #include "thostftdcuserapistruct.h"
 #include "ColorListCtrl.h"
+#include "HiStar.h"
 
 // CBasicPage 对话框
 class CBasicPage : public CDialogEx
@@ -77,8 +78,11 @@ public:
 	CColorListCtrl m_LstHedgeStatus;
 public:
 	void OnGetHedgeHold(NMHDR *pNMHDR, LRESULT *pResult);
+	void SynchronizeAllVecs();
 	afx_msg void OnNMClkLstHedgeStatus(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnNMDblclkLstHedgeStatus(NMHDR *pNMHDR, LRESULT *pResult);
+	std::vector<HoldDetail> m_hedgeHold;
+	afx_msg void OnBnClickedButton8();
 };
 //其他变量
 const int N = 5;

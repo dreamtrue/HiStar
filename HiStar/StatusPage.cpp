@@ -285,27 +285,28 @@ void CStatusPage::SynchronizeAllVecs()
 		{
 			m_tsEXnLocal[i] = pApp->m_cT->m_tsEXnLocal[i];
 		}
+
+		//////////////////////////////////////////////////
+		for(VInvP vip=m_InvPosVec.begin(); vip!=m_InvPosVec.end();)
+		{
+			if((*vip).YdPosition==0 && (*vip).Position ==0)
+			{vip = m_InvPosVec.erase(vip);}
+			else
+				++vip;
+		}
+		///////////////////////////////////////////////////////////
+		m_LstOnRoad.SetItemCountEx(m_onRoadVec.size());
+		m_LstOnRoad.Invalidate();
+		m_LstOrdInf.SetItemCountEx(m_orderVec.size());
+		m_LstOrdInf.Invalidate();
+		//m_LstInvPosInf.SetItemCountEx(m_InvPosVec.size());
+		m_LstInvPosInf.SetItemCountEx(m_InvPosDetailVec.size());
+		m_LstInvPosInf.Invalidate();
+		m_LstTdInf.SetItemCountEx(m_tradeVec.size());
+		m_LstTdInf.Invalidate();
+		m_LstAllInsts.SetItemCountEx(m_InsinfVec.size());
+		m_LstAllInsts.Invalidate();
 	}
-	//////////////////////////////////////////////////
-	for(VInvP vip=m_InvPosVec.begin(); vip!=m_InvPosVec.end();)
-	{
-		if((*vip).YdPosition==0 && (*vip).Position ==0)
-		{vip = m_InvPosVec.erase(vip);}
-		else
-			++vip;
-	}
-	///////////////////////////////////////////////////////////
-	m_LstOnRoad.SetItemCountEx(m_onRoadVec.size());
-	m_LstOnRoad.Invalidate();
-	m_LstOrdInf.SetItemCountEx(m_orderVec.size());
-	m_LstOrdInf.Invalidate();
-	//m_LstInvPosInf.SetItemCountEx(m_InvPosVec.size());
-	m_LstInvPosInf.SetItemCountEx(m_InvPosDetailVec.size());
-	m_LstInvPosInf.Invalidate();
-	m_LstTdInf.SetItemCountEx(m_tradeVec.size());
-	m_LstTdInf.Invalidate();
-	m_LstAllInsts.SetItemCountEx(m_InsinfVec.size());
-	m_LstAllInsts.Invalidate();
 }
 
 void CStatusPage::OnNMDblclkOnroad(NMHDR *pNMHDR, LRESULT *pResult)

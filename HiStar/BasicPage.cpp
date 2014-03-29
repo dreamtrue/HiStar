@@ -10,6 +10,7 @@
 #include "global.h"
 #include "UserMsg.h"
 #include "resource.h"
+#include <sstream>
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -22,7 +23,7 @@ extern double g_a50Bid1,g_a50Ask1;
 extern double premiumHigh,premiumLow;
 extern double MaxProfitAim,MinProfitAim;
 extern int MultiPos;
-extern double MarginA50;
+extern double MarginA50;extern int MultiA50;
 extern bool isReal;
 extern CVector<HoldDetail> HedgeHold;
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
@@ -94,6 +95,7 @@ void CBasicPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX,IDC_MULTI_POS,MultiPos);
 	DDX_Text(pDX,IDC_RICHEDIT23,MarginA50);
 	DDX_Control(pDX, IDC_LIST3, m_LstHedgeStatus);
+	DDX_Text(pDX, IDC_RICHEDIT26, MultiA50);
 }
 
 BEGIN_MESSAGE_MAP(CBasicPage, CDialogEx)
@@ -116,6 +118,7 @@ BEGIN_MESSAGE_MAP(CBasicPage, CDialogEx)
 	ON_NOTIFY(LVN_GETDISPINFO, IDC_LIST3, OnGetHedgeHold)
 	ON_NOTIFY(NM_CLICK, IDC_LIST3, OnNMClkLstHedgeStatus)
 	ON_NOTIFY(NM_DBLCLK,IDC_LIST3,OnNMDblclkLstHedgeStatus)
+	ON_BN_CLICKED(IDC_BUTTON8, &CBasicPage::OnBnClickedButton8)
 END_MESSAGE_MAP()
 
 
@@ -181,6 +184,7 @@ BOOL CBasicPage::OnInitDialog()
 	SetDlgItemText(IDC_MAXPROFIT,TEXT(_T("20.0")));
 	SetDlgItemText(IDC_MULTI_POS,TEXT(_T("1")));
 	SetDlgItemText(IDC_RICHEDIT23,TEXT(_T("416.0")));
+	SetDlgItemText(IDC_RICHEDIT26,TEXT(_T("16")));
 	//初始化列表控件
 	TCHAR* lpHdrs0[ONROAD_ITMES] = {_T("ID"),_T("数量"),_T("所属区域"),_T("原始成本")};
 	int iWidths0[ONROAD_ITMES] = {32,52,68,68};
@@ -350,8 +354,7 @@ void CBasicPage::OnBnClickedTest()
 	PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 	PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 	((CHiStarApp*)AfxGetApp())->OnHedgeLooping(NULL,NULL);
-	m_LstHedgeStatus.Invalidate();
-	m_LstHedgeStatus.SetItemCountEx(HedgeHold.size());
+	//SynchronizeAllVecs();
 }
 
 
@@ -383,9 +386,10 @@ void CBasicPage::OnIni()
 }
 
 void CBasicPage::OnGetHedgeHold(NMHDR *pNMHDR, LRESULT *pResult){
+
 	NMLVDISPINFO *pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pNMHDR);
 	LV_ITEM* pItem= &(pDispInfo)->item;
-	int iItem= HedgeHold.size()-1-pItem->iItem;
+	int iItem= m_hedgeHold.size()-1-pItem->iItem;
 	if(iItem < 0)return;
 	if(pItem->mask & LVIF_TEXT)
 	{
@@ -394,19 +398,19 @@ void CBasicPage::OnGetHedgeHold(NMHDR *pNMHDR, LRESULT *pResult){
 		switch(pItem->iSubItem)
 		{
 		case 0:
-			str.Format("%ld",HedgeHold[iItem].id);
+			str.Format("%ld",m_hedgeHold[iItem].id);
 			lstrcpy(pItem->pszText,str);
 			break;
 		case 1: 
-			str.Format("%d",HedgeHold[iItem].HedgeNum);
+			str.Format("%d",m_hedgeHold[iItem].HedgeNum);
 			lstrcpy(pItem->pszText,str);
 			break;
 		case 2:
-			str.Format("%d",HedgeHold[iItem].HedgeSection);
+			str.Format("%d",m_hedgeHold[iItem].HedgeSection);
 			lstrcpy(pItem->pszText,str);
 			break;
 		case 3:
-			str.Format("%lf",HedgeHold[iItem].originalCost);
+			str.Format("%lf",m_hedgeHold[iItem].originalCost);
 			lstrcpy(pItem->pszText,str);
 			break;
 		}
@@ -430,7 +434,33 @@ void CBasicPage::OnNMDblclkLstHedgeStatus(NMHDR *pNMHDR, LRESULT *pResult){
 		iCount = m_LstHedgeStatus.GetItemCount();
 		if(nItem != -1){
 			m_LstHedgeStatus.DeleteItem(nItem);
-			HedgeHold.erase(HedgeHold.begin() + nItem);
+			m_hedgeHold.erase(m_hedgeHold.begin() + nItem);
 		}
 	}
+}
+
+void CBasicPage::SynchronizeAllVecs(){
+	m_hedgeHold = HedgeHold.GetBuffer();
+	m_LstHedgeStatus.Invalidate();
+	m_LstHedgeStatus.SetItemCountEx(m_hedgeHold.size());
+}
+
+void CBasicPage::OnBnClickedButton8()
+{
+	char text[100];int id;int num;int section;double price;memset(text,0,sizeof(text));
+	std::stringstream stream;
+	GetDlgItemTextA(IDC_RICHEDIT24,text,100);
+	for(int i = 0;i < 100;i++){
+		if(text[i] == ','){
+			text[i] = ' ';
+		}
+	}
+	stream << text;
+	stream >> id >> num >> section >> price;
+	HoldDetail hd;
+	hd.id = id;hd.HedgeNum = num;hd.HedgeSection = section;hd.originalCost = price;
+	m_hedgeHold.push_back(hd);
+	HedgeHold = m_hedgeHold;
+	SetDlgItemTextA(IDC_RICHEDIT24,_T(""));
+	SynchronizeAllVecs();
 }
