@@ -153,8 +153,6 @@ public:
 	void iniSql(void);
 	MYSQL *conn; 
 	CString m_marketTableName;
-	CString m_statusTableIbName;
-	CString m_statusTableCtpName;
 };
 
 extern CHiStarApp theApp;

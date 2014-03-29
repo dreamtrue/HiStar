@@ -4,11 +4,11 @@
 #include "StdAfx.h"
 #include "global.h"
 #include "CVector.h"
-
+#include "mysql.h"
 class CtpTraderSpi : public CThostFtdcTraderSpi
 {
 public:
-	CtpTraderSpi(CThostFtdcTraderApi* api):pUserApi(api){ m_iRequestID =0; m_ifrontId=-1; m_isessionId=-1;}
+	CtpTraderSpi(CThostFtdcTraderApi* api):pUserApi(api){ m_iRequestID =0; m_ifrontId=-1; m_isessionId=-1; connctp = NULL;}
    //~CtpTraderSpi();
 
 	///当客户端与交易后台建立起通信连接时（还未登录前），该方法被调用。
@@ -240,4 +240,7 @@ private:
   public:
 	void ClearAllVectors();
 	int FindOrdInOnRoadVec(TThostFtdcOrderRefType OrderRef);
+	MYSQL *connctp;
+	CString StatusTableName;
+	CString tradeTableName;
 };

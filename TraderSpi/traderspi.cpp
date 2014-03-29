@@ -10,6 +10,7 @@
 BOOL g_bRecconnectT = FALSE;
 BOOL g_bLoginCtpT = FALSE;
 extern int longIf,shortIf;
+extern bool isReal;
 bool g_bOnceT = FALSE;//交易系统是否曾经登陆过，如果登陆过则是TRUE,否则FALSE
 bool CmpByTime(const CThostFtdcInvestorPositionDetailField first,const CThostFtdcInvestorPositionDetailField second) 
 {    
@@ -85,6 +86,52 @@ void CtpTraderSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
 				m_tsEXnLocal[i] = t[i]-tc;
 			}
 			sprintf(m_sTmBegin,"%02d:%02d:%02d.%03d",curTime.wHour,curTime.wMinute,curTime.wSecond,curTime.wMilliseconds); 
+		}
+		//建立与数据库的连接
+		if(isReal){
+			SYSTEMTIME sys;
+			GetLocalTime(&sys);
+			char name[100];
+			sprintf(name,"%04d%02d%02dOrderRtn",sys.wYear,sys.wMonth,sys.wDay);
+			StatusTableName = name;
+			sprintf(name,"%04d%02d%02dTradeRtn",sys.wYear,sys.wMonth,sys.wDay);
+			tradeTableName = name;
+			connctp = mysql_init(NULL); 
+			if(connctp == NULL) {
+				TRACE("Error %u: %s\n", mysql_errno(connctp), mysql_error(connctp));      
+				//exit(1);  
+			}  
+			if(connctp){
+				if(mysql_real_connect(connctp,"rdsnqzb3iqzqyeb.mysql.rds.aliyuncs.com","dbwgnn1gn0u90u6n","203891", "dbwgnn1gn0u90u6n",0,NULL,0) == NULL) 
+				{      
+					TRACE("Error %u: %s\n", mysql_errno(connctp), mysql_error(connctp));
+				}  
+			}
+			if(connctp){
+				if(mysql_query(connctp,"CREATE TABLE IF NOT EXISTS " + StatusTableName 
+					+ "(datetime DATETIME,millisecond INT,BrokerID VARCHAR(100),InvestorID VARCHAR(100),\
+					  InstrumentID VARCHAR(100),OrderRef VARCHAR(100),UserID VARCHAR(100),OrderPriceType VARCHAR(100),Direction VARCHAR(100),CombOffsetFlag VARCHAR(100),\
+					  CombHedgeFlag VARCHAR(100),LimitPrice VARCHAR(100),VolumeTotalOriginal VARCHAR(100),TimeCondition VARCHAR(100),\
+					  GTDDate VARCHAR(100),VolumeCondition VARCHAR(100),MinVolume VARCHAR(100),ContingentCondition VARCHAR(100),StopPrice VARCHAR(100),ForceCloseReason VARCHAR(100),\
+					  IsAutoSuspend VARCHAR(100),BusinessUnit VARCHAR(100),RequestID VARCHAR(100),OrderLocalID VARCHAR(100),ExchangeID VARCHAR(100),ParticipantID VARCHAR(100),ClientID VARCHAR(100),\
+					  ExchangeInstID VARCHAR(100),TraderID VARCHAR(100),InstallID VARCHAR(100),OrderSubmitStatus VARCHAR(100),NotifySequence VARCHAR(100),TradingDay VARCHAR(100),\
+					  SettlementID VARCHAR(100),OrderSysID VARCHAR(100),OrderSource VARCHAR(100),OrderStatus VARCHAR(100),OrderType VARCHAR(100),VolumeTraded VARCHAR(100),VolumeTotal VARCHAR(100),InsertDate VARCHAR(100),\
+					  InsertTime VARCHAR(100),ActiveTime VARCHAR(100),SuspendTime VARCHAR(100),UpdateTime VARCHAR(100),CancelTime VARCHAR(100),ActiveTraderID VARCHAR(100),ClearingPartID VARCHAR(100),\
+					  SequenceNo VARCHAR(100),FrontID VARCHAR(100),SessionID VARCHAR(100),UserProductInfo VARCHAR(100),StatusMsg VARCHAR(100),UserForceClose VARCHAR(100),ActiveUserID VARCHAR(100),\
+					  BrokerOrderSeq VARCHAR(100),RelativeOrderSysID VARCHAR(100),ZCETotalTradedVolume VARCHAR(100),IsSwapOrder VARCHAR(100),ErrorID VARCHAR(100),ErrorMsg VARCHAR(100),nRequestID VARCHAR(100),bIsLast VARCHAR(100))")) 
+				{      
+					TRACE("Error %u: %s\n", mysql_errno(connctp), mysql_error(connctp));      
+				}
+				if(mysql_query(connctp,"CREATE TABLE IF NOT EXISTS " + tradeTableName
+					+ "(datetime DATETIME,millisecond INT,BrokerID VARCHAR(100),InvestorID VARCHAR(100),InstrumentID VARCHAR(100),OrderRef VARCHAR(100),UserID VARCHAR(100),ExchangeID VARCHAR(100),\
+					  TradeID VARCHAR(100),Direction VARCHAR(100),OrderSysID VARCHAR(100),ParticipantID VARCHAR(100),ClientID VARCHAR(100),TradingRole VARCHAR(100),ExchangeInstID VARCHAR(100),\
+					  OffsetFlag VARCHAR(100),HedgeFlag VARCHAR(100),Price VARCHAR(100),Volume VARCHAR(100),TradeDate VARCHAR(100),TradeTime VARCHAR(100),TradeType VARCHAR(100),PriceSource VARCHAR(100),\
+					  TraderID VARCHAR(100),OrderLocalID VARCHAR(100),ClearingPartID VARCHAR(100),BusinessUnit VARCHAR(100),SequenceNo VARCHAR(100),TradingDay VARCHAR(100),SettlementID VARCHAR(100),\
+					  BrokerOrderSeq VARCHAR(100),TradeSource VARCHAR(100),ErrorID VARCHAR(100),ErrorMsg VARCHAR(100),nRequestID VARCHAR(100),bIsLast VARCHAR(100))"))
+				{    
+					TRACE("Error %u: %s\n", mysql_errno(connctp), mysql_error(connctp));      
+				}
+			}
 		}
 		if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 }
@@ -344,6 +391,34 @@ void CtpTraderSpi::ReqQryOrder(TThostFtdcInstrumentIDType instId){
 }
 
 void  CtpTraderSpi::OnRspQryOrder(CThostFtdcOrderField *pOrder, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast){
+	if(pOrder && pRspInfo){
+		SYSTEMTIME sys;
+		GetLocalTime(&sys);
+		char data[10000],datetime[100];
+		if(connctp){
+			sprintf(datetime,"'%d-%d-%d %d:%d:%d',%d,",sys.wYear,sys.wMonth,sys.wDay,sys.wHour,sys.wMinute,sys.wSecond,sys.wMilliseconds);
+			sprintf(data,"%s,%s,%s,%s,%s,%s,%c,%s,%s,%lf,%d,%c,%s,%c,%d,%c,%lf,%c,%d,%s,%d,%s,%s,%s,%s,%s,%s,%d,%c,%d,%s,%d,%s,%c,%c,%c,%d,%d,%s,\
+						 %s,%s,%s,%s,%s,%s,%s,%d,%d,%d,%s,%s,%d,%s,%d,%s,%d,%d,%d,%s,%d,%d",
+						 pOrder->BrokerID,pOrder->InvestorID,pOrder->InstrumentID,pOrder->OrderRef,pOrder->UserID,pOrder->OrderPriceType,pOrder->Direction,
+						 pOrder->CombOffsetFlag,pOrder->CombHedgeFlag,pOrder->LimitPrice,pOrder->VolumeTotalOriginal,pOrder->TimeCondition,pOrder->GTDDate,
+						 pOrder->VolumeCondition,pOrder->MinVolume,pOrder->ContingentCondition,pOrder->StopPrice,pOrder->ForceCloseReason,pOrder->IsAutoSuspend,
+						 pOrder->BusinessUnit,pOrder->RequestID,pOrder->OrderLocalID,pOrder->ExchangeID,pOrder->ParticipantID,pOrder->ClientID,pOrder->ExchangeInstID,
+						 pOrder->TraderID,pOrder->InstallID,pOrder->OrderSubmitStatus,pOrder->NotifySequence,pOrder->TradingDay,pOrder->SettlementID,pOrder->OrderSysID,
+						 pOrder->OrderSource,pOrder->OrderStatus,pOrder->OrderType,pOrder->VolumeTraded,pOrder->VolumeTotal,pOrder->InsertDate,pOrder->InsertTime,pOrder->ActiveTime,
+						 pOrder->SuspendTime,pOrder->UpdateTime,pOrder->CancelTime,pOrder->ActiveTraderID,pOrder->ClearingPartID,pOrder->SequenceNo,pOrder->FrontID,pOrder->SessionID,
+						 pOrder->UserProductInfo,pOrder->StatusMsg,pOrder->UserForceClose,pOrder->ActiveUserID,pOrder->BrokerOrderSeq,pOrder->RelativeOrderSysID,
+						 pOrder->ZCETotalTradedVolume,pOrder->IsSwapOrder,pRspInfo->ErrorID,pRspInfo->ErrorMsg,nRequestID,bIsLast);
+			CString insertdata = "INSERT INTO " + StatusTableName 
+				+ " (datetime,millisecond,BrokerID,InvestorID,InstrumentID,OrderRef,UserID,OrderPriceType,Direction,CombOffsetFlag,CombHedgeFlag,LimitPrice,VolumeTotalOriginal,TimeCondition,\
+				  GTDDate,VolumeCondition,MinVolume,ContingentCondition,StopPrice,ForceCloseReason,IsAutoSuspend,BusinessUnit,RequestID,OrderLocalID,ExchangeID,ParticipantID,ClientID,\
+				  ExchangeInstID,TraderID,InstallID,OrderSubmitStatus,NotifySequence,TradingDay,SettlementID,OrderSysID,OrderSource,OrderStatus,OrderType,VolumeTraded,VolumeTotal,InsertDate,\
+				  InsertTime,ActiveTime,SuspendTime,UpdateTime,CancelTime,ActiveTraderID,ClearingPartID,SequenceNo,FrontID,SessionID,UserProductInfo,StatusMsg,UserForceClose,ActiveUserID,\
+				  BrokerOrderSeq,RelativeOrderSysID,ZCETotalTradedVolume,IsSwapOrder,ErrorID,ErrorMsg,nRequestID,bIsLast) VALUES (" + CString(datetime) + CString(data) +")";
+			if(mysql_query(connctp,insertdata.GetBuffer())){
+				TRACE("Error %u: %s\n", mysql_errno(connctp), mysql_error(connctp));
+			}
+		}
+	}
 	if(!IsErrorRspInfo(pRspInfo)&&pOrder){
 		CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 		CThostFtdcOrderField order;
@@ -390,6 +465,28 @@ void CtpTraderSpi::ReqQryTrade(TThostFtdcInstrumentIDType instId){
 }
 
 void CtpTraderSpi::OnRspQryTrade(CThostFtdcTradeField *pTrade, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+	if(pTrade && pRspInfo){
+		TRACE("成交通知,%c;\n",pTrade->TradeSource);//THOST_FTDC_TSRC_NORMAL THOST_FTDC_TSRC_QUERY
+		SYSTEMTIME sys;
+		GetLocalTime(&sys);
+		char data[10000],datetime[100];
+		if(connctp){
+			sprintf(datetime,"'%d-%d-%d %d:%d:%d',%d,",sys.wYear,sys.wMonth,sys.wDay,sys.wHour,sys.wMinute,sys.wSecond,sys.wMilliseconds);
+			sprintf(data,"%s,%s,%s,%s,%s,%s,%s,%c,%s,%s,%s,%c,%s,%c,%c,%lf,%d,%s,%s,%c,%c,%s,%s,%s,%s,%d,%s,%d,%d,%c,%d,%s,%d,%d",
+				pTrade->BrokerID,pTrade->InvestorID,pTrade->InstrumentID,pTrade->OrderRef,pTrade->UserID,pTrade->ExchangeID,pTrade->TradeID,
+				pTrade->Direction,pTrade->OrderSysID,pTrade->ParticipantID,pTrade->ClientID,pTrade->TradingRole,pTrade->ExchangeInstID,
+				pTrade->OffsetFlag,pTrade->HedgeFlag,pTrade->Price,pTrade->Volume,pTrade->TradeDate,pTrade->TradeTime,pTrade->TradeType,
+				pTrade->PriceSource,pTrade->TraderID,pTrade->OrderLocalID,pTrade->ClearingPartID,pTrade->BusinessUnit,pTrade->SequenceNo,
+				pTrade->TradingDay,pTrade->SettlementID,pTrade->BrokerOrderSeq,pTrade->TradeSource,pRspInfo->ErrorID,pRspInfo->ErrorMsg,nRequestID,bIsLast);
+			CString insertdata = "INSERT INTO " + tradeTableName 
+				+ " (BrokerID,InvestorID,InstrumentID,OrderRef,UserID,ExchangeID,TradeID,Direction,OrderSysID,ParticipantID,ClientID,TradingRole,\
+				  ExchangeInstID,OffsetFlag,HedgeFlag,Price,Volume,TradeDate,TradeTime,TradeType,PriceSource,TraderID,OrderLocalID,ClearingPartID,BusinessUnit,\
+				  SequenceNo,TradingDay,SettlementID,BrokerOrderSeq,TradeSource,ErrorID,ErrorMsg,nRequestID,bIsLast) VALUES (" + CString(datetime) + CString(data) +")";
+			if(mysql_query(connctp,insertdata.GetBuffer())){
+				TRACE("Error %u: %s\n", mysql_errno(connctp), mysql_error(connctp));
+			}
+		}	
+	}
 	if(!IsErrorRspInfo(pRspInfo)&&pTrade){
 		//TRACE("成交通知,%c\n",pTrade->TradeSource);
 		CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
@@ -713,6 +810,32 @@ void CtpTraderSpi::OnRspOrderAction(
 
 ///报单回报
 void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder){
+	SYSTEMTIME sys;
+	GetLocalTime(&sys);
+	char data[10000],datetime[100];
+	if(connctp){
+		sprintf(datetime,"'%d-%d-%d %d:%d:%d',%d,",sys.wYear,sys.wMonth,sys.wDay,sys.wHour,sys.wMinute,sys.wSecond,sys.wMilliseconds);
+		sprintf(data,"%s,%s,%s,%s,%s,%s,%c,%s,%s,%lf,%d,%c,%s,%c,%d,%c,%lf,%c,%d,%s,%d,%s,%s,%s,%s,%s,%s,%d,%c,%d,%s,%d,%s,%c,%c,%c,%d,%d,%s,\
+					 %s,%s,%s,%s,%s,%s,%s,%d,%d,%d,%s,%s,%d,%s,%d,%s,%d,%d,%d,%s,%d,%d",
+					 pOrder->BrokerID,pOrder->InvestorID,pOrder->InstrumentID,pOrder->OrderRef,pOrder->UserID,pOrder->OrderPriceType,pOrder->Direction,
+					 pOrder->CombOffsetFlag,pOrder->CombHedgeFlag,pOrder->LimitPrice,pOrder->VolumeTotalOriginal,pOrder->TimeCondition,pOrder->GTDDate,
+					 pOrder->VolumeCondition,pOrder->MinVolume,pOrder->ContingentCondition,pOrder->StopPrice,pOrder->ForceCloseReason,pOrder->IsAutoSuspend,
+					 pOrder->BusinessUnit,pOrder->RequestID,pOrder->OrderLocalID,pOrder->ExchangeID,pOrder->ParticipantID,pOrder->ClientID,pOrder->ExchangeInstID,
+					 pOrder->TraderID,pOrder->InstallID,pOrder->OrderSubmitStatus,pOrder->NotifySequence,pOrder->TradingDay,pOrder->SettlementID,pOrder->OrderSysID,
+					 pOrder->OrderSource,pOrder->OrderStatus,pOrder->OrderType,pOrder->VolumeTraded,pOrder->VolumeTotal,pOrder->InsertDate,pOrder->InsertTime,pOrder->ActiveTime,
+					 pOrder->SuspendTime,pOrder->UpdateTime,pOrder->CancelTime,pOrder->ActiveTraderID,pOrder->ClearingPartID,pOrder->SequenceNo,pOrder->FrontID,pOrder->SessionID,
+					 pOrder->UserProductInfo,pOrder->StatusMsg,pOrder->UserForceClose,pOrder->ActiveUserID,pOrder->BrokerOrderSeq,pOrder->RelativeOrderSysID,
+					 pOrder->ZCETotalTradedVolume,pOrder->IsSwapOrder,0,"",0,0);
+		CString insertdata = "INSERT INTO " + StatusTableName 
+			+ " (datetime,millisecond,BrokerID,InvestorID,InstrumentID,OrderRef,UserID,OrderPriceType,Direction,CombOffsetFlag,CombHedgeFlag,LimitPrice,VolumeTotalOriginal,TimeCondition,\
+			  GTDDate,VolumeCondition,MinVolume,ContingentCondition,StopPrice,ForceCloseReason,IsAutoSuspend,BusinessUnit,RequestID,OrderLocalID,ExchangeID,ParticipantID,ClientID,\
+			  ExchangeInstID,TraderID,InstallID,OrderSubmitStatus,NotifySequence,TradingDay,SettlementID,OrderSysID,OrderSource,OrderStatus,OrderType,VolumeTraded,VolumeTotal,InsertDate,\
+			  InsertTime,ActiveTime,SuspendTime,UpdateTime,CancelTime,ActiveTraderID,ClearingPartID,SequenceNo,FrontID,SessionID,UserProductInfo,StatusMsg,UserForceClose,ActiveUserID,\
+			  BrokerOrderSeq,RelativeOrderSysID,ZCETotalTradedVolume,IsSwapOrder,ErrorID,ErrorMsg,nRequestID,bIsLast) VALUES (" + CString(datetime) + CString(data) +")";
+		if(mysql_query(connctp,insertdata.GetBuffer())){
+			TRACE("Error %u: %s\n", mysql_errno(connctp), mysql_error(connctp));
+		}
+	}
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	CThostFtdcOrderField order;
 	TRACE("OnRtnOrder所有报单通知,前置%d,会话%d,%s,%s,%c,%d,已经成交%d\r\n",pOrder->FrontID,pOrder->SessionID,pOrder->OrderRef, pOrder->OrderSysID,pOrder->OrderStatus,pOrder->BrokerOrderSeq,pOrder->VolumeTraded);
@@ -753,7 +876,25 @@ void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder){
 
 ///成交通知
 void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
-	TRACE("成交通知,%c;\n",pTrade->TradeSource);//THOST_FTDC_TSRC_NORMAL THOST_FTDC_TSRC_QUERY
+	SYSTEMTIME sys;
+	GetLocalTime(&sys);
+	char data[10000],datetime[100];
+	if(connctp){
+		sprintf(datetime,"'%d-%d-%d %d:%d:%d',%d,",sys.wYear,sys.wMonth,sys.wDay,sys.wHour,sys.wMinute,sys.wSecond,sys.wMilliseconds);
+		sprintf(data,"%s,%s,%s,%s,%s,%s,%s,%c,%s,%s,%s,%c,%s,%c,%c,%lf,%d,%s,%s,%c,%c,%s,%s,%s,%s,%d,%s,%d,%d,%c,%d,%s,%d,%d",
+			pTrade->BrokerID,pTrade->InvestorID,pTrade->InstrumentID,pTrade->OrderRef,pTrade->UserID,pTrade->ExchangeID,pTrade->TradeID,
+			pTrade->Direction,pTrade->OrderSysID,pTrade->ParticipantID,pTrade->ClientID,pTrade->TradingRole,pTrade->ExchangeInstID,
+			pTrade->OffsetFlag,pTrade->HedgeFlag,pTrade->Price,pTrade->Volume,pTrade->TradeDate,pTrade->TradeTime,pTrade->TradeType,
+			pTrade->PriceSource,pTrade->TraderID,pTrade->OrderLocalID,pTrade->ClearingPartID,pTrade->BusinessUnit,pTrade->SequenceNo,
+			pTrade->TradingDay,pTrade->SettlementID,pTrade->BrokerOrderSeq,pTrade->TradeSource,0,"",0,0);
+		CString insertdata = "INSERT INTO " + tradeTableName 
+			+ " (BrokerID,InvestorID,InstrumentID,OrderRef,UserID,ExchangeID,TradeID,Direction,OrderSysID,ParticipantID,ClientID,TradingRole,\
+			  ExchangeInstID,OffsetFlag,HedgeFlag,Price,Volume,TradeDate,TradeTime,TradeType,PriceSource,TraderID,OrderLocalID,ClearingPartID,BusinessUnit,\
+			  SequenceNo,TradingDay,SettlementID,BrokerOrderSeq,TradeSource,ErrorID,ErrorMsg,nRequestID,bIsLast) VALUES (" + CString(datetime) + CString(data) +")";
+		if(mysql_query(connctp,insertdata.GetBuffer())){
+			TRACE("Error %u: %s\n", mysql_errno(connctp), mysql_error(connctp));
+		}
+	}	
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	CThostFtdcTradeField trade;
 	memcpy(&trade,pTrade,sizeof(CThostFtdcTradeField));
@@ -764,8 +905,8 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 		if(strcmp(m_tradeVec[ii].TradeID,trade.TradeID) == 0 
 			&& strcmp(m_tradeVec[ii].OrderSysID,trade.OrderSysID) == 0
 			&& strcmp(m_tradeVec[ii].ExchangeID,trade.ExchangeID) == 0){
-			founded = true;   
-			break;
+				founded = true;   
+				break;
 		}
 	}
 	//////修改成交单状态
@@ -917,7 +1058,6 @@ void CtpTraderSpi::OnRspQryInstrumentCommissionRate(CThostFtdcInstrumentCommissi
 
 	}
 	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
-
 }
 
 //////////////////请求查询用户资料/////////////

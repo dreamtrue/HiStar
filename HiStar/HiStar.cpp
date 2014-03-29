@@ -320,28 +320,18 @@ void CHiStarApp::OnConnectSql(WPARAM wParam,LPARAM lParam)
 	char name[100];
 	sprintf(name,"%04d%02d%02dmarket",sys.wYear,sys.wMonth,sys.wDay);
 	m_marketTableName = name;
-	sprintf(name,"%04d%02d%02dstatusIb",sys.wYear,sys.wMonth,sys.wDay);
-    m_statusTableIbName = name;
 	conn = mysql_init(NULL); 
 	if(conn == NULL) {
-		TRACE("Error %u: %s\n", mysql_errno(conn), mysql_error(conn));      
-		//exit(1);  
+		TRACE("Error %u: %s\n", mysql_errno(conn), mysql_error(conn)); 
 	}  
 	if(conn){
 		if(mysql_real_connect(conn,"rdsnqzb3iqzqyeb.mysql.rds.aliyuncs.com","dbwgnn1gn0u90u6n","203891", "dbwgnn1gn0u90u6n",0,NULL,0) == NULL) 
 		{      
-			TRACE("Error %u: %s\n", mysql_errno(conn), mysql_error(conn));     
-			//exit(1);  
+			TRACE("Error %u: %s\n", mysql_errno(conn), mysql_error(conn));
 		}  
 	}
 	if(conn){
-		if(mysql_query(conn,"CREATE TABLE IF NOT EXISTS " + m_marketTableName + "(datetime DATETIME,millisecond INT,a50index VARCHAR(20),a50bid VARCHAR(20),a50ask VARCHAR(20),hs300index VARCHAR(20),hs300bid VARCHAR(20),hs300ask VARCHAR(20))")) 
-		{      
-			TRACE("Error %u: %s\n", mysql_errno(conn), mysql_error(conn));      
-		}
-	}
-	if(conn){
-		if(mysql_query(conn,"CREATE TABLE IF NOT EXISTS " + m_statusTableIbName + "(datetime DATETIME,millisecond INT,a50index VARCHAR(20),a50bid VARCHAR(20),a50ask VARCHAR(20),hs300index VARCHAR(20),hs300bid VARCHAR(20),hs300ask VARCHAR(20))")) 
+		if(mysql_query(conn,"CREATE TABLE IF NOT EXISTS " + m_marketTableName + "(datetime DATETIME,millisecond INT,a50index VARCHAR(20),a50bid VARCHAR(20),a50ask VARCHAR(20),hs300index VARCHAR(20),hs300bid VARCHAR(20),hs300ask VARCHAR(20),preniumHigh VARCHAR(20),preniumLow VARCHAR(20))")) 
 		{      
 			TRACE("Error %u: %s\n", mysql_errno(conn), mysql_error(conn));      
 		}

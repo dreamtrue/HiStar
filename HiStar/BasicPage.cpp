@@ -328,11 +328,13 @@ void CBasicPage::RefreshMdPane(void)
 	m_csHedgePriceLow.SetDouble(premiumLow - datumDiff,BLACK);
 	SYSTEMTIME sys;
 	GetLocalTime(&sys);
-	char price[1000],datetime[100];
+	char data[1000],datetime[100];
 	if(((CHiStarApp*)AfxGetApp())->conn){
 		sprintf(datetime,"'%d-%d-%d %d:%d:%d',%d,",sys.wYear,sys.wMonth,sys.wDay,sys.wHour,sys.wMinute,sys.wSecond,sys.wMilliseconds);
-		sprintf(price,"%lf,%lf,%lf,%lf,%lf,%lf",g_A50Index,g_a50Bid1,g_a50Ask1,g_HS300Index,m_depthMd.BidPrice1,m_depthMd.AskPrice1);
-		CString insertdata = "INSERT INTO " + ((CHiStarApp*)AfxGetApp())->m_marketTableName + " (datetime,millisecond,a50index,a50bid,a50ask,hs300index,hs300bid,hs300ask) VALUES (" + CString(datetime) + CString(price) +")";
+		sprintf(data,"%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf",g_A50Index,g_a50Bid1,g_a50Ask1,g_HS300Index,m_depthMd.BidPrice1,m_depthMd.AskPrice1,
+			g_a50Ask1 - m_depthMd.BidPrice1 / g_HS300Index * g_A50Index,g_a50Bid1 - m_depthMd.AskPrice1 / g_HS300Index * g_A50Index);
+		CString insertdata = "INSERT INTO " + ((CHiStarApp*)AfxGetApp())->m_marketTableName 
+			+ " (datetime,millisecond,a50index,a50bid,a50ask,hs300index,hs300bid,hs300ask,preniumHigh,preniumLow) VALUES (" + CString(datetime) + CString(data) +")";
 		if(mysql_query(((CHiStarApp*)AfxGetApp())->conn,insertdata.GetBuffer())){
 			TRACE("Error %u: %s\n", mysql_errno(((CHiStarApp*)AfxGetApp())->conn), mysql_error(((CHiStarApp*)AfxGetApp())->conn));
 		}
