@@ -93,6 +93,9 @@ BEGIN_MESSAGE_MAP(CHedgePostProcessing, CWinThread)
 END_MESSAGE_MAP()
 
 void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
+	if(((CMainDlg*)m_pMainWnd)){
+		((CMainDlg*)m_pMainWnd)->OnRefreshMdPane(NULL,NULL);
+	}
 	HWND hEdit = ::GetDlgItem(((CMainDlg*)m_pMainWnd)->m_basicPage.m_hWnd,IDC_RICHEDIT_STATUS);
 	//获取系统时间
 	SYSTEMTIME sys;

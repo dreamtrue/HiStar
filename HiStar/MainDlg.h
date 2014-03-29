@@ -42,6 +42,5 @@ protected:
 public:
 	void addCombInst(void);
 	afx_msg void OnTcnSelchangeTab(NMHDR *pNMHDR, LRESULT *pResult);
-protected:
 	afx_msg LRESULT OnRefreshMdPane(WPARAM wParam, LPARAM lParam);
 };

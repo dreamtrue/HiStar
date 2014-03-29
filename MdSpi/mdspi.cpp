@@ -186,8 +186,7 @@ void CtpMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarket
 			g_ifAsk1 = pDepthMarketData->AskPrice1;
 			g_ifBid1 = pDepthMarketData->BidPrice1;
 			if(pApp->m_pMainWnd){
-				memcpy(&(((CMainDlg*)(pApp->m_pMainWnd))->m_basicPage.m_depthMd),pDepthMarketData,sizeof(CThostFtdcDepthMarketDataField));		
-				PostMessage(AfxGetApp()->m_pMainWnd->GetSafeHwnd(),WM_MD_REFRESH,NULL,NULL);
+				memcpy(&(((CMainDlg*)(pApp->m_pMainWnd))->m_basicPage.m_depthMd),pDepthMarketData,sizeof(CThostFtdcDepthMarketDataField));
 			}
 			PostThreadMessage(MainThreadId,WM_MD_REFRESH,NULL,NULL);
 		}
