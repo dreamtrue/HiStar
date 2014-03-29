@@ -186,14 +186,14 @@ BOOL CBasicPage::OnInitDialog()
 	SetDlgItemText(IDC_RICHEDIT23,TEXT(_T("416.0")));
 	SetDlgItemText(IDC_RICHEDIT26,TEXT(_T("16")));
 	//初始化列表控件
-	TCHAR* lpHdrs0[ONROAD_ITMES] = {_T("ID"),_T("数量"),_T("所属区域"),_T("原始成本")};
-	int iWidths0[ONROAD_ITMES] = {32,52,68,68};
+	TCHAR* lpHdrs0[4] = {_T("ID"),_T("数量"),_T("所属区域"),_T("成本")};
+	int iWidths0[4] = {32,52,68,68};
 	int i;
 	int total_cx = 0;
 	LVCOLUMN lvcolumn;
 	memset(&lvcolumn, 0, sizeof(lvcolumn));
 
-	for (i = 0;i<ONROAD_ITMES ; i++)
+	for (i = 0;i < 4 ; i++)
 	{
 		lvcolumn.mask     = LVCF_FMT | LVCF_SUBITEM | LVCF_TEXT | LVCF_WIDTH|LVCFMT_IMAGE;
 		lvcolumn.fmt      = LVCFMT_RIGHT;
