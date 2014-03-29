@@ -399,9 +399,11 @@ void CtpTraderSpi::OnRspQryTrade(CThostFtdcTradeField *pTrade, CThostFtdcRspInfo
 		unsigned int ii = 0;
 		for(ii = 0;ii<m_tradeVec.size();ii++){
 			//strcmp返回0时表示相等
-			if(strcmp(m_tradeVec[ii].TradeID,trade.TradeID) == 0 && strcmp(m_tradeVec[ii].ExchangeID,trade.ExchangeID) == 0){
-				founded = true;   
-				break;
+			if(strcmp(m_tradeVec[ii].TradeID,trade.TradeID) == 0 
+				&& strcmp(m_tradeVec[ii].OrderSysID,trade.OrderSysID) == 0
+				&& strcmp(m_tradeVec[ii].ExchangeID,trade.ExchangeID) == 0){
+					founded = true;   
+					break;
 			}
 		}
 		//////修改成交单状态
@@ -443,8 +445,9 @@ void CtpTraderSpi::OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDeta
 		unsigned int i = 0;
 		for(i = 0;i < m_InvPosDetailVec.size();i++){
 			if(strcmp(m_InvPosDetailVec[i].InstrumentID,InvPosDetail.InstrumentID) == 0 
-				&& m_InvPosDetailVec[i].TradeID == InvPosDetail.TradeID
-				&& m_InvPosDetailVec[i].ExchangeID == InvPosDetail.ExchangeID){
+				&& strcmp(m_InvPosDetailVec[i].OpenDate,InvPosDetail.OpenDate) == 0//持仓明细区分日期的
+				&& strcmp(m_InvPosDetailVec[i].TradeID,InvPosDetail.TradeID) == 0
+				&& strcmp(m_InvPosDetailVec[i].ExchangeID,InvPosDetail.ExchangeID) == 0){
 					founded = true;
 					break;
 			}
@@ -758,7 +761,9 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 	unsigned int ii = 0;
 	for(ii = 0;ii<m_tradeVec.size();ii++){
 		//strcmp返回0时表示相等
-		if(strcmp(m_tradeVec[ii].TradeID,trade.TradeID) == 0 && strcmp(m_tradeVec[ii].ExchangeID,trade.ExchangeID) == 0){
+		if(strcmp(m_tradeVec[ii].TradeID,trade.TradeID) == 0 
+			&& strcmp(m_tradeVec[ii].OrderSysID,trade.OrderSysID) == 0
+			&& strcmp(m_tradeVec[ii].ExchangeID,trade.ExchangeID) == 0){
 			founded = true;   
 			break;
 		}
@@ -776,17 +781,19 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 	if(trade.OffsetFlag == THOST_FTDC_OF_Open){
 		bool foundedInPosDetail = false;
 		for(unsigned int ii = 0;ii < m_InvPosDetailVec.size();ii++){
-			if(m_InvPosDetailVec[ii].TradeID == trade.TradeID && strcmp(m_InvPosDetailVec[ii].ExchangeID,trade.ExchangeID) == 0){
-				foundedInPosDetail = true;
-				break;
+			if(m_InvPosDetailVec[ii].TradeID == trade.TradeID
+				&& strcmp(m_InvPosDetailVec[ii].InstrumentID,trade.InstrumentID) == 0
+				&& strcmp(m_InvPosDetailVec[ii].OpenDate,trade.TradeDate) == 0
+				&& strcmp(m_InvPosDetailVec[ii].ExchangeID,trade.ExchangeID) == 0){
+					foundedInPosDetail = true;
+					break;
 			}
 		}
 		if(!foundedInPosDetail){
 			CThostFtdcInvestorPositionDetailField posDetail;
-			posDetail.Direction = trade.Direction;strcpy(posDetail.InstrumentID,trade.InstrumentID);
-			posDetail.OpenPrice = trade.Price;strcpy(posDetail.OpenDate,trade.TradeDate);
+			posDetail.Direction = trade.Direction;strcpy(posDetail.InstrumentID,trade.InstrumentID);posDetail.OpenPrice = trade.Price;
 			strcpy(posDetail.TradeID,trade.TradeID);strcpy(posDetail.ExchangeID,trade.ExchangeID);
-			strcpy(posDetail.TradingDay,trade.TradingDay);
+			strcpy(posDetail.OpenDate,trade.TradeDate);strcpy(posDetail.TradingDay,trade.TradingDay);
 			posDetail.Volume = trade.Volume;
 			m_InvPosDetailVec.push_back(posDetail);
 		}
