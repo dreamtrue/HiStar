@@ -104,8 +104,14 @@ void CHiStarApp::LoginCtp(WPARAM wParam,LPARAM lParam)
 		if(m_TApi){
 			m_TApi->Init();
 		}
+		else{
+			return;
+		}
 		if(m_MApi){
 			m_MApi->Init();
+		}
+		else{
+			return;
 		}
 		bIsInit = TRUE;
 		//先登录交易系统并初始化持仓后，再登录行情系统并同步行情；不要反过来。

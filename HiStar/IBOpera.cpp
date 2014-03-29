@@ -8,21 +8,25 @@ void CHiStarApp::OnConnectIB(WPARAM wParam,LPARAM lParam){
 	CString cStatus;
 	cStatus.Format( "Connecting to Tws using clientId %d ...",clientID);
 	PostOrderStatus(cStatus);
-	m_pIBClient->eConnect("127.0.0.1",4001,clientID);
-	//登陆成功
-	if( m_pIBClient->serverVersion() > 0)	{
-		cStatus.Format( "Connected to Tws server version %d at %s.",
-			m_pIBClient->serverVersion(), m_pIBClient->TwsConnectionTime());
-		PostOrderStatus(cStatus);
-		m_pIBClient->reqAccountUpdates(true,m_accountIB.m_accountName);
-		m_pIBClient->reqCurrentTime();
-		m_pIBClient->reqPositions();
-		m_pIBClient->reqMktDepth(++m_id,m_A50Contract,20,m_mktDepthOptions);
+	if(m_pIBClient){
+		m_pIBClient->eConnect("127.0.0.1",4001,clientID);
+		//登陆成功
+		if( m_pIBClient->serverVersion() > 0)	{
+			cStatus.Format( "Connected to Tws server version %d at %s.",
+				m_pIBClient->serverVersion(), m_pIBClient->TwsConnectionTime());
+			PostOrderStatus(cStatus);
+			m_pIBClient->reqAccountUpdates(true,m_accountIB.m_accountName);
+			m_pIBClient->reqCurrentTime();
+			m_pIBClient->reqPositions();
+			m_pIBClient->reqMktDepth(++m_id,m_A50Contract,20,m_mktDepthOptions);
+		}
 	}
 }
 
 void CHiStarApp::OnDisconnectIB(WPARAM wParam,LPARAM lParam){
-	m_pIBClient->eDisconnect();
+	if(m_pIBClient){
+		m_pIBClient->eDisconnect();
+	}
 }
 
 void CHiStarApp::SetA50Contract(){
