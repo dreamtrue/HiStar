@@ -31,8 +31,8 @@ void SelectIndex();
 /////////////////////////////////Hedge变量///////////////////////////////////////////////
 int MultiPos = 1;//持仓乘数
 //梯级，一共21个分割点,分割成22(=21+1)个区间
-double HedgeLadder[21] = {   -200, -180, -160, -140, -120, -100, -80, -60, -40, -20, -10,  20,  40,  60,  80,  100,  120,  140,  160,  180,  200};
-int PositionAimUnit[22] = {10,    9,    8,    7,    6,    5,    4,   3,   2,   1,   1,   0,  -1,  -2,  -3,  -4,  -5,    -6,   -7,   -8,   -9,   -10};//默认持仓目标单位（没有乘以乘数）
+double HedgeLadder[21] = {   -200, -180, -160, -140, -120, -100, -80, -60, -40, -30, -10,  20,  40,  60,  80,  100,  120,  140,  160,  180,  200};
+int PositionAimUnit[22] = {11,    10,    9,    8,    7,    6,    5,   4,   3,   2,   1,   0,  -1,  -2,  -3,  -4,  -5,    -6,   -7,   -8,   -9,   -10};//默认持仓目标单位（没有乘以乘数）
 int PositionAim[22];
 double MaxProfitAim = 20.0,MinProfitAim = 20.0;//最小盈利目标，最大盈利目标（不分多空）
 ///////////////////////////////////////////////////////
@@ -318,7 +318,7 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 				newhold.HedgeNum = SupposedBuyOpen;
 				newhold.adjustedCost = DeviationSell;
 				newhold.originalCost = DeviationSell + datumDiff;
-				newhold.HedgeSection = CurrentSectionSell;
+				newhold.HedgeSection = SupposedSectionBuyOpen;//CurrentSectionSell;
 				sprintf(buffer,_T("需要开仓%d手,相对价格%lf,所在区间%d,左%lf,右%lf\r\n"),newhold.HedgeNum,newhold.adjustedCost,newhold.HedgeSection,HedgeLadder[newhold.HedgeSection - 1],HedgeLadder[newhold.HedgeSection]);
 				hedgeStatusPrint = hedgeStatusPrint + buffer;
 				newhold.id = ++maxIdHold;
@@ -335,7 +335,7 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 				newhold.HedgeNum = -SupposedSellOpen;
 				newhold.adjustedCost = DeviationBuy;
 				newhold.originalCost = DeviationBuy + datumDiff;
-				newhold.HedgeSection = CurrentSectionBuy;
+				newhold.HedgeSection = SupposedSectionSellOpen;//CurrentSectionBuy;
 				sprintf(buffer,_T("需要开仓%d手,相对价格%lf,所在区间%d,左%lf,右%lf\r\n"),newhold.HedgeNum,newhold.adjustedCost,newhold.HedgeSection,HedgeLadder[newhold.HedgeSection - 1],HedgeLadder[newhold.HedgeSection]);
 				hedgeStatusPrint = hedgeStatusPrint + buffer;
 				newhold.id = ++maxIdHold;
@@ -728,7 +728,7 @@ void CHedgePostProcessing::PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 		}
 	}
 	SelectIndex();
-	sprintf(buffer,_T("HedgeAbsCost:%lf,A50:%lf,If:%lf,A50Index:%lf,HS300Index:%lf\r\n"),t_avgPriceA50 - t_avgPriceIf * A50Index / HS300Index,t_avgPriceA50,t_avgPriceIf,A50Index,HS300Index);hedgeStatusPrint = hedgeStatusPrint + buffer;SendMsg(buffer);
+	sprintf(buffer,_T("HedgeCost:%lf,A50:%lf,If:%lf,A50Index:%lf,HS300Index:%lf\r\n"),t_avgPriceA50 - t_avgPriceIf * A50Index / HS300Index,t_avgPriceA50,t_avgPriceIf,A50Index,HS300Index);hedgeStatusPrint = hedgeStatusPrint + buffer;SendMsg(buffer);
 	HedgeHold = HedgeHoldTemp;//更新Hold持仓
 	hedgeTaskStatus = NEW_HEDGE;
 	sprintf(buffer,_T("对冲结束\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;

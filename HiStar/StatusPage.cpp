@@ -297,15 +297,20 @@ void CStatusPage::SynchronizeAllVecs()
 		///////////////////////////////////////////////////////////
 		m_LstOnRoad.SetItemCountEx(m_onRoadVec.size());
 		m_LstOnRoad.Invalidate();
+		m_LstOnRoad.UpdateWindow();
 		m_LstOrdInf.SetItemCountEx(m_orderVec.size());
 		m_LstOrdInf.Invalidate();
+		m_LstOrdInf.UpdateWindow();
 		//m_LstInvPosInf.SetItemCountEx(m_InvPosVec.size());
 		m_LstInvPosInf.SetItemCountEx(m_InvPosDetailVec.size());
 		m_LstInvPosInf.Invalidate();
+		m_LstInvPosInf.UpdateWindow();
 		m_LstTdInf.SetItemCountEx(m_tradeVec.size());
 		m_LstTdInf.Invalidate();
+		m_LstTdInf.UpdateWindow();
 		m_LstAllInsts.SetItemCountEx(m_InsinfVec.size());
 		m_LstAllInsts.Invalidate();
+		m_LstAllInsts.UpdateWindow();
 	}
 }
 

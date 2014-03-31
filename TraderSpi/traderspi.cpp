@@ -96,18 +96,12 @@ void CtpTraderSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
 			statusTableName = name;
 			sprintf(name,"%04d%02d%02dTradeRtn",sys.wYear,sys.wMonth,sys.wDay);
 			tradeTableName = name;
+			connctp = mysql_init(NULL); 
+			if(connctp == NULL) {
+				TRACE("Error %u: %s\n", mysql_errno(connctp), mysql_error(connctp));      
+				//exit(1);  
+			}  
 		}
-		else{
-			sprintf(name,"%04d%02d%02dOrderRtn_demo",sys.wYear,sys.wMonth,sys.wDay);
-			statusTableName = name;
-			sprintf(name,"%04d%02d%02dTradeRtn_demo",sys.wYear,sys.wMonth,sys.wDay);
-			tradeTableName = name;
-		}
-		connctp = mysql_init(NULL); 
-		if(connctp == NULL) {
-			TRACE("Error %u: %s\n", mysql_errno(connctp), mysql_error(connctp));      
-			//exit(1);  
-		}  
 		if(connctp){
 			if(mysql_real_connect(connctp,"rdsnqzb3iqzqyeb.mysql.rds.aliyuncs.com","dbwgnn1gn0u90u6n","203891", "dbwgnn1gn0u90u6n",0,NULL,0) == NULL) 
 			{      

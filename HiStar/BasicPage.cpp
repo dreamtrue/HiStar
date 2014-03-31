@@ -75,7 +75,6 @@ void CBasicPage::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_LIST1, m_orderStatus);
-	DDX_Control(pDX, IDC_LIST2, m_errors);
 	DDX_Control(pDX, IDC_PROGRESS1, m_prgs);
 	DDX_Control(pDX, IDC_STATIC1, m_staInfo);
 	DDX_Control(pDX, IDC_COMBO2, m_CombInst);
@@ -435,17 +434,21 @@ void CBasicPage::OnNMDblclkLstHedgeStatus(NMHDR *pNMHDR, LRESULT *pResult){
 		nSubItem = pNMIA->iSubItem;
 		iCount = m_LstHedgeStatus.GetItemCount();
 		if(nItem != -1){
-			m_LstHedgeStatus.DeleteItem(nItem);
-			m_hedgeHold.erase(m_hedgeHold.begin() + nItem);
-			HedgeHold = m_hedgeHold;
+			int res = ::MessageBox(m_hWnd,_T("是否删除所选项？"),_T(""),MB_OKCANCEL|MB_ICONQUESTION);
+			if(res == IDOK){
+				m_LstHedgeStatus.DeleteItem(nItem);
+				m_hedgeHold.erase(m_hedgeHold.begin() + nItem);
+				HedgeHold = m_hedgeHold;
+			}
 		}
 	}
 }
 
 void CBasicPage::SynchronizeAllVecs(){
 	m_hedgeHold = HedgeHold.GetBuffer();
-	m_LstHedgeStatus.Invalidate();
 	m_LstHedgeStatus.SetItemCountEx(m_hedgeHold.size());
+	m_LstHedgeStatus.Invalidate();
+	m_LstHedgeStatus.UpdateWindow();
 }
 
 void CBasicPage::OnBnClickedButton8()

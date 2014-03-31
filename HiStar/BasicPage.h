@@ -43,7 +43,6 @@ public:
 	afx_msg void OnConnectIB();
 //©ь╪Ч╠Да©
 	CHScrollListBox m_orderStatus;
-	CHScrollListBox m_errors;
 	afx_msg void OnDisconnectIB();
 	afx_msg void OnLoginCtp();
 	afx_msg void OnLogoutCtp();

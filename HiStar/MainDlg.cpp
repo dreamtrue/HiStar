@@ -93,9 +93,9 @@ afx_msg LRESULT CMainDlg::OnOrderStatus(WPARAM wParam, LPARAM lParam)
 }
 afx_msg LRESULT CMainDlg::OnErrors(WPARAM wParam, LPARAM lParam)
 {
-	int i = m_basicPage.m_errors.AddString(*(CString *)wParam);
+	int i = m_basicPage.m_orderStatus.AddString(*(CString *)wParam);
 	int top = i - N < 0 ? 0 : i - N;
-	m_basicPage.m_errors.SetTopIndex(top);
+	m_basicPage.m_orderStatus.SetTopIndex(top);
 	delete (CString*)wParam;
 	return 0;
 }
