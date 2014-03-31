@@ -241,6 +241,6 @@ private:
 	void ClearAllVectors();
 	int FindOrdInOnRoadVec(TThostFtdcOrderRefType OrderRef);
 	MYSQL *connctp;
-	CString StatusTableName;
+	CString statusTableName;
 	CString tradeTableName;
 };

@@ -93,13 +93,13 @@ void CtpTraderSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
 		char name[100];
 		if(isReal){
 			sprintf(name,"%04d%02d%02dOrderRtn",sys.wYear,sys.wMonth,sys.wDay);
-			StatusTableName = name;
+			statusTableName = name;
 			sprintf(name,"%04d%02d%02dTradeRtn",sys.wYear,sys.wMonth,sys.wDay);
 			tradeTableName = name;
 		}
 		else{
 			sprintf(name,"%04d%02d%02dOrderRtn_demo",sys.wYear,sys.wMonth,sys.wDay);
-			StatusTableName = name;
+			statusTableName = name;
 			sprintf(name,"%04d%02d%02dTradeRtn_demo",sys.wYear,sys.wMonth,sys.wDay);
 			tradeTableName = name;
 		}
@@ -115,7 +115,7 @@ void CtpTraderSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
 			}  
 		}
 		if(connctp){
-			if(mysql_query(connctp,"CREATE TABLE IF NOT EXISTS " + StatusTableName 
+			if(mysql_query(connctp,"CREATE TABLE IF NOT EXISTS " + statusTableName 
 				+ "(datetime DATETIME,millisecond INT,BrokerID VARCHAR(20),InvestorID VARCHAR(20),\
 				  InstrumentID VARCHAR(20),OrderRef VARCHAR(20),UserID VARCHAR(20),OrderPriceType VARCHAR(20),Direction VARCHAR(20),CombOffsetFlag VARCHAR(20),\
 				  CombHedgeFlag VARCHAR(20),LimitPrice VARCHAR(20),VolumeTotalOriginal VARCHAR(20),TimeCondition VARCHAR(20),\
@@ -422,7 +422,7 @@ void  CtpTraderSpi::OnRspQryOrder(CThostFtdcOrderField *pOrder, CThostFtdcRspInf
 						 pOrder->SuspendTime,pOrder->UpdateTime,pOrder->CancelTime,pOrder->ActiveTraderID,pOrder->ClearingPartID,pOrder->SequenceNo,pOrder->FrontID,pOrder->SessionID,
 						 pOrder->UserProductInfo,pOrder->StatusMsg,pOrder->UserForceClose,pOrder->ActiveUserID,pOrder->BrokerOrderSeq,pOrder->RelativeOrderSysID,
 						 pOrder->ZCETotalTradedVolume,(int)(pOrder->IsSwapOrder));
-			CString insertdata = "INSERT INTO " + StatusTableName 
+			CString insertdata = "INSERT INTO " + statusTableName 
 				+ " (datetime,millisecond,BrokerID,InvestorID,InstrumentID,OrderRef,UserID,OrderPriceType,Direction,CombOffsetFlag,CombHedgeFlag,LimitPrice,VolumeTotalOriginal,TimeCondition,\
 				  GTDDate,VolumeCondition,MinVolume,ContingentCondition,StopPrice,ForceCloseReason,IsAutoSuspend,BusinessUnit,RequestID,OrderLocalID,ExchangeID,ParticipantID,ClientID,\
 				  ExchangeInstID,TraderID,InstallID,OrderSubmitStatus,NotifySequence,TradingDay,SettlementID,OrderSysID,OrderSource,OrderStatus,OrderType,VolumeTraded,VolumeTotal,InsertDate,\
@@ -486,9 +486,9 @@ void CtpTraderSpi::OnRspQryTrade(CThostFtdcTradeField *pTrade, CThostFtdcRspInfo
 		if(connctp){
 			sprintf(datetime,"'%d-%d-%d %d:%d:%d',%d,",sys.wYear,sys.wMonth,sys.wDay,sys.wHour,sys.wMinute,sys.wSecond,sys.wMilliseconds);
 			sprintf(data,"'%s','%s','%s','%s','%s','%s','%s',\
-						 '%c','%s','%s','%s','%c','%s',\
-						 '%c','%c',%lf,'%d','%s','%s','%c',\
-						 '%c','%s','%s','%s','%s',%d,\
+						 '%c','%s','%s','%s',%d,'%s',\
+						 '%c','%c',%lf,'%d','%s','%s',%d,\
+						 %d,'%s','%s','%s','%s',%d,\
 						 '%s',%d,%d,'%c'",
 						 pTrade->BrokerID,pTrade->InvestorID,pTrade->InstrumentID,pTrade->OrderRef,pTrade->UserID,pTrade->ExchangeID,pTrade->TradeID,
 						 pTrade->Direction,pTrade->OrderSysID,pTrade->ParticipantID,pTrade->ClientID,pTrade->TradingRole,pTrade->ExchangeInstID,
@@ -496,7 +496,7 @@ void CtpTraderSpi::OnRspQryTrade(CThostFtdcTradeField *pTrade, CThostFtdcRspInfo
 						 pTrade->PriceSource,pTrade->TraderID,pTrade->OrderLocalID,pTrade->ClearingPartID,pTrade->BusinessUnit,pTrade->SequenceNo,
 						 pTrade->TradingDay,pTrade->SettlementID,pTrade->BrokerOrderSeq,pTrade->TradeSource);
 			CString insertdata = "INSERT INTO " + tradeTableName 
-				+ " (BrokerID,InvestorID,InstrumentID,OrderRef,UserID,ExchangeID,TradeID,Direction,OrderSysID,ParticipantID,ClientID,TradingRole,\
+				+ " (datetime,millisecond,BrokerID,InvestorID,InstrumentID,OrderRef,UserID,ExchangeID,TradeID,Direction,OrderSysID,ParticipantID,ClientID,TradingRole,\
 				  ExchangeInstID,OffsetFlag,HedgeFlag,Price,Volume,TradeDate,TradeTime,TradeType,PriceSource,TraderID,OrderLocalID,ClearingPartID,BusinessUnit,\
 				  SequenceNo,TradingDay,SettlementID,BrokerOrderSeq,TradeSource) VALUES (" + CString(datetime) + CString(data) +")";
 			if(mysql_query(connctp,insertdata.GetBuffer())){
@@ -840,7 +840,7 @@ void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder){
 					 pOrder->SuspendTime,pOrder->UpdateTime,pOrder->CancelTime,pOrder->ActiveTraderID,pOrder->ClearingPartID,pOrder->SequenceNo,pOrder->FrontID,pOrder->SessionID,
 					 pOrder->UserProductInfo,pOrder->StatusMsg,pOrder->UserForceClose,pOrder->ActiveUserID,pOrder->BrokerOrderSeq,pOrder->RelativeOrderSysID,
 					 pOrder->ZCETotalTradedVolume,pOrder->IsSwapOrder);
-		CString insertdata = "INSERT INTO " + StatusTableName 
+		CString insertdata = "INSERT INTO " + statusTableName 
 			+ " (datetime,millisecond,BrokerID,InvestorID,InstrumentID,OrderRef,UserID,OrderPriceType,Direction,CombOffsetFlag,CombHedgeFlag,LimitPrice,VolumeTotalOriginal,TimeCondition,\
 			  GTDDate,VolumeCondition,MinVolume,ContingentCondition,StopPrice,ForceCloseReason,IsAutoSuspend,BusinessUnit,RequestID,OrderLocalID,ExchangeID,ParticipantID,ClientID,\
 			  ExchangeInstID,TraderID,InstallID,OrderSubmitStatus,NotifySequence,TradingDay,SettlementID,OrderSysID,OrderSource,OrderStatus,OrderType,VolumeTraded,VolumeTotal,InsertDate,\
@@ -895,14 +895,18 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 	char data[10000],datetime[100];
 	if(connctp){
 		sprintf(datetime,"'%d-%d-%d %d:%d:%d',%d,",sys.wYear,sys.wMonth,sys.wDay,sys.wHour,sys.wMinute,sys.wSecond,sys.wMilliseconds);
-		sprintf(data,"'%s','%s','%s','%s','%s','%s','%s','%c','%s','%s','%s','%c','%s','%c','%c',%lf,%d,'%s','%s','%c','%c','%s','%s','%s','%s',%d,'%s',%d,%d,'%c'",
-			pTrade->BrokerID,pTrade->InvestorID,pTrade->InstrumentID,pTrade->OrderRef,pTrade->UserID,pTrade->ExchangeID,pTrade->TradeID,
-			pTrade->Direction,pTrade->OrderSysID,pTrade->ParticipantID,pTrade->ClientID,pTrade->TradingRole,pTrade->ExchangeInstID,
-			pTrade->OffsetFlag,pTrade->HedgeFlag,pTrade->Price,pTrade->Volume,pTrade->TradeDate,pTrade->TradeTime,pTrade->TradeType,
-			pTrade->PriceSource,pTrade->TraderID,pTrade->OrderLocalID,pTrade->ClearingPartID,pTrade->BusinessUnit,pTrade->SequenceNo,
-			pTrade->TradingDay,pTrade->SettlementID,pTrade->BrokerOrderSeq,pTrade->TradeSource);
+		sprintf(data,"'%s','%s','%s','%s','%s','%s','%s',\
+					 '%c','%s','%s','%s',%d,'%s',\
+					 '%c','%c',%lf,'%d','%s','%s',%d,\
+					 %d,'%s','%s','%s','%s',%d,\
+					 '%s',%d,%d,'%c'",
+					 pTrade->BrokerID,pTrade->InvestorID,pTrade->InstrumentID,pTrade->OrderRef,pTrade->UserID,pTrade->ExchangeID,pTrade->TradeID,
+					 pTrade->Direction,pTrade->OrderSysID,pTrade->ParticipantID,pTrade->ClientID,pTrade->TradingRole,pTrade->ExchangeInstID,
+					 pTrade->OffsetFlag,pTrade->HedgeFlag,pTrade->Price,pTrade->Volume,pTrade->TradeDate,pTrade->TradeTime,pTrade->TradeType,
+					 pTrade->PriceSource,pTrade->TraderID,pTrade->OrderLocalID,pTrade->ClearingPartID,pTrade->BusinessUnit,pTrade->SequenceNo,
+					 pTrade->TradingDay,pTrade->SettlementID,pTrade->BrokerOrderSeq,pTrade->TradeSource);
 		CString insertdata = "INSERT INTO " + tradeTableName 
-			+ " (BrokerID,InvestorID,InstrumentID,OrderRef,UserID,ExchangeID,TradeID,Direction,OrderSysID,ParticipantID,ClientID,TradingRole,\
+			+ " (datetime,millisecond,BrokerID,InvestorID,InstrumentID,OrderRef,UserID,ExchangeID,TradeID,Direction,OrderSysID,ParticipantID,ClientID,TradingRole,\
 			  ExchangeInstID,OffsetFlag,HedgeFlag,Price,Volume,TradeDate,TradeTime,TradeType,PriceSource,TraderID,OrderLocalID,ClearingPartID,BusinessUnit,\
 			  SequenceNo,TradingDay,SettlementID,BrokerOrderSeq,TradeSource) VALUES (" + CString(datetime) + CString(data) +")";
 		if(mysql_query(connctp,insertdata.GetBuffer())){
@@ -972,10 +976,10 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 					break;
 				}
 				else{
+					closeNum = closeNum - m_InvPosDetailVec[i].Volume;
 					CVector<CThostFtdcInvestorPositionDetailField>::iterator it = m_InvPosDetailVec.begin() + i;
 					m_InvPosDetailVec.erase(it);
 					i--;
-					closeNum = closeNum - m_InvPosDetailVec[i].Volume;
 				}
 			}
 		}
