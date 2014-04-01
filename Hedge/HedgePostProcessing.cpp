@@ -7,7 +7,7 @@
 #include "MainDlg.h"
 #include "calendar.h"
 #include <math.h>
-#define SHOW if(IsWindow(hEdit)){::SendMessage(hEdit,WM_SETTEXT,0,(LPARAM)(LPCTSTR)hedgeStatusPrint);}
+#define SHOW if(IsWindow(hEdit)){::SendMessage(hEdit,EM_SETSEL,-1,0);::SendMessage(hEdit,EM_REPLACESEL,FALSE,(LPARAM)(LPCTSTR)hedgeStatusPrint);hedgeStatusPrint.Empty();}
 int SendMsg(CString msg);
 #define OPEN true
 #define CLOSE false
@@ -93,10 +93,14 @@ BEGIN_MESSAGE_MAP(CHedgePostProcessing, CWinThread)
 END_MESSAGE_MAP()
 
 void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
+	static bool iFirst = true;static HWND hEdit;
 	if(((CMainDlg*)m_pMainWnd)){
 		((CMainDlg*)m_pMainWnd)->OnRefreshMdPane(NULL,NULL);
 	}
-	HWND hEdit = ::GetDlgItem(((CMainDlg*)m_pMainWnd)->m_basicPage.m_hWnd,IDC_RICHEDIT_STATUS);
+	if(iFirst){
+		hEdit = ::GetDlgItem(((CMainDlg*)m_pMainWnd)->m_basicPage.m_hWnd,IDC_RICHEDIT_STATUS);
+		iFirst = false;
+	}
 	//获取系统时间
 	SYSTEMTIME sys;
 	GetLocalTime(&sys);
@@ -136,18 +140,9 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 		//增加这两个变量主要是考虑两侧边界可能已经饱和，这时isSupposedBuy或isSupposedSell将仍然保持false，表示无需任何操作
 		bool isSupposedBuyOpen = false,isSupposedSellOpen = false;
 		int CurrentSectionBuy = 0,CurrentSectionSell = 0;//当前所在的区间,Buy和Sell分别表示以买价和卖价计算
-		//测试用，给一个随机的DeviationSell和DeviationBuy
-		/*
-		DeviationSell = rand() % 120 - 60;
-		DeviationBuy = DeviationSell - 6.5;
-		g_ifBid1 = 2163.6;g_ifAsk1 = 2163.8;
-		*/
-		//sprintf(buffer,_T("当前买偏差%lf\r\n"),DeviationBuy);hedgeStatusPrint = hedgeStatusPrint + buffer;
-		//sprintf(buffer,_T("当前卖偏差%lf\r\n"),DeviationSell);hedgeStatusPrint = hedgeStatusPrint + buffer;
-		////////////////////////结束测试//////////////////////////////
 		CalcDeviation();
 		if(isHedgeLoopingPause){//暂停
-			//sprintf(buffer,_T("暂停\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;
+			//sprintf(buffer,_T("暂停\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
 			return;
 		}
 		if(_isnan(datumDiff) != 0 || _isnan(premium)!=0 ||_isnan(deviation)!=0){
