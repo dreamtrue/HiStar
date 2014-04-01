@@ -16,10 +16,10 @@ std::fstream fileInput;
 bool isReal = true;
 extern CVector<HoldDetail> HedgeHold;
 struct sqldb{
-	char host[20];
-	char user[20];
-	char passwd[20];
-	char db[20];
+	std::string host;
+	std::string user;
+	std::string passwd;
+	std::string db;
 };
 struct stock{
 	std::string exch;
@@ -312,10 +312,10 @@ int CHiStarApp::FileInput(void)
 				stream >> str01 >> str02 >> str03 >> str04;
 				if(str01.c_str()[0] == '*'){continue;}
 				if(str == "@end")break;
-				strcpy(m_db.host,str01.c_str());
-				strcpy(m_db.user,str02.c_str());
-				strcpy(m_db.passwd,str03.c_str());
-				strcpy(m_db.db,str03.c_str());
+				m_db.host = str01;
+				m_db.user = str02;
+				m_db.passwd = str03;
+				m_db.db = str04;
 			}
 		}
 		else if(str01 == "@index"){
@@ -400,7 +400,7 @@ void CHiStarApp::OnConnectSql(WPARAM wParam,LPARAM lParam)
 		TRACE("Error %u: %s\n", mysql_errno(conn), mysql_error(conn)); 
 	}  
 	if(conn){
-		if(mysql_real_connect(conn,m_db.host,m_db.user,m_db.passwd,m_db.db,0,NULL,0) == NULL) 
+		if(mysql_real_connect(conn,m_db.host.c_str(),m_db.user.c_str(),m_db.passwd.c_str(),m_db.db.c_str(),0,NULL,0) == NULL)
 		{      
 			TRACE("Error %u: %s\n", mysql_errno(conn), mysql_error(conn));
 		}  
