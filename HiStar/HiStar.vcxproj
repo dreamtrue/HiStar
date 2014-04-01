@@ -194,7 +194,6 @@
     <ClInclude Include="..\calendar\calendar.h" />
     <ClInclude Include="..\CppClient\Shared\TwsSocketClientErrors.h" />
     <ClInclude Include="..\Hedge\HedgeLoop.h" />
-    <ClInclude Include="..\Index\DealIndex.h" />
     <ClInclude Include="..\Index\Index.h" />
     <ClInclude Include="..\THostFtdc\ThostFtdcMdApi.h" />
     <ClInclude Include="..\THostFtdc\ThostFtdcTraderApi.h" />

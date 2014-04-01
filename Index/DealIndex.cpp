@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "afxsock.h"
 #include <afxinet.h> 
-#include "DealIndex.h"
 #include <vector>
 #include <string>
 #define A50NUM 50
