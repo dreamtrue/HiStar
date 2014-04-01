@@ -2,22 +2,55 @@
 #include "afxsock.h"
 #include <afxinet.h> 
 #include "DealIndex.h"
+#include <vector>
+#include <string>
 #define A50NUM 50
 #define HS300NUM 300
 #define TOTAL 350
 CString m_URL = _T("http://hq.sinajs.cn/list=");
+double A50IndexRef;
+double A50totalVolumeRef;
+double HS300IndexRef;
+double HS300totalVolumeRef;
 double price[TOTAL];
-double volume[TOTAL] = {A50PL,HS300PL};
+double volume[TOTAL];// = {A50PL,HS300PL};
 double g_A50Index = 0;
 double g_HS300Index = 0;
+struct stock{
+	std::string exch;
+	std::string code;
+	int volume;
+};
+extern std::vector<stock> g_hs300;
+extern std::vector<stock> g_a50;
 int GetIndexData(void)
 {
 	CInternetSession mySession(NULL,0);
 	CHttpFile* myHttpFile = NULL;
 	CString myData;
 	CString myURL;
+	CString myURL_code;
 	int i = 0;
-	myURL = m_URL + _T(A50ID) + _T(HS300ID);
+	for(int k = 0;k < A50NUM;k++){
+		myURL_code = myURL_code + ",";
+		myURL_code = myURL_code + g_a50[k].exch.c_str();
+		myURL_code = myURL_code + g_a50[k].code.c_str();
+	}
+	for(int k = 0;k < HS300NUM;k++){
+		myURL_code = myURL_code + ",";
+		myURL_code = myURL_code + g_hs300[k].exch.c_str();
+		myURL_code = myURL_code + g_hs300[k].code.c_str();
+	}
+	myURL = m_URL + myURL_code;
+	for(unsigned int j = 0;j < TOTAL;j++){
+		if(j < A50NUM){
+			volume[j] = g_a50[j].volume;
+		}
+		else{
+			volume[j] = g_hs300[j - A50NUM].volume;
+		}
+	}
+	//myURL = m_URL + _T(A50ID) + _T(HS300ID);
 	try{
 		myHttpFile = (CHttpFile*)mySession.OpenURL(myURL,1,INTERNET_FLAG_RELOAD|INTERNET_FLAG_TRANSFER_ASCII);
 	}

@@ -6,6 +6,14 @@ double g_totalA50Value = 0;//A50总值
 double g_totalHS300Value = 0;//HS300总值
 double g_A50IndexMSHQ = 0;
 double g_HS300IndexMSHQ = 0;
+struct stock{
+	std::string exch;
+	std::string code;
+	int volume;
+};
+extern std::vector<stock> g_hs300;
+extern std::vector<stock> g_a50;
+extern double A50IndexRef,A50totalVolumeRef,HS300IndexRef,HS300totalVolumeRef;
 //自定义的股票数据结构
 typedef struct tagStockSlf		//股票行情
 {
@@ -56,24 +64,17 @@ IMPLEMENT_DYNCREATE(CMSHQ, CWinThread)
 	m_pHQHead = NULL;
 	m_HQFileHandle = NULL;
 	//初始化股票数组
-	CString A50Code(A50ID);
-	int A50Volume[50] = {A50PL};
-	CString HS300Code(HS300ID);
-	int HS300Volume[300] = {HS300PL};
-	CString strGet(_T("")); 
 	STOCK_SLF stock;
 	stock.index = -1;//默认值-1;
 	memset(stock.Code,0,sizeof(stock.Code));
 	for(int i = 0;i < 50;i++){
-		AfxExtractSubString(strGet,A50Code,i + 1, _T(','));
-		strcpy(stock.Code,strGet.Right(6));
-		stock.volume = A50Volume[i];
+		strcpy(stock.Code,g_a50[i].code.c_str());
+		stock.volume = g_a50[i].volume;
 		StockSlfList.Add(stock);
 	}
 	for(int i = 0;i < 300;i++){
-		AfxExtractSubString(strGet,HS300Code,i + 1, _T(','));
-		strcpy(stock.Code,strGet.Right(6));
-		stock.volume = HS300Volume[i];
+		strcpy(stock.Code,g_hs300[i].code.c_str());
+		stock.volume = g_hs300[i].volume;
 		StockSlfList.Add(stock);
 	}
 }

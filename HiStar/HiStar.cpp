@@ -15,6 +15,21 @@
 std::fstream fileInput;
 bool isReal = true;
 extern CVector<HoldDetail> HedgeHold;
+struct sqldb{
+	char host[20];
+	char user[20];
+	char passwd[20];
+	char db[20];
+};
+struct stock{
+	std::string exch;
+	std::string code;
+	int volume;
+};
+std::vector<stock> g_hs300;
+std::vector<stock> g_a50;
+sqldb m_db;
+extern double A50IndexRef,A50totalVolumeRef,HS300IndexRef,HS300totalVolumeRef;
 // CHiStarApp
 BEGIN_MESSAGE_MAP(CHiStarApp, CWinApp)
 	ON_COMMAND(ID_HELP, &CWinApp::OnHelp)
@@ -51,6 +66,7 @@ CHiStarApp::CHiStarApp()
 {
 	//定位内存泄漏位置,非常好用
 	//_CrtSetBreakAlloc(4783);
+	memset(&m_db,0,sizeof(m_db));//数据库参数清零
 	MainThreadId = GetCurrentThreadId();
 	// 支持重新启动管理器
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;
@@ -256,8 +272,7 @@ int CHiStarApp::FileInput(void)
 	else{
 		fileInput.open("histar_demo.ini");
 	}
-	std::vector<std::string> inputData;
-	std::string str,str01,str02,str03,str04;
+	std::string str,str01,str02,str03,str04,str05,str06,str07,str08;
 	while(getline(fileInput,str)){
 		TRACE("%s\r\n",str.c_str());
 		std::stringstream stream(str);
@@ -291,6 +306,30 @@ int CHiStarApp::FileInput(void)
 				HedgeHold.push_back(hd);
 			}
 		}
+		else if(str01 == "@mysql"){
+			while(getline(fileInput,str)){
+				stream.clear();stream.str("");stream << str;
+				stream >> str01 >> str02 >> str03 >> str04;
+				if(str01.c_str()[0] == '*'){continue;}
+				if(str == "@end")break;
+				strcpy(m_db.host,str01.c_str());
+				strcpy(m_db.user,str02.c_str());
+				strcpy(m_db.passwd,str03.c_str());
+				strcpy(m_db.db,str03.c_str());
+			}
+		}
+		else if(str01 == "@index"){
+			while(getline(fileInput,str)){
+				stream.clear();stream.str("");stream << str;
+				stream >> str01 >> str02 >> str03 >> str04;
+				if(str01.c_str()[0] == '*'){continue;}
+				if(str == "@end")break;
+				A50IndexRef = atof(str01.c_str());
+				A50totalVolumeRef = atof(str02.c_str());
+				HS300IndexRef = atof(str03.c_str());
+				HS300totalVolumeRef = atof(str04.c_str());
+			}
+		}
 		else if(str01 == "@md_address"){
 			while(getline(fileInput,str)){
 				stream.clear();stream.str("");stream << str;
@@ -310,6 +349,42 @@ int CHiStarApp::FileInput(void)
 			}
 		}
 	}
+	fileInput.close();
+	stock st;
+	fileInput.open("2823_Holdings.csv");
+	int i = 0;
+	while(getline(fileInput,str)){
+		i++;
+		std::stringstream stream(str);
+		if(i >= 12 && i <= 61){
+			std::string sub_str;
+			std::vector<std::string> subvec;
+			while(getline(stream,sub_str,',')){
+				subvec.push_back(sub_str);
+			}
+			if(subvec[2] >= "60000"){st.exch = "sh";}else{st.exch = "sz";}
+			st.code = subvec[2].substr(0,6);st.volume = atoi(subvec[6].c_str()) + atoi(subvec[7].c_str());
+			g_a50.push_back(st);
+		}
+	}
+	fileInput.close();
+	fileInput.open("2846_Holdings.csv");
+	i = 0;
+	while(getline(fileInput,str)){
+		i++;
+		std::stringstream stream(str);
+		if(i >= 13 && i <= 312){
+			std::string sub_str;
+			std::vector<std::string> subvec;
+			while(getline(stream,sub_str,',')){
+				subvec.push_back(sub_str);
+			}
+			if(subvec[2] >= "60000"){st.exch = "sh";}else{st.exch = "sz";}
+			st.code = subvec[2].substr(0,6);st.volume = atoi(subvec[6].c_str());
+			g_hs300.push_back(st);
+		}
+	}
+	fileInput.close();
 	return 0;
 }
 
@@ -325,7 +400,7 @@ void CHiStarApp::OnConnectSql(WPARAM wParam,LPARAM lParam)
 		TRACE("Error %u: %s\n", mysql_errno(conn), mysql_error(conn)); 
 	}  
 	if(conn){
-		if(mysql_real_connect(conn,"rdsnqzb3iqzqyeb.mysql.rds.aliyuncs.com","dbwgnn1gn0u90u6n","203891", "dbwgnn1gn0u90u6n",0,NULL,0) == NULL) 
+		if(mysql_real_connect(conn,m_db.host,m_db.user,m_db.passwd,m_db.db,0,NULL,0) == NULL) 
 		{      
 			TRACE("Error %u: %s\n", mysql_errno(conn), mysql_error(conn));
 		}  
