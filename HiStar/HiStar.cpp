@@ -272,7 +272,6 @@ int CHiStarApp::FileInput(void)
 	else{
 		fileInput.open("histar_demo.ini");
 	}
-	std::string str,str01,str02,str03,str04,str05,str06,str07,str08;
 	while(getline(fileInput,str)){
 		TRACE("%s\r\n",str.c_str());
 		std::stringstream stream(str);

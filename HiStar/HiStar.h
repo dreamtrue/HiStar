@@ -153,6 +153,7 @@ public:
 	void iniSql(void);
 	MYSQL *conn; 
 	CString m_marketTableName;
+	std::string str,str01,str02,str03,str04,str05,str06,str07,str08;
 };
 
 extern CHiStarApp theApp;

@@ -13,10 +13,10 @@ extern int longIf,shortIf;
 extern bool isReal;
 bool g_bOnceT = FALSE;//交易系统是否曾经登陆过，如果登陆过则是TRUE,否则FALSE
 struct sqldb{
-	char host[20];
-	char user[20];
-	char passwd[20];
-	char db[20];
+	std::string host;
+	std::string user;
+	std::string passwd;
+	std::string db;
 };
 extern sqldb m_db;
 bool CmpByTime(const CThostFtdcInvestorPositionDetailField first,const CThostFtdcInvestorPositionDetailField second) 
@@ -110,7 +110,7 @@ void CtpTraderSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
 			}  
 		}
 		if(connctp){
-			if(mysql_real_connect(connctp,m_db.host,m_db.user,m_db.passwd,m_db.db,0,NULL,0) == NULL)  
+			if(mysql_real_connect(connctp,m_db.host.c_str(),m_db.user.c_str(),m_db.passwd.c_str(),m_db.db.c_str(),0,NULL,0) == NULL)
 			{      
 				TRACE("Error %u: %s\n", mysql_errno(connctp), mysql_error(connctp));
 			}  
