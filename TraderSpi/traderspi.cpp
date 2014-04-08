@@ -99,9 +99,9 @@ void CtpTraderSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
 		GetLocalTime(&sys);
 		char name[100];
 		if(isReal){
-			sprintf(name,"%04d%02d%02dOrderRtn",sys.wYear,sys.wMonth,sys.wDay);
+			sprintf(name,"OrderRtn_%04d%02d%02d",sys.wYear,sys.wMonth,sys.wDay);
 			statusTableName = name;
-			sprintf(name,"%04d%02d%02dTradeRtn",sys.wYear,sys.wMonth,sys.wDay);
+			sprintf(name,"TradeRtn_%04d%02d%02d",sys.wYear,sys.wMonth,sys.wDay);
 			tradeTableName = name;
 			connctp = mysql_init(NULL); 
 			if(connctp == NULL) {
@@ -117,7 +117,7 @@ void CtpTraderSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
 		}
 		if(connctp){
 			if(mysql_query(connctp,"CREATE TABLE IF NOT EXISTS " + statusTableName 
-				+ "(datetime DATETIME,millisecond INT,BrokerID VARCHAR(20),InvestorID VARCHAR(20),\
+				+ " (datetime DATETIME,millisecond INT,BrokerID VARCHAR(20),InvestorID VARCHAR(20),\
 				  InstrumentID VARCHAR(20),OrderRef VARCHAR(20),UserID VARCHAR(20),OrderPriceType VARCHAR(20),Direction VARCHAR(20),CombOffsetFlag VARCHAR(20),\
 				  CombHedgeFlag VARCHAR(20),LimitPrice VARCHAR(20),VolumeTotalOriginal VARCHAR(20),TimeCondition VARCHAR(20),\
 				  GTDDate VARCHAR(20),VolumeCondition VARCHAR(20),MinVolume VARCHAR(20),ContingentCondition VARCHAR(20),StopPrice VARCHAR(20),ForceCloseReason VARCHAR(20),\
@@ -131,7 +131,7 @@ void CtpTraderSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
 				TRACE("Error %u: %s\n", mysql_errno(connctp), mysql_error(connctp));      
 			}
 			if(mysql_query(connctp,"CREATE TABLE IF NOT EXISTS " + tradeTableName
-				+ "(datetime DATETIME,millisecond INT,BrokerID VARCHAR(20),InvestorID VARCHAR(20),InstrumentID VARCHAR(20),OrderRef VARCHAR(20),UserID VARCHAR(20),ExchangeID VARCHAR(20),\
+				+ " (datetime DATETIME,millisecond INT,BrokerID VARCHAR(20),InvestorID VARCHAR(20),InstrumentID VARCHAR(20),OrderRef VARCHAR(20),UserID VARCHAR(20),ExchangeID VARCHAR(20),\
 				  TradeID VARCHAR(20),Direction VARCHAR(20),OrderSysID VARCHAR(20),ParticipantID VARCHAR(20),ClientID VARCHAR(20),TradingRole VARCHAR(20),ExchangeInstID VARCHAR(20),\
 				  OffsetFlag VARCHAR(20),HedgeFlag VARCHAR(20),Price VARCHAR(20),Volume VARCHAR(20),TradeDate VARCHAR(20),TradeTime VARCHAR(20),TradeType VARCHAR(20),PriceSource VARCHAR(20),\
 				  TraderID VARCHAR(20),OrderLocalID VARCHAR(20),ClearingPartID VARCHAR(20),BusinessUnit VARCHAR(20),SequenceNo VARCHAR(20),TradingDay VARCHAR(20),SettlementID VARCHAR(20),\

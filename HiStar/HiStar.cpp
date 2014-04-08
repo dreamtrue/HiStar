@@ -38,7 +38,7 @@ BEGIN_MESSAGE_MAP(CHiStarApp, CWinApp)
 	ON_THREAD_MESSAGE(WM_LOGIN_CTP,LoginCtp)
 	ON_THREAD_MESSAGE(WM_LOGOUT_CTP,LogoutCtp)
 	ON_THREAD_MESSAGE(WM_QRY_ACC_CTP,OnQryAccCtp)
-	ON_THREAD_MESSAGE(WM_UPDATE_HEDGEHOLD,OnUpdateHedgeHold)
+	ON_THREAD_MESSAGE(WM_UPDATE_HEDGEHOLD,UpdateHedgeHold)
 	ON_THREAD_MESSAGE(WM_UPDATE_LSTCTRL,OnUpdateLstCtrl)
 	ON_THREAD_MESSAGE(WM_MD_REFRESH,OnHedgeLooping)
 	ON_THREAD_MESSAGE(WM_CONNECT_SQL,OnConnectSql)
@@ -101,7 +101,7 @@ void CHiStarApp::OnIni(WPARAM wParam,LPARAM lParam){
 	m_IBOrder.orderType = "LMT";
 	m_IBOrder.whatIf = false;
 	//更新持仓
-	OnUpdateHedgeHold(NULL,NULL);
+	//UpdateHedgeHold(NULL,NULL);
 }
 
 // 唯一的一个 CHiStarApp 对象
@@ -291,6 +291,7 @@ int CHiStarApp::FileInput(void)
 				strcpy(m_accountCtp.m_sBROKER_ID,str03.c_str());
 			}
 		}
+		/*
 		else if(str01 == "@hedgehold"){
 			while(getline(fileInput,str)){
 				stream.clear();stream.str("");stream << str;
@@ -305,6 +306,7 @@ int CHiStarApp::FileInput(void)
 				HedgeHold.push_back(hd);
 			}
 		}
+		*/
 		else if(str01 == "@mysql"){
 			while(getline(fileInput,str)){
 				stream.clear();stream.str("");stream << str;
@@ -392,7 +394,7 @@ void CHiStarApp::OnConnectSql(WPARAM wParam,LPARAM lParam)
 	SYSTEMTIME sys;
 	GetLocalTime(&sys);
 	char name[100];
-	sprintf(name,"%04d%02d%02dmarket",sys.wYear,sys.wMonth,sys.wDay);
+	sprintf(name,"Market_%04d%02d%02d",sys.wYear,sys.wMonth,sys.wDay);
 	m_marketTableName = name;
 	conn = mysql_init(NULL); 
 	if(conn == NULL) {
@@ -405,11 +407,37 @@ void CHiStarApp::OnConnectSql(WPARAM wParam,LPARAM lParam)
 		}  
 	}
 	if(conn){
-		if(mysql_query(conn,"CREATE TABLE IF NOT EXISTS " + m_marketTableName + "(datetime DATETIME,millisecond INT,a50index VARCHAR(20),a50bid VARCHAR(20),a50ask VARCHAR(20),hs300index VARCHAR(20),hs300bid VARCHAR(20),hs300ask VARCHAR(20),preniumHigh VARCHAR(20),preniumLow VARCHAR(20))")) 
+		if(mysql_query(conn,"CREATE TABLE IF NOT EXISTS " + m_marketTableName + " (datetime DATETIME,millisecond INT,a50index DOUBLE,a50bid DOUBLE,a50ask DOUBLE,hs300index DOUBLE,hs300bid DOUBLE,hs300ask DOUBLE,preniumHigh DOUBLE,preniumLow DOUBLE)")) 
 		{      
 			TRACE("Error %u: %s\n", mysql_errno(conn), mysql_error(conn));      
 		}
 	}
+	//创建Hedge持仓明细表格
+	m_positionTableName = "position";
+	if(conn){
+		if(mysql_query(conn,"CREATE TABLE IF NOT EXISTS " + m_positionTableName + " (ID INTEGER,amount INTEGER,section INTEGER,price DOUBLE,primary key (ID))")) 
+		{      
+			TRACE("Error %u: %s\n", mysql_errno(conn), mysql_error(conn));      
+		}
+		if(mysql_query(conn,"select * from position")){
+			TRACE("Error %u: %s\n", mysql_errno(conn), mysql_error(conn)); 
+		}
+		MYSQL_RES * res_set;MYSQL_ROW row;unsigned int num_fields;
+		res_set = mysql_store_result(conn);
+		num_fields = mysql_num_fields(res_set);
+		while ((row = mysql_fetch_row(res_set))){
+			unsigned long *lengths;
+			lengths = mysql_fetch_lengths(res_set);
+			HoldDetail hd;
+			hd.id = atol(row[0]);
+			hd.HedgeNum = atoi(row[1]);
+			hd.HedgeSection = atoi(row[2]);
+			hd.originalCost = atof(row[3]);
+			HedgeHold.push_back(hd);
+		}
+	}
+	//更新持仓
+	UpdateHedgeHold(NULL,NULL);
 }
 
 void CHiStarApp::OnSynchronizeMarket(WPARAM wParam,LPARAM lParam){

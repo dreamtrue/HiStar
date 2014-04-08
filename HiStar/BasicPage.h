@@ -78,6 +78,7 @@ public:
 public:
 	void OnGetHedgeHold(NMHDR *pNMHDR, LRESULT *pResult);
 	void SynchronizeAllVecs();
+	void SynchronizeSql();
 	afx_msg void OnNMClkLstHedgeStatus(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnNMDblclkLstHedgeStatus(NMHDR *pNMHDR, LRESULT *pResult);
 	std::vector<HoldDetail> m_hedgeHold;

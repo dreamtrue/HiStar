@@ -127,7 +127,7 @@ public:
 	void LoginCtpTD(WPARAM wParam,LPARAM lParam);
 	void OnQryAccCtp(WPARAM wParam,LPARAM lParam);
 	void OnUpdateLstCtrl(WPARAM wParam,LPARAM lParam);
-	void OnUpdateHedgeHold(WPARAM wParam,LPARAM lParam);
+	void UpdateHedgeHold(WPARAM wParam,LPARAM lParam);
 	void OnHedgeLooping(WPARAM wParam,LPARAM lParam);
 	void OnSynchronizeMarket(WPARAM wParam,LPARAM lParam);
 	int FindInstMul(TThostFtdcInstrumentIDType InstID);
@@ -152,7 +152,7 @@ public:
 	int FileInput(void);
 	void iniSql(void);
 	MYSQL *conn; 
-	CString m_marketTableName;
+	CString m_marketTableName;CString m_positionTableName;
 	std::string str,str01,str02,str03,str04,str05,str06,str07,str08;
 };
 

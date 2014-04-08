@@ -439,6 +439,7 @@ void CBasicPage::OnNMDblclkLstHedgeStatus(NMHDR *pNMHDR, LRESULT *pResult){
 				m_LstHedgeStatus.DeleteItem(nItem);
 				m_hedgeHold.erase(m_hedgeHold.begin() + nItem);
 				HedgeHold = m_hedgeHold;
+				SynchronizeSql();//同步数据库
 			}
 		}
 	}
@@ -449,6 +450,31 @@ void CBasicPage::SynchronizeAllVecs(){
 	m_LstHedgeStatus.SetItemCountEx(m_hedgeHold.size());
 	m_LstHedgeStatus.Invalidate();
 	m_LstHedgeStatus.UpdateWindow();
+	SynchronizeSql();	
+}
+
+void CBasicPage::SynchronizeSql(){
+	//先清空数据库
+	if(((CHiStarApp*)AfxGetApp())->conn){
+		if(mysql_query(((CHiStarApp*)AfxGetApp())->conn,"truncate " + ((CHiStarApp*)AfxGetApp())->m_positionTableName)){
+			TRACE("Error %u: %s\n", mysql_errno(((CHiStarApp*)AfxGetApp())->conn), mysql_error(((CHiStarApp*)AfxGetApp())->conn));
+		}
+	}
+	//数据库同步
+	if(((CHiStarApp*)AfxGetApp())->conn){
+		for(unsigned int j = 0;j < m_hedgeHold.size();j++){
+			char id[100],amou[100],sec[100],price[100];
+			sprintf(id,"%ld,",m_hedgeHold[j].id);
+			sprintf(amou,"%d,",m_hedgeHold[j].HedgeNum);
+			sprintf(sec,"%d,",m_hedgeHold[j].HedgeSection);
+			sprintf(price,"%lf",m_hedgeHold[j].originalCost);
+			CString insertdata = "INSERT INTO " + ((CHiStarApp*)AfxGetApp())->m_positionTableName 
+				+ " (ID,amount,section,price) VALUES (" + CString(id) + CString(amou) + CString(sec) + CString(price) + ")";
+			if(mysql_query(((CHiStarApp*)AfxGetApp())->conn,insertdata.GetBuffer())){
+				TRACE("Error %u: %s\n", mysql_errno(((CHiStarApp*)AfxGetApp())->conn), mysql_error(((CHiStarApp*)AfxGetApp())->conn));
+			}
+		}
+	}
 }
 
 void CBasicPage::OnBnClickedButton8()
