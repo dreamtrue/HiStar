@@ -425,6 +425,7 @@ void CHiStarApp::OnConnectSql(WPARAM wParam,LPARAM lParam)
 		MYSQL_RES * res_set;MYSQL_ROW row;unsigned int num_fields;
 		res_set = mysql_store_result(conn);
 		num_fields = mysql_num_fields(res_set);
+		HedgeHold.clear();//ÏÈÇå¿Õ
 		while ((row = mysql_fetch_row(res_set))){
 			unsigned long *lengths;
 			lengths = mysql_fetch_lengths(res_set);
