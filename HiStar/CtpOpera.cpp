@@ -296,7 +296,7 @@ void CHiStarApp::OnQryAccCtp(WPARAM wParam,LPARAM lParam){
 
 void CHiStarApp::UpdateHedgeHold(WPARAM wParam,LPARAM lParam){
 	if(m_pMainWnd){
-		((CMainDlg*)m_pMainWnd)->m_basicPage.SynchronizeAllVecs();
+		((CMainDlg*)m_pMainWnd)->m_basicPage.SynchronizeHoldDataToView();
 	}
 }
 

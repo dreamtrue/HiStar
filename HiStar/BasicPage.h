@@ -77,7 +77,8 @@ public:
 	CColorListCtrl m_LstHedgeStatus;
 public:
 	void OnGetHedgeHold(NMHDR *pNMHDR, LRESULT *pResult);
-	void SynchronizeAllVecs();
+	void SynchronizeHoldDataToView();
+	void SynchronizeHoldViewToData();
 	void SynchronizeSql();
 	afx_msg void OnNMClkLstHedgeStatus(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnNMDblclkLstHedgeStatus(NMHDR *pNMHDR, LRESULT *pResult);

@@ -356,7 +356,7 @@ void CBasicPage::OnBnClickedTest()
 	PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 	PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 	((CHiStarApp*)AfxGetApp())->OnHedgeLooping(NULL,NULL);
-	SynchronizeAllVecs();
+	SynchronizeHoldDataToView();
 }
 
 
@@ -438,19 +438,26 @@ void CBasicPage::OnNMDblclkLstHedgeStatus(NMHDR *pNMHDR, LRESULT *pResult){
 			if(res == IDOK){
 				m_LstHedgeStatus.DeleteItem(nItem);
 				m_hedgeHold.erase(m_hedgeHold.begin() + nItem);
-				HedgeHold = m_hedgeHold;
-				SynchronizeSql();//同步数据库
+				SynchronizeHoldViewToData();
 			}
 		}
 	}
 }
 
-void CBasicPage::SynchronizeAllVecs(){
+void CBasicPage::SynchronizeHoldDataToView(){
 	m_hedgeHold = HedgeHold.GetBuffer();
 	m_LstHedgeStatus.SetItemCountEx(m_hedgeHold.size());
 	m_LstHedgeStatus.Invalidate();
 	m_LstHedgeStatus.UpdateWindow();
 	SynchronizeSql();	
+}
+
+void CBasicPage::SynchronizeHoldViewToData(){
+	HedgeHold = m_hedgeHold;
+	m_LstHedgeStatus.SetItemCountEx(m_hedgeHold.size());
+	m_LstHedgeStatus.Invalidate();
+	m_LstHedgeStatus.UpdateWindow();
+	SynchronizeSql();
 }
 
 void CBasicPage::SynchronizeSql(){
@@ -493,7 +500,6 @@ void CBasicPage::OnBnClickedButton8()
 	HoldDetail hd;
 	hd.id = id;hd.HedgeNum = num;hd.HedgeSection = section;hd.originalCost = price;
 	m_hedgeHold.push_back(hd);
-	HedgeHold = m_hedgeHold;
 	SetDlgItemTextA(IDC_RICHEDIT24,_T(""));
-	SynchronizeAllVecs();
+	SynchronizeHoldViewToData();
 }
