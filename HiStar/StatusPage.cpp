@@ -593,8 +593,8 @@ void CStatusPage::OnGetDispinf1(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	NMLVDISPINFO *pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pNMHDR);
 	LV_ITEM* pItem= &(pDispInfo)->item;
-	int iItem= m_onRoadVec.size()-1-pItem->iItem;
-	if(iItem < 0)return;
+	int iItem= /*m_onRoadVec.size()-1-*/pItem->iItem;
+	if(iItem < 0 || iItem >= m_onRoadVec.size())return;
 	if(pItem->mask & LVIF_TEXT)
 	{
 		CString szTemp = _T("");
@@ -643,8 +643,8 @@ void CStatusPage::OnGetDispinf2(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	NMLVDISPINFO *pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pNMHDR);
 	LV_ITEM* pItem= &(pDispInfo)->item;
-	int iItem= m_orderVec.size()-1-pItem->iItem;
-	if(iItem < 0)return;
+	int iItem= /*m_orderVec.size()-1-*/pItem->iItem;
+	if(iItem < 0 || iItem >= m_orderVec.size())return;
 	if(pItem->mask & LVIF_TEXT)
 	{
 		CString szTemp = _T("");
@@ -719,7 +719,7 @@ void CStatusPage::OnGetDispinf3(NMHDR *pNMHDR, LRESULT *pResult)
 	LV_ITEM* pItem= &(pDispInfo)->item;
 	unsigned int iItem= pItem->iItem;
 	//if(iItem >= m_InvPosVec.size())return;
-	if(iItem >= m_InvPosDetailVec.size())return;
+	if(iItem >= m_InvPosDetailVec.size() || iItem < 0)return;
 	if(pItem->mask & LVIF_TEXT)
 	{
 		CString szTemp = _T("");
@@ -772,8 +772,8 @@ void CStatusPage::OnGetDispinf4(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	NMLVDISPINFO *pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pNMHDR);	
 	LV_ITEM* pItem= &(pDispInfo)->item;
-	int iItemIndex= m_tradeVec.size()-1-pItem->iItem;
-	if(iItemIndex < 0)return;//防止数组越界
+	int iItemIndex= /*m_tradeVec.size()-1-*/pItem->iItem;
+	if(iItemIndex < 0 || iItemIndex >= m_tradeVec.size())return;//防止数组越界
 	if(pItem->mask & LVIF_TEXT)
 	{
 		CString szTemp = _T("");
@@ -836,7 +836,7 @@ void CStatusPage::OnGetDispinf5(NMHDR *pNMHDR, LRESULT *pResult)
 	NMLVDISPINFO *pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pNMHDR);
 	LV_ITEM* pItem= &(pDispInfo)->item;
 	unsigned int iItem = pItem->iItem;
-	if(iItem >= m_InsinfVec.size())return;
+	if(iItem >= m_InsinfVec.size() || iItem < 0)return;
 	CString szTemp;
 	if(pItem->mask & LVIF_TEXT)
 	{

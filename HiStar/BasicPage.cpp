@@ -390,8 +390,8 @@ void CBasicPage::OnIni()
 void CBasicPage::OnGetHedgeHold(NMHDR *pNMHDR, LRESULT *pResult){
 	NMLVDISPINFO *pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pNMHDR);
 	LV_ITEM* pItem= &(pDispInfo)->item;
-	int iItem= m_hedgeHold.size()-1-pItem->iItem;
-	if(iItem < 0)return;
+	int iItem= /*m_hedgeHold.size()-1-*/pItem->iItem;
+	if(iItem < 0 || iItem >= m_hedgeHold.size())return;
 	if(pItem->mask & LVIF_TEXT)
 	{
 		CString szTemp = _T("");
@@ -505,7 +505,7 @@ void CBasicPage::OnBnClickedButton8()
 		}
 	}
 	if(idfouned){
-		int res = ::MessageBox(m_hWnd,_T("ID重复，请重新输入！"),_T(""),MB_OKCANCEL|MB_ICONERROR);
+		int res = ::MessageBox(m_hWnd,_T("ID重复，请重新输入！"),_T(""),MB_OK|MB_ICONERROR);
 		if(res == IDOK){
 			SetDlgItemTextA(IDC_RICHEDIT24,_T(""));
 			return;

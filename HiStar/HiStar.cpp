@@ -65,7 +65,7 @@ CHiStarApp::CHiStarApp()
 	, conn(NULL)
 {
 	//定位内存泄漏位置,非常好用
-	//_CrtSetBreakAlloc(4783);
+	//_CrtSetBreakAlloc(144);
 	memset(&m_db,0,sizeof(m_db));//数据库参数清零
 	MainThreadId = GetCurrentThreadId();
 	// 支持重新启动管理器
