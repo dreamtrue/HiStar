@@ -9,7 +9,7 @@
 
 bool cmpInst(const CThostFtdcInstrumentFieldEx first,const CThostFtdcInstrumentFieldEx second) 
 {    
-	int iRes = stricmp(first.iinf.InstrumentID,second.iinf.InstrumentID);
+	int iRes = _stricmp(first.iinf.InstrumentID,second.iinf.InstrumentID);
 	return (iRes<=0);
 }
 
@@ -593,7 +593,7 @@ void CStatusPage::OnGetDispinf1(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	NMLVDISPINFO *pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pNMHDR);
 	LV_ITEM* pItem= &(pDispInfo)->item;
-	int iItem= /*m_onRoadVec.size()-1-*/pItem->iItem;
+	unsigned int iItem= /*m_onRoadVec.size()-1-*/pItem->iItem;
 	if(iItem < 0 || iItem >= m_onRoadVec.size())return;
 	if(pItem->mask & LVIF_TEXT)
 	{
@@ -643,7 +643,7 @@ void CStatusPage::OnGetDispinf2(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	NMLVDISPINFO *pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pNMHDR);
 	LV_ITEM* pItem= &(pDispInfo)->item;
-	int iItem= /*m_orderVec.size()-1-*/pItem->iItem;
+	unsigned int iItem= /*m_orderVec.size()-1-*/pItem->iItem;
 	if(iItem < 0 || iItem >= m_orderVec.size())return;
 	if(pItem->mask & LVIF_TEXT)
 	{
@@ -772,7 +772,7 @@ void CStatusPage::OnGetDispinf4(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	NMLVDISPINFO *pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pNMHDR);	
 	LV_ITEM* pItem= &(pDispInfo)->item;
-	int iItemIndex= /*m_tradeVec.size()-1-*/pItem->iItem;
+	unsigned int iItemIndex= /*m_tradeVec.size()-1-*/pItem->iItem;
 	if(iItemIndex < 0 || iItemIndex >= m_tradeVec.size())return;//防止数组越界
 	if(pItem->mask & LVIF_TEXT)
 	{
