@@ -497,6 +497,20 @@ void CBasicPage::OnBnClickedButton8()
 	}
 	stream << text;
 	stream >> id >> num >> section >> price;
+	bool idfouned = false;
+	for(unsigned int j = 0;j < m_hedgeHold.size();j++){
+		if(id == m_hedgeHold[j].id){
+			idfouned = true;
+			break;
+		}
+	}
+	if(idfouned){
+		int res = ::MessageBox(m_hWnd,_T("ID重复，请重新输入！"),_T(""),MB_OKCANCEL|MB_ICONERROR);
+		if(res == IDOK){
+			SetDlgItemTextA(IDC_RICHEDIT24,_T(""));
+			return;
+		}
+	}
 	HoldDetail hd;
 	hd.id = id;hd.HedgeNum = num;hd.HedgeSection = section;hd.originalCost = price;
 	m_hedgeHold.push_back(hd);
