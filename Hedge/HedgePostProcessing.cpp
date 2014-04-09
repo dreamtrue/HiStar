@@ -7,7 +7,7 @@
 #include "MainDlg.h"
 #include "calendar.h"
 #include <math.h>
-#define SHOW if(IsWindow(hEdit)){::SendMessage(hEdit,EM_SETSEL,-1,0);::SendMessage(hEdit,EM_REPLACESEL,FALSE,(LPARAM)(LPCTSTR)hedgeStatusPrint);hedgeStatusPrint.Empty();}
+#define SHOW if(IsWindow(hEdit)){::SendMessage(hEdit,WM_SETTEXT,0,(LPARAM)(LPCTSTR)hedgeStatusPrint);}
 int SendMsg(CString msg);
 #define OPEN true
 #define CLOSE false
