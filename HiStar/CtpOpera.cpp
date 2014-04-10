@@ -306,4 +306,17 @@ void CHiStarApp::OnUpdateLstCtrl(WPARAM wParam,LPARAM lParam){
 	}
 }
 
+void CHiStarApp::OnReqMshq(WPARAM wParam,LPARAM lParam){
+	//MSHQ 从通达信获取的实时行情
+	if(!m_pMSHQ){
+		m_pMSHQ = (CMSHQ*)AfxBeginThread(RUNTIME_CLASS(CMSHQ));
+		m_pMSHQ->m_bAutoDelete = true;
+	}
+	else{
+		::PostThreadMessage(m_pMSHQ->m_nThreadID, WM_QUIT,0,0);
+		WaitForSingleObject(m_pMSHQ->m_hThread, INFINITE); 
+		m_pMSHQ = NULL;
+	}
+}
+
 

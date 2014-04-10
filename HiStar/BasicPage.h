@@ -84,6 +84,7 @@ public:
 	afx_msg void OnNMDblclkLstHedgeStatus(NMHDR *pNMHDR, LRESULT *pResult);
 	std::vector<HoldDetail> m_hedgeHold;
 	afx_msg void OnBnClickedButton8();
+	afx_msg void OnBnClickedMshq();
 };
 //其他变量
 const int N = 5;

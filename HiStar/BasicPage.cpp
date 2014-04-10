@@ -118,6 +118,7 @@ BEGIN_MESSAGE_MAP(CBasicPage, CDialogEx)
 	ON_NOTIFY(NM_CLICK, IDC_LIST3, OnNMClkLstHedgeStatus)
 	ON_NOTIFY(NM_DBLCLK,IDC_LIST3,OnNMDblclkLstHedgeStatus)
 	ON_BN_CLICKED(IDC_BUTTON8, &CBasicPage::OnBnClickedButton8)
+	ON_BN_CLICKED(IDC_MSHQ, &CBasicPage::OnBnClickedMshq)
 END_MESSAGE_MAP()
 
 
@@ -257,7 +258,7 @@ HCURSOR CBasicPage::OnQueryDragIcon()
 
 void CBasicPage::OnConnectIB()
 {
-	PostThreadMessage(GetCurrentThreadId(),WM_CONNECT_IB,NULL,NULL);
+	PostThreadMessage(MainThreadId,WM_CONNECT_IB,NULL,NULL);
 }
 
 void CBasicPage::OnDisconnectIB()
@@ -367,7 +368,7 @@ void CBasicPage::OnBnClickedUpdate()
 
 void CBasicPage::OnIniSql()
 {
-	PostThreadMessage(GetCurrentThreadId(),WM_CONNECT_SQL,NULL,NULL);
+	PostThreadMessage(MainThreadId,WM_CONNECT_SQL,NULL,NULL);
 }
 
 void CBasicPage::OnBnClickedCheck1()
@@ -384,7 +385,7 @@ void CBasicPage::OnBnClickedCheck1()
 
 void CBasicPage::OnIni()
 {
-	PostThreadMessage(GetCurrentThreadId(),WM_INI,NULL,NULL);
+	PostThreadMessage(MainThreadId,WM_INI,NULL,NULL);
 }
 
 void CBasicPage::OnGetHedgeHold(NMHDR *pNMHDR, LRESULT *pResult){
@@ -516,4 +517,10 @@ void CBasicPage::OnBnClickedButton8()
 	m_hedgeHold.push_back(hd);
 	SetDlgItemTextA(IDC_RICHEDIT24,_T(""));
 	SynchronizeHoldViewToData();
+}
+
+
+void CBasicPage::OnBnClickedMshq()
+{
+	PostThreadMessage(MainThreadId,WM_REQ_MSHQ,NULL,NULL);
 }

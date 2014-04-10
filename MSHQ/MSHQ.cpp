@@ -68,14 +68,18 @@ IMPLEMENT_DYNCREATE(CMSHQ, CWinThread)
 	stock.index = -1;//Ä¬ÈÏÖµ-1;
 	memset(stock.Code,0,sizeof(stock.Code));
 	for(int i = 0;i < 50;i++){
-		strcpy(stock.Code,g_a50[i].code.c_str());
-		stock.volume = g_a50[i].volume;
-		StockSlfList.Add(stock);
+		if(i < g_a50.size()){
+			strcpy(stock.Code,g_a50[i].code.c_str());
+			stock.volume = g_a50[i].volume;
+			StockSlfList.Add(stock);
+		}
 	}
 	for(int i = 0;i < 300;i++){
-		strcpy(stock.Code,g_hs300[i].code.c_str());
-		stock.volume = g_hs300[i].volume;
-		StockSlfList.Add(stock);
+		if(i < g_hs300.size()){
+			strcpy(stock.Code,g_hs300[i].code.c_str());
+			stock.volume = g_hs300[i].volume;
+			StockSlfList.Add(stock);
+		}
 	}
 }
 
@@ -96,7 +100,7 @@ BOOL CMSHQ::InitInstance()
 		}
 		else{
 			UpdateHQ();
-			::Sleep(1000);
+			::Sleep(2000);
 		}
 	}
 	return TRUE;
@@ -221,21 +225,25 @@ void CMSHQ::CalcTotalValue(){
 	g_totalA50Value = 0;
 	g_totalHS300Value = 0;
 	for(int j = 0;j < 50;j++){
-		if(StockSlfList[j].Current > 0.000001){
-			g_totalA50Value = g_totalA50Value + StockSlfList[j].Current * StockSlfList[j].volume;
-		}
-		else{
-			g_totalA50Value = g_totalA50Value + StockSlfList[j].Close * StockSlfList[j].volume;
+		if(j < StockSlfList.GetCount()){
+			if(StockSlfList[j].Current > 0.000001){
+				g_totalA50Value = g_totalA50Value + StockSlfList[j].Current * StockSlfList[j].volume;
+			}
+			else{
+				g_totalA50Value = g_totalA50Value + StockSlfList[j].Close * StockSlfList[j].volume;
+			}
 		}
 		//TRACE("%s , %lf\r\n",StockSlfList[j].Code,StockSlfList[j].Current);
 	}
 	for(int j = 50;j < 350;j++){
 		//TRACE("%s , %lf\r\n",StockSlfList[j].Code,StockSlfList[j].Current);
-		if(StockSlfList[j].Current > 0.000001){
-			g_totalHS300Value = g_totalHS300Value + StockSlfList[j].Current * StockSlfList[j].volume;
-		}
-		else{
-			g_totalHS300Value = g_totalHS300Value + StockSlfList[j].Close * StockSlfList[j].volume;
+		if(j < StockSlfList.GetCount()){
+			if(StockSlfList[j].Current > 0.000001){
+				g_totalHS300Value = g_totalHS300Value + StockSlfList[j].Current * StockSlfList[j].volume;
+			}
+			else{
+				g_totalHS300Value = g_totalHS300Value + StockSlfList[j].Close * StockSlfList[j].volume;
+			}
 		}
 	}
 	g_A50IndexMSHQ = g_totalA50Value / A50totalVolumeRef * A50IndexRef;

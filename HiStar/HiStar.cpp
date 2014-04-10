@@ -40,6 +40,7 @@ BEGIN_MESSAGE_MAP(CHiStarApp, CWinApp)
 	ON_THREAD_MESSAGE(WM_QRY_ACC_CTP,OnQryAccCtp)
 	ON_THREAD_MESSAGE(WM_UPDATE_HEDGEHOLD,UpdateHedgeHold)
 	ON_THREAD_MESSAGE(WM_UPDATE_LSTCTRL,OnUpdateLstCtrl)
+	ON_THREAD_MESSAGE(WM_REQ_MSHQ,OnReqMshq)
 	ON_THREAD_MESSAGE(WM_MD_REFRESH,OnHedgeLooping)
 	ON_THREAD_MESSAGE(WM_CONNECT_SQL,OnConnectSql)
 	ON_THREAD_MESSAGE(WM_INI,OnIni)
@@ -86,11 +87,6 @@ void CHiStarApp::OnIni(WPARAM wParam,LPARAM lParam){
 	if(!m_pIndexThread){
 		m_pIndexThread = (CIndex*)AfxBeginThread(RUNTIME_CLASS(CIndex));
 		m_pIndexThread->m_bAutoDelete = true;
-	}
-	//MSHQ 从通达信获取的实时行情
-	if(!m_pMSHQ){
-		m_pMSHQ = (CMSHQ*)AfxBeginThread(RUNTIME_CLASS(CMSHQ));
-		m_pMSHQ->m_bAutoDelete = true;
 	}
 	//交易后处理线程
 	if(!m_pHedgePostProcessing){
@@ -229,13 +225,17 @@ CHiStarApp::~CHiStarApp(void)
 void CHiStarApp::PostOrderStatus(CString str)
 {
 	CString *pStatus = new CString(str);
-	PostMessage(AfxGetMainWnd()->m_hWnd,WM_ORDER_STATUS,(UINT)pStatus,NULL);
+	if(m_pMainWnd){
+		PostMessage(m_pMainWnd->GetSafeHwnd(),WM_ORDER_STATUS,(UINT)pStatus,NULL);
+	}
 }
 
 void CHiStarApp::PostErrors(CString str)
 {
 	CString *pErrors = new CString(str);
-	PostMessage(AfxGetMainWnd()->m_hWnd,WM_ERRORS,(UINT)pErrors,NULL);
+	if(m_pMainWnd){
+		PostMessage(m_pMainWnd->GetSafeHwnd(),WM_ERRORS,(UINT)pErrors,NULL);
+	}
 }
 
 void CHiStarApp::SetIFContract(void)

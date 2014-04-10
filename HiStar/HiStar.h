@@ -131,6 +131,7 @@ public:
 	void OnHedgeLooping(WPARAM wParam,LPARAM lParam);
 	void OnSynchronizeMarket(WPARAM wParam,LPARAM lParam);
 	int FindInstMul(TThostFtdcInstrumentIDType InstID);
+	void OnReqMshq(WPARAM wParam,LPARAM lParam);
 	CString m_strPath;
 	CIndex* m_pIndexThread;
 	//IBϵͳ

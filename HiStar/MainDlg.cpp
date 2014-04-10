@@ -104,7 +104,7 @@ afx_msg LRESULT CMainDlg::OnErrors(WPARAM wParam, LPARAM lParam)
 void CMainDlg::OnTimer(UINT_PTR nIDEvent)
 {
 	//账户登录了才能查询信息
-	PostThreadMessage(GetCurrentThreadId(),WM_QRY_ACC_CTP,NULL,NULL);
+	PostThreadMessage(MainThreadId,WM_QRY_ACC_CTP,NULL,NULL);
 	CDialogEx::OnTimer(nIDEvent);
 	//测试策略使用，定时刷新
 	/*

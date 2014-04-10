@@ -25,4 +25,5 @@
 #define WM_LOGIN_TD WM_USER+20 
 #define WM_LOGIN_MD WM_USER+21
 #define WM_UPDATE_HEDGEHOLD WM_USER+22
+#define WM_REQ_MSHQ WM_USER+23 //MSHQ…Í«Î––«È
 #endif
