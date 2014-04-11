@@ -266,6 +266,7 @@ void CHiStarApp::SetIFContract(void)
 
 int CHiStarApp::FileInput(void)
 {
+	std::stringstream stream;
 	if(isReal){
 		fileInput.open("histar.ini");
 	}
@@ -274,12 +275,16 @@ int CHiStarApp::FileInput(void)
 	}
 	while(getline(fileInput,str)){
 		TRACE("%s\r\n",str.c_str());
-		std::stringstream stream(str);
+		stream.str("");
+		stream.clear();
+		stream << str;
 		stream >> str01;
 		if(str01.c_str()[0] == '*'){continue;}
 		else if(str01 == "@account"){
 			while(getline(fileInput,str)){
-				stream.clear();stream.str("");stream << str;
+				stream.str("");
+				stream.clear();
+				stream << str;
 				stream >> str01 >> str02 >> str03;
 				if(str01.c_str()[0] == '*'){continue;}
 				if(str01 == "@end")break;
@@ -294,7 +299,7 @@ int CHiStarApp::FileInput(void)
 		/*
 		else if(str01 == "@hedgehold"){
 			while(getline(fileInput,str)){
-				stream.clear();stream.str("");stream << str;
+				stream.str("");stream.clear();stream << str;
 				stream >> str01 >> str02 >> str03 >> str04;
 				if(str01.c_str()[0] == '*'){continue;}
 				if(str01 == "@end")break;
@@ -309,7 +314,7 @@ int CHiStarApp::FileInput(void)
 		*/
 		else if(str01 == "@mysql"){
 			while(getline(fileInput,str)){
-				stream.clear();stream.str("");stream << str;
+				stream.str("");stream.clear();stream << str;
 				stream >> str01 >> str02 >> str03 >> str04;
 				if(str01.c_str()[0] == '*'){continue;}
 				if(str == "@end")break;
@@ -321,7 +326,7 @@ int CHiStarApp::FileInput(void)
 		}
 		else if(str01 == "@index"){
 			while(getline(fileInput,str)){
-				stream.clear();stream.str("");stream << str;
+				stream.str("");stream.clear();stream << str;
 				stream >> str01 >> str02 >> str03 >> str04;
 				if(str01.c_str()[0] == '*'){continue;}
 				if(str == "@end")break;
@@ -333,7 +338,7 @@ int CHiStarApp::FileInput(void)
 		}
 		else if(str01 == "@md_address"){
 			while(getline(fileInput,str)){
-				stream.clear();stream.str("");stream << str;
+				stream.str("");stream.clear();stream << str;
 				stream >> str01;
 				if(str01.c_str()[0] == '*'){continue;}
 				if(str == "@end")break;
@@ -342,7 +347,7 @@ int CHiStarApp::FileInput(void)
 		}
 		else if(str01 == "@td_address"){
 			while(getline(fileInput,str)){
-				stream.clear();stream.str("");stream << str;
+				stream.str("");stream.clear();stream << str;
 				stream >> str01;
 				if(str01.c_str()[0] == '*'){continue;}
 				if(str == "@end")break;
@@ -356,7 +361,7 @@ int CHiStarApp::FileInput(void)
 	int i = 0;
 	while(getline(fileInput,str)){
 		i++;
-		std::stringstream stream(str);
+		stream.str("");stream.clear();stream << str;
 		if(i >= 12 && i <= 61){
 			std::string sub_str;
 			std::vector<std::string> subvec;
@@ -373,7 +378,7 @@ int CHiStarApp::FileInput(void)
 	i = 0;
 	while(getline(fileInput,str)){
 		i++;
-		std::stringstream stream(str);
+		stream.str("");stream.clear();stream << str;
 		if(i >= 13 && i <= 312){
 			std::string sub_str;
 			std::vector<std::string> subvec;
@@ -385,6 +390,7 @@ int CHiStarApp::FileInput(void)
 			g_hs300.push_back(st);
 		}
 	}
+	stream.str("");stream.clear();
 	fileInput.close();
 	return 0;
 }

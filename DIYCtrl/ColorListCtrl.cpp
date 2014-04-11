@@ -113,7 +113,8 @@ void CColorListCtrl::SetSubItemFont(LOGFONT font, COLORREF color, long lsize)
 	if ( m_Font )	delete m_Font;	//É¾³ý¾É×ÖÌå
 	m_Font = new CFont;
 	m_Font->CreateFontIndirect(&font);
-
 	m_TextColor = color;
 	m_TextSize = lsize;
+	delete m_Font;
+	m_Font = NULL;
 }

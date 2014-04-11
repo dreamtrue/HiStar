@@ -71,7 +71,7 @@ void CHiStarApp::connectionClosed(){
 
 void CHiStarApp::updateAccountValue(const IBString& key, const IBString& val,
 	const IBString& currency, const IBString& accountName){
-	//TRACE("updateAccountValue\n");
+	TRACE("%s,%s\n",key,val);
 	if(key == "AvailableFunds" && currency == "USD"){
 		TRACE("IB可用资金 %.f USD\r\n",atof(val));
 		AvailIB = atof(val);
