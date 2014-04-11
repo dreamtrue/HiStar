@@ -331,7 +331,7 @@ void CBasicPage::RefreshMdPane(void)
 	char data[1000],datetime[100];
 	if(((CHiStarApp*)AfxGetApp())->conn){
 		sprintf(datetime,"'%d-%d-%d %d:%d:%d',%d,",sys.wYear,sys.wMonth,sys.wDay,sys.wHour,sys.wMinute,sys.wSecond,sys.wMilliseconds);
-		sprintf(data,"%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf",g_A50Index,g_a50Bid1,g_a50Ask1,g_HS300Index,m_depthMd.BidPrice1,m_depthMd.AskPrice1,
+		sprintf(data,"%.02lf,%.02lf,%.02lf,%.02lf,%.02lf,%.02lf,%.02lf,%.02lf",g_A50Index,g_a50Bid1,g_a50Ask1,g_HS300Index,m_depthMd.BidPrice1,m_depthMd.AskPrice1,
 			g_a50Ask1 - m_depthMd.BidPrice1 / g_HS300Index * g_A50Index,g_a50Bid1 - m_depthMd.AskPrice1 / g_HS300Index * g_A50Index);
 		CString insertdata = "INSERT INTO " + ((CHiStarApp*)AfxGetApp())->m_marketTableName 
 			+ " (datetime,millisecond,a50index,a50bid,a50ask,hs300index,hs300bid,hs300ask,preniumHigh,preniumLow) VALUES (" + CString(datetime) + CString(data) +")";
@@ -412,7 +412,7 @@ void CBasicPage::OnGetHedgeHold(NMHDR *pNMHDR, LRESULT *pResult){
 			lstrcpy(pItem->pszText,str);
 			break;
 		case 3:
-			str.Format("%lf",m_hedgeHold[iItem].originalCost);
+			str.Format("%.02lf",m_hedgeHold[iItem].originalCost);
 			lstrcpy(pItem->pszText,str);
 			break;
 		}
@@ -475,7 +475,7 @@ void CBasicPage::SynchronizeSql(){
 			sprintf(id,"%ld,",m_hedgeHold[j].id);
 			sprintf(amou,"%d,",m_hedgeHold[j].HedgeNum);
 			sprintf(sec,"%d,",m_hedgeHold[j].HedgeSection);
-			sprintf(price,"%lf",m_hedgeHold[j].originalCost);
+			sprintf(price,"%.02lf",m_hedgeHold[j].originalCost);
 			CString insertdata = "INSERT INTO " + ((CHiStarApp*)AfxGetApp())->m_positionTableName 
 				+ " (ID,amount,section,price) VALUES (" + CString(id) + CString(amou) + CString(sec) + CString(price) + ")";
 			if(mysql_query(((CHiStarApp*)AfxGetApp())->conn,insertdata.GetBuffer())){

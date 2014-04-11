@@ -109,13 +109,11 @@ void CColorStatic::SetDouble(double dVal,COLORREF crColor,UINT uAlign)
 	}
 	else
 	{
-		szTemp.Format(_T("%lf"),dVal);
-		
-		szTemp.TrimRight(_T("0"));
+		szTemp.Format(_T("%.02lf"),dVal);	
+		//szTemp.TrimRight(_T("0"));
 		int iLen = szTemp.GetLength();
 		if (szTemp.Mid(iLen-1,1)==_T(".")) {szTemp.TrimRight(_T("."));}
 	}
-	
 	SetWindowText(szTemp, crColor,uAlign);
 }
 

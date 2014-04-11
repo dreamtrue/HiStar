@@ -191,11 +191,11 @@ inline void Fee2String(CString& szIn,double dOpenByM,double dOpenByV,double dClo
 	{
 		if (dCloseByV==dClosetByV)
 		{
-			szOut.Format(_T("￥%.2f/手"),dOpenByV);
+			szOut.Format(_T("￥%.02lf/手"),dOpenByV);
 		}
 		else if (dClosetByV==0)
 		{
-			szOut.Format(_T("开平￥%.2f/手,平今免"),dOpenByV);
+			szOut.Format(_T("开平￥%.02lf/手,平今免"),dOpenByV);
 		}
 
 	}
@@ -203,14 +203,14 @@ inline void Fee2String(CString& szIn,double dOpenByM,double dOpenByV,double dClo
 	{
 		if (dCloseByM==dClosetByM)
 		{
-			szOut.Format(_T("%.2f%%%%"),dOpenByM*10000);
+			szOut.Format(_T("%.02lf%%%%"),dOpenByM*10000);
 		}
 		else if ((dOpenByM>0) && (dOpenByM==dCloseByM) && (dClosetByM>0))
 		{
-			szOut.Format(_T("开平%.2f%%%%,平今%.2f%%%%"),dOpenByM*10000,dClosetByM*10000);
+			szOut.Format(_T("开平%.02lf%%%%,平今%.02lf%%%%"),dOpenByM*10000,dClosetByM*10000);
 		}
 		else
-			szOut.Format(_T("开平%.2f%%%%,平今免"),dOpenByM*10000);
+			szOut.Format(_T("开平%.02lf%%%%,平今免"),dOpenByM*10000);
 
 	}
 

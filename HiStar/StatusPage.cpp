@@ -619,7 +619,7 @@ void CStatusPage::OnGetDispinf1(NMHDR *pNMHDR, LRESULT *pResult)
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 5:
-			szTemp.Format(_T("%lf"),m_onRoadVec[iItem].LimitPrice);
+			szTemp.Format(_T("%.02lf"),m_onRoadVec[iItem].LimitPrice);
 			szTemp.TrimRight('0');
 			iLen = szTemp.GetLength();
 			if (szTemp.Mid(iLen-1,1)==_T(".")) {szTemp.TrimRight(_T("."));}
@@ -670,7 +670,7 @@ void CStatusPage::OnGetDispinf2(NMHDR *pNMHDR, LRESULT *pResult)
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 5:
-			szTemp.Format(_T("%lf"),m_orderVec[iItem].LimitPrice);
+			szTemp.Format(_T("%.02lf"),m_orderVec[iItem].LimitPrice);
 			szTemp.TrimRight('0');
 			iLen = szTemp.GetLength();
 			if (szTemp.Mid(iLen-1,1)==_T(".")) {szTemp.TrimRight(_T("."));}
@@ -753,11 +753,11 @@ void CStatusPage::OnGetDispinf3(NMHDR *pNMHDR, LRESULT *pResult)
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 7:
-			szTemp.Format(_T("%lf"),m_InvPosDetailVec[iItem].Volume * (m_InvPosDetailVec[iItem].SettlementPrice - m_InvPosDetailVec[iItem].OpenPrice));
+			szTemp.Format(_T("%.02lf"),m_InvPosDetailVec[iItem].Volume * (m_InvPosDetailVec[iItem].SettlementPrice - m_InvPosDetailVec[iItem].OpenPrice));
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 8:
-			szTemp.Format(_T("%lf"),m_InvPosDetailVec[iItem].Margin);
+			szTemp.Format(_T("%.02lf"),m_InvPosDetailVec[iItem].Margin);
 			szTemp.TrimRight('0');
 			iLen = szTemp.GetLength();
 			if (szTemp.Mid(iLen-1,1)==_T(".")) {szTemp.TrimRight(_T("."));}
@@ -792,7 +792,7 @@ void CStatusPage::OnGetDispinf4(NMHDR *pNMHDR, LRESULT *pResult)
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 3:
-			szTemp.Format(_T("%lf"),m_tradeVec[iItemIndex].Price);
+			szTemp.Format(_T("%.02lf"),m_tradeVec[iItemIndex].Price);
 			szTemp.TrimRight('0');
 			iLen = szTemp.GetLength();
 			if (szTemp.Mid(iLen-1,1)==_T(".")) {szTemp.TrimRight(_T("."));}
@@ -861,7 +861,7 @@ void CStatusPage::OnGetDispinf5(NMHDR *pNMHDR, LRESULT *pResult)
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 5:
-			szTemp.Format(_T("%lf"),m_InsinfVec[iItem].iinf.PriceTick);
+			szTemp.Format(_T("%.02lf"),m_InsinfVec[iItem].iinf.PriceTick);
 			szTemp.TrimRight('0');
 			iLen = szTemp.GetLength();
 			if (szTemp.Mid(iLen-1,1)==_T(".")) {szTemp.TrimRight(_T("."));}

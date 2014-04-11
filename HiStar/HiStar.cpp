@@ -450,3 +450,11 @@ void CHiStarApp::OnConnectSql(WPARAM wParam,LPARAM lParam)
 void CHiStarApp::OnSynchronizeMarket(WPARAM wParam,LPARAM lParam){
 	//暂空
 }
+
+
+BOOL CHiStarApp::OnIdle(LONG lCount)
+{
+	//因为是模态对话框，这个地方调用不到
+	TRACE("i,%ld\n",lCount);
+	return __super::OnIdle(lCount);
+}

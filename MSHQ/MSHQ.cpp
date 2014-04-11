@@ -67,14 +67,14 @@ IMPLEMENT_DYNCREATE(CMSHQ, CWinThread)
 	STOCK_SLF stock;
 	stock.index = -1;//默认值-1;
 	memset(stock.Code,0,sizeof(stock.Code));
-	for(int i = 0;i < 50;i++){
+	for(unsigned int i = 0;i < 50;i++){
 		if(i < g_a50.size()){
 			strcpy(stock.Code,g_a50[i].code.c_str());
 			stock.volume = g_a50[i].volume;
 			StockSlfList.Add(stock);
 		}
 	}
-	for(int i = 0;i < 300;i++){
+	for(unsigned int i = 0;i < 300;i++){
 		if(i < g_hs300.size()){
 			strcpy(stock.Code,g_hs300[i].code.c_str());
 			stock.volume = g_hs300[i].volume;
@@ -233,10 +233,10 @@ void CMSHQ::CalcTotalValue(){
 				g_totalA50Value = g_totalA50Value + StockSlfList[j].Close * StockSlfList[j].volume;
 			}
 		}
-		//TRACE("%s , %lf\r\n",StockSlfList[j].Code,StockSlfList[j].Current);
+		//TRACE("%s , %.02lf\r\n",StockSlfList[j].Code,StockSlfList[j].Current);
 	}
 	for(int j = 50;j < 350;j++){
-		//TRACE("%s , %lf\r\n",StockSlfList[j].Code,StockSlfList[j].Current);
+		//TRACE("%s , %.02lf\r\n",StockSlfList[j].Code,StockSlfList[j].Current);
 		if(j < StockSlfList.GetCount()){
 			if(StockSlfList[j].Current > 0.000001){
 				g_totalHS300Value = g_totalHS300Value + StockSlfList[j].Current * StockSlfList[j].volume;
@@ -248,7 +248,7 @@ void CMSHQ::CalcTotalValue(){
 	}
 	g_A50IndexMSHQ = g_totalA50Value / A50totalVolumeRef * A50IndexRef;
 	g_HS300IndexMSHQ = g_totalHS300Value / HS300totalVolumeRef * HS300IndexRef;
-	//TRACE(_T("A50指数%lf,HS300指数%lf\r\n"),g_A50IndexMSHQ,g_HS300IndexMSHQ);
+	//TRACE(_T("A50指数%.02lf,HS300指数%.02lf\r\n"),g_A50IndexMSHQ,g_HS300IndexMSHQ);
 }
 
 void CMSHQ::UpdateSZHQ()

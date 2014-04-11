@@ -406,8 +406,8 @@ void  CtpTraderSpi::OnRspQryOrder(CThostFtdcOrderField *pOrder, CThostFtdcRspInf
 		if(connctp){
 			sprintf(datetime,"'%d-%d-%d %d:%d:%d',%d,",sys.wYear,sys.wMonth,sys.wDay,sys.wHour,sys.wMinute,sys.wSecond,sys.wMilliseconds);
 			sprintf(data,"'%s','%s','%s','%s','%s','%c','%c',\
-						 '%s','%s',%lf,%d,'%c','%s',\
-						 '%c',%d,'%c',%lf,'%c',%d,\
+						 '%s','%s',%.02lf,%d,'%c','%s',\
+						 '%c',%d,'%c',%.02lf,'%c',%d,\
 						 '%s',%d,'%s','%s','%s','%s','%s',\
 						 '%s',%d,'%c',%d,'%s',%d,'%s',\
 						 '%c','%c','%c',%d,%d,'%s','%s','%s',\
@@ -488,7 +488,7 @@ void CtpTraderSpi::OnRspQryTrade(CThostFtdcTradeField *pTrade, CThostFtdcRspInfo
 			sprintf(datetime,"'%d-%d-%d %d:%d:%d',%d,",sys.wYear,sys.wMonth,sys.wDay,sys.wHour,sys.wMinute,sys.wSecond,sys.wMilliseconds);
 			sprintf(data,"'%s','%s','%s','%s','%s','%s','%s',\
 						 '%c','%s','%s','%s',%d,'%s',\
-						 '%c','%c',%lf,'%d','%s','%s',%d,\
+						 '%c','%c',%.02lf,'%d','%s','%s',%d,\
 						 %d,'%s','%s','%s','%s',%d,\
 						 '%s',%d,%d,'%c'",
 						 pTrade->BrokerID,pTrade->InvestorID,pTrade->InstrumentID,pTrade->OrderRef,pTrade->UserID,pTrade->ExchangeID,pTrade->TradeID,
@@ -830,7 +830,7 @@ void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder){
 	char data[10000],datetime[100];
 	if(connctp){
 		sprintf(datetime,"'%d-%d-%d %d:%d:%d',%d,",sys.wYear,sys.wMonth,sys.wDay,sys.wHour,sys.wMinute,sys.wSecond,sys.wMilliseconds);
-		sprintf(data,"'%s','%s','%s','%s','%s','%c','%c','%s','%s',%lf,%d,'%c','%s','%c',%d,'%c',%lf,'%c',%d,'%s',%d,'%s','%s','%s','%s','%s','%s',%d,'%c',%d,'%s',%d,'%s','%c','%c','%c',%d,%d,'%s',\
+		sprintf(data,"'%s','%s','%s','%s','%s','%c','%c','%s','%s',%.02lf,%d,'%c','%s','%c',%d,'%c',%.02lf,'%c',%d,'%s',%d,'%s','%s','%s','%s','%s','%s',%d,'%c',%d,'%s',%d,'%s','%c','%c','%c',%d,%d,'%s',\
 					 '%s','%s','%s','%s','%s','%s','%s',%d,%d,%d,'%s','%s',%d,'%s',%d,'%s',%d,%d",
 					 pOrder->BrokerID,pOrder->InvestorID,pOrder->InstrumentID,pOrder->OrderRef,pOrder->UserID,pOrder->OrderPriceType,pOrder->Direction,
 					 pOrder->CombOffsetFlag,pOrder->CombHedgeFlag,pOrder->LimitPrice,pOrder->VolumeTotalOriginal,pOrder->TimeCondition,pOrder->GTDDate,
@@ -898,7 +898,7 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 		sprintf(datetime,"'%d-%d-%d %d:%d:%d',%d,",sys.wYear,sys.wMonth,sys.wDay,sys.wHour,sys.wMinute,sys.wSecond,sys.wMilliseconds);
 		sprintf(data,"'%s','%s','%s','%s','%s','%s','%s',\
 					 '%c','%s','%s','%s',%d,'%s',\
-					 '%c','%c',%lf,'%d','%s','%s',%d,\
+					 '%c','%c',%.02lf,'%d','%s','%s',%d,\
 					 %d,'%s','%s','%s','%s',%d,\
 					 '%s',%d,%d,'%c'",
 					 pTrade->BrokerID,pTrade->InvestorID,pTrade->InstrumentID,pTrade->OrderRef,pTrade->UserID,pTrade->ExchangeID,pTrade->TradeID,

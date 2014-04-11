@@ -36,6 +36,7 @@ BEGIN_MESSAGE_MAP(CMainDlg, CDialogEx)
 	ON_MESSAGE(WM_ORDER_STATUS, &CMainDlg::OnOrderStatus)
 	ON_MESSAGE(WM_ERRORS, &CMainDlg::OnErrors)
 	ON_MESSAGE(WM_UPDATE_ACC_CTP,&CMainDlg::OnUpdateAccCtp)
+	ON_MESSAGE_VOID(WM_KICKIDLE,OnKickIdle)
 	ON_WM_TIMER()
 	ON_BN_CLICKED(IDOK, &CMainDlg::OnOk)
 	ON_NOTIFY(TCN_SELCHANGE, IDC_TAB, &CMainDlg::OnTcnSelchangeTab)
@@ -133,22 +134,22 @@ afx_msg LRESULT CMainDlg::OnUpdateAccCtp(WPARAM wParam, LPARAM lParam)
 
 	szLine += FormatLine(_T(""),_T(""),_T("="),42);
 
-	szTemp.Format(_T("%.2f"),pApp->m_accountCtp.m_pTdAcc->PreBalance); outStrAs4(szTemp);
+	szTemp.Format(_T("%.02lf"),pApp->m_accountCtp.m_pTdAcc->PreBalance); outStrAs4(szTemp);
 	szLine += FormatLine(_T("  上次结算准备金:"),szTemp,_T(" "),40);
 
-	szTemp.Format(_T("%.2f"),pApp->m_accountCtp.m_pTdAcc->PreCredit); outStrAs4(szTemp);
+	szTemp.Format(_T("%.02lf"),pApp->m_accountCtp.m_pTdAcc->PreCredit); outStrAs4(szTemp);
 	szLine += FormatLine(_T("- 上次信用额度:"),szTemp,_T(" "),40);
 
-	szTemp.Format(_T("%.2f"),pApp->m_accountCtp.m_pTdAcc->PreMortgage); outStrAs4(szTemp);
+	szTemp.Format(_T("%.02lf"),pApp->m_accountCtp.m_pTdAcc->PreMortgage); outStrAs4(szTemp);
 	szLine += FormatLine(_T("- 上次质押金额:"),szTemp,_T(" "),40);
 
-	szTemp.Format(_T("%.2f"),pApp->m_accountCtp.m_pTdAcc->Mortgage); outStrAs4(szTemp);
+	szTemp.Format(_T("%.02lf"),pApp->m_accountCtp.m_pTdAcc->Mortgage); outStrAs4(szTemp);
 	szLine += FormatLine(_T("+ 质押金额:"),szTemp,_T(" "),41);
 
-	szTemp.Format(_T("%.2f"),pApp->m_accountCtp.m_pTdAcc->Withdraw); outStrAs4(szTemp);
+	szTemp.Format(_T("%.02lf"),pApp->m_accountCtp.m_pTdAcc->Withdraw); outStrAs4(szTemp);
 	szLine += FormatLine(_T("- 今日出金:"),szTemp,_T(" "),41);
 
-	szTemp.Format(_T("%.2f"),pApp->m_accountCtp.m_pTdAcc->Deposit); outStrAs4(szTemp);
+	szTemp.Format(_T("%.02lf"),pApp->m_accountCtp.m_pTdAcc->Deposit); outStrAs4(szTemp);
 	szLine += FormatLine(_T("+ 今日入金:"),szTemp,_T(" "),41);
 
 	szLine += FormatLine(_T(""),_T(""),_T("-"),42);
@@ -156,53 +157,53 @@ afx_msg LRESULT CMainDlg::OnUpdateAccCtp(WPARAM wParam, LPARAM lParam)
 	double dStatProf = pApp->m_accountCtp.m_pTdAcc->PreBalance - pApp->m_accountCtp.m_pTdAcc->PreCredit
 		- pApp->m_accountCtp.m_pTdAcc->PreMortgage + pApp->m_accountCtp.m_pTdAcc->Mortgage
 		- pApp->m_accountCtp.m_pTdAcc->Withdraw + pApp->m_accountCtp.m_pTdAcc->Deposit;
-	szTemp.Format(_T("%.2f"),dStatProf); outStrAs4(szTemp);
+	szTemp.Format(_T("%.02lf"),dStatProf); outStrAs4(szTemp);
 	szLine += FormatLine(_T("= 静态权益:"),szTemp,_T(" "),41);
 
-	szTemp.Format(_T("%.2f"),pApp->m_accountCtp.m_pTdAcc->CloseProfit); outStrAs4(szTemp);
+	szTemp.Format(_T("%.02lf"),pApp->m_accountCtp.m_pTdAcc->CloseProfit); outStrAs4(szTemp);
 	szLine += FormatLine(_T("+ 平仓盈亏:"),szTemp,_T(" "),41);
 
-	szTemp.Format(_T("%.2f"),pApp->m_accountCtp.m_pTdAcc->PositionProfit); outStrAs4(szTemp);
+	szTemp.Format(_T("%.02lf"),pApp->m_accountCtp.m_pTdAcc->PositionProfit); outStrAs4(szTemp);
 	szLine += FormatLine(_T("+ 持仓盈亏:"),szTemp,_T(" "),41);
 
-	szTemp.Format(_T("%.2f"),pApp->m_accountCtp.m_pTdAcc->Commission); outStrAs4(szTemp);
+	szTemp.Format(_T("%.02lf"),pApp->m_accountCtp.m_pTdAcc->Commission); outStrAs4(szTemp);
 	szLine += FormatLine(_T("- 手续费:"),szTemp,_T(" "),42);
 
 	szLine += FormatLine(_T(""),_T(""),_T("-"),42);
 
 	double dDymProf = dStatProf+pApp->m_accountCtp.m_pTdAcc->CloseProfit+pApp->m_accountCtp.m_pTdAcc->PositionProfit-pApp->m_accountCtp.m_pTdAcc->Commission;
-	szTemp.Format(_T("%.2f"),dDymProf); outStrAs4(szTemp);
+	szTemp.Format(_T("%.02lf"),dDymProf); outStrAs4(szTemp);
 	szLine += FormatLine(_T("= 动态权益:"),szTemp,_T(" "),41);
 
-	szTemp.Format(_T("%.2f"),pApp->m_accountCtp.m_pTdAcc->CurrMargin); outStrAs4(szTemp);
+	szTemp.Format(_T("%.02lf"),pApp->m_accountCtp.m_pTdAcc->CurrMargin); outStrAs4(szTemp);
 	szLine += FormatLine(_T("- 占用保证金:"),szTemp,_T(" "),41);
 
-	szTemp.Format(_T("%.2f"),pApp->m_accountCtp.m_pTdAcc->FrozenMargin); outStrAs4(szTemp);
+	szTemp.Format(_T("%.02lf"),pApp->m_accountCtp.m_pTdAcc->FrozenMargin); outStrAs4(szTemp);
 	szLine += FormatLine(_T("- 冻结保证金:"),szTemp,_T(" "),41);
 
-	szTemp.Format(_T("%.2f"),pApp->m_accountCtp.m_pTdAcc->FrozenCommission); outStrAs4(szTemp);
+	szTemp.Format(_T("%.02lf"),pApp->m_accountCtp.m_pTdAcc->FrozenCommission); outStrAs4(szTemp);
 	szLine += FormatLine(_T("- 冻结手续费:"),szTemp,_T(" "),41);
 
-	szTemp.Format(_T("%.2f"),pApp->m_accountCtp.m_pTdAcc->DeliveryMargin); outStrAs4(szTemp);
+	szTemp.Format(_T("%.02lf"),pApp->m_accountCtp.m_pTdAcc->DeliveryMargin); outStrAs4(szTemp);
 	szLine += FormatLine(_T("- 交割保证金:"),szTemp,_T(" "),41);
 
-	szTemp.Format(_T("%.2f"),pApp->m_accountCtp.m_pTdAcc->Credit); outStrAs4(szTemp);
+	szTemp.Format(_T("%.02lf"),pApp->m_accountCtp.m_pTdAcc->Credit); outStrAs4(szTemp);
 	szLine += FormatLine(_T("+ 信用金额:"),szTemp,_T(" "),41);
 
 	szLine += FormatLine(_T(""),_T(""),_T("-"),42);
 
 	double dValidProf = dDymProf-pApp->m_accountCtp.m_pTdAcc->CurrMargin-pApp->m_accountCtp.m_pTdAcc->FrozenMargin-pApp->m_accountCtp.m_pTdAcc->FrozenCommission-pApp->m_accountCtp.m_pTdAcc->DeliveryMargin+pApp->m_accountCtp.m_pTdAcc->Credit;
-	szTemp.Format(_T("%.2f"),dValidProf); outStrAs4(szTemp);
+	szTemp.Format(_T("%.02lf"),dValidProf); outStrAs4(szTemp);
 	szLine += FormatLine(_T("= 可用金额:"),szTemp,_T(" "),41);
 	AvailCtp = dValidProf;
 
 	szLine += FormatLine(_T(""),_T(""),_T("="),42);
 	szLine += FormatLine(_T(""),_T(""),_T("="),42);
 
-	szTemp.Format(_T("%.2f"),pApp->m_accountCtp.m_pTdAcc->Reserve); outStrAs4(szTemp);
+	szTemp.Format(_T("%.02lf"),pApp->m_accountCtp.m_pTdAcc->Reserve); outStrAs4(szTemp);
 	szLine += FormatLine(_T("  保底资金:"),szTemp,_T(" "),41);
 
-	szTemp.Format(_T("%.2f"),pApp->m_accountCtp.m_pTdAcc->WithdrawQuota); outStrAs4(szTemp);
+	szTemp.Format(_T("%.02lf"),pApp->m_accountCtp.m_pTdAcc->WithdrawQuota); outStrAs4(szTemp);
 	szLine += FormatLine(_T("  可取资金:"),szTemp,_T(" "),41);
 
 	szLine += FormatLine(_T(""),_T(""),_T("="),42);
@@ -258,4 +259,9 @@ afx_msg LRESULT CMainDlg::OnRefreshMdPane(WPARAM wParam, LPARAM lParam)
 {
 	m_basicPage.RefreshMdPane();
 	return 0;
+}
+
+void CMainDlg::OnKickIdle()
+{
+	//static int i;TRACE("i,%d\n",++i);
 }

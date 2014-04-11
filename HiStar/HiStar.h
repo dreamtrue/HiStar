@@ -155,6 +155,7 @@ public:
 	MYSQL *conn; 
 	CString m_marketTableName;CString m_positionTableName;
 	std::string str,str01,str02,str03,str04,str05,str06,str07,str08;
+	virtual BOOL OnIdle(LONG lCount);
 };
 
 extern CHiStarApp theApp;
