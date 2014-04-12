@@ -20,7 +20,11 @@ struct sqldb{
 	std::string user;
 	std::string passwd;
 	std::string db;
+	sqldb();
 };
+sqldb::sqldb(){
+	host = "";user = "";passwd = "";db = "";
+}
 struct stock{
 	std::string exch;
 	std::string code;
@@ -67,7 +71,6 @@ CHiStarApp::CHiStarApp()
 {
 	//定位内存泄漏位置,非常好用
 	//_CrtSetBreakAlloc(144);
-	memset(&m_db,0,sizeof(m_db));//数据库参数清零
 	MainThreadId = GetCurrentThreadId();
 	// 支持重新启动管理器
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;

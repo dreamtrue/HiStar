@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "calendar.h"
 //最后交易日计算
 WORD ifFinalDay(WORD t_year,WORD t_month){

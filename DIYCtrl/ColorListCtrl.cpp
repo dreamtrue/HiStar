@@ -115,6 +115,4 @@ void CColorListCtrl::SetSubItemFont(LOGFONT font, COLORREF color, long lsize)
 	m_Font->CreateFontIndirect(&font);
 	m_TextColor = color;
 	m_TextSize = lsize;
-	delete m_Font;
-	m_Font = NULL;
 }
