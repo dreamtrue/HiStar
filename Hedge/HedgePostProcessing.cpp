@@ -53,10 +53,18 @@ struct IfTask{
 	double priceRecord;int ref;int sysid;TThostFtdcExchangeIDType ExchangeID;int traded;double avgPrice;int sessionid;int frontid;
 	bool bReceivedInsertRtn;bool bReceivedAllOrder;int receivedTradedVolume;double receivedValue;
 };
-struct HedgeTask{
+class HedgeTask{
+public:
 	std::vector<A50Task> a50alltask;
 	std::vector<IfTask>  ifalltask;
+public:
+	HedgeTask();
+	~HedgeTask();
+	void clear();
 };
+HedgeTask::HedgeTask(){}
+HedgeTask::~HedgeTask(){}
+void HedgeTask::clear(){a50alltask.clear();ifalltask.clear();}
 HedgeTask hedgetask;
 //对冲交易初始状态
 #define NEW_HEDGE 'n'
@@ -470,7 +478,8 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 	////////////////////////////////////////////////////////////
 	//////千万注意要先清零,否则将会导致意想不到的错误。
 	IfTask iftask;A50Task a50task;
-	memset(&hedgetask,0,sizeof(hedgetask));memset(&iftask,0,sizeof(iftask));memset(&a50task,0,sizeof(a50task));
+	hedgetask.clear();/*memset(&hedgetask,0,sizeof(hedgetask));*/
+	memset(&iftask,0,sizeof(iftask));memset(&a50task,0,sizeof(a50task));
 	////////////////////////////////////////////////////////////
 	//IF下单
 	TThostFtdcCombOffsetFlagType kpp;
