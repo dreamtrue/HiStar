@@ -5,6 +5,7 @@
 #include "HiStar.h"
 #include "StatusPage.h"
 #include "afxdialogex.h"
+#include "traderspi.h"
 #include <algorithm>
 
 bool cmpInst(const CThostFtdcInstrumentFieldEx first,const CThostFtdcInstrumentFieldEx second) 

@@ -20,10 +20,11 @@
 #define WM_PREPARE_POST_PROCESSING WM_USER+15 //为后处理做准备
 #define WM_CONNECT_SQL WM_USER+16
 #define WM_INI WM_USER+17
-#define WM_NOTIFY_EVENT WM_USER+18 //替代原先event的通知信息
+#define WM_NOTIFY_EVENT WM_USER+18 //traderspi通知信息
 #define WM_SYNCHRONIZEMARKET WM_USER+19 //同步市场信息
 #define WM_LOGIN_TD WM_USER+20 
 #define WM_LOGIN_MD WM_USER+21
 #define WM_UPDATE_HEDGEHOLD WM_USER+22
 #define WM_REQ_MSHQ WM_USER+23 //MSHQ申请行情
+#define WM_NOTIFY_EVENT_MD WM_USER+24 //行情通知消息
 #endif

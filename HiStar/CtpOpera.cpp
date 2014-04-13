@@ -2,6 +2,7 @@
 #include "HiStar.h"
 #include "MainDlg.h"
 #include "UserMsg.h"
+#include "TraderSpi.h"
 #include "CVector.h"
 extern CVector<HoldDetail> HedgeHold;
 BOOL bIsInit = FALSE;
@@ -150,11 +151,13 @@ void CHiStarApp::LogoutCtp(WPARAM wParam,LPARAM lParam)
 
 void CHiStarApp::LoginCtpMD(WPARAM wParam,LPARAM lParam){
 	MSG msg;BOOL bRet;
+	int requestID;
 	if(m_cQ){
-		m_cQ->ReqUserLogin(m_accountCtp.m_sBROKER_ID,m_accountCtp.m_sINVESTOR_ID,m_accountCtp.m_sPASSWORD);
+		requestID = m_cQ->ReqUserLogin(m_accountCtp.m_sBROKER_ID,m_accountCtp.m_sINVESTOR_ID,m_accountCtp.m_sPASSWORD);
 	}
-	while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
-		if (!bRet){}else{break;}
+	while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT_MD,WM_NOTIFY_EVENT_MD)) != 0){
+		if (!bRet){}
+		else if(true/*requestID == msg.lParam*/){break;}//行情系统登录时的ID和返回的ID不知为什么不一致？
 	}
 	if(m_cQ){
 		m_cQ->SynchronizeMarket(m_cQ->InstSubscribed,m_cQ->InstMustSubscribe,m_cT->m_InvPosDetailVec.GetBuffer());
@@ -162,14 +165,14 @@ void CHiStarApp::LoginCtpMD(WPARAM wParam,LPARAM lParam){
 }
 
 void CHiStarApp::LoginCtpTD(WPARAM wParam,LPARAM lParam){
-	MSG msg;BOOL bRet;
+	MSG msg;BOOL bRet;int requestID;
 	if(m_cT){
-		m_cT->ReqUserLogin(m_accountCtp.m_sBROKER_ID,m_accountCtp.m_sINVESTOR_ID,m_accountCtp.m_sPASSWORD);
+		requestID = m_cT->ReqUserLogin(m_accountCtp.m_sBROKER_ID,m_accountCtp.m_sINVESTOR_ID,m_accountCtp.m_sPASSWORD);
 	}
 	while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
 		if (!bRet){
 		}
-		else{
+		else if(requestID == msg.lParam){
 			((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("联线交易平台成功!"), 10);break;
 		}
 	}
@@ -181,102 +184,102 @@ void CHiStarApp::LoginCtpTD(WPARAM wParam,LPARAM lParam){
 		}
 	}
 	if(m_cT){
-		m_cT->ReqSettlementInfoConfirm();
+		requestID = m_cT->ReqSettlementInfoConfirm();
 	}
 	while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
 		if (!bRet){
 		}
-		else{
+		else if(requestID == msg.lParam){
 			((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("确认结算单!"), 20);break;
 		}
 	}
 	if(m_cT){
-		m_cT->ReqQryInst(NULL);
+		requestID = m_cT->ReqQryInst(NULL);
 	}
 	while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
 		if (!bRet){
 		}
-		else{
+		else if(requestID == msg.lParam){
 			((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查合约列表!"), 30);break;
 		}
 	}
 	Sleep(1000);
 	if(m_cT){
-		m_cT->ReqQryInvPos(NULL);
+		requestID = m_cT->ReqQryInvPos(NULL);
 	}
 	while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
 		if (!bRet){
 		}
-		else{
+		else if(requestID == msg.lParam){
 			((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查持仓信息!"), 40);break;
 		}
 	}
 	Sleep(1000);
 	if(m_cT){
 		m_cT->m_InvPosDetailVec.clear();//先清空
-		m_cT->ReqQryInvPosEx(NULL);
+		requestID = m_cT->ReqQryInvPosEx(NULL);
 	}
 	while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
 		if (!bRet){
 		}
-		else{
+		else if(requestID == msg.lParam){
 			((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查持仓明细信息!"), 45);
 			break;
 		}
 	}
 	Sleep(1000);
 	if(m_cT){
-		m_cT->ReqQryTdAcc();
+		requestID = m_cT->ReqQryTdAcc();
 	}
 	while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
 		if (!bRet){
 		}
-		else{
+		else if(requestID == msg.lParam){
 			((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查资金账户!"), 50);break;
 		}
 	}
 #ifdef _REAL_CTP_
 	Sleep(1000);
 	if(m_cT){
-		m_cT->ReqQryAccreg();
+		requestID = m_cT->ReqQryAccreg();
 	}
 	while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
 		if (!bRet){
 		}
-		else{
+		else if(requestID == msg.lParam){
 			((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查银期信息!"), 60);break;
 		}
 	}
 	Sleep(1000);
 	if(m_cT){
-		m_cT->ReqQryTradingCode();
+		requestID = m_cT->ReqQryTradingCode();
 	}
 	while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
 		if (!bRet){
 		}
-		else{
+		else if(requestID == msg.lParam){
 			((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查交易编码!"), 65);break;
 		}
 	}
 	Sleep(1000);
 	if(m_cT){
-		m_cT->ReqQryOrder(NULL);
+		requestID = m_cT->ReqQryOrder(NULL);
 	}
 	while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
 		if (!bRet){
 		}
-		else{
+		else if(requestID == msg.lParam){
 			((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查指令状态!"), 75);break;
 		}
 	}
 	Sleep(1000);
 	if(m_cT){
-		m_cT->ReqQryTrade(NULL);
+		requestID = m_cT->ReqQryTrade(NULL);
 	}
 	while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
 		if (!bRet){
 		}
-		else{
+		else if(requestID == msg.lParam){
 			((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查交易状态!"), 95);break;
 		}
 	}

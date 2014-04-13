@@ -42,7 +42,7 @@ void CtpTraderSpi::OnFrontConnected()
 	PostThreadMessage(MainThreadId,WM_LOGIN_TD,NULL,NULL);
 }
 
-void CtpTraderSpi::ReqUserLogin(TThostFtdcBrokerIDType	vAppId,TThostFtdcUserIDType	vUserId,TThostFtdcPasswordType	vPasswd)
+int CtpTraderSpi::ReqUserLogin(TThostFtdcBrokerIDType	vAppId,TThostFtdcUserIDType	vUserId,TThostFtdcPasswordType	vPasswd)
 {
 	CThostFtdcReqUserLoginField req;
 	memset(&req, 0, sizeof(req));
@@ -51,6 +51,7 @@ void CtpTraderSpi::ReqUserLogin(TThostFtdcBrokerIDType	vAppId,TThostFtdcUserIDTy
 	strcpy(req.Password, vPasswd);
 	strcpy(req.UserProductInfo,PROD_INFO);
 	int iRet = pUserApi->ReqUserLogin(&req, ++m_iRequestID);
+	return m_iRequestID;
 }
 
 #define TIME_NULL "--:--:--"
@@ -140,7 +141,7 @@ void CtpTraderSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
 				TRACE("Error %u: %s\n", mysql_errno(connctp), mysql_error(connctp));      
 			}
 		}
-		if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+		if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 }
 
 const char* CtpTraderSpi::GetTradingDay()
@@ -148,7 +149,7 @@ const char* CtpTraderSpi::GetTradingDay()
 	return m_sTdday;
 }
 
-void CtpTraderSpi::ReqUserLogout()
+int CtpTraderSpi::ReqUserLogout()
 {
 	CThostFtdcUserLogoutField req;
 	memset(&req, 0, sizeof(req));
@@ -161,6 +162,7 @@ void CtpTraderSpi::ReqUserLogout()
 	else{
 		TRACE("ctpÐÐÇéÏµÍ³µÇ³öÖ¸Áî·¢ËÍÊ§°Ü\r\n");
 	}
+	return m_iRequestID;
 }
 
 ///µÇ³öÇëÇóÏìÓ¦
@@ -170,16 +172,17 @@ void CtpTraderSpi::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThos
 		TRACE(_T("ÒÑ¾­µÇ³öctpT\n"));
 		g_bLoginCtpT = FALSE;
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 }
 
-void CtpTraderSpi::ReqSettlementInfoConfirm()
+int CtpTraderSpi::ReqSettlementInfoConfirm()
 {
 	CThostFtdcSettlementInfoConfirmField req;
 	memset(&req, 0, sizeof(req));
 	strcpy(req.BrokerID, BROKER_ID);
 	strcpy(req.InvestorID, INVEST_ID);
 	pUserApi->ReqSettlementInfoConfirm(&req, ++m_iRequestID);
+	return m_iRequestID;
 }
 
 void CtpTraderSpi::OnRspSettlementInfoConfirm(
@@ -188,54 +191,57 @@ void CtpTraderSpi::OnRspSettlementInfoConfirm(
 {	
 	if( !IsErrorRspInfo(pRspInfo) && pSettlementInfoConfirm){
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 }
 
-void CtpTraderSpi::ReqQryNotice()
+int CtpTraderSpi::ReqQryNotice()
 {
 	CThostFtdcQryNoticeField req;
 	memset(&req, 0, sizeof(req));
 	strcpy(req.BrokerID, BROKER_ID);
 	pUserApi->ReqQryNotice(&req, ++m_iRequestID);
+	return m_iRequestID;
 }
 
 void CtpTraderSpi::OnRspQryNotice(CThostFtdcNoticeField *pNotice, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
 	if (!IsErrorRspInfo(pRspInfo) &&  pNotice){}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 }
 
-void CtpTraderSpi::ReqQryTdNotice()
+int CtpTraderSpi::ReqQryTdNotice()
 {
 	CThostFtdcQryTradingNoticeField req;
 	memset(&req, 0, sizeof(req));
 	strcpy(req.BrokerID, BROKER_ID);
 	strcpy(req.InvestorID, INVEST_ID);
 	pUserApi->ReqQryTradingNotice(&req, ++m_iRequestID);
+	return m_iRequestID;
 }
 
 void CtpTraderSpi::OnRspQryTradingNotice(CThostFtdcTradingNoticeField *pTradingNotice, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
 	if (!IsErrorRspInfo(pRspInfo) &&  pTradingNotice){}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 }
 
-void CtpTraderSpi::ReqQrySettlementInfoConfirm()
+int CtpTraderSpi::ReqQrySettlementInfoConfirm()
 {
 	CThostFtdcQrySettlementInfoConfirmField req;
 	memset(&req, 0, sizeof(req));
 	strcpy(req.BrokerID, BROKER_ID);
 	strcpy(req.InvestorID, INVEST_ID);
 	pUserApi->ReqQrySettlementInfoConfirm(&req,++m_iRequestID);
+	return m_iRequestID;
 }
 
 void CtpTraderSpi::OnRspQrySettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField *pSettlementInfoConfirm, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
 	if (!IsErrorRspInfo(pRspInfo) &&  pSettlementInfoConfirm){}	
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 }
 
-void CtpTraderSpi::ReqQrySettlementInfo(TThostFtdcDateType TradingDay)
+int CtpTraderSpi::ReqQrySettlementInfo(TThostFtdcDateType TradingDay)
 {
 	CThostFtdcQrySettlementInfoField req;
 	memset(&req, 0, sizeof(req));
@@ -245,6 +251,7 @@ void CtpTraderSpi::ReqQrySettlementInfo(TThostFtdcDateType TradingDay)
 	strcpy(req.TradingDay,TradingDay);
 
 	pUserApi->ReqQrySettlementInfo(&req,++m_iRequestID);
+	return m_iRequestID;
 }
 
 void CtpTraderSpi::OnRspQrySettlementInfo(CThostFtdcSettlementInfoField *pSettlementInfo, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
@@ -257,12 +264,12 @@ void CtpTraderSpi::OnRspQrySettlementInfo(CThostFtdcSettlementInfoField *pSettle
 	}
 	if(bIsLast) 
 	{ 
-		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 		//SendNotifyMessage(HWND_BROADCAST,WM_QRYSMI_MSG,0,0);		
 	}
 }
 
-void CtpTraderSpi::ReqQryInst(TThostFtdcInstrumentIDType instId)
+int CtpTraderSpi::ReqQryInst(TThostFtdcInstrumentIDType instId)
 {
 	CThostFtdcQryInstrumentField req;
 	memset(&req, 0, sizeof(req));
@@ -270,6 +277,7 @@ void CtpTraderSpi::ReqQryInst(TThostFtdcInstrumentIDType instId)
 	{ strcpy(req.InstrumentID, instId); }
 
 	pUserApi->ReqQryInstrument(&req, ++m_iRequestID);
+	return m_iRequestID;
 }
 
 void CtpTraderSpi::OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument, 
@@ -295,17 +303,18 @@ void CtpTraderSpi::OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument,
 	if(bIsLast){
 		TRACE(_T("ºÏÔ¼²éÑ¯Íê±Ï\n"));
 		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
-		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 	}
 }
 
-void CtpTraderSpi::ReqQryTdAcc()
+int CtpTraderSpi::ReqQryTdAcc()
 {
 	CThostFtdcQryTradingAccountField req;
 	memset(&req, 0, sizeof(req));
 	strcpy(req.BrokerID, BROKER_ID);
 	strcpy(req.InvestorID, INVEST_ID);
 	pUserApi->ReqQryTradingAccount(&req, ++m_iRequestID);
+	return m_iRequestID;
 }
 
 void CtpTraderSpi::OnRspQryTradingAccount(
@@ -323,12 +332,12 @@ void CtpTraderSpi::OnRspQryTradingAccount(
 		if(AfxGetApp()->m_pMainWnd){
 			PostMessage(AfxGetApp()->m_pMainWnd->GetSafeHwnd(),WM_UPDATE_ACC_CTP,NULL,(LPARAM)pAcc);
 		}
-		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 	}	
 }
 
 //INSTRUMENT_IDÉè³É²¿·Ö×Ö¶Î,ÀýÈçIF10,¾ÍÄÜ²é³öËùÓÐIF10´òÍ·µÄÍ·´ç
-void CtpTraderSpi::ReqQryInvPos(TThostFtdcInstrumentIDType instId)
+int CtpTraderSpi::ReqQryInvPos(TThostFtdcInstrumentIDType instId)
 {
 	CThostFtdcQryInvestorPositionField req;
 	memset(&req, 0, sizeof(req));
@@ -337,6 +346,7 @@ void CtpTraderSpi::ReqQryInvPos(TThostFtdcInstrumentIDType instId)
 	if (instId!=NULL)
 	{strcpy(req.InstrumentID, instId);}		
 	pUserApi->ReqQryInvestorPosition(&req, ++m_iRequestID);
+	return m_iRequestID;
 }
 
 void CtpTraderSpi::OnRspQryInvestorPosition(
@@ -383,11 +393,11 @@ void CtpTraderSpi::OnRspQryInvestorPosition(
 	}
 	if(bIsLast){ 
 		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
-		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 	}
 }
 
-void CtpTraderSpi::ReqQryOrder(TThostFtdcInstrumentIDType instId){
+int CtpTraderSpi::ReqQryOrder(TThostFtdcInstrumentIDType instId){
 	CThostFtdcQryOrderField req;
 	memset(&req,0,sizeof(req));
 	strcpy(req.BrokerID,BROKER_ID);
@@ -395,6 +405,7 @@ void CtpTraderSpi::ReqQryOrder(TThostFtdcInstrumentIDType instId){
 	if (instId!=NULL)
 	{strcpy(req.InstrumentID, instId);}	
 	pUserApi->ReqQryOrder(&req, ++m_iRequestID);
+	return m_iRequestID;
 }
 
 void  CtpTraderSpi::OnRspQryOrder(CThostFtdcOrderField *pOrder, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast){
@@ -464,11 +475,11 @@ void  CtpTraderSpi::OnRspQryOrder(CThostFtdcOrderField *pOrder, CThostFtdcRspInf
 	}
 	if(bIsLast) {
 		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
-		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 	}
 }
 
-void CtpTraderSpi::ReqQryTrade(TThostFtdcInstrumentIDType instId){
+int CtpTraderSpi::ReqQryTrade(TThostFtdcInstrumentIDType instId){
 	CThostFtdcQryTradeField req;
 	memset(&req,0,sizeof(req));
 	strcpy(req.BrokerID,BROKER_ID);
@@ -476,6 +487,7 @@ void CtpTraderSpi::ReqQryTrade(TThostFtdcInstrumentIDType instId){
 	if (instId!=NULL)
 	{strcpy(req.InstrumentID, instId);}		
 	pUserApi->ReqQryTrade(&req, ++m_iRequestID);
+	return m_iRequestID;
 }
 
 void CtpTraderSpi::OnRspQryTrade(CThostFtdcTradeField *pTrade, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
@@ -529,12 +541,12 @@ void CtpTraderSpi::OnRspQryTrade(CThostFtdcTradeField *pTrade, CThostFtdcRspInfo
 	}
 	if(bIsLast) {
 		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
-		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 	}
 }
 
 //INSTRUMENT_IDÉè³É²¿·Ö×Ö¶Î,ÀýÈçIF10,¾ÍÄÜ²é³öËùÓÐIF10´òÍ·µÄÍ·´ç
-void CtpTraderSpi::ReqQryInvPosEx(TThostFtdcInstrumentIDType instId)
+int CtpTraderSpi::ReqQryInvPosEx(TThostFtdcInstrumentIDType instId)
 {
 	CThostFtdcQryInvestorPositionDetailField req;
 	memset(&req, 0, sizeof(req));
@@ -543,6 +555,7 @@ void CtpTraderSpi::ReqQryInvPosEx(TThostFtdcInstrumentIDType instId)
 	if (instId!=NULL)
 	{strcpy(req.InstrumentID, instId);}		
 	pUserApi->ReqQryInvestorPositionDetail(&req, ++m_iRequestID);
+	return m_iRequestID;
 }
 
 void CtpTraderSpi::OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDetailField *pInvestorPositionDetail, 
@@ -582,11 +595,11 @@ void CtpTraderSpi::OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDeta
 	if(bIsLast){ 
 		sort(m_InvPosDetailVec.begin(),m_InvPosDetailVec.end(),CmpByTime);
 		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
-		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 	}
 }
 
-void CtpTraderSpi::ReqQryInvPosCombEx(TThostFtdcInstrumentIDType instId)
+int CtpTraderSpi::ReqQryInvPosCombEx(TThostFtdcInstrumentIDType instId)
 {
 	CThostFtdcQryInvestorPositionCombineDetailField req;
 	memset(&req, 0, sizeof(req));
@@ -595,6 +608,7 @@ void CtpTraderSpi::ReqQryInvPosCombEx(TThostFtdcInstrumentIDType instId)
 	if (instId!=NULL)
 	{strcpy(req.CombInstrumentID, instId);}		
 	pUserApi->ReqQryInvestorPositionCombineDetail(&req, ++m_iRequestID);
+	return m_iRequestID;
 }
 
 void CtpTraderSpi::OnRspQryInvestorPositionCombineDetail(CThostFtdcInvestorPositionCombineDetailField *pInvestorPositionDetail, 
@@ -604,7 +618,7 @@ void CtpTraderSpi::OnRspQryInvestorPositionCombineDetail(CThostFtdcInvestorPosit
 	{
 
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 }
 
 int CtpTraderSpi::ReqOrdLimit(TThostFtdcInstrumentIDType instId,TThostFtdcDirectionType dir,
@@ -642,7 +656,7 @@ int CtpTraderSpi::ReqOrdLimit(TThostFtdcInstrumentIDType instId,TThostFtdcDirect
 }
 
 ///ÊÐ¼Ûµ¥
-void CtpTraderSpi::ReqOrdAny(TThostFtdcInstrumentIDType instId,TThostFtdcDirectionType dir, TThostFtdcCombOffsetFlagType kpp,TThostFtdcVolumeType vol)
+int CtpTraderSpi::ReqOrdAny(TThostFtdcInstrumentIDType instId,TThostFtdcDirectionType dir, TThostFtdcCombOffsetFlagType kpp,TThostFtdcVolumeType vol)
 {
 	CThostFtdcInputOrderField req;
 	memset(&req, 0, sizeof(req));	
@@ -671,9 +685,10 @@ void CtpTraderSpi::ReqOrdAny(TThostFtdcInstrumentIDType instId,TThostFtdcDirecti
 	pUserApi->ReqOrderInsert(&req, ++m_iRequestID);	
 	m_onRoadVec.push_back(req);
 	PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
+	return m_iRequestID;
 }
 
-void CtpTraderSpi::ReqOrdCondition(TThostFtdcInstrumentIDType instId,TThostFtdcDirectionType dir, TThostFtdcCombOffsetFlagType kpp,
+int CtpTraderSpi::ReqOrdCondition(TThostFtdcInstrumentIDType instId,TThostFtdcDirectionType dir, TThostFtdcCombOffsetFlagType kpp,
 	TThostFtdcPriceType price,TThostFtdcVolumeType vol,TThostFtdcPriceType stopPrice,TThostFtdcContingentConditionType conType)
 {
 	CThostFtdcInputOrderField req;
@@ -704,6 +719,7 @@ void CtpTraderSpi::ReqOrdCondition(TThostFtdcInstrumentIDType instId,TThostFtdcD
 	pUserApi->ReqOrderInsert(&req, ++m_iRequestID);
 	m_onRoadVec.push_back(req);
 	PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
+	return m_iRequestID;
 }
 
 /*
@@ -712,7 +728,7 @@ FOK(Fill Or Kill)Ö¸ÁîÊÇ½«±¨µ¥µÄÓÐÐ§ÆÚÀàÐÍÉèÖÃÎªTHOST_FTDC_TC_IOC,Í¬Ê±½«³É½»Á¿ÀàÐ
 ´ËÍâ,ÔÚFAKÖ¸ÁîÏÂ,»¹¿ÉÖ¸¶¨×îÐ¡³É½»Á¿,¼´ÔÚÖ¸¶¨¼ÛÎ»¡¢Âú×ã×îÐ¡³É½»ÊýÁ¿ÒÔÉÏ³É½»,Ê£Óà¶©µ¥±»ÏµÍ³³·Ïú,·ñÔò±»ÏµÍ³È«²¿³·Ïú.´ËÖÖ×´¿öÏÂ,
 ÓÐÐ§ÆÚÀàÐÍÉèÖÃÎªTHOST_FTDC_TC_IOC,ÊýÁ¿Ìõ¼þÉèÎªTHOST_FTDC_VC_MV,Í¬Ê±Éè¶¨MinVolume×Ö¶Î.
 */
-void CtpTraderSpi::ReqOrdFAOK(TThostFtdcInstrumentIDType instId,TThostFtdcDirectionType dir,TThostFtdcCombOffsetFlagType kpp,
+int CtpTraderSpi::ReqOrdFAOK(TThostFtdcInstrumentIDType instId,TThostFtdcDirectionType dir,TThostFtdcCombOffsetFlagType kpp,
 	TThostFtdcPriceType price,/*TThostFtdcVolumeType vol,*/TThostFtdcVolumeConditionType volconType,TThostFtdcVolumeType minVol)
 {
 	CThostFtdcInputOrderField req;
@@ -742,6 +758,7 @@ void CtpTraderSpi::ReqOrdFAOK(TThostFtdcInstrumentIDType instId,TThostFtdcDirect
 	pUserApi->ReqOrderInsert(&req, ++m_iRequestID);
 	m_onRoadVec.push_back(req);
 	PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
+	return m_iRequestID;
 }
 
 void CtpTraderSpi::OnRspOrderInsert(CThostFtdcInputOrderField *pInputOrder, 
@@ -765,7 +782,7 @@ void CtpTraderSpi::OnRspOrderInsert(CThostFtdcInputOrderField *pInputOrder,
 	}
 }
 
-void CtpTraderSpi::ReqOrderCancel(TThostFtdcSequenceNoType orderSeq)
+int CtpTraderSpi::ReqOrderCancel(TThostFtdcSequenceNoType orderSeq)
 {
 	bool found=false; UINT i=0;
 	for(i=0;i<m_orderVec.size();i++){
@@ -774,7 +791,7 @@ void CtpTraderSpi::ReqOrderCancel(TThostFtdcSequenceNoType orderSeq)
 	if(!found)
 	{
 		////////±¨µ¥ÒÑ±»³É½»»ò²»´æÔÚ///////////
-		return;
+		return -1;
 	} 
 
 	CThostFtdcInputOrderActionField req;
@@ -787,9 +804,10 @@ void CtpTraderSpi::ReqOrderCancel(TThostFtdcSequenceNoType orderSeq)
 
 	pUserApi->ReqOrderAction(&req, ++m_iRequestID);
 	//cerr<< " ÇëÇó | ·¢ËÍ³·µ¥..." <<((ret == 0)?"³É¹¦":"Ê§°Ü") << endl;
+	return m_iRequestID;
 }
 
-void CtpTraderSpi::ReqOrderCancel(TThostFtdcInstrumentIDType instId,TThostFtdcOrderRefType OrderRef)
+int CtpTraderSpi::ReqOrderCancel(TThostFtdcInstrumentIDType instId,TThostFtdcOrderRefType OrderRef)
 {
 	// FrontID + SessionID + OrdRef + InstrumentID
 	CThostFtdcInputOrderActionField req;
@@ -805,6 +823,7 @@ void CtpTraderSpi::ReqOrderCancel(TThostFtdcInstrumentIDType instId,TThostFtdcOr
 
 	pUserApi->ReqOrderAction(&req, ++m_iRequestID);
 	//cerr<< " ÇëÇó | ·¢ËÍ³·µ¥..." <<((ret == 0)?"³É¹¦":"Ê§°Ü") << endl;
+	return m_iRequestID;
 }
 
 void CtpTraderSpi::OnRspOrderAction(
@@ -820,7 +839,7 @@ void CtpTraderSpi::OnRspOrderAction(
 
 		}
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);	
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);	
 }
 
 ///±¨µ¥»Ø±¨
@@ -1009,7 +1028,7 @@ void CtpTraderSpi::OnHeartBeatWarning(int nTimeLapse){
 	TRACE(_T("OnHeartBeatWarningT\n"));
 }
 ///ÇëÇó²éÑ¯½»Ò×±àÂë
-void CtpTraderSpi::ReqQryTradingCode()
+int CtpTraderSpi::ReqQryTradingCode()
 {
 	CThostFtdcQryTradingCodeField req;
 	memset(&req, 0, sizeof(req));
@@ -1017,6 +1036,7 @@ void CtpTraderSpi::ReqQryTradingCode()
 	strcpy(req.BrokerID, BROKER_ID);   //¾­¼Í¹«Ë¾´úÂë	
 	strcpy(req.InvestorID, INVEST_ID); //Í¶×ÊÕß´úÂë
 	pUserApi->ReqQryTradingCode(&req,++m_iRequestID);
+	return m_iRequestID;
 }
 
 void CtpTraderSpi::OnRspQryTradingCode(CThostFtdcTradingCodeField *pTradingCode, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
@@ -1026,11 +1046,11 @@ void CtpTraderSpi::OnRspQryTradingCode(CThostFtdcTradingCodeField *pTradingCode,
 		memcpy(&TdCode, pTradingCode, sizeof(CThostFtdcTradingCodeField));
 		m_TdCodeVec.push_back(TdCode);
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 }
 
 ///ÇëÇó²éÑ¯ºÏÔ¼±£Ö¤½ðÂÊ
-void CtpTraderSpi::ReqQryInstMgr(TThostFtdcInstrumentIDType instId){
+int CtpTraderSpi::ReqQryInstMgr(TThostFtdcInstrumentIDType instId){
 	CThostFtdcQryInstrumentMarginRateField req;
 	memset(&req, 0, sizeof(req));
 	strcpy(req.BrokerID, BROKER_ID);   //¾­¼Í¹«Ë¾´úÂë	
@@ -1039,6 +1059,7 @@ void CtpTraderSpi::ReqQryInstMgr(TThostFtdcInstrumentIDType instId){
 	{strcpy(req.InstrumentID, instId);}	
 	req.HedgeFlag = '1';
 	pUserApi->ReqQryInstrumentMarginRate(&req,++m_iRequestID);
+	return m_iRequestID;
 }
 
 void CtpTraderSpi::OnRspQryInstrumentMarginRate(CThostFtdcInstrumentMarginRateField *pInstrumentMarginRate, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
@@ -1050,12 +1071,12 @@ void CtpTraderSpi::OnRspQryInstrumentMarginRate(CThostFtdcInstrumentMarginRateFi
 		memcpy(&MaginRate,  pInstrumentMarginRate, sizeof(CThostFtdcInstrumentMarginRateField));
 		m_MargRateVec.push_back(MaginRate);
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 
 }
 
 ///ÇëÇó²éÑ¯ºÏÔ¼ÊÖÐø·ÑÂÊ
-void CtpTraderSpi::ReqQryInstFee(TThostFtdcInstrumentIDType instId)
+int CtpTraderSpi::ReqQryInstFee(TThostFtdcInstrumentIDType instId)
 {
 	CThostFtdcQryInstrumentCommissionRateField req;
 
@@ -1065,6 +1086,7 @@ void CtpTraderSpi::ReqQryInstFee(TThostFtdcInstrumentIDType instId)
 	if (instId!=NULL)
 	{strcpy(req.InstrumentID, instId);}	
 	pUserApi->ReqQryInstrumentCommissionRate(&req,++m_iRequestID);
+	return m_iRequestID;
 }
 
 void CtpTraderSpi::OnRspQryInstrumentCommissionRate(CThostFtdcInstrumentCommissionRateField *pInstrumentCommissionRate, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
@@ -1076,11 +1098,11 @@ void CtpTraderSpi::OnRspQryInstrumentCommissionRate(CThostFtdcInstrumentCommissi
 		//FeeRateList.push_back(pFeeRate);
 
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 }
 
 //////////////////ÇëÇó²éÑ¯ÓÃ»§×ÊÁÏ/////////////
-void CtpTraderSpi::ReqQryInvestor()
+int CtpTraderSpi::ReqQryInvestor()
 {
 	CThostFtdcQryInvestorField req;
 
@@ -1089,6 +1111,7 @@ void CtpTraderSpi::ReqQryInvestor()
 	strcpy(req.InvestorID, INVEST_ID); //Í¶×ÊÕß´úÂë
 
 	pUserApi->ReqQryInvestor(&req, ++m_iRequestID);
+	return m_iRequestID;
 }
 
 void CtpTraderSpi::OnRspQryInvestor(CThostFtdcInvestorField *pInvestor, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
@@ -1100,10 +1123,10 @@ void CtpTraderSpi::OnRspQryInvestor(CThostFtdcInvestorField *pInvestor, CThostFt
 
 		//SendNotifyMessage(((CXTraderDlg*)g_pCWnd)->m_hWnd,WM_QRYUSER_MSG,0,(LPARAM)pInv);
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 }
 
-void CtpTraderSpi::ReqUserPwdUpdate(TThostFtdcPasswordType szNewPass,TThostFtdcPasswordType szOldPass)
+int CtpTraderSpi::ReqUserPwdUpdate(TThostFtdcPasswordType szNewPass,TThostFtdcPasswordType szOldPass)
 {
 	CThostFtdcUserPasswordUpdateField req;
 
@@ -1114,6 +1137,7 @@ void CtpTraderSpi::ReqUserPwdUpdate(TThostFtdcPasswordType szNewPass,TThostFtdcP
 	strcpy(req.OldPassword,szOldPass);  
 
 	pUserApi->ReqUserPasswordUpdate(&req,++m_iRequestID);
+	return m_iRequestID;
 }
 
 ///ÓÃ»§¿ÚÁî¸üÐÂÇëÇóÏìÓ¦
@@ -1127,11 +1151,11 @@ void CtpTraderSpi::OnRspUserPasswordUpdate(CThostFtdcUserPasswordUpdateField *pU
 	{
 		ShowErrTips(pRspInfo->ErrorMsg);
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 }
 
 //×Ê½ðÕË»§ÃÜÂë
-void CtpTraderSpi::ReqTdAccPwdUpdate(TThostFtdcPasswordType szNewPass,TThostFtdcPasswordType szOldPass)
+int CtpTraderSpi::ReqTdAccPwdUpdate(TThostFtdcPasswordType szNewPass,TThostFtdcPasswordType szOldPass)
 {
 	CThostFtdcTradingAccountPasswordUpdateField req;
 
@@ -1142,6 +1166,7 @@ void CtpTraderSpi::ReqTdAccPwdUpdate(TThostFtdcPasswordType szNewPass,TThostFtdc
 	strcpy(req.OldPassword,szOldPass);  
 
 	pUserApi->ReqTradingAccountPasswordUpdate(&req,++m_iRequestID);
+	return m_iRequestID;
 }
 
 ///×Ê½ðÕË»§¿ÚÁî¸üÐÂÇëÇóÏìÓ¦
@@ -1155,10 +1180,10 @@ void CtpTraderSpi::OnRspTradingAccountPasswordUpdate(CThostFtdcTradingAccountPas
 	{
 		ShowErrTips(pRspInfo->ErrorMsg);
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 }
 
-void CtpTraderSpi::ReqAuthenticate(TThostFtdcProductInfoType UserProdInf,TThostFtdcAuthCodeType	AuthCode)
+int CtpTraderSpi::ReqAuthenticate(TThostFtdcProductInfoType UserProdInf,TThostFtdcAuthCodeType	AuthCode)
 {
 	CThostFtdcReqAuthenticateField req;
 
@@ -1169,6 +1194,7 @@ void CtpTraderSpi::ReqAuthenticate(TThostFtdcProductInfoType UserProdInf,TThostF
 	strcpy(req.AuthCode,AuthCode);  
 
 	pUserApi->ReqAuthenticate(&req,++m_iRequestID);
+	return m_iRequestID;
 }
 
 void CtpTraderSpi::OnRspAuthenticate(CThostFtdcRspAuthenticateField *pRspAuthenticateField, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
@@ -1178,10 +1204,10 @@ void CtpTraderSpi::OnRspAuthenticate(CThostFtdcRspAuthenticateField *pRspAuthent
 		//memcpy(&g_InvInf,pInvestor,sizeof(CThostFtdcInvestorField));
 		//AfxMessageBox(tName);
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 }
 
-void CtpTraderSpi::ReqQryAccreg()
+int CtpTraderSpi::ReqQryAccreg()
 {
 	CThostFtdcQryAccountregisterField req;
 	memset(&req, 0, sizeof(req));
@@ -1190,6 +1216,7 @@ void CtpTraderSpi::ReqQryAccreg()
 	strcpy(req.AccountID, INVEST_ID); //ÓÃ»§´úÂë
 
 	pUserApi->ReqQryAccountregister(&req,++m_iRequestID);
+	return m_iRequestID;
 }
 
 void CtpTraderSpi::OnRspQryAccountregister(CThostFtdcAccountregisterField *pAccountregister, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
@@ -1200,11 +1227,11 @@ void CtpTraderSpi::OnRspQryAccountregister(CThostFtdcAccountregisterField *pAcco
 		memcpy(&AccReg,  pAccountregister, sizeof(CThostFtdcAccountregisterField));
 		m_AccRegVec.push_back(AccReg);
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 }
 
 
-void CtpTraderSpi::ReqQryTransBk(TThostFtdcBankIDType BankID,TThostFtdcBankBrchIDType BankBrchID)
+int CtpTraderSpi::ReqQryTransBk(TThostFtdcBankIDType BankID,TThostFtdcBankBrchIDType BankBrchID)
 {
 	CThostFtdcQryTransferBankField req;
 	memset(&req, 0, sizeof(req));
@@ -1214,6 +1241,7 @@ void CtpTraderSpi::ReqQryTransBk(TThostFtdcBankIDType BankID,TThostFtdcBankBrchI
 		strcpy(req.BankBrchID,BankBrchID);
 
 	pUserApi->ReqQryTransferBank(&req,++m_iRequestID);
+	return m_iRequestID;
 }
 
 void CtpTraderSpi::OnRspQryTransferBank(CThostFtdcTransferBankField *pTransferBank, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
@@ -1223,10 +1251,10 @@ void CtpTraderSpi::OnRspQryTransferBank(CThostFtdcTransferBankField *pTransferBa
 		//memcpy(&g_InvInf,pInvestor,sizeof(CThostFtdcInvestorField));
 		//AfxMessageBox(tName);
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 }
 
-void CtpTraderSpi::ReqQryContractBk(TThostFtdcBankIDType BankID,TThostFtdcBankBrchIDType BankBrchID)
+int CtpTraderSpi::ReqQryContractBk(TThostFtdcBankIDType BankID,TThostFtdcBankBrchIDType BankBrchID)
 {
 	CThostFtdcQryContractBankField req;
 
@@ -1239,6 +1267,7 @@ void CtpTraderSpi::ReqQryContractBk(TThostFtdcBankIDType BankID,TThostFtdcBankBr
 		strcpy(req.BankBrchID,BankBrchID);
 
 	pUserApi->ReqQryContractBank(&req,++m_iRequestID);
+	return m_iRequestID;
 }
 
 void CtpTraderSpi::OnRspQryContractBank(CThostFtdcContractBankField *pContractBank, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
@@ -1255,11 +1284,11 @@ void CtpTraderSpi::OnRspQryContractBank(CThostFtdcContractBankField *pContractBa
 		//memcpy(&g_InvInf,pInvestor,sizeof(CThostFtdcInvestorField));
 		//AfxMessageBox(str);
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 }
 
 //////////////////////////////////////////ÆÚ»õ·¢ÆðÒøÐÐ×Ê½ð×ªÆÚ»õÇëÇó///////////////////////////////////////
-void CtpTraderSpi::ReqBk2FByF(TThostFtdcBankIDType BkID,TThostFtdcPasswordType BkPwd,
+int CtpTraderSpi::ReqBk2FByF(TThostFtdcBankIDType BkID,TThostFtdcPasswordType BkPwd,
 	TThostFtdcPasswordType Pwd,TThostFtdcTradeAmountType TdAmt)
 {
 	CThostFtdcReqTransferField req;
@@ -1277,6 +1306,7 @@ void CtpTraderSpi::ReqBk2FByF(TThostFtdcBankIDType BkID,TThostFtdcPasswordType B
 	req.SecuPwdFlag = THOST_FTDC_BPWDF_BlankCheck;
 
 	pUserApi->ReqFromBankToFutureByFuture(&req,++m_iRequestID);
+	return m_iRequestID;
 }
 
 ///ÆÚ»õ·¢ÆðÒøÐÐ×Ê½ð×ªÆÚ»õÓ¦´ð
@@ -1288,7 +1318,7 @@ void CtpTraderSpi::OnRspFromBankToFutureByFuture(CThostFtdcReqTransferField *pRe
 
 		ShowErrTips(pRspInfo->ErrorMsg);
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);	 
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);	 
 }
 ///ÆÚ»õ·¢ÆðÒøÐÐ×Ê½ð×ªÆÚ»õÍ¨Öª
 void CtpTraderSpi::OnRtnFromBankToFutureByFuture(CThostFtdcRspTransferField *pRspTransfer)
@@ -1347,7 +1377,7 @@ void CtpTraderSpi::OnErrRtnBankToFutureByFuture(CThostFtdcReqTransferField *pReq
 
 
 ///////////////////////////////////////////ÆÚ»õ·¢ÆðÆÚ»õ×Ê½ð×ªÒøÐÐÇëÇó///////////////////////////////////////////
-void CtpTraderSpi::ReqF2BkByF(TThostFtdcBankIDType BkID,TThostFtdcPasswordType BkPwd,
+int CtpTraderSpi::ReqF2BkByF(TThostFtdcBankIDType BkID,TThostFtdcPasswordType BkPwd,
 	TThostFtdcPasswordType Pwd,TThostFtdcTradeAmountType TdAmt)
 {
 	CThostFtdcReqTransferField req;
@@ -1365,6 +1395,7 @@ void CtpTraderSpi::ReqF2BkByF(TThostFtdcBankIDType BkID,TThostFtdcPasswordType B
 	req.SecuPwdFlag = THOST_FTDC_BPWDF_BlankCheck;
 
 	pUserApi->ReqFromFutureToBankByFuture(&req,++m_iRequestID);
+	return m_iRequestID;
 }
 
 
@@ -1377,7 +1408,7 @@ void CtpTraderSpi::OnRspFromFutureToBankByFuture(CThostFtdcReqTransferField *pRe
 		ShowErrTips(pRspInfo->ErrorMsg);
 	}
 
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);	
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);	
 }
 
 
@@ -1430,7 +1461,7 @@ void CtpTraderSpi::OnErrRtnFutureToBankByFuture(CThostFtdcReqTransferField *pReq
 }
 
 ///////////////////////////////////////////////////ÆÚ»õ·¢Æð²éÑ¯ÒøÐÐÓà¶îÇëÇó///////////////////////////////////////////////
-void CtpTraderSpi::ReqQryBkAccMoneyByF(TThostFtdcBankIDType BkID,TThostFtdcPasswordType BkPwd,
+int CtpTraderSpi::ReqQryBkAccMoneyByF(TThostFtdcBankIDType BkID,TThostFtdcPasswordType BkPwd,
 	TThostFtdcPasswordType Pwd)
 {
 	CThostFtdcReqQueryAccountField req;
@@ -1447,6 +1478,7 @@ void CtpTraderSpi::ReqQryBkAccMoneyByF(TThostFtdcBankIDType BkID,TThostFtdcPassw
 
 	req.SecuPwdFlag = THOST_FTDC_BPWDF_BlankCheck;
 	pUserApi->ReqQueryBankAccountMoneyByFuture(&req,++m_iRequestID);
+	return m_iRequestID;
 }
 
 ///ÆÚ»õ·¢Æð²éÑ¯ÒøÐÐÓà¶îÓ¦´ð
@@ -1512,7 +1544,7 @@ void CtpTraderSpi::OnErrRtnQueryBankBalanceByFuture(CThostFtdcReqQueryAccountFie
 
 ///////////////////////////////////////²éÑ¯×ªÕËÁ÷Ë®////////////////////////////////////////////
 /// "204005"
-void CtpTraderSpi::ReqQryTfSerial(TThostFtdcBankIDType BkID)
+int CtpTraderSpi::ReqQryTfSerial(TThostFtdcBankIDType BkID)
 {
 	CThostFtdcQryTransferSerialField req;
 	memset(&req, 0, sizeof(req));
@@ -1523,6 +1555,7 @@ void CtpTraderSpi::ReqQryTfSerial(TThostFtdcBankIDType BkID)
 	strcpy(req.BankID,BkID);
 
 	pUserApi->ReqQryTransferSerial(&req,++m_iRequestID);
+	return m_iRequestID;
 }
 ///ÇëÇó²éÑ¯×ªÕÊÁ÷Ë®ÏìÓ¦
 void CtpTraderSpi::OnRspQryTransferSerial(CThostFtdcTransferSerialField *pTransferSerial, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
@@ -1531,7 +1564,7 @@ void CtpTraderSpi::OnRspQryTransferSerial(CThostFtdcTransferSerialField *pTransf
 	{
 		ShowErrTips(pRspInfo->ErrorMsg);	
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);	
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);	
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1577,7 +1610,7 @@ void CtpTraderSpi::OnRtnRepealFromFutureToBankByFuture(CThostFtdcRspRepealField 
 
 
 
-void CtpTraderSpi::ReqQryCFMMCTdAccKey()
+int CtpTraderSpi::ReqQryCFMMCTdAccKey()
 {
 	CThostFtdcQryCFMMCTradingAccountKeyField req;
 	memset(&req, 0, sizeof(req));
@@ -1585,6 +1618,7 @@ void CtpTraderSpi::ReqQryCFMMCTdAccKey()
 	strcpy(req.InvestorID, INVEST_ID); //ÓÃ»§´úÂë
 
 	pUserApi->ReqQryCFMMCTradingAccountKey(&req,++m_iRequestID);
+	return m_iRequestID;
 }
 
 void CtpTraderSpi::OnRspQryCFMMCTradingAccountKey(CThostFtdcCFMMCTradingAccountKeyField *pCFMMCTradingAccountKey, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
@@ -1601,7 +1635,7 @@ void CtpTraderSpi::OnRspQryCFMMCTradingAccountKey(CThostFtdcCFMMCTradingAccountK
 	//if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);	
 }
 
-void CtpTraderSpi::ReqQryBkrTdParams()
+int CtpTraderSpi::ReqQryBkrTdParams()
 {
 	CThostFtdcQryBrokerTradingParamsField  req;
 	memset(&req, 0, sizeof(req));
@@ -1609,6 +1643,7 @@ void CtpTraderSpi::ReqQryBkrTdParams()
 	strcpy(req.InvestorID,INVEST_ID);
 
 	pUserApi->ReqQryBrokerTradingParams(&req, ++m_iRequestID);
+	return m_iRequestID;
 }
 
 void CtpTraderSpi::OnRspQryBrokerTradingParams(CThostFtdcBrokerTradingParamsField *pBrokerTradingParams, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
@@ -1617,10 +1652,10 @@ void CtpTraderSpi::OnRspQryBrokerTradingParams(CThostFtdcBrokerTradingParamsFiel
 	{
 
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 }
 
-void CtpTraderSpi::ReqQryBkrTdAlgos(TThostFtdcExchangeIDType ExhID,TThostFtdcInstrumentIDType instID)
+int CtpTraderSpi::ReqQryBkrTdAlgos(TThostFtdcExchangeIDType ExhID,TThostFtdcInstrumentIDType instID)
 {
 	CThostFtdcQryBrokerTradingAlgosField  req;
 	memset(&req, 0, sizeof(req));
@@ -1631,6 +1666,7 @@ void CtpTraderSpi::ReqQryBkrTdAlgos(TThostFtdcExchangeIDType ExhID,TThostFtdcIns
 		strcpy(req.InstrumentID, instID);
 
 	pUserApi->ReqQryBrokerTradingAlgos(&req, ++m_iRequestID);
+	return m_iRequestID;
 }
 
 void CtpTraderSpi::OnRspQryBrokerTradingAlgos(CThostFtdcBrokerTradingAlgosField *pBrokerTradingAlgos, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
@@ -1639,13 +1675,14 @@ void CtpTraderSpi::OnRspQryBrokerTradingAlgos(CThostFtdcBrokerTradingAlgosField 
 	{
 
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 }
 
 ///Ô¤Âñµ¥Â¼ÈëÇëÇó
-void CtpTraderSpi::ReqParkedOrderInsert(CThostFtdcParkedOrderField *ParkedOrder)
+int CtpTraderSpi::ReqParkedOrderInsert(CThostFtdcParkedOrderField *ParkedOrder)
 {
 	pUserApi->ReqParkedOrderInsert(ParkedOrder,++m_iRequestID);
+	return m_iRequestID;
 }
 ///Ô¤Âñµ¥Â¼ÈëÇëÇóÏìÓ¦
 void CtpTraderSpi::OnRspParkedOrderInsert(CThostFtdcParkedOrderField *pParkedOrder, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
@@ -1654,13 +1691,14 @@ void CtpTraderSpi::OnRspParkedOrderInsert(CThostFtdcParkedOrderField *pParkedOrd
 	{
 
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 }
 
 ///Ô¤Âñ³·µ¥Â¼ÈëÇëÇó
-void CtpTraderSpi::ReqParkedOrderAction(CThostFtdcParkedOrderActionField *ParkedOrderAction)
+int CtpTraderSpi::ReqParkedOrderAction(CThostFtdcParkedOrderActionField *ParkedOrderAction)
 {
 	pUserApi->ReqParkedOrderAction(ParkedOrderAction,++m_iRequestID);
+	return m_iRequestID;
 }
 ///Ô¤Âñ³·µ¥Â¼ÈëÇëÇóÏìÓ¦
 void CtpTraderSpi::OnRspParkedOrderAction(CThostFtdcParkedOrderActionField *pParkedOrderAction, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
@@ -1669,11 +1707,11 @@ void CtpTraderSpi::OnRspParkedOrderAction(CThostFtdcParkedOrderActionField *pPar
 	{
 
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 }
 
 ///ÇëÇó²éÑ¯Ô¤Âñµ¥
-void CtpTraderSpi::ReqQryParkedOrder(TThostFtdcInstrumentIDType InstrumentID,TThostFtdcExchangeIDType ExchangeID)
+int CtpTraderSpi::ReqQryParkedOrder(TThostFtdcInstrumentIDType InstrumentID,TThostFtdcExchangeIDType ExchangeID)
 {
 	CThostFtdcQryParkedOrderField  req;
 	memset(&req, 0, sizeof(req));
@@ -1684,6 +1722,7 @@ void CtpTraderSpi::ReqQryParkedOrder(TThostFtdcInstrumentIDType InstrumentID,TTh
 	if(ExchangeID != NULL)
 		strcpy(req.ExchangeID,ExchangeID);
 	pUserApi->ReqQryParkedOrder(&req, ++m_iRequestID);
+	return m_iRequestID;
 }
 
 ///ÇëÇó²éÑ¯Ô¤Âñµ¥ÏìÓ¦
@@ -1693,11 +1732,11 @@ void CtpTraderSpi::OnRspQryParkedOrder(CThostFtdcParkedOrderField *pParkedOrder,
 	{
 
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 }
 
 ///ÇëÇó³·ÏúÔ¤Âñ
-void CtpTraderSpi::ReqQryParkedOrderAction(TThostFtdcInstrumentIDType InstrumentID,TThostFtdcExchangeIDType ExchangeID)
+int CtpTraderSpi::ReqQryParkedOrderAction(TThostFtdcInstrumentIDType InstrumentID,TThostFtdcExchangeIDType ExchangeID)
 {
 	CThostFtdcQryParkedOrderActionField  req;
 	memset(&req, 0, sizeof(req));
@@ -1708,6 +1747,7 @@ void CtpTraderSpi::ReqQryParkedOrderAction(TThostFtdcInstrumentIDType Instrument
 	if(ExchangeID != NULL)
 		strcpy(req.ExchangeID,ExchangeID);
 	pUserApi->ReqQryParkedOrderAction(&req, ++m_iRequestID);
+	return m_iRequestID;
 }
 
 ///É¾³ýÔ¤Âñ³·µ¥ÏìÓ¦
@@ -1717,11 +1757,11 @@ void CtpTraderSpi::OnRspRemoveParkedOrderAction(CThostFtdcRemoveParkedOrderActio
 	{
 
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 }
 
 ///ÇëÇóÉ¾³ýÔ¤Âñµ¥
-void CtpTraderSpi::ReqRemoveParkedOrder(TThostFtdcParkedOrderIDType ParkedOrder_ID)
+int CtpTraderSpi::ReqRemoveParkedOrder(TThostFtdcParkedOrderIDType ParkedOrder_ID)
 {
 	CThostFtdcRemoveParkedOrderField  req;
 	memset(&req, 0, sizeof(req));
@@ -1729,6 +1769,7 @@ void CtpTraderSpi::ReqRemoveParkedOrder(TThostFtdcParkedOrderIDType ParkedOrder_
 	strcpy(req.InvestorID,INVEST_ID);
 	strcpy(req.ParkedOrderID,ParkedOrder_ID);
 	pUserApi->ReqRemoveParkedOrder(&req, ++m_iRequestID);
+	return m_iRequestID;
 }
 
 ///É¾³ýÔ¤Âñµ¥ÏìÓ¦
@@ -1738,11 +1779,11 @@ void CtpTraderSpi::OnRspRemoveParkedOrder(CThostFtdcRemoveParkedOrderField *pRem
 	{
 
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 }
 
 ///ÇëÇóÉ¾³ýÔ¤Âñ³·µ¥
-void CtpTraderSpi::ReqRemoveParkedOrderAction(TThostFtdcParkedOrderActionIDType ParkedOrderAction_ID)
+int CtpTraderSpi::ReqRemoveParkedOrderAction(TThostFtdcParkedOrderActionIDType ParkedOrderAction_ID)
 {
 	CThostFtdcRemoveParkedOrderActionField  req;
 	memset(&req, 0, sizeof(req));
@@ -1750,6 +1791,7 @@ void CtpTraderSpi::ReqRemoveParkedOrderAction(TThostFtdcParkedOrderActionIDType 
 	strcpy(req.InvestorID,INVEST_ID);
 	strcpy(req.ParkedOrderActionID,ParkedOrderAction_ID);
 	pUserApi->ReqRemoveParkedOrderAction(&req, ++m_iRequestID);
+	return m_iRequestID;
 }
 
 ///ÇëÇóÉ¾³ýÔ¤Âñ³·µ¥ÏìÓ¦
@@ -1759,7 +1801,7 @@ void CtpTraderSpi::OnRspQryParkedOrderAction(CThostFtdcParkedOrderActionField *p
 	{
 
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 }
 
 void CtpTraderSpi::OnRtnInstrumentStatus(CThostFtdcInstrumentStatusField *pInstrumentStatus)
@@ -1791,9 +1833,10 @@ bool CtpTraderSpi::IsErrorRspInfo(CThostFtdcRspInfoField *pRspInfo)
 	return ret;
 }
 
-void CtpTraderSpi::ShowErrTips(TThostFtdcErrorMsgType ErrorMsg)
+int CtpTraderSpi::ShowErrTips(TThostFtdcErrorMsgType ErrorMsg)
 {
 	ShowErroTips(ErrorMsg,MY_TIPS);
+	return m_iRequestID;
 }
 
 void CtpTraderSpi::ClearAllVectors(){

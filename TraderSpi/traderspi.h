@@ -119,93 +119,93 @@ public:
 	virtual void OnRspQryTrade(CThostFtdcTradeField *pTrade, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 public:
 	///用户登录请求
-	void ReqUserLogin(TThostFtdcBrokerIDType appId,TThostFtdcUserIDType	userId,	TThostFtdcPasswordType	passwd);
-	void ReqUserLogout();
+	int ReqUserLogin(TThostFtdcBrokerIDType appId,TThostFtdcUserIDType	userId,	TThostFtdcPasswordType	passwd);
+	int ReqUserLogout();
 	const char* GetTradingDay();
 	///投资者结算结果确认
-	void ReqSettlementInfoConfirm();
+	int ReqSettlementInfoConfirm();
 	///请求查询结算信息确认
-	void ReqQrySettlementInfoConfirm();
+	int ReqQrySettlementInfoConfirm();
 	//查询结算信息
-	void ReqQrySettlementInfo(TThostFtdcDateType TradingDay);
+	int ReqQrySettlementInfo(TThostFtdcDateType TradingDay);
 	///请求查询客户通知
-	void ReqQryNotice();
+	int ReqQryNotice();
 	///请求查询交易通知
-	void ReqQryTdNotice();
+	int ReqQryTdNotice();
 	///请求查询交易编码
-	void ReqQryTradingCode();
+	int ReqQryTradingCode();
 	//请求查询用户资料
-	void ReqQryInvestor();
+	int ReqQryInvestor();
 	//请求保证金中心密钥
-	void ReqQryCFMMCTdAccKey();
+	int ReqQryCFMMCTdAccKey();
 	//查询开户银行信息
-	void ReqQryAccreg();
-	void ReqQryContractBk(TThostFtdcBankIDType BankID,TThostFtdcBankBrchIDType BankBrchID);
-	void ReqQryTransBk(TThostFtdcBankIDType BankID,TThostFtdcBankBrchIDType BankBrchID);
+	int ReqQryAccreg();
+	int ReqQryContractBk(TThostFtdcBankIDType BankID,TThostFtdcBankBrchIDType BankBrchID);
+	int ReqQryTransBk(TThostFtdcBankIDType BankID,TThostFtdcBankBrchIDType BankBrchID);
 	///查询转帐流水
-	void ReqQryTfSerial(TThostFtdcBankIDType BkID);
+	int ReqQryTfSerial(TThostFtdcBankIDType BkID);
 	///期货->银行资金转期货
-	void ReqBk2FByF(TThostFtdcBankIDType BkID,TThostFtdcPasswordType BkPwd,TThostFtdcPasswordType Pwd,TThostFtdcTradeAmountType TdAmt);
+	int ReqBk2FByF(TThostFtdcBankIDType BkID,TThostFtdcPasswordType BkPwd,TThostFtdcPasswordType Pwd,TThostFtdcTradeAmountType TdAmt);
 	///期货->期货资金转银行
-	void ReqF2BkByF(TThostFtdcBankIDType BkID,TThostFtdcPasswordType BkPwd,
+	int ReqF2BkByF(TThostFtdcBankIDType BkID,TThostFtdcPasswordType BkPwd,
 	 TThostFtdcPasswordType Pwd,TThostFtdcTradeAmountType TdAmt);
 	///期货->查询银行余额
-	void ReqQryBkAccMoneyByF(TThostFtdcBankIDType BkID,TThostFtdcPasswordType BkPwd,TThostFtdcPasswordType Pwd);	
+	int ReqQryBkAccMoneyByF(TThostFtdcBankIDType BkID,TThostFtdcPasswordType BkPwd,TThostFtdcPasswordType Pwd);	
 	///请求查询合约保证金率
-	void ReqQryInstMgr(TThostFtdcInstrumentIDType instId);	
+	int ReqQryInstMgr(TThostFtdcInstrumentIDType instId);	
 	///请求查询合约手续费率
-	void ReqQryInstFee(TThostFtdcInstrumentIDType instId);
+	int ReqQryInstFee(TThostFtdcInstrumentIDType instId);
 	///请求查询合约信息
-	void ReqQryInst(TThostFtdcInstrumentIDType instId);
+	int ReqQryInst(TThostFtdcInstrumentIDType instId);
 	///请求查询资金账户
-	void ReqQryTdAcc();
+	int ReqQryTdAcc();
 	///请求认证
-	void ReqAuthenticate(TThostFtdcProductInfoType UserProdInf,TThostFtdcAuthCodeType	AuthCode);
+	int ReqAuthenticate(TThostFtdcProductInfoType UserProdInf,TThostFtdcAuthCodeType	AuthCode);
 	//请求查询持仓
-	void ReqQryInvPos(TThostFtdcInstrumentIDType instId);
-	void ReqQryInvPosEx(TThostFtdcInstrumentIDType instId);
-	void ReqQryInvPosCombEx(TThostFtdcInstrumentIDType instId);	
+	int ReqQryInvPos(TThostFtdcInstrumentIDType instId);
+	int ReqQryInvPosEx(TThostFtdcInstrumentIDType instId);
+	int ReqQryInvPosCombEx(TThostFtdcInstrumentIDType instId);	
 	///普通限价单
 	int ReqOrdLimit(TThostFtdcInstrumentIDType instId,TThostFtdcDirectionType dir, 
 		TThostFtdcCombOffsetFlagType kpp,TThostFtdcPriceType price,TThostFtdcVolumeType vol);
 	///市价单
-	void ReqOrdAny(TThostFtdcInstrumentIDType instId,TThostFtdcDirectionType dir, 
+	int ReqOrdAny(TThostFtdcInstrumentIDType instId,TThostFtdcDirectionType dir, 
 		TThostFtdcCombOffsetFlagType kpp,TThostFtdcVolumeType vol);
 	//FOK,FAK限价单
-	void ReqOrdFAOK(TThostFtdcInstrumentIDType instId,TThostFtdcDirectionType dir,TThostFtdcCombOffsetFlagType kpp,
+	int ReqOrdFAOK(TThostFtdcInstrumentIDType instId,TThostFtdcDirectionType dir,TThostFtdcCombOffsetFlagType kpp,
 		TThostFtdcPriceType price,/*TThostFtdcVolumeType vol,*/TThostFtdcVolumeConditionType volconType,TThostFtdcVolumeType minVol);
 	//条件单
-	void ReqOrdCondition(TThostFtdcInstrumentIDType instId,TThostFtdcDirectionType dir, TThostFtdcCombOffsetFlagType kpp,
+	int ReqOrdCondition(TThostFtdcInstrumentIDType instId,TThostFtdcDirectionType dir, TThostFtdcCombOffsetFlagType kpp,
         TThostFtdcPriceType price,TThostFtdcVolumeType vol,TThostFtdcPriceType stopPrice,TThostFtdcContingentConditionType conType);
 	//撤单
-	void ReqOrderCancel(TThostFtdcSequenceNoType orderSeq);
-	void ReqOrderCancel(TThostFtdcInstrumentIDType instId,TThostFtdcOrderRefType OrderRef);
+	int ReqOrderCancel(TThostFtdcSequenceNoType orderSeq);
+	int ReqOrderCancel(TThostFtdcInstrumentIDType instId,TThostFtdcOrderRefType OrderRef);
 	//更新交易密码
-	void ReqUserPwdUpdate(TThostFtdcPasswordType szNewPass,TThostFtdcPasswordType szOldPass);
+	int ReqUserPwdUpdate(TThostFtdcPasswordType szNewPass,TThostFtdcPasswordType szOldPass);
 	//更新资金密码
-	void ReqTdAccPwdUpdate(TThostFtdcPasswordType szNewPass,TThostFtdcPasswordType szOldPass);
-	void ReqQryBkrTdParams();
-	void ReqQryBkrTdAlgos(TThostFtdcExchangeIDType ExhID,TThostFtdcInstrumentIDType instID);
+	int ReqTdAccPwdUpdate(TThostFtdcPasswordType szNewPass,TThostFtdcPasswordType szOldPass);
+	int ReqQryBkrTdParams();
+	int ReqQryBkrTdAlgos(TThostFtdcExchangeIDType ExhID,TThostFtdcInstrumentIDType instID);
 	///////////////////////////////////////////////////////////////////////
 	///预埋单录入请求
-	void ReqParkedOrderInsert(CThostFtdcParkedOrderField *ParkedOrder);
-	void ReqParkedOrderAction(CThostFtdcParkedOrderActionField *ParkedOrderAction);
+	int ReqParkedOrderInsert(CThostFtdcParkedOrderField *ParkedOrder);
+	int ReqParkedOrderAction(CThostFtdcParkedOrderActionField *ParkedOrderAction);
 	///请求查询预埋单
-	void ReqQryParkedOrder(TThostFtdcInstrumentIDType InstrumentID,TThostFtdcExchangeIDType ExchangeID);
+	int ReqQryParkedOrder(TThostFtdcInstrumentIDType InstrumentID,TThostFtdcExchangeIDType ExchangeID);
 	///请求查询预埋撤单
-	void ReqQryParkedOrderAction(TThostFtdcInstrumentIDType InstrumentID,TThostFtdcExchangeIDType ExchangeID);
+	int ReqQryParkedOrderAction(TThostFtdcInstrumentIDType InstrumentID,TThostFtdcExchangeIDType ExchangeID);
 	///请求删除预埋单
-	void ReqRemoveParkedOrder(TThostFtdcParkedOrderIDType ParkedOrder_ID);
+	int ReqRemoveParkedOrder(TThostFtdcParkedOrderIDType ParkedOrder_ID);
 	///请求删除预埋撤单
-	void ReqRemoveParkedOrderAction(TThostFtdcParkedOrderActionIDType ParkedOrderAction_ID);
+	int ReqRemoveParkedOrderAction(TThostFtdcParkedOrderActionIDType ParkedOrderAction_ID);
 	///请求查询order
-	void ReqQryOrder(TThostFtdcInstrumentIDType instId);
+	int ReqQryOrder(TThostFtdcInstrumentIDType instId);
 	///请求查询成交
-    void ReqQryTrade(TThostFtdcInstrumentIDType instId);
+    int ReqQryTrade(TThostFtdcInstrumentIDType instId);
 	//////////////////////////////////////////////////////////////////////
 	// 是否收到成功的响应
 	bool IsErrorRspInfo(CThostFtdcRspInfoField *pRspInfo);
-	void ShowErrTips(TThostFtdcErrorMsgType ErrorMsg);
+	int ShowErrTips(TThostFtdcErrorMsgType ErrorMsg);
   //void PrintOrders();
   //void PrintTrades();
 public:

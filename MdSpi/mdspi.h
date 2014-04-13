@@ -39,11 +39,11 @@ public:
 public:
 	//LoginDlg* m_pDlg;
 	//void ReqUserLogin(TThostFtdcBrokerIDType	appId);
-	void ReqUserLogin(TThostFtdcBrokerIDType	vAppId,TThostFtdcUserIDType	vUserId,TThostFtdcPasswordType	vPasswd);
-	void ReqUserLogout();
+	int ReqUserLogin(TThostFtdcBrokerIDType	vAppId,TThostFtdcUserIDType	vUserId,TThostFtdcPasswordType	vPasswd);
+	int ReqUserLogout();
 	//TThostFtdcUserIDType	userId,	TThostFtdcPasswordType	passwd);
-	void SubscribeMarketData(char *pInst[], int nCount);
-	void UnSubscribeMarketData(char *pInst[], int nCount);
+	int SubscribeMarketData(char *pInst[], int nCount);
+	int UnSubscribeMarketData(char *pInst[], int nCount);
 	bool IsErrorRspInfo(CThostFtdcRspInfoField *pRspInfo);
 public:
 	int m_iRequestID;

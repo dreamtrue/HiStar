@@ -34,7 +34,7 @@ void CtpMdSpi::OnFrontConnected(){
 	PostThreadMessage(MainThreadId,WM_LOGIN_MD,NULL,NULL);
 }
 
-void CtpMdSpi::ReqUserLogin(TThostFtdcBrokerIDType	vAppId,TThostFtdcUserIDType	vUserId,TThostFtdcPasswordType	vPasswd){
+int CtpMdSpi::ReqUserLogin(TThostFtdcBrokerIDType	vAppId,TThostFtdcUserIDType	vUserId,TThostFtdcPasswordType	vPasswd){
 	CThostFtdcReqUserLoginField req;
 	memset(&req, 0, sizeof(req));
 	strcpy(req.BrokerID, vAppId); strcpy(m_sBkrID, vAppId); 
@@ -42,6 +42,7 @@ void CtpMdSpi::ReqUserLogin(TThostFtdcBrokerIDType	vAppId,TThostFtdcUserIDType	v
 	strcpy(req.Password, vPasswd);
 	strcpy(req.UserProductInfo,PROD_INFO);
 	pUserApi->ReqUserLogin(&req, ++m_iRequestID);
+	return m_iRequestID;
 }
 
 void CtpMdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
@@ -50,10 +51,12 @@ void CtpMdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
 		CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 		if (!IsErrorRspInfo(pRspInfo) && pRspUserLogin){
 		}
-		if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+		if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT_MD,NULL,nRequestID);
 }
 
-void CtpMdSpi::ReqUserLogout(){}
+int CtpMdSpi::ReqUserLogout(){
+	return 0;
+}
 
 ///登出请求响应
 void CtpMdSpi::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast){
@@ -63,7 +66,7 @@ void CtpMdSpi::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtd
 
 //TThostFtdcInstrumentIDType instId
 
-void CtpMdSpi::SubscribeMarketData(char *pInst[], int nCount)
+int CtpMdSpi::SubscribeMarketData(char *pInst[], int nCount)
 {
 	for(int i = 0;i < nCount;i++){
 		CString str = pInst[i];
@@ -81,6 +84,7 @@ void CtpMdSpi::SubscribeMarketData(char *pInst[], int nCount)
 		}
 	}
 	pUserApi->SubscribeMarketData(pInst, nCount);
+	return 0;
 }
 
 //同步市场
@@ -141,7 +145,7 @@ void CtpMdSpi::OnRspSubMarketData(
 		}
 }
 
-void CtpMdSpi::UnSubscribeMarketData(char *pInst[], int nCount){
+int CtpMdSpi::UnSubscribeMarketData(char *pInst[], int nCount){
 	for(int i = 0;i < nCount;i++){
 		CString str = pInst[i];
 		for(unsigned int j = 0;j < InstSubscribed.size();j++){
@@ -154,6 +158,7 @@ void CtpMdSpi::UnSubscribeMarketData(char *pInst[], int nCount){
 		InstSubscribed.push_back(str);
 	}
 	pUserApi->UnSubscribeMarketData(pInst, nCount);
+	return 0;
 }
 
 void CtpMdSpi::OnRspUnSubMarketData(
