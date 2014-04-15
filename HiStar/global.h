@@ -50,6 +50,8 @@ struct SAccountCtp{
 	CString m_szInst;
 	//前置地址
 	CStringArray m_szArTs,m_szArMd;
+	//
+	TThostFtdcDateType m_todayDate;//今天日子
 	//账户信息
 	INSINFEX *m_InstInf;
 	CThostFtdcDepthMarketDataField *m_pDepthMd;

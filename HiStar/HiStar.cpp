@@ -51,6 +51,7 @@ BEGIN_MESSAGE_MAP(CHiStarApp, CWinApp)
 	ON_THREAD_MESSAGE(WM_SYNCHRONIZEMARKET,OnSynchronizeMarket)
 	ON_THREAD_MESSAGE(WM_LOGIN_TD,LoginCtpTD)
 	ON_THREAD_MESSAGE(WM_LOGIN_MD,LoginCtpMD)
+	ON_THREAD_MESSAGE(WM_SYNCHRONIZE_MARKET,OnSynchronizeMarket)
 END_MESSAGE_MAP()
 
 // CHiStarApp 构造
@@ -77,6 +78,13 @@ CHiStarApp::CHiStarApp()
 }
 
 void CHiStarApp::OnIni(WPARAM wParam,LPARAM lParam){
+	SYSTEMTIME sys;
+	GetLocalTime(&sys);
+	TThostFtdcDateType buffer;
+	memset(buffer,0,sizeof(TThostFtdcDateType));memset(m_accountCtp.m_todayDate,0,sizeof(TThostFtdcDateType));
+	sprintf(buffer,"%04d%02d%02d",sys.wYear,sys.wMonth,sys.wDay);/*赋予数值*/
+	strcpy(m_accountCtp.m_todayDate,buffer);
+	//TThostFtdcDateType
 	FileInput();
 	SetIFContract();//设置IF合约
 	SetA50Contract();//设置A50合约
@@ -451,9 +459,10 @@ void CHiStarApp::OnConnectSql(WPARAM wParam,LPARAM lParam)
 }
 
 void CHiStarApp::OnSynchronizeMarket(WPARAM wParam,LPARAM lParam){
-	//暂空
+	if(m_cQ){
+		m_cQ->SynchronizeMarket(m_cQ->InstSubscribed,m_cQ->InstMustSubscribe,m_cT->m_InvPosDetailVec.GetBuffer());
+	}
 }
-
 
 BOOL CHiStarApp::OnIdle(LONG lCount)
 {

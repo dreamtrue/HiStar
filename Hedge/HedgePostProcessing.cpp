@@ -779,12 +779,12 @@ double DealA50Price(bool isBuy, double A50Price)
 
 void SelectIndex(){
 	if(fabs(g_A50Index - g_A50IndexMSHQ) > 15.0){
-		TRACE("over 0.1,MS%.02lf,SN%.02lf\r\n",g_A50IndexMSHQ,g_A50Index);
+		//TRACE("over 0.1,MS%.02lf,SN%.02lf\r\n",g_A50IndexMSHQ,g_A50Index);
 		A50Index = g_A50Index;
 	}
 	else{
 		A50Index = g_A50IndexMSHQ;
-		TRACE("MS,SN,%.02lf,%.02lf\r\n",g_A50IndexMSHQ,g_A50Index);
+		//TRACE("MS,SN,%.02lf,%.02lf\r\n",g_A50IndexMSHQ,g_A50Index);
 	}
 	if(fabs(g_HS300Index - g_HS300IndexMSHQ) > 5.0){
 		//TRACE("over 0.1,MS%.02lf,SN%.02lf\r\n",g_HS300Index,g_HS300Index);

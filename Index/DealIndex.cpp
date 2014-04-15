@@ -12,9 +12,11 @@ double A50totalVolumeRef;
 double HS300IndexRef;
 double HS300totalVolumeRef;
 double price[TOTAL];
+double priceZT[TOTAL];
 double volume[TOTAL];// = {A50PL,HS300PL};
 double g_A50Index = 0;
 double g_HS300Index = 0;
+double g_A50IndexZT = 0,g_HS300IndexZT = 0;
 struct stock{
 	std::string exch;
 	std::string code;
@@ -49,7 +51,6 @@ int GetIndexData(void)
 			volume[j] = g_hs300[j - A50NUM].volume;
 		}
 	}
-	//myURL = m_URL + _T(A50ID) + _T(HS300ID);
 	try{
 		myHttpFile = (CHttpFile*)mySession.OpenURL(myURL,1,INTERNET_FLAG_RELOAD|INTERNET_FLAG_TRANSFER_ASCII);
 	}
@@ -83,23 +84,28 @@ int GetIndexData(void)
 			else{
 				price[i] = fZT;
 			}
+			priceZT[i] = fZT;
 			i++;
 		}
 	}
 	//计算A50和HS300指数
-	double totalValueA50 = 0;
-	double totalValueHS300 = 0;
+	double totalValueA50 = 0,totalValueA50ZT = 0;
+	double totalValueHS300 = 0,totalValueHS300ZT = 0;
 	for(int i = 0;i < TOTAL;i++){
 		if(i < A50NUM){
 			totalValueA50 = totalValueA50 + price[i] * volume[i];
+			totalValueA50ZT = totalValueA50ZT + priceZT[i] * volume[i];
 		}
 		if(i >= A50NUM){
 			totalValueHS300 = totalValueHS300 + price[i] * volume[i];
+			totalValueHS300ZT = totalValueHS300ZT + priceZT[i] * volume[i];
 			/*TRACE("%.f\n",price[i] * volume[i]);*/
 		}
 	}
-	g_A50Index = A50IndexRef * totalValueA50 / A50totalVolumeRef;
-	g_HS300Index = HS300IndexRef * totalValueHS300 / HS300totalVolumeRef;
+	//g_A50Index = A50IndexRef * totalValueA50 / A50totalVolumeRef;
+	//g_HS300Index = HS300IndexRef * totalValueHS300 / HS300totalVolumeRef;
+	g_A50Index = g_A50IndexZT * totalValueA50 / totalValueA50ZT;
+	g_HS300Index = g_HS300IndexZT * totalValueHS300 / totalValueHS300ZT;
 	myHttpFile->Close();
 	delete myHttpFile;
 	myHttpFile = NULL;

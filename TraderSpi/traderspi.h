@@ -228,7 +228,7 @@ public:
 	CVector<CThostFtdcAccountregisterField> m_AccRegVec;
 	CVector<CThostFtdcTradingCodeField> m_TdCodeVec;
 	CVector<CThostFtdcInvestorPositionField> m_InvPosVec;
-	CVector<CThostFtdcInvestorPositionDetailField> m_InvPosDetailVec;//新增加的持仓明细
+	CVector<CThostFtdcInvestorPositionDetailField> m_InvPosDetailVec;//持仓明细
 	CVector<CThostFtdcRspTransferField> m_BfTransVec;
 	CTimeSpan m_tsEXnLocal[4];
 	CThostFtdcInstrumentCommissionRateField m_FeeRateRev;

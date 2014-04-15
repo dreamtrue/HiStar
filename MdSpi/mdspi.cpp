@@ -196,6 +196,43 @@ void CtpMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarket
 			PostThreadMessage(MainThreadId,WM_MD_REFRESH,NULL,NULL);
 		}
 	}
+	calcPositionProfit();
+}
+
+double CtpMdSpi::calcPositionProfit(){
+	double positionProfit = 0;
+	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
+	std::vector<CThostFtdcInvestorPositionDetailField> InvPosDetailVec = pApp->m_cT->m_InvPosDetailVec.GetBuffer();
+	for(unsigned int i = 0;i < InvPosDetailVec.size();i++){
+		bool founed = false;int index = 0;
+		for(unsigned int j = 0;j < Marketdata.size();j++){
+			if(!strcmp(InvPosDetailVec[i].InstrumentID,Marketdata[j].InstrumentID)){
+				founed = true;index = j;
+			}
+		}
+		if(founed){
+			if(Marketdata[index].AskPrice1 > 0.000001 &&  Marketdata[index].BidPrice1 > 0.000001){
+				if(!strcmp(InvPosDetailVec[i].OpenDate,pApp->m_accountCtp.m_todayDate)){
+					if(InvPosDetailVec[i].Direction == THOST_FTDC_D_Buy){
+						positionProfit = positionProfit + ((Marketdata[index].AskPrice1 + Marketdata[index].BidPrice1) / 2.0 - InvPosDetailVec[i].OpenPrice) * InvPosDetailVec[i].Volume;
+					}
+					else{
+						positionProfit = positionProfit - ((Marketdata[index].AskPrice1 + Marketdata[index].BidPrice1) / 2.0 - InvPosDetailVec[i].OpenPrice) * InvPosDetailVec[i].Volume;
+					}
+				}
+				else{
+					if(InvPosDetailVec[i].Direction == THOST_FTDC_D_Buy){
+						positionProfit = positionProfit + ((Marketdata[index].AskPrice1 + Marketdata[index].BidPrice1) / 2.0 - InvPosDetailVec[i].LastSettlementPrice) * InvPosDetailVec[i].Volume;
+					}
+					else{
+						positionProfit = positionProfit - ((Marketdata[index].AskPrice1 + Marketdata[index].BidPrice1) / 2.0 - InvPosDetailVec[i].LastSettlementPrice) * InvPosDetailVec[i].Volume;
+					}
+				}
+			}
+		}
+	}
+	TRACE("¶¯Ì¬ %.02lf\n",positionProfit);
+	return positionProfit;
 }
 
 bool CtpMdSpi::IsErrorRspInfo(CThostFtdcRspInfoField *pRspInfo){	

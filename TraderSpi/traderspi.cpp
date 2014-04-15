@@ -975,6 +975,8 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 			strcpy(posDetail.OpenDate,trade.TradeDate);strcpy(posDetail.TradingDay,trade.TradingDay);
 			posDetail.Volume = trade.Volume;
 			m_InvPosDetailVec.push_back(posDetail);
+			PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
+			PostThreadMessage(MainThreadId,WM_SYNCHRONIZE_MARKET,NULL,NULL);
 		}
 	}
 	else{//平仓
@@ -987,12 +989,16 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 				if(m_InvPosDetailVec[i].Volume > closeNum){
 					m_InvPosDetailVec[i].CloseVolume = m_InvPosDetailVec[i].CloseVolume + closeNum;
 					m_InvPosDetailVec[i].Volume = m_InvPosDetailVec[i].Volume - closeNum;
+					PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
+					PostThreadMessage(MainThreadId,WM_SYNCHRONIZE_MARKET,NULL,NULL);
 					break;
 				}
 				else if(m_InvPosDetailVec[i].Volume == closeNum){
 					CVector<CThostFtdcInvestorPositionDetailField>::iterator it = m_InvPosDetailVec.begin() + i;
 					m_InvPosDetailVec.erase(it);
 					i--;
+					PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
+					PostThreadMessage(MainThreadId,WM_SYNCHRONIZE_MARKET,NULL,NULL);
 					break;
 				}
 				else{
@@ -1004,8 +1010,6 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 			}
 		}
 	}
-	PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
-	PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 	//后处理
 	if(pApp->m_pHedgePostProcessing){
 		CThostFtdcTradeField *pTradePost = new CThostFtdcTradeField;

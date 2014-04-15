@@ -159,9 +159,7 @@ void CHiStarApp::LoginCtpMD(WPARAM wParam,LPARAM lParam){
 		if (!bRet){}
 		else if(true/*requestID == msg.lParam*/){break;}//行情系统登录时的ID和返回的ID不知为什么不一致？
 	}
-	if(m_cQ){
-		m_cQ->SynchronizeMarket(m_cQ->InstSubscribed,m_cQ->InstMustSubscribe,m_cT->m_InvPosDetailVec.GetBuffer());
-	}
+	OnSynchronizeMarket(NULL,NULL);
 }
 
 void CHiStarApp::LoginCtpTD(WPARAM wParam,LPARAM lParam){
