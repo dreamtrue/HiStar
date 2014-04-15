@@ -102,8 +102,6 @@ int GetIndexData(void)
 			/*TRACE("%.f\n",price[i] * volume[i]);*/
 		}
 	}
-	//g_A50Index = A50IndexRef * totalValueA50 / A50totalVolumeRef;
-	//g_HS300Index = HS300IndexRef * totalValueHS300 / HS300totalVolumeRef;
 	g_A50Index = g_A50IndexZT * totalValueA50 / totalValueA50ZT;
 	g_HS300Index = g_HS300IndexZT * totalValueHS300 / totalValueHS300ZT;
 	myHttpFile->Close();

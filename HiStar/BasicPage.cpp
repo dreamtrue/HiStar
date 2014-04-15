@@ -24,6 +24,7 @@ extern double premiumHigh,premiumLow;
 extern double MaxProfitAim,MinProfitAim;
 extern int MultiPos;
 extern double MarginA50;extern int MultiA50;
+extern double g_A50IndexZT,g_HS300IndexZT;
 extern bool isReal;
 extern CVector<HoldDetail> HedgeHold;
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
@@ -95,6 +96,8 @@ void CBasicPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX,IDC_RICHEDIT23,MarginA50);
 	DDX_Control(pDX, IDC_LIST3, m_LstHedgeStatus);
 	DDX_Text(pDX, IDC_RICHEDIT26, MultiA50);
+	DDX_Control(pDX, IDC_UP_HS300, m_HS300UP);
+	DDX_Control(pDX, IDC_UP_A50, m_A50UP);
 }
 
 BEGIN_MESSAGE_MAP(CBasicPage, CDialogEx)
@@ -177,6 +180,10 @@ BOOL CBasicPage::OnInitDialog()
 	m_csHedgePriceHigh.SetWindowText(_T("0.0"),LITGRAY);
 	m_csHedgePriceLow.SetBkColor(ACC_BG);
 	m_csHedgePriceLow.SetWindowText(_T("0.0"),LITGRAY);
+	m_A50UP.SetBkColor(ACC_BG);
+	m_A50UP.SetWindowText(_T("0.0"),LITGRAY);
+	m_HS300UP.SetBkColor(ACC_BG);
+	m_HS300UP.SetWindowText(_T("0.0"),LITGRAY);
 	//
 	SetDlgItemText(IDC_COST_ADJUST,TEXT(_T("0.0")));
 	SetDlgItemText(IDC_DATUMDIFF,TEXT(_T("0.0")));
@@ -326,6 +333,18 @@ void CBasicPage::RefreshMdPane(void)
 	m_csA50Ask1.SetDouble(g_a50Ask1,BLACK);
 	m_csHedgePriceHigh.SetDouble(premiumHigh - datumDiff,BLACK);
 	m_csHedgePriceLow.SetDouble(premiumLow - datumDiff,BLACK);
+	if(g_A50Index - g_A50IndexZT >= 0){
+		m_A50UP.SetDouble(g_A50Index - g_A50IndexZT,RED);
+	}
+	else{
+		m_A50UP.SetDouble(g_A50Index - g_A50IndexZT,GREEN);
+	}
+	if(g_HS300Index - g_HS300IndexZT >= 0){
+		m_HS300UP.SetDouble(g_HS300Index - g_HS300IndexZT,RED);
+	}
+	else{
+		m_HS300UP.SetDouble(g_HS300Index - g_HS300IndexZT,GREEN);
+	}
 	SYSTEMTIME sys;
 	GetLocalTime(&sys);
 	char data[1000],datetime[100];

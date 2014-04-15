@@ -13,6 +13,8 @@
 #include "thostftdcuserapistruct.h"
 #include "ColorListCtrl.h"
 #include "HiStar.h"
+#include "c:\users\administrator\desktop\histar\trunk\diyctrl\colorstatic.h"
+#include "c:\users\administrator\desktop\histar\trunk\diyctrl\colorstatic.h"
 
 // CBasicPage 对话框
 class CBasicPage : public CDialogEx
@@ -85,6 +87,8 @@ public:
 	std::vector<HoldDetail> m_hedgeHold;
 	afx_msg void OnBnClickedButton8();
 	afx_msg void OnBnClickedMshq();
+	CColorStatic m_HS300UP;
+	CColorStatic m_A50UP;
 };
 //其他变量
 const int N = 5;
