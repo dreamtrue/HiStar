@@ -214,7 +214,11 @@ void CHiStarApp::LoginCtpTD(WPARAM wParam,LPARAM lParam){
 	}
 	Sleep(1000);
 	if(m_cT){
+
+		AcquireSRWLockExclusive(&g_srwLock);
 		m_cT->m_InvPosDetailVec.clear();//ÏÈÇå¿Õ
+		ReleaseSRWLockExclusive(&g_srwLock); 
+
 		requestID = m_cT->ReqQryInvPosEx(NULL);
 	}
 	while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){

@@ -38,13 +38,8 @@
 #include <afxcontrolbars.h>     // 功能区和控件条的 MFC 支持
 
 #include "vld.h" 
-
-
-
-
-
-
-
+//读写锁
+extern SRWLOCK g_srwLock; 
 
 #ifdef _UNICODE
 #if defined _M_IX86

@@ -5,6 +5,7 @@
 #include "global.h"
 #include "CVector.h"
 #include "mysql.h"
+#include <vector>
 class CtpTraderSpi : public CThostFtdcTraderSpi
 {
 public:
@@ -228,7 +229,9 @@ public:
 	CVector<CThostFtdcAccountregisterField> m_AccRegVec;
 	CVector<CThostFtdcTradingCodeField> m_TdCodeVec;
 	CVector<CThostFtdcInvestorPositionField> m_InvPosVec;
-	CVector<CThostFtdcInvestorPositionDetailField> m_InvPosDetailVec;//持仓明细
+
+	std::vector<CThostFtdcInvestorPositionDetailField> m_InvPosDetailVec;//持仓明细
+
 	CVector<CThostFtdcRspTransferField> m_BfTransVec;
 	CTimeSpan m_tsEXnLocal[4];
 	CThostFtdcInstrumentCommissionRateField m_FeeRateRev;

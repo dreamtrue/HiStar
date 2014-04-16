@@ -33,6 +33,8 @@ struct stock{
 std::vector<stock> g_hs300;
 std::vector<stock> g_a50;
 sqldb m_db;
+//读写锁
+SRWLOCK g_srwLock;  
 // CHiStarApp
 BEGIN_MESSAGE_MAP(CHiStarApp, CWinApp)
 	ON_COMMAND(ID_HELP, &CWinApp::OnHelp)
@@ -74,6 +76,7 @@ CHiStarApp::CHiStarApp()
 	MainThreadId = GetCurrentThreadId();
 	// 支持重新启动管理器
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;
+	InitializeSRWLock(&g_srwLock);//读写锁初始化
 }
 
 void CHiStarApp::OnIni(WPARAM wParam,LPARAM lParam){
@@ -431,7 +434,10 @@ void CHiStarApp::OnConnectSql(WPARAM wParam,LPARAM lParam)
 
 void CHiStarApp::OnSynchronizeMarket(WPARAM wParam,LPARAM lParam){
 	if(m_cQ){
-		m_cQ->SynchronizeMarket(m_cQ->InstSubscribed,m_cQ->InstMustSubscribe,m_cT->m_InvPosDetailVec.GetBuffer());
+
+		AcquireSRWLockShared(&g_srwLock);
+		m_cQ->SynchronizeMarket(m_cQ->InstSubscribed,m_cQ->InstMustSubscribe,m_cT->m_InvPosDetailVec);
+		ReleaseSRWLockShared(&g_srwLock); 
 	}
 }
 

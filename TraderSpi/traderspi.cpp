@@ -568,6 +568,8 @@ void CtpTraderSpi::OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDeta
 		memcpy(&InvPosDetail,pInvestorPositionDetail, sizeof(CThostFtdcInvestorPositionDetailField));
 		bool founded = false;
 		unsigned int i = 0;
+
+		AcquireSRWLockExclusive(&g_srwLock);
 		for(i = 0;i < m_InvPosDetailVec.size();i++){
 			if(strcmp(m_InvPosDetailVec[i].InstrumentID,InvPosDetail.InstrumentID) == 0 
 				&& strcmp(m_InvPosDetailVec[i].OpenDate,InvPosDetail.OpenDate) == 0//持仓明细区分日期的
@@ -591,9 +593,15 @@ void CtpTraderSpi::OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDeta
 				m_InvPosDetailVec.erase(m_InvPosDetailVec.begin() + i);
 			}
 		}
+		ReleaseSRWLockExclusive(&g_srwLock); 
+
 	}
 	if(bIsLast){ 
+
+		AcquireSRWLockExclusive(&g_srwLock);
 		sort(m_InvPosDetailVec.begin(),m_InvPosDetailVec.end(),CmpByTime);
+		ReleaseSRWLockExclusive(&g_srwLock); 
+
 		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 	}
@@ -959,6 +967,8 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 	//更改持仓明细单
 	if(trade.OffsetFlag == THOST_FTDC_OF_Open){
 		bool foundedInPosDetail = false;
+
+		AcquireSRWLockExclusive(&g_srwLock); 
 		for(unsigned int ii = 0;ii < m_InvPosDetailVec.size();ii++){
 			if(m_InvPosDetailVec[ii].TradeID == trade.TradeID
 				&& strcmp(m_InvPosDetailVec[ii].InstrumentID,trade.InstrumentID) == 0
@@ -978,8 +988,12 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 			PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 			PostThreadMessage(MainThreadId,WM_SYNCHRONIZE_MARKET,NULL,NULL);
 		}
+		ReleaseSRWLockExclusive(&g_srwLock); 
+
 	}
 	else{//平仓
+
+		AcquireSRWLockExclusive(&g_srwLock); 
 		sort(m_InvPosDetailVec.begin(),m_InvPosDetailVec.end(),CmpByTime);//排序
 		int closeNum = trade.Volume;TThostFtdcDirectionType closeDirection;
 		if(trade.Direction == THOST_FTDC_D_Buy){closeDirection = THOST_FTDC_D_Sell;}
@@ -1009,6 +1023,8 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 				}
 			}
 		}
+		ReleaseSRWLockExclusive(&g_srwLock);
+
 	}
 	//后处理
 	if(pApp->m_pHedgePostProcessing){
@@ -1854,7 +1870,10 @@ void CtpTraderSpi::ClearAllVectors(){
 	m_TdCodeVec.clear();
 	m_InvPosVec.clear();
 	m_BfTransVec.clear();
+
+	AcquireSRWLockExclusive(&g_srwLock);
 	m_InvPosDetailVec.clear();
+	ReleaseSRWLockExclusive(&g_srwLock); 
 }
 
 int CtpTraderSpi::FindOrdInOnRoadVec(TThostFtdcOrderRefType OrderRef)

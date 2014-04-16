@@ -9,7 +9,6 @@ class CtpMdSpi : public CThostFtdcMdSpi
 {
 public:
 	CtpMdSpi(CThostFtdcMdApi* api):pUserApi(api){ m_iRequestID = 0;}
-	//~CtpMdSpi();
 	///错误应答
 	virtual void OnRspError(CThostFtdcRspInfoField *pRspInfo,
 		int nRequestID, bool bIsLast);
@@ -37,11 +36,8 @@ public:
 	///深度行情通知
 	virtual void OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData);
 public:
-	//LoginDlg* m_pDlg;
-	//void ReqUserLogin(TThostFtdcBrokerIDType	appId);
 	int ReqUserLogin(TThostFtdcBrokerIDType	vAppId,TThostFtdcUserIDType	vUserId,TThostFtdcPasswordType	vPasswd);
 	int ReqUserLogout();
-	//TThostFtdcUserIDType	userId,	TThostFtdcPasswordType	passwd);
 	int SubscribeMarketData(char *pInst[], int nCount);
 	int UnSubscribeMarketData(char *pInst[], int nCount);
 	bool IsErrorRspInfo(CThostFtdcRspInfoField *pRspInfo);
