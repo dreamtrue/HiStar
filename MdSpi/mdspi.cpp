@@ -204,6 +204,7 @@ double CtpMdSpi::calcPositionProfit(){
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	std::vector<CThostFtdcInvestorPositionDetailField> InvPosDetailVec = pApp->m_cT->m_InvPosDetailVec.GetBuffer();
 	for(unsigned int i = 0;i < InvPosDetailVec.size();i++){
+		TRACE("%.02lf,%.02lf,%.02lf\n",InvPosDetailVec[i].Margin,InvPosDetailVec[i].MarginRateByMoney,InvPosDetailVec[i].MarginRateByVolume);
 		bool founed = false;int index = 0;
 		for(unsigned int j = 0;j < Marketdata.size();j++){
 			if(!strcmp(InvPosDetailVec[i].InstrumentID,Marketdata[j].InstrumentID)){
@@ -214,18 +215,18 @@ double CtpMdSpi::calcPositionProfit(){
 			if(Marketdata[index].AskPrice1 > 0.000001 &&  Marketdata[index].BidPrice1 > 0.000001){
 				if(!strcmp(InvPosDetailVec[i].OpenDate,pApp->m_accountCtp.m_todayDate)){
 					if(InvPosDetailVec[i].Direction == THOST_FTDC_D_Buy){
-						positionProfit = positionProfit + ((Marketdata[index].AskPrice1 + Marketdata[index].BidPrice1) / 2.0 - InvPosDetailVec[i].OpenPrice) * InvPosDetailVec[i].Volume;
+						positionProfit = positionProfit + (Marketdata[index].LastPrice - InvPosDetailVec[i].OpenPrice) * InvPosDetailVec[i].Volume * 300.0;
 					}
 					else{
-						positionProfit = positionProfit - ((Marketdata[index].AskPrice1 + Marketdata[index].BidPrice1) / 2.0 - InvPosDetailVec[i].OpenPrice) * InvPosDetailVec[i].Volume;
+						positionProfit = positionProfit - (Marketdata[index].LastPrice - InvPosDetailVec[i].OpenPrice) * InvPosDetailVec[i].Volume * 300.0;
 					}
 				}
 				else{
 					if(InvPosDetailVec[i].Direction == THOST_FTDC_D_Buy){
-						positionProfit = positionProfit + ((Marketdata[index].AskPrice1 + Marketdata[index].BidPrice1) / 2.0 - InvPosDetailVec[i].LastSettlementPrice) * InvPosDetailVec[i].Volume;
+						positionProfit = positionProfit + ((Marketdata[index].AskPrice1 + Marketdata[index].BidPrice1) / 2.0 - InvPosDetailVec[i].LastSettlementPrice) * InvPosDetailVec[i].Volume * 300.0;
 					}
 					else{
-						positionProfit = positionProfit - ((Marketdata[index].AskPrice1 + Marketdata[index].BidPrice1) / 2.0 - InvPosDetailVec[i].LastSettlementPrice) * InvPosDetailVec[i].Volume;
+						positionProfit = positionProfit - ((Marketdata[index].AskPrice1 + Marketdata[index].BidPrice1) / 2.0 - InvPosDetailVec[i].LastSettlementPrice) * InvPosDetailVec[i].Volume * 300.0;
 					}
 				}
 			}

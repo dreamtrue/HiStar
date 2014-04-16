@@ -33,7 +33,7 @@ struct stock{
 std::vector<stock> g_hs300;
 std::vector<stock> g_a50;
 sqldb m_db;
-extern double A50IndexRef,A50totalVolumeRef,HS300IndexRef,HS300totalVolumeRef;
+extern double A50IndexRef,A50totalValueRef,HS300IndexRef,HS300totalValueRef;
 // CHiStarApp
 BEGIN_MESSAGE_MAP(CHiStarApp, CWinApp)
 	ON_COMMAND(ID_HELP, &CWinApp::OnHelp)
@@ -342,9 +342,9 @@ int CHiStarApp::FileInput(void)
 				if(str01.c_str()[0] == '*'){continue;}
 				if(str == "@end")break;
 				A50IndexRef = atof(str01.c_str());
-				A50totalVolumeRef = atof(str02.c_str());
+				A50totalValueRef = atof(str02.c_str());
 				HS300IndexRef = atof(str03.c_str());
-				HS300totalVolumeRef = atof(str04.c_str());
+				HS300totalValueRef = atof(str04.c_str());
 			}
 		}
 		else if(str01 == "@md_address"){

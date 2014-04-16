@@ -221,7 +221,7 @@
     <ClCompile Include="..\DIYCtrl\ColorStatic.cpp" />
     <ClCompile Include="..\Hedge\HedgePostProcessing.cpp" />
     <ClCompile Include="..\IBInterface\IBInterface.cpp" />
-    <ClCompile Include="..\Index\DealIndex.cpp" />
+    <ClCompile Include="..\Index\UpdateIndex.cpp" />
     <ClCompile Include="..\Index\Index.cpp" />
     <ClCompile Include="..\MdSpi\mdspi.cpp" />
     <ClCompile Include="..\MSHQ\MSHQ.cpp" />

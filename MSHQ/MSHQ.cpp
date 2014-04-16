@@ -13,7 +13,7 @@ struct stock{
 };
 extern std::vector<stock> g_hs300;
 extern std::vector<stock> g_a50;
-extern double A50IndexRef,A50totalVolumeRef,HS300IndexRef,HS300totalVolumeRef;
+extern double A50IndexRef,A50totalValueRef,HS300IndexRef,HS300totalValueRef;
 //自定义的股票数据结构
 typedef struct tagStockSlf		//股票行情
 {
@@ -246,8 +246,8 @@ void CMSHQ::CalcTotalValue(){
 			}
 		}
 	}
-	g_A50IndexMSHQ = g_totalA50Value / A50totalVolumeRef * A50IndexRef;
-	g_HS300IndexMSHQ = g_totalHS300Value / HS300totalVolumeRef * HS300IndexRef;
+	g_A50IndexMSHQ = g_totalA50Value / A50totalValueRef * A50IndexRef;
+	g_HS300IndexMSHQ = g_totalHS300Value / HS300totalValueRef * HS300IndexRef;
 	//TRACE(_T("A50指数%.02lf,HS300指数%.02lf\r\n"),g_A50IndexMSHQ,g_HS300IndexMSHQ);
 }
 

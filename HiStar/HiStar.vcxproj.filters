@@ -164,9 +164,6 @@
     <ClCompile Include="BasicPage.cpp">
       <Filter>源文件\Dialog</Filter>
     </ClCompile>
-    <ClCompile Include="..\Index\DealIndex.cpp">
-      <Filter>源文件\Index</Filter>
-    </ClCompile>
     <ClCompile Include="..\Index\Index.cpp">
       <Filter>源文件\Index</Filter>
     </ClCompile>
@@ -178,6 +175,9 @@
     </ClCompile>
     <ClCompile Include="..\MSHQ\MSHQ.cpp">
       <Filter>源文件\MXHQ</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Index\UpdateIndex.cpp">
+      <Filter>源文件\Index</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
