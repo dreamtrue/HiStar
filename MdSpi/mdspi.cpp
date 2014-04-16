@@ -214,7 +214,7 @@ double CtpMdSpi::calcPositionProfit(){
 		}
 		if(founed){
 			if(Marketdata[index].AskPrice1 > 0.000001 && Marketdata[index].BidPrice1 > 0.000001){
-				if(!strcmp(pApp->m_cT->m_InvPosDetailVec[i].OpenDate,pApp->m_accountCtp.m_todayDate)){
+				if(strcmp(pApp->m_cT->m_InvPosDetailVec[i].OpenDate,pApp->m_accountCtp.m_todayDate) >= 0){
 					if(pApp->m_cT->m_InvPosDetailVec[i].Direction == THOST_FTDC_D_Buy){
 						positionProfit = positionProfit + (Marketdata[index].LastPrice - pApp->m_cT->m_InvPosDetailVec[i].OpenPrice) * pApp->m_cT->m_InvPosDetailVec[i].Volume * 300.0;
 					}
@@ -224,10 +224,10 @@ double CtpMdSpi::calcPositionProfit(){
 				}
 				else{
 					if(pApp->m_cT->m_InvPosDetailVec[i].Direction == THOST_FTDC_D_Buy){
-						positionProfit = positionProfit + ((Marketdata[index].AskPrice1 + Marketdata[index].BidPrice1) / 2.0 - pApp->m_cT->m_InvPosDetailVec[i].LastSettlementPrice) * pApp->m_cT->m_InvPosDetailVec[i].Volume * 300.0;
+						positionProfit = positionProfit + (Marketdata[index].LastPrice - pApp->m_cT->m_InvPosDetailVec[i].LastSettlementPrice) * pApp->m_cT->m_InvPosDetailVec[i].Volume * 300.0;
 					}
 					else{
-						positionProfit = positionProfit - ((Marketdata[index].AskPrice1 + Marketdata[index].BidPrice1) / 2.0 - pApp->m_cT->m_InvPosDetailVec[i].LastSettlementPrice) * pApp->m_cT->m_InvPosDetailVec[i].Volume * 300.0;
+						positionProfit = positionProfit - (Marketdata[index].LastPrice - pApp->m_cT->m_InvPosDetailVec[i].LastSettlementPrice) * pApp->m_cT->m_InvPosDetailVec[i].Volume * 300.0;
 					}
 				}
 			}

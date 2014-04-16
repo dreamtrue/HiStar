@@ -979,8 +979,9 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 			}
 		}
 		if(!foundedInPosDetail){
-			CThostFtdcInvestorPositionDetailField posDetail;
+			CThostFtdcInvestorPositionDetailField posDetail;memset(&posDetail,0,sizeof(CThostFtdcInvestorPositionDetailField));
 			posDetail.Direction = trade.Direction;strcpy(posDetail.InstrumentID,trade.InstrumentID);posDetail.OpenPrice = trade.Price;
+			strcpy(posDetail.BrokerID,trade.BrokerID);strcpy(posDetail.InvestorID,trade.InvestorID);posDetail.TradeType = trade.TradeType;
 			strcpy(posDetail.TradeID,trade.TradeID);strcpy(posDetail.ExchangeID,trade.ExchangeID);
 			strcpy(posDetail.OpenDate,trade.TradeDate);strcpy(posDetail.TradingDay,trade.TradingDay);
 			posDetail.Volume = trade.Volume;
@@ -988,7 +989,7 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 			PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 			PostThreadMessage(MainThreadId,WM_SYNCHRONIZE_MARKET,NULL,NULL);
 		}
-		ReleaseSRWLockExclusive(&g_srwLock); 
+		ReleaseSRWLockExclusive(&g_srwLock);
 
 	}
 	else{//Æ½²Ö
