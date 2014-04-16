@@ -33,7 +33,6 @@ struct stock{
 std::vector<stock> g_hs300;
 std::vector<stock> g_a50;
 sqldb m_db;
-extern double A50IndexRef,A50totalValueRef,HS300IndexRef,HS300totalValueRef;
 // CHiStarApp
 BEGIN_MESSAGE_MAP(CHiStarApp, CWinApp)
 	ON_COMMAND(ID_HELP, &CWinApp::OnHelp)
@@ -307,22 +306,6 @@ int CHiStarApp::FileInput(void)
 				strcpy(m_accountCtp.m_sBROKER_ID,str03.c_str());
 			}
 		}
-		/*
-		else if(str01 == "@hedgehold"){
-			while(getline(fileInput,str)){
-				stream.str("");stream.clear();stream << str;
-				stream >> str01 >> str02 >> str03 >> str04;
-				if(str01.c_str()[0] == '*'){continue;}
-				if(str01 == "@end")break;
-				HoldDetail hd;
-				hd.id = atol(str01.c_str());
-				hd.HedgeNum = atoi(str02.c_str());
-				hd.HedgeSection = atoi(str03.c_str());
-				hd.originalCost = atof(str04.c_str());
-				HedgeHold.push_back(hd);
-			}
-		}
-		*/
 		else if(str01 == "@mysql"){
 			while(getline(fileInput,str)){
 				stream.str("");stream.clear();stream << str;
@@ -333,18 +316,6 @@ int CHiStarApp::FileInput(void)
 				m_db.user = str02;
 				m_db.passwd = str03;
 				m_db.db = str04;
-			}
-		}
-		else if(str01 == "@index"){
-			while(getline(fileInput,str)){
-				stream.str("");stream.clear();stream << str;
-				stream >> str01 >> str02 >> str03 >> str04;
-				if(str01.c_str()[0] == '*'){continue;}
-				if(str == "@end")break;
-				A50IndexRef = atof(str01.c_str());
-				A50totalValueRef = atof(str02.c_str());
-				HS300IndexRef = atof(str03.c_str());
-				HS300totalValueRef = atof(str04.c_str());
 			}
 		}
 		else if(str01 == "@md_address"){
