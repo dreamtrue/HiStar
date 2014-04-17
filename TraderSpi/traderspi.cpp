@@ -321,6 +321,10 @@ void CtpTraderSpi::OnRspQryTradingAccount(
 	CThostFtdcTradingAccountField *pTradingAccount, 
 	CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 { 
+	AcquireSRWLockExclusive(&g_srwLock_TradingAccount);
+	TradingAccount = *pTradingAccount;
+	ReleaseSRWLockExclusive(&g_srwLock_TradingAccount);
+
 	CThostFtdcTradingAccountField *pAcc;
 	if (!IsErrorRspInfo(pRspInfo) &&  pTradingAccount)
 	{
@@ -569,7 +573,7 @@ void CtpTraderSpi::OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDeta
 		bool founded = false;
 		unsigned int i = 0;
 
-		AcquireSRWLockExclusive(&g_srwLock);
+		AcquireSRWLockExclusive(&g_srwLock_PosDetail);
 		for(i = 0;i < m_InvPosDetailVec.size();i++){
 			if(strcmp(m_InvPosDetailVec[i].InstrumentID,InvPosDetail.InstrumentID) == 0 
 				&& strcmp(m_InvPosDetailVec[i].OpenDate,InvPosDetail.OpenDate) == 0//持仓明细区分日期的
@@ -593,14 +597,14 @@ void CtpTraderSpi::OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDeta
 				m_InvPosDetailVec.erase(m_InvPosDetailVec.begin() + i);
 			}
 		}
-		ReleaseSRWLockExclusive(&g_srwLock); 
+		ReleaseSRWLockExclusive(&g_srwLock_PosDetail); 
 
 	}
 	if(bIsLast){ 
 
-		AcquireSRWLockExclusive(&g_srwLock);
+		AcquireSRWLockExclusive(&g_srwLock_PosDetail);
 		sort(m_InvPosDetailVec.begin(),m_InvPosDetailVec.end(),CmpByTime);
-		ReleaseSRWLockExclusive(&g_srwLock); 
+		ReleaseSRWLockExclusive(&g_srwLock_PosDetail); 
 
 		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
@@ -968,7 +972,7 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 	if(trade.OffsetFlag == THOST_FTDC_OF_Open){
 		bool foundedInPosDetail = false;
 
-		AcquireSRWLockExclusive(&g_srwLock); 
+		AcquireSRWLockExclusive(&g_srwLock_PosDetail); 
 		for(unsigned int ii = 0;ii < m_InvPosDetailVec.size();ii++){
 			if(m_InvPosDetailVec[ii].TradeID == trade.TradeID
 				&& strcmp(m_InvPosDetailVec[ii].InstrumentID,trade.InstrumentID) == 0
@@ -989,12 +993,12 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 			PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 			PostThreadMessage(MainThreadId,WM_SYNCHRONIZE_MARKET,NULL,NULL);
 		}
-		ReleaseSRWLockExclusive(&g_srwLock);
+		ReleaseSRWLockExclusive(&g_srwLock_PosDetail);
 
 	}
 	else{//平仓
 
-		AcquireSRWLockExclusive(&g_srwLock); 
+		AcquireSRWLockExclusive(&g_srwLock_PosDetail); 
 		sort(m_InvPosDetailVec.begin(),m_InvPosDetailVec.end(),CmpByTime);//排序
 		int closeNum = trade.Volume;TThostFtdcDirectionType closeDirection;
 		if(trade.Direction == THOST_FTDC_D_Buy){closeDirection = THOST_FTDC_D_Sell;}
@@ -1004,12 +1008,32 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 				if(m_InvPosDetailVec[i].Volume > closeNum){
 					m_InvPosDetailVec[i].CloseVolume = m_InvPosDetailVec[i].CloseVolume + closeNum;
 					m_InvPosDetailVec[i].Volume = m_InvPosDetailVec[i].Volume - closeNum;
+
+					AcquireSRWLockExclusive(&g_srwLock_TradingAccount);
+					if(m_InvPosDetailVec[i].Direction == THOST_FTDC_D_Buy){
+						TradingAccount.CloseProfit = (trade.Price - m_InvPosDetailVec[i].OpenPrice) * closeNum * 300.0;
+					}
+					else{
+						TradingAccount.CloseProfit = -(trade.Price - m_InvPosDetailVec[i].OpenPrice) * closeNum * 300.0;
+					}
+					ReleaseSRWLockExclusive(&g_srwLock_TradingAccount);
+
 					PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 					PostThreadMessage(MainThreadId,WM_SYNCHRONIZE_MARKET,NULL,NULL);
 					break;
 				}
 				else if(m_InvPosDetailVec[i].Volume == closeNum){
-					CVector<CThostFtdcInvestorPositionDetailField>::iterator it = m_InvPosDetailVec.begin() + i;
+
+					AcquireSRWLockExclusive(&g_srwLock_TradingAccount);
+					if(m_InvPosDetailVec[i].Direction == THOST_FTDC_D_Buy){
+						TradingAccount.CloseProfit = (trade.Price - m_InvPosDetailVec[i].OpenPrice) * closeNum * 300.0;
+					}
+					else{
+						TradingAccount.CloseProfit = -(trade.Price - m_InvPosDetailVec[i].OpenPrice) * closeNum * 300.0;
+					}
+					ReleaseSRWLockExclusive(&g_srwLock_TradingAccount);
+
+					std::vector<CThostFtdcInvestorPositionDetailField>::iterator it = m_InvPosDetailVec.begin() + i;
 					m_InvPosDetailVec.erase(it);
 					i--;
 					PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
@@ -1018,13 +1042,23 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 				}
 				else{
 					closeNum = closeNum - m_InvPosDetailVec[i].Volume;
-					CVector<CThostFtdcInvestorPositionDetailField>::iterator it = m_InvPosDetailVec.begin() + i;
+
+					AcquireSRWLockExclusive(&g_srwLock_TradingAccount);
+					if(m_InvPosDetailVec[i].Direction == THOST_FTDC_D_Buy){
+						TradingAccount.CloseProfit = (trade.Price - m_InvPosDetailVec[i].OpenPrice) * m_InvPosDetailVec[i].Volume * 300.0;
+					}
+					else{
+						TradingAccount.CloseProfit = -(trade.Price - m_InvPosDetailVec[i].OpenPrice) * m_InvPosDetailVec[i].Volume * 300.0;
+					}
+					ReleaseSRWLockExclusive(&g_srwLock_TradingAccount);
+
+					std::vector<CThostFtdcInvestorPositionDetailField>::iterator it = m_InvPosDetailVec.begin() + i;
 					m_InvPosDetailVec.erase(it);
 					i--;
 				}
 			}
 		}
-		ReleaseSRWLockExclusive(&g_srwLock);
+		ReleaseSRWLockExclusive(&g_srwLock_PosDetail);
 
 	}
 	//后处理
@@ -1872,9 +1906,9 @@ void CtpTraderSpi::ClearAllVectors(){
 	m_InvPosVec.clear();
 	m_BfTransVec.clear();
 
-	AcquireSRWLockExclusive(&g_srwLock);
+	AcquireSRWLockExclusive(&g_srwLock_PosDetail);
 	m_InvPosDetailVec.clear();
-	ReleaseSRWLockExclusive(&g_srwLock); 
+	ReleaseSRWLockExclusive(&g_srwLock_PosDetail); 
 }
 
 int CtpTraderSpi::FindOrdInOnRoadVec(TThostFtdcOrderRefType OrderRef)

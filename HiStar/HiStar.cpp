@@ -35,7 +35,8 @@ std::vector<stock> g_hs300;
 std::vector<stock> g_a50;
 sqldb m_db;
 //读写锁
-SRWLOCK g_srwLock;  
+SRWLOCK g_srwLock_PosDetail;  
+SRWLOCK g_srwLock_TradingAccount;
 // CHiStarApp
 BEGIN_MESSAGE_MAP(CHiStarApp, CWinApp)
 	ON_COMMAND(ID_HELP, &CWinApp::OnHelp)
@@ -77,7 +78,8 @@ CHiStarApp::CHiStarApp()
 	MainThreadId = GetCurrentThreadId();
 	// 支持重新启动管理器
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;
-	InitializeSRWLock(&g_srwLock);//读写锁初始化
+	InitializeSRWLock(&g_srwLock_PosDetail);//读写锁初始化
+	InitializeSRWLock(&g_srwLock_TradingAccount);
 }
 
 void CHiStarApp::OnIni(WPARAM wParam,LPARAM lParam){
@@ -437,9 +439,10 @@ void CHiStarApp::OnConnectSql(WPARAM wParam,LPARAM lParam)
 void CHiStarApp::OnSynchronizeMarket(WPARAM wParam,LPARAM lParam){
 	if(m_cQ){
 
-		AcquireSRWLockShared(&g_srwLock);
+		AcquireSRWLockShared(&g_srwLock_PosDetail);
 		m_cQ->SynchronizeMarket(m_cQ->InstSubscribed,m_cQ->InstMustSubscribe,m_cT->m_InvPosDetailVec);
-		ReleaseSRWLockShared(&g_srwLock); 
+		ReleaseSRWLockShared(&g_srwLock_PosDetail); 
+	
 	}
 }
 

@@ -215,9 +215,9 @@ void CHiStarApp::LoginCtpTD(WPARAM wParam,LPARAM lParam){
 	Sleep(1000);
 	if(m_cT){
 
-		AcquireSRWLockExclusive(&g_srwLock);
+		AcquireSRWLockExclusive(&g_srwLock_PosDetail);
 		m_cT->m_InvPosDetailVec.clear();//ÏÈÇå¿Õ
-		ReleaseSRWLockExclusive(&g_srwLock); 
+		ReleaseSRWLockExclusive(&g_srwLock_PosDetail); 
 
 		requestID = m_cT->ReqQryInvPosEx(NULL);
 	}

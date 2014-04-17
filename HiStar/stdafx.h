@@ -39,7 +39,8 @@
 
 #include "vld.h" 
 //¶ÁÐ´Ëø
-extern SRWLOCK g_srwLock; 
+extern SRWLOCK g_srwLock_PosDetail;
+extern SRWLOCK g_srwLock_TradingAccount;
 
 #ifdef _UNICODE
 #if defined _M_IX86

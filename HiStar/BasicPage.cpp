@@ -99,6 +99,8 @@ void CBasicPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_RICHEDIT26, MultiA50);
 	DDX_Control(pDX, IDC_UP_HS300, m_HS300UP);
 	DDX_Control(pDX, IDC_UP_A50, m_A50UP);
+	DDX_Control(pDX, IDC_ClOSE_PROFIT, m_closeProfit);
+	DDX_Control(pDX, IDC_OPEN_PROFIT, m_openProfit);
 }
 
 BEGIN_MESSAGE_MAP(CBasicPage, CDialogEx)
@@ -186,6 +188,10 @@ BOOL CBasicPage::OnInitDialog()
 	m_A50UP.SetWindowText(_T("0.0"),LITGRAY);
 	m_HS300UP.SetBkColor(ACC_BG);
 	m_HS300UP.SetWindowText(_T("0.0"),LITGRAY);
+	m_openProfit.SetBkColor(ACC_BG);
+	m_openProfit.SetWindowText(_T("0.0"),LITGRAY);
+	m_closeProfit.SetBkColor(ACC_BG);
+	m_closeProfit.SetWindowText(_T("0.0"),LITGRAY);
 	//
 	SetDlgItemText(IDC_COST_ADJUST,TEXT(_T("0.0")));
 	SetDlgItemText(IDC_DATUMDIFF,TEXT(_T("0.0")));
@@ -329,24 +335,25 @@ void CBasicPage::RefreshMdPane(void)
 	m_csS1P.SetDouble(m_depthMd.AskPrice1,CmpPriceColor(m_depthMd.AskPrice1,dPresp));
 	m_csLastP.SetDouble(m_depthMd.LastPrice,CmpPriceColor(m_depthMd.AskPrice1,dPresp));
 	m_csB1P.SetDouble(m_depthMd.BidPrice1,CmpPriceColor(m_depthMd.AskPrice1,dPresp));
-	m_csHs300.SetDouble(g_HS300Index,BLACK);
-	m_csA50.SetDouble(g_A50Index,BLACK);
+	m_csHs300.SetDouble(g_HS300Index,CmpPriceColor(g_HS300Index,g_HS300IndexZT));
+	m_csA50.SetDouble(g_A50Index,CmpPriceColor(g_A50Index,g_A50IndexZT));
 	m_csA50Bid1.SetDouble(g_a50Bid1,BLACK);
 	m_csA50Ask1.SetDouble(g_a50Ask1,BLACK);
 	m_csHedgePriceHigh.SetDouble(premiumHigh - datumDiff,BLACK);
 	m_csHedgePriceLow.SetDouble(premiumLow - datumDiff,BLACK);
-	if(g_A50Index - g_A50IndexZT >= 0){
-		m_A50UP.SetDouble(g_A50Index - g_A50IndexZT,RED);
+	m_A50UP.SetDouble(g_A50Index - g_A50IndexZT,CmpPriceColor(g_A50Index - g_A50IndexZT,0));
+	m_HS300UP.SetDouble(g_HS300Index - g_HS300IndexZT,CmpPriceColor(g_HS300Index - g_HS300IndexZT,0));
+
+	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
+	if(pApp && pApp->m_cT){
+
+		AcquireSRWLockShared(&g_srwLock_TradingAccount);
+		m_closeProfit.SetDouble(pApp->m_cT->TradingAccount.CloseProfit,CmpPriceColor(pApp->m_cT->TradingAccount.CloseProfit,0));
+		m_openProfit.SetDouble(pApp->m_cT->TradingAccount.PositionProfit,CmpPriceColor(pApp->m_cT->TradingAccount.PositionProfit,0));
+		ReleaseSRWLockShared(&g_srwLock_TradingAccount);
+
 	}
-	else{
-		m_A50UP.SetDouble(g_A50Index - g_A50IndexZT,GREEN);
-	}
-	if(g_HS300Index - g_HS300IndexZT >= 0){
-		m_HS300UP.SetDouble(g_HS300Index - g_HS300IndexZT,RED);
-	}
-	else{
-		m_HS300UP.SetDouble(g_HS300Index - g_HS300IndexZT,GREEN);
-	}
+
 	SYSTEMTIME sys;
 	GetLocalTime(&sys);
 	char data[1000],datetime[100];

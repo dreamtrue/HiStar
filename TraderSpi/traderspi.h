@@ -231,6 +231,7 @@ public:
 	CVector<CThostFtdcInvestorPositionField> m_InvPosVec;
 
 	std::vector<CThostFtdcInvestorPositionDetailField> m_InvPosDetailVec;//持仓明细
+	CThostFtdcTradingAccountField TradingAccount;//交易账户情况
 
 	CVector<CThostFtdcRspTransferField> m_BfTransVec;
 	CTimeSpan m_tsEXnLocal[4];
