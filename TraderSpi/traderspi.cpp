@@ -1011,10 +1011,10 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 
 					AcquireSRWLockExclusive(&g_srwLock_TradingAccount);
 					if(m_InvPosDetailVec[i].Direction == THOST_FTDC_D_Buy){
-						TradingAccount.CloseProfit = (trade.Price - m_InvPosDetailVec[i].OpenPrice) * closeNum * 300.0;
+						TradingAccount.CloseProfit = TradingAccount.CloseProfit + (trade.Price - m_InvPosDetailVec[i].OpenPrice) * closeNum * 300.0;
 					}
 					else{
-						TradingAccount.CloseProfit = -(trade.Price - m_InvPosDetailVec[i].OpenPrice) * closeNum * 300.0;
+						TradingAccount.CloseProfit = TradingAccount.CloseProfit - (trade.Price - m_InvPosDetailVec[i].OpenPrice) * closeNum * 300.0;
 					}
 					ReleaseSRWLockExclusive(&g_srwLock_TradingAccount);
 
@@ -1026,10 +1026,10 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 
 					AcquireSRWLockExclusive(&g_srwLock_TradingAccount);
 					if(m_InvPosDetailVec[i].Direction == THOST_FTDC_D_Buy){
-						TradingAccount.CloseProfit = (trade.Price - m_InvPosDetailVec[i].OpenPrice) * closeNum * 300.0;
+						TradingAccount.CloseProfit = TradingAccount.CloseProfit + (trade.Price - m_InvPosDetailVec[i].OpenPrice) * closeNum * 300.0;
 					}
 					else{
-						TradingAccount.CloseProfit = -(trade.Price - m_InvPosDetailVec[i].OpenPrice) * closeNum * 300.0;
+						TradingAccount.CloseProfit = TradingAccount.CloseProfit - (trade.Price - m_InvPosDetailVec[i].OpenPrice) * closeNum * 300.0;
 					}
 					ReleaseSRWLockExclusive(&g_srwLock_TradingAccount);
 
@@ -1045,10 +1045,10 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 
 					AcquireSRWLockExclusive(&g_srwLock_TradingAccount);
 					if(m_InvPosDetailVec[i].Direction == THOST_FTDC_D_Buy){
-						TradingAccount.CloseProfit = (trade.Price - m_InvPosDetailVec[i].OpenPrice) * m_InvPosDetailVec[i].Volume * 300.0;
+						TradingAccount.CloseProfit = TradingAccount.CloseProfit + (trade.Price - m_InvPosDetailVec[i].OpenPrice) * m_InvPosDetailVec[i].Volume * 300.0;
 					}
 					else{
-						TradingAccount.CloseProfit = -(trade.Price - m_InvPosDetailVec[i].OpenPrice) * m_InvPosDetailVec[i].Volume * 300.0;
+						TradingAccount.CloseProfit = TradingAccount.CloseProfit - (trade.Price - m_InvPosDetailVec[i].OpenPrice) * m_InvPosDetailVec[i].Volume * 300.0;
 					}
 					ReleaseSRWLockExclusive(&g_srwLock_TradingAccount);
 
