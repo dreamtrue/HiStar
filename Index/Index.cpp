@@ -140,6 +140,7 @@ BOOL CIndex::InitInstance()
 			i++;
 		}
 	}
+	totalValueA50ZT = 0;totalValueHS300ZT = 0;
 	for(int i = 0;i < TOTAL;i++){
 		if(i < A50NUM){
 			totalValueA50ZT = totalValueA50ZT + priceZT[i] * volume[i];
