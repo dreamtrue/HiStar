@@ -41,7 +41,7 @@ public:
 	int SubscribeMarketData(char *pInst[], int nCount);
 	int UnSubscribeMarketData(char *pInst[], int nCount);
 	bool IsErrorRspInfo(CThostFtdcRspInfoField *pRspInfo);
-	double calcPositionProfit();
+	double CalcPositionProfit();
 public:
 	int m_iRequestID;
 	TThostFtdcBrokerIDType	m_sBkrID;

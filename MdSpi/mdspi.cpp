@@ -196,10 +196,10 @@ void CtpMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarket
 			PostThreadMessage(MainThreadId,WM_MD_REFRESH,NULL,NULL);
 		}
 	}
-	calcPositionProfit();
+	CalcPositionProfit();
 }
 
-double CtpMdSpi::calcPositionProfit(){
+double CtpMdSpi::CalcPositionProfit(){
 	double positionProfit = 0;
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 
