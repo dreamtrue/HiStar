@@ -14,6 +14,7 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+extern DWORD IndexThreadId;
 extern double datumDiff;
 extern bool isHedgeLoopingPause;
 extern BOOL g_bLoginCtpT;
@@ -122,6 +123,7 @@ BEGIN_MESSAGE_MAP(CBasicPage, CDialogEx)
 	ON_NOTIFY(NM_DBLCLK,IDC_LIST3,OnNMDblclkLstHedgeStatus)
 	ON_BN_CLICKED(IDC_BUTTON8, &CBasicPage::OnBnClickedButton8)
 	ON_BN_CLICKED(IDC_MSHQ, &CBasicPage::OnBnClickedMshq)
+	ON_BN_CLICKED(IDC_UPDATE_INDEXREF, &CBasicPage::OnUpdateIndexref)
 END_MESSAGE_MAP()
 
 
@@ -542,4 +544,10 @@ void CBasicPage::OnBnClickedButton8()
 void CBasicPage::OnBnClickedMshq()
 {
 	PostThreadMessage(MainThreadId,WM_REQ_MSHQ,NULL,NULL);
+}
+
+
+void CBasicPage::OnUpdateIndexref()
+{
+	PostThreadMessage(IndexThreadId,WM_UPDATE_INDEX_REF,NULL,NULL);
 }

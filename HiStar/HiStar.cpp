@@ -12,6 +12,7 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+extern DWORD IndexThreadId;
 std::fstream fileInput;
 bool isReal = true;
 extern CVector<HoldDetail> HedgeHold;
@@ -99,6 +100,7 @@ void CHiStarApp::OnIni(WPARAM wParam,LPARAM lParam){
 	//INDEX
 	if(!m_pIndexThread){
 		m_pIndexThread = (CIndex*)AfxBeginThread(RUNTIME_CLASS(CIndex));
+		IndexThreadId = m_pIndexThread->m_nThreadID;
 		m_pIndexThread->m_bAutoDelete = true;
 	}
 	//交易后处理线程

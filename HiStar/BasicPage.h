@@ -89,6 +89,7 @@ public:
 	afx_msg void OnBnClickedMshq();
 	CColorStatic m_HS300UP;
 	CColorStatic m_A50UP;
+	afx_msg void OnUpdateIndexref();
 };
 //其他变量
 const int N = 5;

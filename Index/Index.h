@@ -30,6 +30,7 @@ public:
 	static CString m_URL;
 	static CString m_hexunA50;
 	static CString m_hexunHS300;
+	void OnUpdateIndexRef(WPARAM wParam,LPARAM lParam);
 };
 
 

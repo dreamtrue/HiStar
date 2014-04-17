@@ -166,5 +166,10 @@ int CIndex::ExitInstance()
 	return CWinThread::ExitInstance();
 }
 
+void CIndex::OnUpdateIndexRef(WPARAM wParam,LPARAM lParam){
+	InitInstance();
+}
+
 BEGIN_MESSAGE_MAP(CIndex, CWinThread)
+	ON_THREAD_MESSAGE(WM_UPDATE_INDEX_REF,OnUpdateIndexRef)
 END_MESSAGE_MAP()
