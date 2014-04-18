@@ -752,6 +752,17 @@ void CHedgePostProcessing::PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 	sprintf(buffer,_T("对冲结束\r\n=================================================\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
 	::PostThreadMessage(MainThreadId,WM_UPDATE_HEDGEHOLD,NULL,NULL);//更新账户
 	::PostThreadMessage(MainThreadId,WM_QRY_ACC_CTP,NULL,NULL);//更新账户
+	static int idSynchronize = 0;
+	::PostThreadMessage(MainThreadId,WM_SYNCHRONIZE_MARKET,NULL,++idSynchronize);//同步市场
+	while((bRet = GetMessage(&msg,NULL,WM_SYNCHRONIZE_NOTIFY,WM_SYNCHRONIZE_NOTIFY)) != 0){
+		if (!bRet){
+		}
+		else{
+			if(idSynchronize == msg.lParam){
+				break;
+			}
+		}
+	}
 	Sleep(3000);
 }
 

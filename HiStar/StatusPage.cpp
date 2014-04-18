@@ -276,8 +276,11 @@ void CStatusPage::SynchronizeAllVecs()
 		m_InvPosDetailVec =  pApp->m_cT->m_InvPosDetailVec;
 		ReleaseSRWLockShared(&g_srwLock_PosDetail);
 
+		AcquireSRWLockShared(&g_srwLock_MargRate); 
+		m_MargRateVec = pApp->m_cT->m_MargRateVec;
+		ReleaseSRWLockShared(&g_srwLock_MargRate);
+
 		FiltInsList();//ÅÅÐò
-		m_MargRateVec = pApp->m_cT->m_MargRateVec.GetBuffer();
 		m_StmiVec = pApp->m_cT->m_StmiVec.GetBuffer();
 		m_AccRegVec = pApp->m_cT->m_AccRegVec.GetBuffer();
 		m_TdCodeVec = pApp->m_cT->m_TdCodeVec.GetBuffer();

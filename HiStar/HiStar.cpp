@@ -37,6 +37,7 @@ sqldb m_db;
 //¶ÁÐ´Ëø
 SRWLOCK g_srwLock_PosDetail;  
 SRWLOCK g_srwLock_TradingAccount;
+SRWLOCK g_srwLock_MargRate;
 // CHiStarApp
 BEGIN_MESSAGE_MAP(CHiStarApp, CWinApp)
 	ON_COMMAND(ID_HELP, &CWinApp::OnHelp)
@@ -80,6 +81,7 @@ CHiStarApp::CHiStarApp()
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_RESTART;
 	InitializeSRWLock(&g_srwLock_PosDetail);//¶ÁÐ´Ëø³õÊ¼»¯
 	InitializeSRWLock(&g_srwLock_TradingAccount);
+	InitializeSRWLock(&g_srwLock_MargRate);
 }
 
 void CHiStarApp::OnIni(WPARAM wParam,LPARAM lParam){
@@ -437,12 +439,45 @@ void CHiStarApp::OnConnectSql(WPARAM wParam,LPARAM lParam)
 }
 
 void CHiStarApp::OnSynchronizeMarket(WPARAM wParam,LPARAM lParam){
+	MSG msg;BOOL bRet;
 	if(m_cQ){
 
 		AcquireSRWLockShared(&g_srwLock_PosDetail);
 		m_cQ->SynchronizeMarket(m_cQ->InstSubscribed,m_cQ->InstMustSubscribe,m_cT->m_InvPosDetailVec);
 		ReleaseSRWLockShared(&g_srwLock_PosDetail); 
-	
+
+	}
+	if(m_cT){
+
+		AcquireSRWLockShared(&g_srwLock_PosDetail);
+		for(unsigned int i = 0;i < m_cT->m_InvPosDetailVec.size();i++){
+			bool found = false;int requestId = -1;
+
+			AcquireSRWLockShared(&g_srwLock_MargRate);
+			for(unsigned int j = 0;j < m_cT->m_MargRateVec.size();j++){
+				if(strcmp(m_cT->m_InvPosDetailVec[i].InstrumentID,m_cT->m_MargRateVec[j].InstrumentID) == 0){
+					found = true;break;
+				}
+			}
+			ReleaseSRWLockShared(&g_srwLock_MargRate);
+
+			if(!found){
+				requestId = m_cT->ReqQryInstrumentMarginRate(m_cT->m_InvPosDetailVec[i].InstrumentID);
+				while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
+					if (!bRet){
+					}
+					else if(requestId == msg.lParam){
+						break;
+					}
+				}
+				Sleep(1000);
+			}
+		}
+		ReleaseSRWLockShared(&g_srwLock_PosDetail); 
+
+	}
+	if(m_pHedgePostProcessing){
+		m_pHedgePostProcessing->PostThreadMessage(WM_SYNCHRONIZE_NOTIFY,NULL,lParam);
 	}
 }
 

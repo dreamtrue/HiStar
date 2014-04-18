@@ -307,6 +307,43 @@ void CtpTraderSpi::OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument,
 	}
 }
 
+int CtpTraderSpi::ReqQryInstrumentMarginRate(TThostFtdcInstrumentIDType instId)
+{
+	CThostFtdcQryInstrumentMarginRateField req;
+	memset(&req, 0, sizeof(req));
+	strcpy(req.BrokerID, BROKER_ID);
+	strcpy(req.InvestorID, INVEST_ID);
+	if (instId != NULL)
+	{ strcpy(req.InstrumentID, instId); }
+	pUserApi->ReqQryInstrumentMarginRate(&req, ++m_iRequestID);
+	return m_iRequestID;
+}
+
+void CtpTraderSpi::OnRspQryInstrumentMarginRate(CThostFtdcInstrumentMarginRateField *pInstrumentMarginRate, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
+{
+	if( !IsErrorRspInfo(pRspInfo) && pInstrumentMarginRate )
+	{
+		CThostFtdcInstrumentMarginRateField MarginRate;
+		memcpy(&MarginRate,pInstrumentMarginRate,sizeof(CThostFtdcInstrumentMarginRateField));
+
+		AcquireSRWLockExclusive(&g_srwLock_MargRate);
+		bool found = false;
+		for(unsigned int j = 0;j < m_MargRateVec.size();j++){
+			if(strcmp(m_MargRateVec[j].InstrumentID,MarginRate.InstrumentID) == 0
+				&& strcmp(m_MargRateVec[j].BrokerID,MarginRate.BrokerID) == 0
+				&& strcmp(m_MargRateVec[j].InvestorID,MarginRate.InvestorID) == 0){
+					found = true;break;
+			}
+		}
+		if(!found){
+			m_MargRateVec.push_back(MarginRate);
+		}	
+		ReleaseSRWLockExclusive(&g_srwLock_MargRate);
+
+	}
+	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+}
+
 int CtpTraderSpi::ReqQryTdAcc()
 {
 	CThostFtdcQryTradingAccountField req;
@@ -1115,19 +1152,6 @@ int CtpTraderSpi::ReqQryInstMgr(TThostFtdcInstrumentIDType instId){
 	req.HedgeFlag = '1';
 	pUserApi->ReqQryInstrumentMarginRate(&req,++m_iRequestID);
 	return m_iRequestID;
-}
-
-void CtpTraderSpi::OnRspQryInstrumentMarginRate(CThostFtdcInstrumentMarginRateField *pInstrumentMarginRate, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
-{
-	if( !IsErrorRspInfo(pRspInfo) && pInstrumentMarginRate )
-	{
-
-		CThostFtdcInstrumentMarginRateField MaginRate;
-		memcpy(&MaginRate,  pInstrumentMarginRate, sizeof(CThostFtdcInstrumentMarginRateField));
-		m_MargRateVec.push_back(MaginRate);
-	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
-
 }
 
 ///请求查询合约手续费率

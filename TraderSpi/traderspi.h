@@ -15,7 +15,9 @@ public:
 	memset(&TradingAccount,0,sizeof(CThostFtdcTradingAccountField));
 	ReleaseSRWLockExclusive(&g_srwLock_TradingAccount);
 
-	memset(&m_TdAcc,0,sizeof(CThostFtdcTradingAccountField));}
+	memset(&m_TdAcc,0,sizeof(CThostFtdcTradingAccountField));
+	ClearAllVectors();
+	}
    //~CtpTraderSpi();
 
 	///当客户端与交易后台建立起通信连接时（还未登录前），该方法被调用。
@@ -164,6 +166,8 @@ public:
 	int ReqQryInstFee(TThostFtdcInstrumentIDType instId);
 	///请求查询合约信息
 	int ReqQryInst(TThostFtdcInstrumentIDType instId);
+	///请求查询合约保证金率
+	int ReqQryInstrumentMarginRate(TThostFtdcInstrumentIDType instId);
 	///请求查询资金账户
 	int ReqQryTdAcc();
 	///请求认证
@@ -230,12 +234,12 @@ public:
 	CVector<CThostFtdcOrderField> m_orderVec;
 	CVector<CThostFtdcTradeField> m_tradeVec;
 	CVector<CThostFtdcInstrumentFieldEx> m_InsinfVec;
-	CVector<CThostFtdcInstrumentMarginRateField> m_MargRateVec;
 	CVector<CThostFtdcSettlementInfoField> m_StmiVec;
 	CVector<CThostFtdcAccountregisterField> m_AccRegVec;
 	CVector<CThostFtdcTradingCodeField> m_TdCodeVec;
 	CVector<CThostFtdcInvestorPositionField> m_InvPosVec;
 
+	std::vector<CThostFtdcInstrumentMarginRateField> m_MargRateVec;
 	std::vector<CThostFtdcInvestorPositionDetailField> m_InvPosDetailVec;//持仓明细
 	CThostFtdcTradingAccountField TradingAccount;//交易账户情况
 
