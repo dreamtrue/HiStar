@@ -176,7 +176,7 @@ void CtpMdSpi::OnRspUnSubMarketData(
 void CtpMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData){
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	bool founded = false;
-	for(unsigned int j = 0;Marketdata.size();j++){
+	for(unsigned int j = 0;j < Marketdata.size();j++){
 		if(strcmp(Marketdata[j].InstrumentID,pDepthMarketData->InstrumentID) == 0){
 			Marketdata[j] = *pDepthMarketData;
 			founded = true;

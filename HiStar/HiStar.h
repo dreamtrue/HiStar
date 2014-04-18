@@ -146,6 +146,7 @@ public:
 	Contract m_A50Contract;
 	WORD m_LifeA50;
 	TagValueListSPtr m_mktDepthOptions;
+	TagValueListSPtr m_mktDataOptions;
 	CHedgePostProcessing* m_pHedgePostProcessing;
 	int ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag);
 	Order m_IBOrder;

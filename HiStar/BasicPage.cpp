@@ -20,7 +20,7 @@ extern bool isHedgeLoopingPause;
 extern BOOL g_bLoginCtpT;
 extern double g_A50Index;
 extern double g_HS300Index;
-extern double g_a50Bid1,g_a50Ask1;
+extern double g_a50Bid1,g_a50Ask1,g_a50last;
 extern double premiumHigh,premiumLow;
 extern double MaxProfitAim,MinProfitAim;
 extern int MultiPos;
@@ -339,6 +339,7 @@ void CBasicPage::RefreshMdPane(void)
 	m_csA50.SetDouble(g_A50Index,CmpPriceColor(g_A50Index,g_A50IndexZT));
 	m_csA50Bid1.SetDouble(g_a50Bid1,BLACK);
 	m_csA50Ask1.SetDouble(g_a50Ask1,BLACK);
+	m_csA50Last.SetDouble(g_a50last,BLACK);
 	m_csHedgePriceHigh.SetDouble(premiumHigh - datumDiff,BLACK);
 	m_csHedgePriceLow.SetDouble(premiumLow - datumDiff,BLACK);
 	m_A50UP.SetDouble(g_A50Index - g_A50IndexZT,CmpPriceColor(g_A50Index - g_A50IndexZT,0));
