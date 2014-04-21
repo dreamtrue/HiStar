@@ -821,7 +821,7 @@ int SendMsg(CString msg){
 	CHttpFile* HttpFile = NULL;
 	CString URL;
 	CString res;
-	URL = "http://hedgemsg.sinaapp.com/index.php?msg=" + msg;
+	URL = "http://hedgemsg.duapp.com/index.php?msg=" + msg;
 	try{
 		HttpFile = (CHttpFile*)Session.OpenURL(URL,1,INTERNET_FLAG_RELOAD|INTERNET_FLAG_TRANSFER_ASCII);
 	}
