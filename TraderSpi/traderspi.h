@@ -233,7 +233,9 @@ public:
 	CVector<CThostFtdcInputOrderField> m_onRoadVec;
 	CVector<CThostFtdcOrderField> m_orderVec;
 	CVector<CThostFtdcTradeField> m_tradeVec;
-	CVector<CThostFtdcInstrumentFieldEx> m_InsinfVec;
+
+	std::vector<CThostFtdcInstrumentFieldEx> m_InsinfVec;
+
 	CVector<CThostFtdcSettlementInfoField> m_StmiVec;
 	CVector<CThostFtdcAccountregisterField> m_AccRegVec;
 	CVector<CThostFtdcTradingCodeField> m_TdCodeVec;

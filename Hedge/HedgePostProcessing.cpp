@@ -119,7 +119,7 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 			return;
 		}
 		//非常规交易时间
-		if((sys.wHour == 9 && sys.wMinute < 10) || 
+		if((sys.wHour == 9 && sys.wMinute < 15) || 
 			(sys.wHour == 15 && sys.wMinute > 15) ||
 			(sys.wHour == 11 && sys.wMinute > 30) ||
 			(sys.wHour == 12)||
@@ -830,13 +830,8 @@ int SendMsg(CString msg){
 		return -1;//读取失败,返回
 	}
 	if(HttpFile != NULL){
-		try{
-			while(HttpFile->ReadString(res)){}
-		}
-		catch(CInternetException*pException){
-			pException->Delete();
-			return -1;//返回
-		}
+		HttpFile->ReadString(res);
+		TRACE("%s\n",res);
 	}
 	HttpFile->Close();
 	delete HttpFile;

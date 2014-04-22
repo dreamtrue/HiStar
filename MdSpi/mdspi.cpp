@@ -207,32 +207,42 @@ double CtpMdSpi::CalcPositionProfit(){
 		AcquireSRWLockShared(&g_srwLock_PosDetail);
 		for(unsigned int i = 0;i < pApp->m_cT->m_InvPosDetailVec.size();i++){
 			TRACE("%.02lf,%.02lf,%.02lf\n",pApp->m_cT->m_InvPosDetailVec[i].Margin,pApp->m_cT->m_InvPosDetailVec[i].MarginRateByMoney,pApp->m_cT->m_InvPosDetailVec[i].MarginRateByVolume);
-			bool founed = false;int index = 0;
+			bool found = false;int index = 0;
 			for(unsigned int j = 0;j < Marketdata.size();j++){
 				if(!strcmp(pApp->m_cT->m_InvPosDetailVec[i].InstrumentID,Marketdata[j].InstrumentID)){
-					founed = true;index = j;
+					found = true;index = j;
 				}
 			}
-			if(founed){
+			AcquireSRWLockShared(&g_srwLock_Insinf);
+			bool found01 = false;int index01 = -1;
+			for (UINT k=0; k < pApp->m_cT->m_InsinfVec.size();k++){
+				if(strcmp(pApp->m_cT->m_InvPosDetailVec[i].InstrumentID,pApp->m_cT->m_InsinfVec[k].iinf.InstrumentID) == 0){
+					found01 = true;index01 = k;
+					break;
+				}
+			}
+			if(found && found01){
 				if(Marketdata[index].AskPrice1 > 0.000001 && Marketdata[index].BidPrice1 > 0.000001){
 					if(strcmp(pApp->m_cT->m_InvPosDetailVec[i].OpenDate,pApp->m_accountCtp.m_todayDate) >= 0){
 						if(pApp->m_cT->m_InvPosDetailVec[i].Direction == THOST_FTDC_D_Buy){
-							positionProfit = positionProfit + (Marketdata[index].LastPrice - pApp->m_cT->m_InvPosDetailVec[i].OpenPrice) * pApp->m_cT->m_InvPosDetailVec[i].Volume * 300.0;
+							positionProfit = positionProfit + (Marketdata[index].LastPrice - pApp->m_cT->m_InvPosDetailVec[i].OpenPrice) * pApp->m_cT->m_InvPosDetailVec[i].Volume * pApp->m_cT->m_InsinfVec[index01].iinf.VolumeMultiple;
 						}
 						else{
-							positionProfit = positionProfit - (Marketdata[index].LastPrice - pApp->m_cT->m_InvPosDetailVec[i].OpenPrice) * pApp->m_cT->m_InvPosDetailVec[i].Volume * 300.0;
+							positionProfit = positionProfit - (Marketdata[index].LastPrice - pApp->m_cT->m_InvPosDetailVec[i].OpenPrice) * pApp->m_cT->m_InvPosDetailVec[i].Volume * pApp->m_cT->m_InsinfVec[index01].iinf.VolumeMultiple;
 						}
 					}
 					else{
 						if(pApp->m_cT->m_InvPosDetailVec[i].Direction == THOST_FTDC_D_Buy){
-							positionProfit = positionProfit + (Marketdata[index].LastPrice - pApp->m_cT->m_InvPosDetailVec[i].LastSettlementPrice) * pApp->m_cT->m_InvPosDetailVec[i].Volume * 300.0;
+							positionProfit = positionProfit + (Marketdata[index].LastPrice - pApp->m_cT->m_InvPosDetailVec[i].LastSettlementPrice) * pApp->m_cT->m_InvPosDetailVec[i].Volume * pApp->m_cT->m_InsinfVec[index01].iinf.VolumeMultiple;
 						}
 						else{
-							positionProfit = positionProfit - (Marketdata[index].LastPrice - pApp->m_cT->m_InvPosDetailVec[i].LastSettlementPrice) * pApp->m_cT->m_InvPosDetailVec[i].Volume * 300.0;
+							positionProfit = positionProfit - (Marketdata[index].LastPrice - pApp->m_cT->m_InvPosDetailVec[i].LastSettlementPrice) * pApp->m_cT->m_InvPosDetailVec[i].Volume * pApp->m_cT->m_InsinfVec[index01].iinf.VolumeMultiple;
 						}
 					}
 				}
 			}
+			ReleaseSRWLockShared(&g_srwLock_Insinf);
+
 		}
 		ReleaseSRWLockShared(&g_srwLock_PosDetail);
 

@@ -270,7 +270,10 @@ void CStatusPage::SynchronizeAllVecs()
 		m_onRoadVec = pApp->m_cT->m_onRoadVec.GetBuffer();
 		m_orderVec = pApp->m_cT->m_orderVec.GetBuffer();
 		m_tradeVec = pApp->m_cT->m_tradeVec.GetBuffer();
-		m_InsinfVec = pApp->m_cT->m_InsinfVec.GetBuffer();
+
+		AcquireSRWLockShared(&g_srwLock_Insinf);
+		m_InsinfVec = pApp->m_cT->m_InsinfVec;
+		ReleaseSRWLockShared(&g_srwLock_Insinf);
 
 		AcquireSRWLockShared(&g_srwLock_PosDetail); 
 		m_InvPosDetailVec =  pApp->m_cT->m_InvPosDetailVec;

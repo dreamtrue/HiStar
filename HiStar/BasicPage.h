@@ -17,6 +17,7 @@
 #include "c:\users\administrator\desktop\histar\trunk\diyctrl\colorstatic.h"
 #include "c:\users\administrator\desktop\histar\trunk\diyctrl\colorstatic.h"
 #include "c:\users\administrator\desktop\histar\trunk\diyctrl\colorstatic.h"
+#include "c:\users\administrator\desktop\histar\trunk\diyctrl\colorstatic.h"
 
 // CBasicPage 对话框
 class CBasicPage : public CDialogEx
@@ -94,6 +95,7 @@ public:
 	afx_msg void OnUpdateIndexref();
 	CColorStatic m_closeProfit;
 	CColorStatic m_openProfit;
+	CColorStatic m_totalMargin;
 };
 //其他变量
 const int N = 5;

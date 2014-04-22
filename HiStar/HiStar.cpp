@@ -38,6 +38,7 @@ sqldb m_db;
 SRWLOCK g_srwLock_PosDetail;  
 SRWLOCK g_srwLock_TradingAccount;
 SRWLOCK g_srwLock_MargRate;
+SRWLOCK g_srwLock_Insinf;
 // CHiStarApp
 BEGIN_MESSAGE_MAP(CHiStarApp, CWinApp)
 	ON_COMMAND(ID_HELP, &CWinApp::OnHelp)
@@ -82,6 +83,7 @@ CHiStarApp::CHiStarApp()
 	InitializeSRWLock(&g_srwLock_PosDetail);//¶ÁÐ´Ëø³õÊ¼»¯
 	InitializeSRWLock(&g_srwLock_TradingAccount);
 	InitializeSRWLock(&g_srwLock_MargRate);
+	InitializeSRWLock(&g_srwLock_Insinf);
 }
 
 void CHiStarApp::OnIni(WPARAM wParam,LPARAM lParam){
@@ -476,6 +478,44 @@ void CHiStarApp::OnSynchronizeMarket(WPARAM wParam,LPARAM lParam){
 		ReleaseSRWLockShared(&g_srwLock_PosDetail); 
 
 	}
+	if(m_cT){
+		double totalMargin = 0;
+		AcquireSRWLockShared(&g_srwLock_PosDetail);
+		for(unsigned int i = 0;i < m_cT->m_InvPosDetailVec.size();i++){
+			AcquireSRWLockShared(&g_srwLock_Insinf);
+			bool found01 = false;int index01 = -1;
+			for (UINT k=0; k < m_cT->m_InsinfVec.size();k++){
+				if(strcmp(m_cT->m_InvPosDetailVec[i].InstrumentID,m_cT->m_InsinfVec[k].iinf.InstrumentID) == 0){
+					found01 = true;index01 = k;
+					break;
+				}
+			}
+			AcquireSRWLockShared(&g_srwLock_MargRate);
+			bool found = false;int index = -1;
+			for(unsigned int j = 0;j < m_cT->m_MargRateVec.size();j++){
+				if(strcmp(m_cT->m_InvPosDetailVec[i].InstrumentID,m_cT->m_MargRateVec[j].InstrumentID) == 0){
+					found = true;index = j;
+					break;
+				}
+			}
+			if(found01 && found){
+				if(m_cT->m_InvPosDetailVec[i].Direction == THOST_FTDC_D_Buy){
+					totalMargin = m_cT->m_InvPosDetailVec[i].Volume * m_cT->m_MargRateVec[index].LongMarginRatioByMoney * m_cT->m_InsinfVec[index01].iinf.VolumeMultiple;
+				}
+				else{
+					totalMargin = m_cT->m_InvPosDetailVec[i].Volume * m_cT->m_MargRateVec[index].ShortMarginRatioByMoney * m_cT->m_InsinfVec[index01].iinf.VolumeMultiple;
+				}
+			}
+			ReleaseSRWLockShared(&g_srwLock_MargRate);
+			ReleaseSRWLockShared(&g_srwLock_Insinf);
+		}
+		ReleaseSRWLockShared(&g_srwLock_PosDetail);
+
+		AcquireSRWLockExclusive(&g_srwLock_TradingAccount);
+		m_cT->TradingAccount.CurrMargin = totalMargin;
+		ReleaseSRWLockExclusive(&g_srwLock_TradingAccount);
+	}
+
 	if(m_pHedgePostProcessing){
 		m_pHedgePostProcessing->PostThreadMessage(WM_SYNCHRONIZE_NOTIFY,NULL,lParam);
 	}

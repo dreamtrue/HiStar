@@ -101,6 +101,7 @@ void CBasicPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_UP_A50, m_A50UP);
 	DDX_Control(pDX, IDC_ClOSE_PROFIT, m_closeProfit);
 	DDX_Control(pDX, IDC_OPEN_PROFIT, m_openProfit);
+	DDX_Control(pDX, IDC_MARGIN, m_totalMargin);
 }
 
 BEGIN_MESSAGE_MAP(CBasicPage, CDialogEx)
@@ -188,6 +189,8 @@ BOOL CBasicPage::OnInitDialog()
 	m_A50UP.SetWindowText(_T("0.0"),LITGRAY);
 	m_HS300UP.SetBkColor(ACC_BG);
 	m_HS300UP.SetWindowText(_T("0.0"),LITGRAY);
+	m_totalMargin.SetBkColor(ACC_BG);
+	m_totalMargin.SetWindowText(_T("0.0"),LITGRAY);
 	m_openProfit.SetBkColor(ACC_BG);
 	m_openProfit.SetWindowText(_T("0.0"),LITGRAY);
 	m_closeProfit.SetBkColor(ACC_BG);
@@ -349,6 +352,7 @@ void CBasicPage::RefreshMdPane(void)
 	if(pApp && pApp->m_cT){
 
 		AcquireSRWLockShared(&g_srwLock_TradingAccount);
+		m_totalMargin.SetDouble(pApp->m_cT->TradingAccount.CurrMargin,CmpPriceColor(pApp->m_cT->TradingAccount.CurrMargin,0));
 		m_closeProfit.SetDouble(pApp->m_cT->TradingAccount.CloseProfit,CmpPriceColor(pApp->m_cT->TradingAccount.CloseProfit,0));
 		m_openProfit.SetDouble(pApp->m_cT->TradingAccount.PositionProfit,CmpPriceColor(pApp->m_cT->TradingAccount.PositionProfit,0));
 		ReleaseSRWLockShared(&g_srwLock_TradingAccount);

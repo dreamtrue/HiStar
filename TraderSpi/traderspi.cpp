@@ -289,6 +289,7 @@ void CtpTraderSpi::OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument,
 		INSINFEX InsInf;
 		ZeroMemory(&InsInf,sizeof(INSINFEX));
 		memcpy(&InsInf,pInstrument,sizeof(INSTINFO));
+		AcquireSRWLockExclusive(&g_srwLock_Insinf);
 		bool founded = false;
 		for(unsigned int i = 0;i < m_InsinfVec.size();i++){
 			if(!strcmp(m_InsinfVec[i].iinf.InstrumentID,InsInf.iinf.InstrumentID)){
@@ -299,6 +300,7 @@ void CtpTraderSpi::OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument,
 		if(!founded){
 			m_InsinfVec.push_back(InsInf);
 		}
+		ReleaseSRWLockExclusive(&g_srwLock_Insinf);
 	}
 	if(bIsLast){
 		TRACE(_T("合约查询完毕\n"));
@@ -358,10 +360,6 @@ void CtpTraderSpi::OnRspQryTradingAccount(
 	CThostFtdcTradingAccountField *pTradingAccount, 
 	CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 { 
-	AcquireSRWLockExclusive(&g_srwLock_TradingAccount);
-	TradingAccount = *pTradingAccount;
-	ReleaseSRWLockExclusive(&g_srwLock_TradingAccount);
-
 	CThostFtdcTradingAccountField *pAcc;
 	if (!IsErrorRspInfo(pRspInfo) &&  pTradingAccount)
 	{
@@ -581,6 +579,8 @@ void CtpTraderSpi::OnRspQryTrade(CThostFtdcTradeField *pTrade, CThostFtdcRspInfo
 		}
 	}
 	if(bIsLast) {
+		//同步市场数据包括保证金计算、市场深度获取获取等等。
+		PostThreadMessage(MainThreadId,WM_SYNCHRONIZE_MARKET,NULL,NULL);
 		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
 		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
 	}
@@ -1922,8 +1922,15 @@ void CtpTraderSpi::ClearAllVectors(){
 	m_onRoadVec.clear();
 	m_orderVec.clear();
 	m_tradeVec.clear();
+
+	AcquireSRWLockExclusive(&g_srwLock_Insinf);
 	m_InsinfVec.clear();
+	ReleaseSRWLockExclusive(&g_srwLock_Insinf);
+
+	AcquireSRWLockExclusive(&g_srwLock_MargRate);
 	m_MargRateVec.clear();
+	ReleaseSRWLockExclusive(&g_srwLock_MargRate);
+
 	m_StmiVec.clear();
 	m_AccRegVec.clear();
 	m_TdCodeVec.clear();

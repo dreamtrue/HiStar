@@ -218,6 +218,7 @@ void CMainDlg::addCombInst(void)
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	BOOL bRes = FALSE;
 	m_basicPage.m_CombInst.ResetContent();//³äÖµÇå¿ÕÄÚÈÝ
+	AcquireSRWLockShared(&g_srwLock_Insinf);
 	for (UINT i=0; i < pApp->m_cT->m_InsinfVec.size();i++)
 	{
 		if(pApp->m_cT->m_InsinfVec[i].iinf.InstrumentID[0] == 'I' 
@@ -226,6 +227,7 @@ void CMainDlg::addCombInst(void)
 				m_basicPage.m_CombInst.SetWindowText(CString(pApp->m_cT->m_InsinfVec[i].iinf.InstrumentID));
 		}
 	}
+	ReleaseSRWLockShared(&g_srwLock_Insinf);
 }
 
 

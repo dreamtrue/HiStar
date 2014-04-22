@@ -82,6 +82,7 @@ void CHiStarApp::CreateCtpClient(void)
 int CHiStarApp::FindInstMul(TThostFtdcInstrumentIDType InstID){
 	bool founded=false;
 	int iMul = 1;
+	AcquireSRWLockShared(&g_srwLock_Insinf);
 	for (UINT i=0; i < m_cT->m_InsinfVec.size();i++)
 	{
 		if (strcmp(InstID,m_cT->m_InsinfVec[i].iinf.InstrumentID) == 0)
@@ -91,6 +92,7 @@ int CHiStarApp::FindInstMul(TThostFtdcInstrumentIDType InstID){
 			break;
 		}
 	}
+	ReleaseSRWLockShared(&g_srwLock_Insinf);
 	if (founded){return iMul;}
 	return (-1);
 }
