@@ -453,42 +453,47 @@ void  CtpTraderSpi::OnRspQryOrder(CThostFtdcOrderField *pOrder, CThostFtdcRspInf
 	if(!IsErrorRspInfo(pRspInfo)&&pOrder){
 		SYSTEMTIME sys;
 		GetLocalTime(&sys);
-		char data[10000],datetime[100];
-		memset(data,0,sizeof(data));memset(datetime,0,sizeof(datetime));
+		char data[10000],datetime[100];memset(data,0,sizeof(data));memset(data,0,sizeof(datetime));
 		if(connctp){
 			sprintf(datetime,"'%d-%d-%d %d:%d:%d',%d,",sys.wYear,sys.wMonth,sys.wDay,sys.wHour,sys.wMinute,sys.wSecond,sys.wMilliseconds);
-			sprintf(data,"'%s','%s','%s','%s','%s','%c','%c',\
-						 '%s','%s',%.02lf,%d,'%c','%s',\
-						 '%c',%d,'%c',%.02lf,'%c',%d,\
-						 '%s',%d,'%s','%s','%s','%s','%s',\
-						 '%s',%d,'%c',%d,'%s',%d,'%s',\
-						 '%c','%c','%c',%d,%d,'%s','%s','%s',\
-						 '%s','%s','%s','%s','%s',%d,%d,%d,\
-						 '%s','%s',%d,'%s',%d,'%s',\
+			sprintf(data,"'%s','%s','%s','%s','%s',\
+						 '%c','%c','%s','%s',%.02lf,\
+						 %d,'%c','%s','%c',%d,\
+						 '%c',%.02lf,'%c',%d,'%s',\
+						 %d,'%s','%s','%s','%s',\
+						 '%s','%s',%d,'%c',%d,\
+						 '%s',%d,'%s',%d,'%c',\
+						 %d,%d,%d,'%s','%s',\
+						 '%s','%s','%s','%s','%s',\
+						 '%s',%d,%d,%d,'%s',\
+						 '%s',%d,'%s',%d,'%s',\
 						 %d,%d",
-						 pOrder->BrokerID,pOrder->InvestorID,pOrder->InstrumentID,pOrder->OrderRef,pOrder->UserID,pOrder->OrderPriceType,pOrder->Direction,
-						 pOrder->CombOffsetFlag,pOrder->CombHedgeFlag,pOrder->LimitPrice,pOrder->VolumeTotalOriginal,pOrder->TimeCondition,pOrder->GTDDate,
-						 pOrder->VolumeCondition,pOrder->MinVolume,pOrder->ContingentCondition,pOrder->StopPrice,pOrder->ForceCloseReason,pOrder->IsAutoSuspend,
-						 pOrder->BusinessUnit,pOrder->RequestID,pOrder->OrderLocalID,pOrder->ExchangeID,pOrder->ParticipantID,pOrder->ClientID,pOrder->ExchangeInstID,
-						 pOrder->TraderID,pOrder->InstallID,pOrder->OrderSubmitStatus,pOrder->NotifySequence,pOrder->TradingDay,pOrder->SettlementID,pOrder->OrderSysID,
-						 pOrder->OrderSource,pOrder->OrderStatus,pOrder->OrderType,pOrder->VolumeTraded,pOrder->VolumeTotal,pOrder->InsertDate,pOrder->InsertTime,pOrder->ActiveTime,
-						 pOrder->SuspendTime,pOrder->UpdateTime,pOrder->CancelTime,pOrder->ActiveTraderID,pOrder->ClearingPartID,pOrder->SequenceNo,pOrder->FrontID,pOrder->SessionID,
-						 pOrder->UserProductInfo,pOrder->StatusMsg,pOrder->UserForceClose,pOrder->ActiveUserID,pOrder->BrokerOrderSeq,pOrder->RelativeOrderSysID,
-						 pOrder->ZCETotalTradedVolume,(int)(pOrder->IsSwapOrder));
+						 pOrder->BrokerID,pOrder->InvestorID,pOrder->InstrumentID,pOrder->OrderRef,pOrder->UserID,
+						 pOrder->OrderPriceType,pOrder->Direction,pOrder->CombOffsetFlag,pOrder->CombHedgeFlag,pOrder->LimitPrice,
+						 pOrder->VolumeTotalOriginal,pOrder->TimeCondition,pOrder->GTDDate,pOrder->VolumeCondition,pOrder->MinVolume,
+						 pOrder->ContingentCondition,pOrder->StopPrice,pOrder->ForceCloseReason,pOrder->IsAutoSuspend,pOrder->BusinessUnit,
+						 pOrder->RequestID,pOrder->OrderLocalID,pOrder->ExchangeID,pOrder->ParticipantID,pOrder->ClientID,
+						 pOrder->ExchangeInstID,pOrder->TraderID,pOrder->InstallID,pOrder->OrderSubmitStatus,pOrder->NotifySequence,
+						 pOrder->TradingDay,pOrder->SettlementID,pOrder->OrderSysID,pOrder->OrderSource,pOrder->OrderStatus,
+						 pOrder->OrderType,pOrder->VolumeTraded,pOrder->VolumeTotal,pOrder->InsertDate,pOrder->InsertTime,
+						 pOrder->ActiveTime,pOrder->SuspendTime,pOrder->UpdateTime,pOrder->CancelTime,pOrder->ActiveTraderID,
+						 pOrder->ClearingPartID,pOrder->SequenceNo,pOrder->FrontID,pOrder->SessionID,pOrder->UserProductInfo,
+						 pOrder->StatusMsg,pOrder->UserForceClose,pOrder->ActiveUserID,pOrder->BrokerOrderSeq,pOrder->RelativeOrderSysID,
+						 pOrder->ZCETotalTradedVolume,pOrder->IsSwapOrder);
 			CString insertdata = "INSERT INTO " + statusTableName 
 				+ " (datetime,millisecond,BrokerID,InvestorID,InstrumentID,OrderRef,UserID,OrderPriceType,Direction,CombOffsetFlag,CombHedgeFlag,LimitPrice,VolumeTotalOriginal,TimeCondition,\
 				  GTDDate,VolumeCondition,MinVolume,ContingentCondition,StopPrice,ForceCloseReason,IsAutoSuspend,BusinessUnit,RequestID,OrderLocalID,ExchangeID,ParticipantID,ClientID,\
 				  ExchangeInstID,TraderID,InstallID,OrderSubmitStatus,NotifySequence,TradingDay,SettlementID,OrderSysID,OrderSource,OrderStatus,OrderType,VolumeTraded,VolumeTotal,InsertDate,\
 				  InsertTime,ActiveTime,SuspendTime,UpdateTime,CancelTime,ActiveTraderID,ClearingPartID,SequenceNo,FrontID,SessionID,UserProductInfo,StatusMsg,UserForceClose,ActiveUserID,\
 				  BrokerOrderSeq,RelativeOrderSysID,ZCETotalTradedVolume,IsSwapOrder) VALUES (" + CString(datetime) + CString(data) +")";
-			TRACE(insertdata);
 			if(mysql_query(connctp,insertdata.GetBuffer())){
 				TRACE("Error %u: %s\n", mysql_errno(connctp), mysql_error(connctp));
 			}
+			//TRACE("%s\r\n",insertdata);
 		}
 		CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 		CThostFtdcOrderField order;
-		TRACE("OnRtnOrder所有报单通知%s,%s,%c,%d,已经成交%d\r\n",pOrder->OrderRef, pOrder->OrderSysID,pOrder->OrderStatus,pOrder->BrokerOrderSeq,pOrder->VolumeTraded);
+		//TRACE("OnRtnOrder所有报单通知%s,%s,%c,%d,已经成交%d\r\n",pOrder->OrderRef, pOrder->OrderSysID,pOrder->OrderStatus,pOrder->BrokerOrderSeq,pOrder->VolumeTraded);
 		memcpy(&order,pOrder, sizeof(CThostFtdcOrderField));
 		bool founded = false;UINT i = 0;
 		for(i = 0;i<m_orderVec.size();i++){
