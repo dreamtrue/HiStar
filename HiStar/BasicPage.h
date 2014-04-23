@@ -13,11 +13,7 @@
 #include "thostftdcuserapistruct.h"
 #include "ColorListCtrl.h"
 #include "HiStar.h"
-#include "c:\users\administrator\desktop\histar\trunk\diyctrl\colorstatic.h"
-#include "c:\users\administrator\desktop\histar\trunk\diyctrl\colorstatic.h"
-#include "c:\users\administrator\desktop\histar\trunk\diyctrl\colorstatic.h"
-#include "c:\users\administrator\desktop\histar\trunk\diyctrl\colorstatic.h"
-#include "c:\users\administrator\desktop\histar\trunk\diyctrl\colorstatic.h"
+#include "colorstatic.h"
 
 // CBasicPage ¶Ô»°¿ò
 class CBasicPage : public CDialogEx
