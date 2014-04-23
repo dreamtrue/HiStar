@@ -33,15 +33,11 @@ protected:
 	afx_msg LRESULT OnOrderStatus(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT CMainDlg::OnErrors(WPARAM wParam, LPARAM lParam);
 public:
-	afx_msg void OnTimer(UINT_PTR nIDEvent);
-	//¶¨Ê±Æ÷
-	UINT_PTR m_timerID;
 	afx_msg void OnOk();
-protected:
-	afx_msg LRESULT OnUpdateAccCtp(WPARAM wParam, LPARAM lParam);
 public:
 	void addCombInst(void);
 	afx_msg void OnTcnSelchangeTab(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg LRESULT OnRefreshMdPane(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnKickIdle();
+	void UpdateAccount();
 };

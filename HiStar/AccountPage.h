@@ -1,4 +1,5 @@
 #pragma once
+#include "afxwin.h"
 
 
 // CAccountPage ¶Ô»°¿ò
@@ -22,4 +23,6 @@ public:
 	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
 	afx_msg void OnOK(void);
 	afx_msg void OnCancel();
+	void UpdateAccountPage(void);
+	CEdit m_AccountCtp;
 };

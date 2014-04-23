@@ -150,7 +150,6 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 		int CurrentSectionBuy = 0,CurrentSectionSell = 0;//当前所在的区间,Buy和Sell分别表示以买价和卖价计算
 		CalcDeviation();
 		if(isHedgeLoopingPause){//暂停
-			//sprintf(buffer,_T("暂停\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
 			return;
 		}
 		if(_isnan(datumDiff) != 0 || _isnan(premium)!=0 ||_isnan(deviation)!=0){
@@ -166,7 +165,6 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 		for(unsigned int i = 0;i < HedgeHoldTemp.size();i++){
 			netPosition = netPosition + HedgeHoldTemp[i].HedgeNum;
 		}
-		//sprintf(buffer,_T("净持仓%d\r\n"),netPosition);hedgeStatusPrint = hedgeStatusPrint + buffer;
 		for(int i = 1;i < 21;i++){
 			if(HedgeLadder[i - 1] > HedgeLadder[i]){
 				sprintf(buffer,_T("错误的梯级\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
@@ -208,10 +206,6 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 				}
 			}
 		}
-		//sprintf(buffer,_T("当前买价区间%d,左%.02lf,右%.02lf\r\n"),CurrentSectionBuy,HedgeLadder[CurrentSectionBuy - 1],HedgeLadder[CurrentSectionBuy]);
-		//hedgeStatusPrint = hedgeStatusPrint + buffer;
-		//sprintf(buffer,_T("当前卖价区间%d,左%.02lf,右%.02lf\r\n"),CurrentSectionSell,HedgeLadder[CurrentSectionSell - 1],HedgeLadder[CurrentSectionSell]);
-		//hedgeStatusPrint = hedgeStatusPrint + buffer;
 		for(int i = 0;i < 22;i++){
 			if(i < 20){
 				DefaultProfitAimBuy[i] = HedgeLadder[i + 1] -  HedgeLadder[i];
@@ -229,8 +223,6 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 			ProfitAimBuy[i] = min(ProfitAimBuy[i],MaxProfitAim);
 			ProfitAimSell[i] = max(DefaultProfitAimSell[i],MinProfitAim);
 			ProfitAimSell[i] = min(ProfitAimSell[i],MaxProfitAim);
-			//sprintf(buffer,"区间%d买目标盈利%.02lf,最大盈利%.02lf,最小盈利%.02lf\r\n",i,ProfitAimBuy[i],MaxProfitAim,MinProfitAim);
-			//sprintf(buffer,"区间%d卖目标盈利%.02lf,最大盈利%.02lf,最小盈利%.02lf\r\n",i,ProfitAimSell[i],MaxProfitAim,MinProfitAim);
 		}
 		//每次循环只进行一次开仓或者平仓操作,完成后即return,进入下一个循环;
 		//这么做因为持仓和资金只有在每个循环的开始才计算，中途不计算,
@@ -299,8 +291,6 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 					SupposedSellOpen = -abs(netPosition) - PositionAim[i];
 					SupposedSectionSellOpen = i;
 					isSupposedSellOpen = true;
-					//sprintf(buffer,_T("期望卖开%d期望区间%d,左%.02lf,右%.02lf\r\n"),SupposedSellOpen,i,HedgeLadder[i - 1],HedgeLadder[i]);
-					//hedgeStatusPrint = hedgeStatusPrint + buffer;
 					break;
 				}
 			}
@@ -311,8 +301,6 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 					SupposedBuyOpen = -(abs(netPosition) - PositionAim[i]);
 					SupposedSectionBuyOpen = i;
 					isSupposedBuyOpen = true;
-					//sprintf(buffer,_T("期望买开%d期望区间%d,左%.02lf,右%.02lf\r\n"),SupposedBuyOpen,i,HedgeLadder[i - 1],HedgeLadder[i]);
-					//hedgeStatusPrint = hedgeStatusPrint + buffer;
 					break;
 				}
 			}
@@ -478,7 +466,7 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 	////////////////////////////////////////////////////////////
 	//////千万注意要先清零,否则将会导致意想不到的错误。
 	IfTask iftask;A50Task a50task;
-	hedgetask.clear();/*memset(&hedgetask,0,sizeof(hedgetask));*/
+	hedgetask.clear();/*禁止memset(&hedgetask,0,sizeof(hedgetask));*/
 	memset(&iftask,0,sizeof(iftask));memset(&a50task,0,sizeof(a50task));
 	////////////////////////////////////////////////////////////
 	//IF下单
