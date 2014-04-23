@@ -206,7 +206,7 @@ double CtpMdSpi::CalcPositionProfit(){
 	if(pApp && pApp->m_cT){
 		AcquireSRWLockShared(&g_srwLock_PosDetail);
 		for(unsigned int i = 0;i < pApp->m_cT->m_InvPosDetailVec.size();i++){
-			TRACE("%.02lf,%.02lf,%.02lf\n",pApp->m_cT->m_InvPosDetailVec[i].Margin,pApp->m_cT->m_InvPosDetailVec[i].MarginRateByMoney,pApp->m_cT->m_InvPosDetailVec[i].MarginRateByVolume);
+			//TRACE("%.02lf,%.02lf,%.02lf\n",pApp->m_cT->m_InvPosDetailVec[i].Margin,pApp->m_cT->m_InvPosDetailVec[i].MarginRateByMoney,pApp->m_cT->m_InvPosDetailVec[i].MarginRateByVolume);
 			bool found = false;int index = 0;
 			for(unsigned int j = 0;j < Marketdata.size();j++){
 				if(!strcmp(pApp->m_cT->m_InvPosDetailVec[i].InstrumentID,Marketdata[j].InstrumentID)){
@@ -251,7 +251,7 @@ double CtpMdSpi::CalcPositionProfit(){
 		ReleaseSRWLockExclusive(&g_srwLock_TradingAccount);
 	
 	}
-	TRACE("¶¯Ì¬ %.02lf\n",positionProfit);
+	//TRACE("¶¯Ì¬ %.02lf\n",positionProfit);
 	return positionProfit;
 }
 

@@ -315,6 +315,7 @@ int CtpTraderSpi::ReqQryInstrumentMarginRate(TThostFtdcInstrumentIDType instId)
 	memset(&req, 0, sizeof(req));
 	strcpy(req.BrokerID, BROKER_ID);
 	strcpy(req.InvestorID, INVEST_ID);
+	req.HedgeFlag = THOST_FTDC_HF_Speculation;
 	if (instId != NULL)
 	{ strcpy(req.InstrumentID, instId); }
 	pUserApi->ReqQryInstrumentMarginRate(&req, ++m_iRequestID);
@@ -325,6 +326,7 @@ void CtpTraderSpi::OnRspQryInstrumentMarginRate(CThostFtdcInstrumentMarginRateFi
 {
 	if( !IsErrorRspInfo(pRspInfo) && pInstrumentMarginRate )
 	{
+		TRACE("%.02lf,%.02lf,%.02lf,%.02lf\n",pInstrumentMarginRate->LongMarginRatioByMoney,pInstrumentMarginRate->ShortMarginRatioByMoney,pInstrumentMarginRate->LongMarginRatioByVolume,pInstrumentMarginRate->ShortMarginRatioByVolume);
 		CThostFtdcInstrumentMarginRateField MarginRate;
 		memcpy(&MarginRate,pInstrumentMarginRate,sizeof(CThostFtdcInstrumentMarginRateField));
 

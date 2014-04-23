@@ -287,6 +287,7 @@ void CHiStarApp::LoginCtpTD(WPARAM wParam,LPARAM lParam){
 			((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查交易状态!"), 95);break;
 		}
 	}
+	Sleep(1000);
 	((CMainDlg*)(m_pMainWnd))->addCombInst();//增加合约列表
 	((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("CTP登陆成功!"),100);
 #endif

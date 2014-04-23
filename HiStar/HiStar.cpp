@@ -500,10 +500,10 @@ void CHiStarApp::OnSynchronizeMarket(WPARAM wParam,LPARAM lParam){
 			}
 			if(found01 && found){
 				if(m_cT->m_InvPosDetailVec[i].Direction == THOST_FTDC_D_Buy){
-					totalMargin = m_cT->m_InvPosDetailVec[i].Volume * m_cT->m_MargRateVec[index].LongMarginRatioByMoney * m_cT->m_InsinfVec[index01].iinf.VolumeMultiple;
+					totalMargin = m_cT->m_InvPosDetailVec[i].OpenPrice * m_cT->m_InvPosDetailVec[i].Volume * m_cT->m_MargRateVec[index].LongMarginRatioByMoney * m_cT->m_InsinfVec[index01].iinf.VolumeMultiple;
 				}
 				else{
-					totalMargin = m_cT->m_InvPosDetailVec[i].Volume * m_cT->m_MargRateVec[index].ShortMarginRatioByMoney * m_cT->m_InsinfVec[index01].iinf.VolumeMultiple;
+					totalMargin = m_cT->m_InvPosDetailVec[i].OpenPrice * m_cT->m_InvPosDetailVec[i].Volume * m_cT->m_MargRateVec[index].ShortMarginRatioByMoney * m_cT->m_InsinfVec[index01].iinf.VolumeMultiple;
 				}
 			}
 			ReleaseSRWLockShared(&g_srwLock_MargRate);
