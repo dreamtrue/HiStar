@@ -1713,6 +1713,38 @@ int CtpTraderSpi::ReqParkedOrderInsert(CThostFtdcParkedOrderField *ParkedOrder)
 	pUserApi->ReqParkedOrderInsert(ParkedOrder,++m_iRequestID);
 	return m_iRequestID;
 }
+
+int CtpTraderSpi::ReqParkedOrderInsert(TThostFtdcInstrumentIDType instId,TThostFtdcDirectionType dir, 
+	TThostFtdcCombOffsetFlagType kpp,TThostFtdcPriceType price,TThostFtdcVolumeType vol){
+		CThostFtdcParkedOrderField req;
+		memset(&req,0,sizeof(req));	
+		strcpy(req.BrokerID, BROKER_ID);
+		strcpy(req.InvestorID, INVEST_ID); 
+		strcpy(req.InstrumentID, instId); 	
+		strcpy(req.OrderRef, m_sOrdRef);
+		int orderref = atoi(m_sOrdRef);
+		int nextOrderRef = atoi(m_sOrdRef);
+		sprintf(m_sOrdRef,"%d",++nextOrderRef);
+
+		req.OrderPriceType = THOST_FTDC_OPT_LimitPrice;//价格类型=限价	
+		req.Direction = MapDirection(dir,true);  //买卖方向	
+		req.CombOffsetFlag[0] = MapOffset(kpp[0],true); //组合开平标志:开仓
+		req.CombHedgeFlag[0] = THOST_FTDC_HF_Speculation;	  //组合投机套保标志
+		req.LimitPrice = price;	//价格
+		req.VolumeTotalOriginal = vol;	///数量	
+		req.TimeCondition = THOST_FTDC_TC_GFD;  //有效期类型:当日有效
+		req.VolumeCondition = THOST_FTDC_VC_AV; //成交量类型:任何数量
+		req.MinVolume = 1;	//最小成交量:1	
+		req.ContingentCondition = THOST_FTDC_CC_Immediately;  //触发条件:立即
+
+		req.ForceCloseReason = THOST_FTDC_FCC_NotForceClose;	//强平原因:非强平	
+		req.IsAutoSuspend = 0;  //自动挂起标志:否	
+		req.UserForceClose = 0;   //用户强评标志:否
+
+		pUserApi->ReqParkedOrderInsert(&req,++m_iRequestID);
+		return m_iRequestID;
+}
+
 ///预埋单录入请求响应
 void CtpTraderSpi::OnRspParkedOrderInsert(CThostFtdcParkedOrderField *pParkedOrder, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {

@@ -158,7 +158,7 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 		if(g_a50Bid1 < 1 || g_a50Ask1 < 1 || g_ifAsk1 < 1 || g_ifBid1 < 1 || A50Index < 1 || HS300Index < 1){
 			return;
 		}
-		if(fabs(premium) > 300 || fabs(premium) < 0.01){
+		if(fabs(premium) > 700 || fabs(premium) < 0.01){
 			return;//排除开盘时有可能报价不全导致的错误溢价计算
 		}
 		//统计净持仓
@@ -479,7 +479,7 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 	if(NeedBuyOpenIf > 0){
 		kpp[0] = THOST_FTDC_OF_Open;
 		if(((CHiStarApp*)AfxGetApp())->m_cT){
-			iftask.ref = ((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Buy,kpp,g_ifAsk1 + 20.0,NeedBuyOpenIf);
+			iftask.ref = ((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Buy,kpp,g_ifAsk1 + 100.0,NeedBuyOpenIf);
 			iftask.direction = THOST_FTDC_D_Buy;iftask.offset[0] = THOST_FTDC_OF_Open;iftask.priceRecord = g_ifAsk1;iftask.volumeRecord = NeedBuyOpenIf;
 			hedgetask.ifalltask.push_back(iftask);
 		}
@@ -492,7 +492,7 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 			kpp[0] = THOST_FTDC_OF_CloseToday;
 		}
 		if(((CHiStarApp*)AfxGetApp())->m_cT){
-			iftask.ref = ((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Buy,kpp,g_ifAsk1 + 20.0,NeedBuyCloseIf);
+			iftask.ref = ((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Buy,kpp,g_ifAsk1 + 100.0,NeedBuyCloseIf);
 			iftask.direction = THOST_FTDC_D_Buy;iftask.offset[0] = THOST_FTDC_OF_Close;iftask.priceRecord = g_ifAsk1;iftask.volumeRecord = NeedBuyCloseIf;
 			hedgetask.ifalltask.push_back(iftask);
 		}
@@ -500,7 +500,7 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 	if(NeedSellOpenIf > 0){
 		kpp[0] = THOST_FTDC_OF_Open;
 		if(((CHiStarApp*)AfxGetApp())->m_cT){
-			iftask.ref = ((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Sell,kpp,g_ifBid1 - 20.0,NeedSellOpenIf);
+			iftask.ref = ((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Sell,kpp,g_ifBid1 - 100.0,NeedSellOpenIf);
 			iftask.direction = THOST_FTDC_D_Sell;iftask.offset[0] = THOST_FTDC_OF_Open;iftask.priceRecord = g_ifBid1;iftask.volumeRecord = NeedSellOpenIf;
 			hedgetask.ifalltask.push_back(iftask);
 		}
@@ -513,7 +513,7 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 			kpp[0] = THOST_FTDC_OF_CloseToday;
 		}
 		if(((CHiStarApp*)AfxGetApp())->m_cT){
-			iftask.ref = ((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Sell,kpp,g_ifBid1 - 20.0,NeedSellCloseIf);
+			iftask.ref = ((CHiStarApp*)AfxGetApp())->m_cT->ReqOrdLimit(*pInst,THOST_FTDC_D_Sell,kpp,g_ifBid1 - 100.0,NeedSellCloseIf);
 			iftask.direction = THOST_FTDC_D_Sell;iftask.offset[0] = THOST_FTDC_OF_Close;iftask.priceRecord = g_ifBid1;iftask.volumeRecord = NeedSellCloseIf;
 			hedgetask.ifalltask.push_back(iftask);
 		}
@@ -525,7 +525,7 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 			if(NeedBuyA50 - NeedSellA50 > 0){
 				((CHiStarApp*)AfxGetApp())->m_IBOrder.action = "BUY";
 				((CHiStarApp*)AfxGetApp())->m_IBOrder.totalQuantity = NeedBuyA50 - NeedSellA50;
-				((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice = DealA50Price(true,g_a50Ask1 + 100.0);
+				((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice = DealA50Price(true,g_a50Ask1 + 500.0);
 				if(((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice < 1.0){
 					sprintf(buffer,_T("A50买价小于1.0,异常\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
 					return -1;
@@ -539,7 +539,7 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 			else if(NeedBuyA50 - NeedSellA50 < 0){
 				((CHiStarApp*)AfxGetApp())->m_IBOrder.action = "SELL";
 				((CHiStarApp*)AfxGetApp())->m_IBOrder.totalQuantity = -(NeedBuyA50 - NeedSellA50);
-				((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice = DealA50Price(false,g_a50Bid1 - 100.0);
+				((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice = DealA50Price(false,g_a50Bid1 - 500.0);
 				if(((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice < 1.0){
 					sprintf(buffer,_T("A50买价小于1.0,异常\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
 					return -1;

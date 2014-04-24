@@ -213,6 +213,9 @@ public:
 	int ReqQryBkrTdAlgos(TThostFtdcExchangeIDType ExhID,TThostFtdcInstrumentIDType instID);
 	///////////////////////////////////////////////////////////////////////
 	///预埋单录入请求
+	///普通限价单
+	int ReqParkedOrderInsert(TThostFtdcInstrumentIDType instId,TThostFtdcDirectionType dir, 
+		TThostFtdcCombOffsetFlagType kpp,TThostFtdcPriceType price,TThostFtdcVolumeType vol);
 	int ReqParkedOrderInsert(CThostFtdcParkedOrderField *ParkedOrder);
 	int ReqParkedOrderAction(CThostFtdcParkedOrderActionField *ParkedOrderAction);
 	///请求查询预埋单
