@@ -391,6 +391,8 @@ void CBasicPage::OnBnClickedTest()
 	PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
 	((CHiStarApp*)AfxGetApp())->OnHedgeLooping(NULL,NULL);
 	SynchronizeHoldDataToView();
+	((CHiStarApp*)AfxGetApp())->m_cT->ReqQryTfSerial("1");
+	((CHiStarApp*)AfxGetApp())->m_cT->ReqQryInstFee("IF1405");
 }
 
 
