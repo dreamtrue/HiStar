@@ -84,13 +84,17 @@ void CHiStarApp::tickPrice( TickerId tickerId, TickType field, double price, int
 	if(strcmp((const char*)getField(field),"bidPrice") == 0){
 		if(price != g_a50Bid1){
 			g_a50Bid1 = price;
-			::PostThreadMessage(MainThreadId,WM_MD_REFRESH,NULL,NULL);
+			while(::PostThreadMessage(MainThreadId,WM_MD_REFRESH,NULL,NULL) == 0){
+				Sleep(100);
+			};
 		}
 	}
 	else if(strcmp((const char*)getField(field),"askPrice") == 0){
 		if(price != g_a50Ask1){
 			g_a50Ask1 = price;
-			::PostThreadMessage(MainThreadId,WM_MD_REFRESH,NULL,NULL);
+			while(::PostThreadMessage(MainThreadId,WM_MD_REFRESH,NULL,NULL) == 0){
+				Sleep(100);
+			};
 		}
 	}
 	else if(strcmp((const char*)getField(field),"lastPrice") == 0){
@@ -112,17 +116,17 @@ void CHiStarApp::tickSize( TickerId tickerId, TickType field, int size){
 
 void CHiStarApp::tickOptionComputation( TickerId tickerId, TickType tickType, double impliedVol, double delta,
 	double optPrice, double pvDividend, double gamma, double vega, double theta, double undPrice){
-		TRACE("tickOptionComputation\n");
+		//TRACE("tickOptionComputation\n");
 }
 void CHiStarApp::tickGeneric(TickerId tickerId, TickType tickType, double value){
-	TRACE("tickGeneric\n");
+	//TRACE("tickGeneric\n");
 }
 void CHiStarApp::tickString(TickerId tickerId, TickType tickType, const IBString& value){
-	TRACE("tickString\n");
+	//TRACE("tickString\n");
 }
 void CHiStarApp::tickEFP(TickerId tickerId, TickType tickType, double basisPoints, const IBString& formattedBasisPoints,
 	double totalDividends, int holdDays, const IBString& futureExpiry, double dividendImpact, double dividendsToExpiry){
-		TRACE("tickEFP\n");
+		//TRACE("tickEFP\n");
 }
 void CHiStarApp::orderStatus( OrderId orderId, const IBString &status, int filled,
 	int remaining, double avgFillPrice, int permId, int parentId,
@@ -140,7 +144,9 @@ void CHiStarApp::orderStatus( OrderId orderId, const IBString &status, int fille
 			pOrderStatus->lastFillPrice = lastFillPrice;
 			pOrderStatus->clientId = clientId;
 			pOrderStatus->whyHeld = whyHeld;
-			m_pHedgePostProcessing->PostThreadMessage(WM_RTN_ORDER_IB,NULL,(UINT)pOrderStatus);
+			if(m_pHedgePostProcessing->PostThreadMessage(WM_RTN_ORDER_IB,NULL,(UINT)pOrderStatus) == 0){
+				Sleep(100);
+			};
 		}		
 }
 void CHiStarApp::openOrder( OrderId orderId, const Contract&, const Order&, const OrderState&){
@@ -162,9 +168,9 @@ void CHiStarApp::connectionClosed(){
 
 void CHiStarApp::updateAccountValue(const IBString& key, const IBString& val,
 	const IBString& currency, const IBString& accountName){
-	TRACE("%s,%s\n",key,val);
+	//TRACE("%s,%s\n",key,val);
 	if(key == "AvailableFunds" && currency == "USD"){
-		TRACE("IB可用资金 %.f USD\r\n",atof(val));
+		//TRACE("IB可用资金 %.f USD\r\n",atof(val));
 		AvailIB = atof(val);
 	}
 	if(key == "NetLiquidation" && currency == "USD"){
@@ -174,12 +180,12 @@ void CHiStarApp::updateAccountValue(const IBString& key, const IBString& val,
 void CHiStarApp::updatePortfolio( const Contract& contract, int position,
 	double marketPrice, double marketValue, double averageCost,
 	double unrealizedPNL, double realizedPNL, const IBString& accountName){
-		TRACE("updatePortfolio\n");
-		TRACE("持仓 %d\r\n",position);
+		//TRACE("updatePortfolio\n");
+		//TRACE("持仓 %d\r\n",position);
 }
 
 void CHiStarApp::updateAccountTime(const IBString& timeStamp){
-	TRACE("updateAccountTime\n");
+	//TRACE("updateAccountTime\n");
 	CString cStatus;
 	cStatus.Format("Account Time: %s", timeStamp);
 	PostOrderStatus(cStatus);
@@ -243,14 +249,18 @@ void CHiStarApp::updateMktDepth(TickerId id, int position, int operation, int si
 				if(price != g_a50Bid1){
 					g_a50Bid1 = price;
 					g_a50Bid1Size = size;
-					::PostThreadMessage(MainThreadId,WM_MD_REFRESH,NULL,NULL);
+					while(::PostThreadMessage(MainThreadId,WM_MD_REFRESH,NULL,NULL) == 0){
+						Sleep(100);
+					};
 				}
 			}
 			else{
 				if(price != g_a50Ask1){
 					g_a50Ask1 = price;
 					g_a50Ask1Size = size;
-					::PostThreadMessage(MainThreadId,WM_MD_REFRESH,NULL,NULL);
+					while(::PostThreadMessage(MainThreadId,WM_MD_REFRESH,NULL,NULL) == 0){
+						Sleep(100);
+					};
 				}
 			}
 		}
@@ -321,7 +331,7 @@ void CHiStarApp::marketDataType( TickerId reqId, int marketDataType){
 }
 
 void CHiStarApp::commissionReport( const CommissionReport &commissionReport){
-	TRACE("commissionReport\n");
+	//TRACE("commissionReport\n");
 }
 
 void CHiStarApp::position( const IBString& account, const Contract& contract, int position, double avgCost){

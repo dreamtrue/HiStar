@@ -6,19 +6,19 @@
 #include "CVector.h"
 #include "mysql.h"
 #include <vector>
-struct WaitSettlementForClose{
+struct WaitSettlementForFee{
 	///合约代码
 	TThostFtdcInstrumentIDType	InstrumentID;
 	///交易所代码
 	TThostFtdcExchangeIDType	ExchangeID;
 	///买卖方向
 	TThostFtdcDirectionType	Direction;
+	///开平标志
+	TThostFtdcOffsetFlagType OffsetFlag;
 	///价格
-	TThostFtdcPriceType	OpenPrice;
-	//价格
-	TThostFtdcPriceType ClosePrice;
+	TThostFtdcPriceType	Price;
 	///数量
-	TThostFtdcVolumeType	Volume;
+	TThostFtdcVolumeType Volume;
 };
 class CtpTraderSpi : public CThostFtdcTraderSpi
 {
@@ -253,7 +253,7 @@ public:
 
 	std::vector<CThostFtdcInstrumentFieldEx> m_InsinfVec;
 	std::vector<CThostFtdcInstrumentCommissionRateField> FeeRateList;
-	std::vector<WaitSettlementForClose> WaitingForSettlementIns;
+	std::vector<WaitSettlementForFee> WaitingForSettlementFee;
 
 	CVector<CThostFtdcSettlementInfoField> m_StmiVec;
 	CVector<CThostFtdcAccountregisterField> m_AccRegVec;

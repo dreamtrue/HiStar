@@ -39,6 +39,8 @@ SRWLOCK g_srwLock_PosDetail;
 SRWLOCK g_srwLock_TradingAccount;
 SRWLOCK g_srwLock_MargRate;
 SRWLOCK g_srwLock_Insinf;
+SRWLOCK g_srwLock_WaitForFee;
+SRWLOCK g_srwLock_FeeRate;
 // CHiStarApp
 BEGIN_MESSAGE_MAP(CHiStarApp, CWinApp)
 	ON_COMMAND(ID_HELP, &CWinApp::OnHelp)
@@ -83,6 +85,8 @@ CHiStarApp::CHiStarApp()
 	InitializeSRWLock(&g_srwLock_TradingAccount);
 	InitializeSRWLock(&g_srwLock_MargRate);
 	InitializeSRWLock(&g_srwLock_Insinf);
+	InitializeSRWLock(&g_srwLock_WaitForFee);
+	InitializeSRWLock(&g_srwLock_FeeRate);
 }
 
 void CHiStarApp::OnIni(WPARAM wParam,LPARAM lParam){
@@ -225,18 +229,24 @@ CHiStarApp::~CHiStarApp(void)
 		m_cQ = NULL;
 	}
 	if(m_pHedgePostProcessing){
-		::PostThreadMessage(m_pHedgePostProcessing->m_nThreadID, WM_QUIT,0,0);
+		while(::PostThreadMessage(m_pHedgePostProcessing->m_nThreadID, WM_QUIT,0,0) == 0){
+			Sleep(100);
+		};
 		WaitForSingleObject(m_pHedgePostProcessing->m_hThread, INFINITE); 
 		m_pHedgePostProcessing = NULL;
 	}
 	if(m_pIndexThread){
-		::PostThreadMessage(m_pIndexThread->m_nThreadID, WM_QUIT,0,0);
+		while(::PostThreadMessage(m_pIndexThread->m_nThreadID, WM_QUIT,0,0) == 0){
+			Sleep(100);
+		};
 		WaitForSingleObject(m_pIndexThread->m_hThread, INFINITE);
 		m_pIndexThread = NULL;
 	}
 	//MSHQ 从通达信获取的实时行情
 	if(m_pMSHQ){
-		::PostThreadMessage(m_pMSHQ->m_nThreadID, WM_QUIT,0,0);
+		while(::PostThreadMessage(m_pMSHQ->m_nThreadID, WM_QUIT,0,0) == 0){
+			Sleep(100);
+		};
 		WaitForSingleObject(m_pMSHQ->m_hThread, INFINITE); 
 		m_pMSHQ = NULL;
 	}
@@ -246,7 +256,9 @@ void CHiStarApp::PostOrderStatus(CString str)
 {
 	CString *pStatus = new CString(str);
 	if(m_pMainWnd){
-		PostMessage(m_pMainWnd->GetSafeHwnd(),WM_ORDER_STATUS,(UINT)pStatus,NULL);
+		while(PostMessage(m_pMainWnd->GetSafeHwnd(),WM_ORDER_STATUS,(UINT)pStatus,NULL) == 0){
+			Sleep(100);
+		};
 	}
 }
 
@@ -254,7 +266,9 @@ void CHiStarApp::PostErrors(CString str)
 {
 	CString *pErrors = new CString(str);
 	if(m_pMainWnd){
-		PostMessage(m_pMainWnd->GetSafeHwnd(),WM_ERRORS,(UINT)pErrors,NULL);
+		while(PostMessage(m_pMainWnd->GetSafeHwnd(),WM_ERRORS,(UINT)pErrors,NULL) == 0){
+			Sleep(100);
+		};
 	}
 }
 
@@ -449,7 +463,8 @@ void CHiStarApp::OnSynchronizeMarket(WPARAM wParam,LPARAM lParam){
 
 	}
 	if(m_cT){
-
+		//保证金
+		double totalMargin = 0;
 		AcquireSRWLockShared(&g_srwLock_PosDetail);
 		for(unsigned int i = 0;i < m_cT->m_InvPosDetailVec.size();i++){
 			bool found = false;int requestId = -1;
@@ -473,14 +488,6 @@ void CHiStarApp::OnSynchronizeMarket(WPARAM wParam,LPARAM lParam){
 				}
 				Sleep(1000);
 			}
-		}
-		ReleaseSRWLockShared(&g_srwLock_PosDetail); 
-
-	}
-	if(m_cT){
-		double totalMargin = 0;
-		AcquireSRWLockShared(&g_srwLock_PosDetail);
-		for(unsigned int i = 0;i < m_cT->m_InvPosDetailVec.size();i++){
 			AcquireSRWLockShared(&g_srwLock_Insinf);
 			bool found01 = false;int index01 = -1;
 			for (UINT k=0; k < m_cT->m_InsinfVec.size();k++){
@@ -490,28 +497,28 @@ void CHiStarApp::OnSynchronizeMarket(WPARAM wParam,LPARAM lParam){
 				}
 			}
 			AcquireSRWLockShared(&g_srwLock_MargRate);
-			bool found = false;int index = -1;
+			bool found02 = false;int index02 = -1;
 			for(unsigned int j = 0;j < m_cT->m_MargRateVec.size();j++){
 				if(strcmp(m_cT->m_InvPosDetailVec[i].InstrumentID,m_cT->m_MargRateVec[j].InstrumentID) == 0){
-					found = true;index = j;
+					found02 = true;index02 = j;
 					break;
 				}
 			}
-			if(found01 && found){
+			if(found01 && found02){
 				if(strcmp(m_cT->m_InvPosDetailVec[i].OpenDate,m_accountCtp.m_todayDate) >= 0){
 					if(m_cT->m_InvPosDetailVec[i].Direction == THOST_FTDC_D_Buy || m_cT->m_InvPosDetailVec[i].LastSettlementPrice < 0.01){
-						totalMargin = totalMargin + m_cT->m_InvPosDetailVec[i].OpenPrice * m_cT->m_InvPosDetailVec[i].Volume * m_cT->m_MargRateVec[index].LongMarginRatioByMoney * m_cT->m_InsinfVec[index01].iinf.VolumeMultiple;
+						totalMargin = totalMargin + m_cT->m_InvPosDetailVec[i].OpenPrice * m_cT->m_InvPosDetailVec[i].Volume * m_cT->m_MargRateVec[index02].LongMarginRatioByMoney * m_cT->m_InsinfVec[index01].iinf.VolumeMultiple;
 					}
 					else{
-						totalMargin = totalMargin + m_cT->m_InvPosDetailVec[i].OpenPrice * m_cT->m_InvPosDetailVec[i].Volume * m_cT->m_MargRateVec[index].ShortMarginRatioByMoney * m_cT->m_InsinfVec[index01].iinf.VolumeMultiple;
+						totalMargin = totalMargin + m_cT->m_InvPosDetailVec[i].OpenPrice * m_cT->m_InvPosDetailVec[i].Volume * m_cT->m_MargRateVec[index02].ShortMarginRatioByMoney * m_cT->m_InsinfVec[index01].iinf.VolumeMultiple;
 					}
 				}
 				else{
 					if(m_cT->m_InvPosDetailVec[i].Direction == THOST_FTDC_D_Buy || m_cT->m_InvPosDetailVec[i].LastSettlementPrice < 0.01){
-						totalMargin = totalMargin + m_cT->m_InvPosDetailVec[i].LastSettlementPrice * m_cT->m_InvPosDetailVec[i].Volume * m_cT->m_MargRateVec[index].LongMarginRatioByMoney * m_cT->m_InsinfVec[index01].iinf.VolumeMultiple;
+						totalMargin = totalMargin + m_cT->m_InvPosDetailVec[i].LastSettlementPrice * m_cT->m_InvPosDetailVec[i].Volume * m_cT->m_MargRateVec[index02].LongMarginRatioByMoney * m_cT->m_InsinfVec[index01].iinf.VolumeMultiple;
 					}
 					else{
-						totalMargin = totalMargin + m_cT->m_InvPosDetailVec[i].LastSettlementPrice * m_cT->m_InvPosDetailVec[i].Volume * m_cT->m_MargRateVec[index].ShortMarginRatioByMoney * m_cT->m_InsinfVec[index01].iinf.VolumeMultiple;
+						totalMargin = totalMargin + m_cT->m_InvPosDetailVec[i].LastSettlementPrice * m_cT->m_InvPosDetailVec[i].Volume * m_cT->m_MargRateVec[index02].ShortMarginRatioByMoney * m_cT->m_InsinfVec[index01].iinf.VolumeMultiple;
 					}
 				}
 			}
@@ -519,14 +526,77 @@ void CHiStarApp::OnSynchronizeMarket(WPARAM wParam,LPARAM lParam){
 			ReleaseSRWLockShared(&g_srwLock_Insinf);
 		}
 		ReleaseSRWLockShared(&g_srwLock_PosDetail);
-
+	
 		AcquireSRWLockExclusive(&g_srwLock_TradingAccount);
 		m_cT->TradingAccount.CurrMargin = totalMargin;
 		ReleaseSRWLockExclusive(&g_srwLock_TradingAccount);
-	}
 
+		//费用
+		double totalFee = 0;
+		AcquireSRWLockExclusive(&g_srwLock_WaitForFee);
+		for(unsigned int i = 0;i < m_cT->WaitingForSettlementFee.size();i++){
+			bool found = false;int requestId = -1;
+
+			AcquireSRWLockShared(&g_srwLock_FeeRate);
+			for(unsigned int j = 0;j < m_cT->FeeRateList.size();j++){
+				if(strcmp(m_cT->WaitingForSettlementFee[i].InstrumentID,m_cT->FeeRateList[j].InstrumentID) == 0){
+					found = true;break;
+				}
+			}
+			ReleaseSRWLockShared(&g_srwLock_FeeRate);
+
+			if(!found){
+				requestId = m_cT->ReqQryInstFee(m_cT->WaitingForSettlementFee[i].InstrumentID);
+				while((bRet = GetMessage(&msg,NULL,WM_NOTIFY_EVENT,WM_NOTIFY_EVENT)) != 0){
+					if (!bRet){
+					}
+					else if(requestId == msg.lParam){
+						break;
+					}
+				}
+				Sleep(1000);
+			}
+			AcquireSRWLockShared(&g_srwLock_Insinf);
+			bool found01 = false;int index01 = -1;
+			for (UINT k=0; k < m_cT->m_InsinfVec.size();k++){
+				if(strcmp(m_cT->WaitingForSettlementFee[i].InstrumentID,m_cT->m_InsinfVec[k].iinf.InstrumentID) == 0){
+					found01 = true;index01 = k;
+					break;
+				}
+			}
+			AcquireSRWLockShared(&g_srwLock_FeeRate);
+			bool found02 = false;int index02 = -1;
+			for(unsigned int j = 0;j < m_cT->FeeRateList.size();j++){
+				if(strcmp(m_cT->WaitingForSettlementFee[i].InstrumentID,m_cT->FeeRateList[j].InstrumentID) == 0){
+					found02 = true;index02 = j;
+					break;
+				}
+			}
+			if(found01 && found02){
+				if(m_cT->WaitingForSettlementFee[i].OffsetFlag == THOST_FTDC_OF_Open){
+					totalFee = totalFee + m_cT->WaitingForSettlementFee[i].Price * m_cT->WaitingForSettlementFee[i].Volume * m_cT->m_InsinfVec[index01].iinf.VolumeMultiple * m_cT->FeeRateList[index02].OpenRatioByMoney;
+				}
+				else if(m_cT->WaitingForSettlementFee[i].OffsetFlag == THOST_FTDC_OF_CloseYesterday){
+					totalFee = totalFee + m_cT->WaitingForSettlementFee[i].Price * m_cT->WaitingForSettlementFee[i].Volume * m_cT->m_InsinfVec[index01].iinf.VolumeMultiple * m_cT->FeeRateList[index02].CloseRatioByMoney;
+				}
+				else{
+					totalFee = totalFee + m_cT->WaitingForSettlementFee[i].Price * m_cT->WaitingForSettlementFee[i].Volume * m_cT->m_InsinfVec[index01].iinf.VolumeMultiple * m_cT->FeeRateList[index02].CloseTodayRatioByMoney;
+				}
+			}
+			ReleaseSRWLockShared(&g_srwLock_FeeRate);
+			ReleaseSRWLockShared(&g_srwLock_Insinf);
+		}
+		m_cT->WaitingForSettlementFee.clear();//统计完清除
+		ReleaseSRWLockExclusive(&g_srwLock_WaitForFee);
+
+		AcquireSRWLockExclusive(&g_srwLock_TradingAccount);
+		m_cT->TradingAccount.Commission = m_cT->TradingAccount.Commission + totalFee;
+		ReleaseSRWLockExclusive(&g_srwLock_TradingAccount);
+	}
 	if(m_pHedgePostProcessing){
-		m_pHedgePostProcessing->PostThreadMessage(WM_SYNCHRONIZE_NOTIFY,NULL,lParam);
+		while(m_pHedgePostProcessing->PostThreadMessage(WM_SYNCHRONIZE_NOTIFY,NULL,lParam) == 0){
+			Sleep(100);
+		};
 	}
 }
 

@@ -276,22 +276,30 @@ HCURSOR CBasicPage::OnQueryDragIcon()
 
 void CBasicPage::OnConnectIB()
 {
-	PostThreadMessage(MainThreadId,WM_CONNECT_IB,NULL,NULL);
+	while(PostThreadMessage(MainThreadId,WM_CONNECT_IB,NULL,NULL) == 0){
+		Sleep(100);
+	};
 }
 
 void CBasicPage::OnDisconnectIB()
 {
-	PostThreadMessageA(GetCurrentThreadId(),WM_DISCONNECT_IB,NULL,NULL);
+	while(PostThreadMessage(GetCurrentThreadId(),WM_DISCONNECT_IB,NULL,NULL) == 0){
+		Sleep(100);
+	};
 }
 
 void CBasicPage::OnLoginCtp()
 {
-	PostThreadMessageA(GetCurrentThreadId(),WM_LOGIN_CTP,NULL,NULL);
+	while(PostThreadMessage(GetCurrentThreadId(),WM_LOGIN_CTP,NULL,NULL) == 0){
+		Sleep(100);
+	};
 }
 
 void CBasicPage::OnLogoutCtp()
 {
-	PostThreadMessageA(GetCurrentThreadId(),WM_LOGOUT_CTP,NULL,NULL);
+	while(PostThreadMessage(GetCurrentThreadId(),WM_LOGOUT_CTP,NULL,NULL) == 0){
+		Sleep(100);
+	};
 }
 
 void CBasicPage::ProgressUpdate(LPCTSTR szMsg, const int nPercentDone)
@@ -387,8 +395,12 @@ void CBasicPage::OnResume()
 
 void CBasicPage::OnBnClickedTest()
 {
-	PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
-	PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);
+	while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+		Sleep(100);
+	};
+	while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL) == 0){
+		Sleep(100);
+	};
 	((CHiStarApp*)AfxGetApp())->OnHedgeLooping(NULL,NULL);
 	SynchronizeHoldDataToView();
 	//((CHiStarApp*)AfxGetApp())->m_cT->ReqQryTfSerial("1");
@@ -405,7 +417,9 @@ void CBasicPage::OnBnClickedUpdate()
 
 void CBasicPage::OnIniSql()
 {
-	PostThreadMessage(MainThreadId,WM_CONNECT_SQL,NULL,NULL);
+	while(PostThreadMessage(MainThreadId,WM_CONNECT_SQL,NULL,NULL) == 0){
+		Sleep(100);
+	};
 }
 
 void CBasicPage::OnBnClickedCheck1()
@@ -422,7 +436,9 @@ void CBasicPage::OnBnClickedCheck1()
 
 void CBasicPage::OnIni()
 {
-	PostThreadMessage(MainThreadId,WM_INI,NULL,NULL);
+	while(PostThreadMessage(MainThreadId,WM_INI,NULL,NULL) == 0){
+		Sleep(100);
+	};
 }
 
 void CBasicPage::OnGetHedgeHold(NMHDR *pNMHDR, LRESULT *pResult){
@@ -559,11 +575,15 @@ void CBasicPage::OnBnClickedButton8()
 
 void CBasicPage::OnBnClickedMshq()
 {
-	PostThreadMessage(MainThreadId,WM_REQ_MSHQ,NULL,NULL);
+	while(PostThreadMessage(MainThreadId,WM_REQ_MSHQ,NULL,NULL) == 0){
+		Sleep(100);
+	};
 }
 
 
 void CBasicPage::OnUpdateIndexref()
 {
-	PostThreadMessage(IndexThreadId,WM_UPDATE_INDEX_REF,NULL,NULL);
+	while(PostThreadMessage(IndexThreadId,WM_UPDATE_INDEX_REF,NULL,NULL) == 0){
+		Sleep(100);
+	};
 }

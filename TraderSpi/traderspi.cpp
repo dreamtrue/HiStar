@@ -39,7 +39,9 @@ bool CmpByTime(const CThostFtdcInvestorPositionDetailField first,const CThostFtd
 //网络故障恢复正常后 自动重连
 void CtpTraderSpi::OnFrontConnected()
 {
-	PostThreadMessage(MainThreadId,WM_LOGIN_TD,NULL,NULL);
+	while(PostThreadMessage(MainThreadId,WM_LOGIN_TD,NULL,NULL) == 0){
+		Sleep(100);
+	};
 }
 
 int CtpTraderSpi::ReqUserLogin(TThostFtdcBrokerIDType	vAppId,TThostFtdcUserIDType	vUserId,TThostFtdcPasswordType	vPasswd)
@@ -141,7 +143,11 @@ void CtpTraderSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
 				TRACE("Error %u: %s\n", mysql_errno(connctp), mysql_error(connctp));      
 			}
 		}
-		if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+		if(bIsLast){
+			while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+				Sleep(100);
+			};
+		}
 }
 
 const char* CtpTraderSpi::GetTradingDay()
@@ -172,7 +178,11 @@ void CtpTraderSpi::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThos
 		TRACE(_T("已经登出ctpT\n"));
 		g_bLoginCtpT = FALSE;
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+	if(bIsLast){
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
+	}
 }
 
 int CtpTraderSpi::ReqSettlementInfoConfirm()
@@ -191,7 +201,11 @@ void CtpTraderSpi::OnRspSettlementInfoConfirm(
 {	
 	if( !IsErrorRspInfo(pRspInfo) && pSettlementInfoConfirm){
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+	if(bIsLast){
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
+	}
 }
 
 int CtpTraderSpi::ReqQryNotice()
@@ -206,7 +220,11 @@ int CtpTraderSpi::ReqQryNotice()
 void CtpTraderSpi::OnRspQryNotice(CThostFtdcNoticeField *pNotice, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
 	if (!IsErrorRspInfo(pRspInfo) &&  pNotice){}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+	if(bIsLast){
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
+	}
 }
 
 int CtpTraderSpi::ReqQryTdNotice()
@@ -222,7 +240,11 @@ int CtpTraderSpi::ReqQryTdNotice()
 void CtpTraderSpi::OnRspQryTradingNotice(CThostFtdcTradingNoticeField *pTradingNotice, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
 	if (!IsErrorRspInfo(pRspInfo) &&  pTradingNotice){}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+	if(bIsLast){
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
+	}
 }
 
 int CtpTraderSpi::ReqQrySettlementInfoConfirm()
@@ -238,7 +260,11 @@ int CtpTraderSpi::ReqQrySettlementInfoConfirm()
 void CtpTraderSpi::OnRspQrySettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField *pSettlementInfoConfirm, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
 	if (!IsErrorRspInfo(pRspInfo) &&  pSettlementInfoConfirm){}	
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+	if(bIsLast){
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
+	}
 }
 
 int CtpTraderSpi::ReqQrySettlementInfo(TThostFtdcDateType TradingDay)
@@ -262,10 +288,10 @@ void CtpTraderSpi::OnRspQrySettlementInfo(CThostFtdcSettlementInfoField *pSettle
 		memcpy(&Si,pSettlementInfo,sizeof(CThostFtdcSettlementInfoField));
 		m_StmiVec.push_back(Si);
 	}
-	if(bIsLast) 
-	{ 
-		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
-		//SendNotifyMessage(HWND_BROADCAST,WM_QRYSMI_MSG,0,0);		
+	if(bIsLast){
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
 	}
 }
 
@@ -304,8 +330,12 @@ void CtpTraderSpi::OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument,
 	}
 	if(bIsLast){
 		TRACE(_T("合约查询完毕\n"));
-		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
-		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+		while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+			Sleep(100);
+		};
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
 	}
 }
 
@@ -345,7 +375,11 @@ void CtpTraderSpi::OnRspQryInstrumentMarginRate(CThostFtdcInstrumentMarginRateFi
 		ReleaseSRWLockExclusive(&g_srwLock_MargRate);
 
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+	if(bIsLast){
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
+	}
 }
 
 int CtpTraderSpi::ReqQryTdAcc()
@@ -369,8 +403,12 @@ void CtpTraderSpi::OnRspQryTradingAccount(
 		ReleaseSRWLockExclusive(&g_srwLock_TradingAccount);
 	}
 	if(bIsLast){
-		PostThreadMessage(MainThreadId,WM_MD_REFRESH,NULL,NULL);
-		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+		while(PostThreadMessage(MainThreadId,WM_MD_REFRESH,NULL,NULL) == 0){
+			Sleep(100);
+		};
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
 	}	
 }
 
@@ -430,8 +468,12 @@ void CtpTraderSpi::OnRspQryInvestorPosition(
 		}
 	}
 	if(bIsLast){ 
-		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
-		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+		while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+			Sleep(100);
+		};
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
 	}
 }
 
@@ -517,8 +559,12 @@ void  CtpTraderSpi::OnRspQryOrder(CThostFtdcOrderField *pOrder, CThostFtdcRspInf
 		}
 	}
 	if(bIsLast) {
-		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
-		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+		while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+			Sleep(100);
+		};
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
 	}
 }
 
@@ -584,9 +630,15 @@ void CtpTraderSpi::OnRspQryTrade(CThostFtdcTradeField *pTrade, CThostFtdcRspInfo
 	}
 	if(bIsLast) {
 		//同步市场数据包括保证金计算、市场深度获取获取等等。
-		PostThreadMessage(MainThreadId,WM_SYNCHRONIZE_MARKET,NULL,NULL);
-		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
-		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+		while(PostThreadMessage(MainThreadId,WM_SYNCHRONIZE_MARKET,NULL,NULL) == 0){
+			Sleep(100);
+		};
+		while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+			Sleep(100);
+		};
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
 	}
 }
 
@@ -647,8 +699,12 @@ void CtpTraderSpi::OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDeta
 		sort(m_InvPosDetailVec.begin(),m_InvPosDetailVec.end(),CmpByTime);
 		ReleaseSRWLockExclusive(&g_srwLock_PosDetail); 
 
-		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
-		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+		while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+			Sleep(100);
+		};
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
 	}
 }
 
@@ -671,7 +727,11 @@ void CtpTraderSpi::OnRspQryInvestorPositionCombineDetail(CThostFtdcInvestorPosit
 	{
 
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+	if(bIsLast){
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
+	}
 }
 
 int CtpTraderSpi::ReqOrdLimit(TThostFtdcInstrumentIDType instId,TThostFtdcDirectionType dir,
@@ -704,7 +764,9 @@ int CtpTraderSpi::ReqOrdLimit(TThostFtdcInstrumentIDType instId,TThostFtdcDirect
 
 	pUserApi->ReqOrderInsert(&req, ++m_iRequestID);
 	m_onRoadVec.push_back(req);
-	PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
+	while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+		Sleep(100);
+	};
 	return orderref;
 }
 
@@ -737,7 +799,9 @@ int CtpTraderSpi::ReqOrdAny(TThostFtdcInstrumentIDType instId,TThostFtdcDirectio
 
 	pUserApi->ReqOrderInsert(&req, ++m_iRequestID);	
 	m_onRoadVec.push_back(req);
-	PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
+	while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+		Sleep(100);
+	};
 	return m_iRequestID;
 }
 
@@ -771,7 +835,9 @@ int CtpTraderSpi::ReqOrdCondition(TThostFtdcInstrumentIDType instId,TThostFtdcDi
 
 	pUserApi->ReqOrderInsert(&req, ++m_iRequestID);
 	m_onRoadVec.push_back(req);
-	PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
+	while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+		Sleep(100);
+	};
 	return m_iRequestID;
 }
 
@@ -810,7 +876,9 @@ int CtpTraderSpi::ReqOrdFAOK(TThostFtdcInstrumentIDType instId,TThostFtdcDirecti
 
 	pUserApi->ReqOrderInsert(&req, ++m_iRequestID);
 	m_onRoadVec.push_back(req);
-	PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
+	while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+		Sleep(100);
+	};
 	return m_iRequestID;
 }
 
@@ -830,7 +898,9 @@ void CtpTraderSpi::OnRspOrderInsert(CThostFtdcInputOrderField *pInputOrder,
 		if(pApp->m_pHedgePostProcessing){
 			CThostFtdcInputOrderField *pInputOrderRtn = new CThostFtdcInputOrderField;
 			memcpy(pInputOrderRtn,pInputOrder,sizeof(CThostFtdcInputOrderField));
-			pApp->m_pHedgePostProcessing->PostThreadMessage(WM_RTN_INSERT,NULL,(UINT)pInputOrderRtn);
+			while(pApp->m_pHedgePostProcessing->PostThreadMessage(WM_RTN_INSERT,NULL,(UINT)pInputOrderRtn) == 0){
+				Sleep(100);
+			};
 		}
 	}
 }
@@ -892,7 +962,11 @@ void CtpTraderSpi::OnRspOrderAction(
 
 		}
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);	
+	if(bIsLast){
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
+	}	
 }
 
 ///报单回报
@@ -933,7 +1007,9 @@ void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder){
 			founded = true;
 			//修改命令状态
 			m_orderVec[i] = order;
-			PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
+			while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+				Sleep(100);
+			};
 			break;
 		}
 	}		
@@ -947,17 +1023,23 @@ void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder){
 		else{
 			//挂单返回，表示已经递送出去，将该挂单删除(已经变成委托单或其他)
 			m_onRoadVec.erase(nRet);
-			PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
+			while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+				Sleep(100);
+			};
 		}
 		///////新增加委托单
 		m_orderVec.push_back(order);
-		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
+		while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+			Sleep(100);
+		};
 	}
 	//后处理
 	if(pApp->m_pHedgePostProcessing){
 		CThostFtdcOrderField *pOrderPost = new CThostFtdcOrderField;
 		memcpy(pOrderPost,pOrder,sizeof(CThostFtdcOrderField));
-		pApp->m_pHedgePostProcessing->PostThreadMessage(WM_RTN_ORDER,NULL,(UINT)pOrderPost);
+		while(pApp->m_pHedgePostProcessing->PostThreadMessage(WM_RTN_ORDER,NULL,(UINT)pOrderPost) == 0){
+			Sleep(100);
+		};
 	}
 }
 
@@ -985,7 +1067,17 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 		if(mysql_query(connctp,insertdata.GetBuffer())){
 			TRACE("Error %u: %s\n", mysql_errno(connctp), mysql_error(connctp));
 		}
-	}	
+	}
+
+	//等待计算费用
+	AcquireSRWLockExclusive(&g_srwLock_WaitForFee);
+	WaitSettlementForFee waitins;
+	waitins.Volume = pTrade->Volume;waitins.Price = pTrade->Price;
+	strcpy(waitins.InstrumentID,pTrade->InstrumentID);waitins.Direction = pTrade->Direction;
+	waitins.OffsetFlag = pTrade->OffsetFlag;strcpy(waitins.ExchangeID,pTrade->ExchangeID);
+	WaitingForSettlementFee.push_back(waitins);
+	ReleaseSRWLockExclusive(&g_srwLock_WaitForFee);
+
 	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	CThostFtdcTradeField trade;
 	memcpy(&trade,pTrade,sizeof(CThostFtdcTradeField));
@@ -1007,7 +1099,9 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 	else 
 	{
 		m_tradeVec.push_back(trade);
-		PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
+		while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+			Sleep(100);
+		};
 	}
 	//更改持仓明细单
 	if(trade.OffsetFlag == THOST_FTDC_OF_Open){
@@ -1031,25 +1125,17 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 			strcpy(posDetail.OpenDate,trade.TradeDate);strcpy(posDetail.TradingDay,trade.TradingDay);
 			posDetail.Volume = trade.Volume;
 			m_InvPosDetailVec.push_back(posDetail);
-			PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
-			PostThreadMessage(MainThreadId,WM_SYNCHRONIZE_MARKET,NULL,NULL);
+			while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+				Sleep(100);
+			};
+			while(PostThreadMessage(MainThreadId,WM_SYNCHRONIZE_MARKET,NULL,NULL) == 0){
+				Sleep(100);
+			};
 		}
 		ReleaseSRWLockExclusive(&g_srwLock_PosDetail);
 
 	}
 	else{//平仓
-		/*
-		bool found01 = false;int requestId = -1;
-		CThostFtdcInstrumentMarginRateField MarginRate;
-		AcquireSRWLockShared(&g_srwLock_MargRate);
-		for(unsigned int j = 0;j < m_MargRateVec.size();j++){
-		if(strcmp(trade.InstrumentID,m_MargRateVec[j].InstrumentID) == 0){
-		found01 = true;MarginRate = m_MargRateVec[j];
-		break;
-		}
-		}
-		ReleaseSRWLockShared(&g_srwLock_MargRate);
-		*/
 		double VolumeMultiple = 0;
 		AcquireSRWLockShared(&g_srwLock_Insinf);
 		bool found01 = false;
@@ -1072,29 +1158,21 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 				if(m_InvPosDetailVec[i].Volume > closeNum){
 					m_InvPosDetailVec[i].CloseVolume = m_InvPosDetailVec[i].CloseVolume + closeNum;
 					m_InvPosDetailVec[i].Volume = m_InvPosDetailVec[i].Volume - closeNum;
-
-					WaitSettlementForClose waitins;waitins.Volume = closeNum;waitins.OpenPrice = m_InvPosDetailVec[i].OpenPrice;
-					strcpy(waitins.InstrumentID,m_InvPosDetailVec[i].InstrumentID);waitins.Direction = m_InvPosDetailVec[i].Direction;
-					strcpy(waitins.ExchangeID,m_InvPosDetailVec[i].ExchangeID);waitins.ClosePrice = trade.Price;
-					WaitingForSettlementIns.push_back(waitins);
-
 					if(m_InvPosDetailVec[i].Direction == THOST_FTDC_D_Buy){
 						TradingAccount.CloseProfit = TradingAccount.CloseProfit + (trade.Price - m_InvPosDetailVec[i].OpenPrice) * closeNum * VolumeMultiple;
 					}
 					else{
 						TradingAccount.CloseProfit = TradingAccount.CloseProfit - (trade.Price - m_InvPosDetailVec[i].OpenPrice) * closeNum * VolumeMultiple;
 					}
-					PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
-					PostThreadMessage(MainThreadId,WM_SYNCHRONIZE_MARKET,NULL,NULL);
+					while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+						Sleep(100);
+					};
+					while(PostThreadMessage(MainThreadId,WM_SYNCHRONIZE_MARKET,NULL,NULL) == 0){
+						Sleep(100);
+					};
 					break;
 				}
 				else if(m_InvPosDetailVec[i].Volume == closeNum){
-
-					WaitSettlementForClose waitins;waitins.Volume = closeNum;waitins.OpenPrice = m_InvPosDetailVec[i].OpenPrice;
-					strcpy(waitins.InstrumentID,m_InvPosDetailVec[i].InstrumentID);waitins.Direction = m_InvPosDetailVec[i].Direction;
-					strcpy(waitins.ExchangeID,m_InvPosDetailVec[i].ExchangeID);waitins.ClosePrice = trade.Price;
-					WaitingForSettlementIns.push_back(waitins);
-
 					if(m_InvPosDetailVec[i].Direction == THOST_FTDC_D_Buy){
 						TradingAccount.CloseProfit = TradingAccount.CloseProfit + (trade.Price - m_InvPosDetailVec[i].OpenPrice) * closeNum * VolumeMultiple;
 					}
@@ -1104,17 +1182,15 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 					std::vector<CThostFtdcInvestorPositionDetailField>::iterator it = m_InvPosDetailVec.begin() + i;
 					m_InvPosDetailVec.erase(it);
 					i--;
-					PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL);
-					PostThreadMessage(MainThreadId,WM_SYNCHRONIZE_MARKET,NULL,NULL);
+					while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+						Sleep(100);
+					};
+					while(PostThreadMessage(MainThreadId,WM_SYNCHRONIZE_MARKET,NULL,NULL) == 0){
+						Sleep(100);
+					};
 					break;
 				}
 				else{
-
-					WaitSettlementForClose waitins;waitins.Volume = m_InvPosDetailVec[i].Volume;waitins.OpenPrice = m_InvPosDetailVec[i].OpenPrice;
-					strcpy(waitins.InstrumentID,m_InvPosDetailVec[i].InstrumentID);waitins.Direction = m_InvPosDetailVec[i].Direction;
-					strcpy(waitins.ExchangeID,m_InvPosDetailVec[i].ExchangeID);waitins.ClosePrice = trade.Price;
-					WaitingForSettlementIns.push_back(waitins);
-
 					closeNum = closeNum - m_InvPosDetailVec[i].Volume;
 					if(m_InvPosDetailVec[i].Direction == THOST_FTDC_D_Buy){
 						TradingAccount.CloseProfit = TradingAccount.CloseProfit + (trade.Price - m_InvPosDetailVec[i].OpenPrice) * m_InvPosDetailVec[i].Volume * VolumeMultiple;
@@ -1135,7 +1211,9 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 	if(pApp->m_pHedgePostProcessing){
 		CThostFtdcTradeField *pTradePost = new CThostFtdcTradeField;
 		memcpy(pTradePost,pTrade,sizeof(CThostFtdcTradeField));
-		pApp->m_pHedgePostProcessing->PostThreadMessage(WM_RTN_TRADE,NULL,(UINT)pTradePost);
+		while(pApp->m_pHedgePostProcessing->PostThreadMessage(WM_RTN_TRADE,NULL,(UINT)pTradePost) == 0){
+			Sleep(100);
+		};
 	}
 }
 
@@ -1171,7 +1249,11 @@ void CtpTraderSpi::OnRspQryTradingCode(CThostFtdcTradingCodeField *pTradingCode,
 		memcpy(&TdCode, pTradingCode, sizeof(CThostFtdcTradingCodeField));
 		m_TdCodeVec.push_back(TdCode);
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+	if(bIsLast){
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
+	}
 }
 
 ///请求查询合约保证金率
@@ -1205,6 +1287,7 @@ void CtpTraderSpi::OnRspQryInstrumentCommissionRate(CThostFtdcInstrumentCommissi
 {
 	if( !IsErrorRspInfo(pRspInfo) && pInstrumentCommissionRate )
 	{
+		AcquireSRWLockExclusive(&g_srwLock_FeeRate);
 		bool found = false;
 		for(unsigned int i = 0;i < FeeRateList.size();i++){
 			if(strcmp(pInstrumentCommissionRate->InstrumentID,FeeRateList[i].InstrumentID) == 0){
@@ -1214,9 +1297,12 @@ void CtpTraderSpi::OnRspQryInstrumentCommissionRate(CThostFtdcInstrumentCommissi
 		if(!found){
 			FeeRateList.push_back(*pInstrumentCommissionRate);
 		}
+		ReleaseSRWLockExclusive(&g_srwLock_FeeRate);
 	}
-	if(bIsLast) {
-		PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+	if(bIsLast){
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
 	}
 }
 
@@ -1240,7 +1326,11 @@ void CtpTraderSpi::OnRspQryInvestor(CThostFtdcInvestorField *pInvestor, CThostFt
 		CThostFtdcInvestorField Inv;
 		memcpy(&Inv,pInvestor,sizeof(CThostFtdcInvestorField));
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+	if(bIsLast){
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
+	}
 }
 
 int CtpTraderSpi::ReqUserPwdUpdate(TThostFtdcPasswordType szNewPass,TThostFtdcPasswordType szOldPass)
@@ -1266,8 +1356,13 @@ void CtpTraderSpi::OnRspUserPasswordUpdate(CThostFtdcUserPasswordUpdateField *pU
 	else
 	{
 		ShowErrTips(pRspInfo->ErrorMsg);
+
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+	if(bIsLast){
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
+	}
 }
 
 //资金账户密码
@@ -1295,7 +1390,11 @@ void CtpTraderSpi::OnRspTradingAccountPasswordUpdate(CThostFtdcTradingAccountPas
 	{
 		ShowErrTips(pRspInfo->ErrorMsg);
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+	if(bIsLast){
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
+	}
 }
 
 int CtpTraderSpi::ReqAuthenticate(TThostFtdcProductInfoType UserProdInf,TThostFtdcAuthCodeType	AuthCode)
@@ -1317,7 +1416,11 @@ void CtpTraderSpi::OnRspAuthenticate(CThostFtdcRspAuthenticateField *pRspAuthent
 	if( !IsErrorRspInfo(pRspInfo) && pRspAuthenticateField )
 	{
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+	if(bIsLast){
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
+	}
 }
 
 int CtpTraderSpi::ReqQryAccreg()
@@ -1340,7 +1443,11 @@ void CtpTraderSpi::OnRspQryAccountregister(CThostFtdcAccountregisterField *pAcco
 		memcpy(&AccReg,  pAccountregister, sizeof(CThostFtdcAccountregisterField));
 		m_AccRegVec.push_back(AccReg);
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+	if(bIsLast){
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
+	}
 }
 
 
@@ -1362,7 +1469,11 @@ void CtpTraderSpi::OnRspQryTransferBank(CThostFtdcTransferBankField *pTransferBa
 	if( !IsErrorRspInfo(pRspInfo) && pTransferBank)
 	{
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+	if(bIsLast){
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
+	}
 }
 
 int CtpTraderSpi::ReqQryContractBk(TThostFtdcBankIDType BankID,TThostFtdcBankBrchIDType BankBrchID)
@@ -1386,7 +1497,11 @@ void CtpTraderSpi::OnRspQryContractBank(CThostFtdcContractBankField *pContractBa
 	if( !IsErrorRspInfo(pRspInfo) && pContractBank)
 	{
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+	if(bIsLast){
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
+	}
 }
 
 //////////////////////////////////////////期货发起银行资金转期货请求///////////////////////////////////////
@@ -1419,7 +1534,11 @@ void CtpTraderSpi::OnRspFromBankToFutureByFuture(CThostFtdcReqTransferField *pRe
 
 		ShowErrTips(pRspInfo->ErrorMsg);
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);	 
+	if(bIsLast){
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
+	}	 
 }
 
 ///期货发起银行资金转期货通知
@@ -1497,7 +1616,11 @@ void CtpTraderSpi::OnRspFromFutureToBankByFuture(CThostFtdcReqTransferField *pRe
 		ShowErrTips(pRspInfo->ErrorMsg);
 	}
 
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);	
+	if(bIsLast){
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
+	}	
 }
 
 
@@ -1583,7 +1706,9 @@ void CtpTraderSpi::OnRtnQueryBankBalanceByFuture(CThostFtdcNotifyQueryAccountFie
 		}
 	}
 
-	PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL);	
+	while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL) == 0){
+		Sleep(100);
+	};	
 }
 
 ///期货发起查询银行余额错误回报
@@ -1611,7 +1736,11 @@ void CtpTraderSpi::OnRspQryTransferSerial(CThostFtdcTransferSerialField *pTransf
 	{
 		ShowErrTips(pRspInfo->ErrorMsg);	
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);	
+	if(bIsLast){
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
+	}	
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1691,7 +1820,11 @@ void CtpTraderSpi::OnRspQryBrokerTradingParams(CThostFtdcBrokerTradingParamsFiel
 	{
 
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+	if(bIsLast){
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
+	}
 }
 
 int CtpTraderSpi::ReqQryBkrTdAlgos(TThostFtdcExchangeIDType ExhID,TThostFtdcInstrumentIDType instID)
@@ -1714,7 +1847,11 @@ void CtpTraderSpi::OnRspQryBrokerTradingAlgos(CThostFtdcBrokerTradingAlgosField 
 	{
 
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+	if(bIsLast){
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
+	}
 }
 
 ///预埋单录入请求
@@ -1762,7 +1899,11 @@ void CtpTraderSpi::OnRspParkedOrderInsert(CThostFtdcParkedOrderField *pParkedOrd
 	{
 
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+	if(bIsLast){
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
+	}
 }
 
 ///预埋撤单录入请求
@@ -1778,7 +1919,11 @@ void CtpTraderSpi::OnRspParkedOrderAction(CThostFtdcParkedOrderActionField *pPar
 	{
 
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+	if(bIsLast){
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
+	}
 }
 
 ///请求查询预埋单
@@ -1803,7 +1948,11 @@ void CtpTraderSpi::OnRspQryParkedOrder(CThostFtdcParkedOrderField *pParkedOrder,
 	{
 
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+	if(bIsLast){
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
+	}
 }
 
 ///请求撤销预埋
@@ -1828,7 +1977,11 @@ void CtpTraderSpi::OnRspRemoveParkedOrderAction(CThostFtdcRemoveParkedOrderActio
 	{
 
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+	if(bIsLast){
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
+	}
 }
 
 ///请求删除预埋单
@@ -1850,7 +2003,11 @@ void CtpTraderSpi::OnRspRemoveParkedOrder(CThostFtdcRemoveParkedOrderField *pRem
 	{
 
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+	if(bIsLast){
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
+	}
 }
 
 ///请求删除预埋撤单
@@ -1872,7 +2029,11 @@ void CtpTraderSpi::OnRspQryParkedOrderAction(CThostFtdcParkedOrderActionField *p
 	{
 
 	}
-	if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID);
+	if(bIsLast){
+		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
+			Sleep(100);
+		};
+	}
 }
 
 void CtpTraderSpi::OnRtnInstrumentStatus(CThostFtdcInstrumentStatusField *pInstrumentStatus)
@@ -1922,7 +2083,14 @@ void CtpTraderSpi::ClearAllVectors(){
 	m_TdCodeVec.clear();
 	m_InvPosVec.clear();
 	m_BfTransVec.clear();
+
+	AcquireSRWLockExclusive(&g_srwLock_FeeRate);
 	FeeRateList.clear();
+	ReleaseSRWLockExclusive(&g_srwLock_FeeRate);
+
+	AcquireSRWLockExclusive(&g_srwLock_WaitForFee);
+	WaitingForSettlementFee.clear();
+	ReleaseSRWLockExclusive(&g_srwLock_WaitForFee);
 
 	AcquireSRWLockExclusive(&g_srwLock_PosDetail);
 	m_InvPosDetailVec.clear();

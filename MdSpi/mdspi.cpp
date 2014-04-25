@@ -31,7 +31,9 @@ void CtpMdSpi::OnHeartBeatWarning(int nTimeLapse){
 
 void CtpMdSpi::OnFrontConnected(){
 	TRACE("OnFrontConnected\n");
-	PostThreadMessage(MainThreadId,WM_LOGIN_MD,NULL,NULL);
+	while(PostThreadMessage(MainThreadId,WM_LOGIN_MD,NULL,NULL) == 0){
+		Sleep(100);
+	};
 }
 
 int CtpMdSpi::ReqUserLogin(TThostFtdcBrokerIDType	vAppId,TThostFtdcUserIDType	vUserId,TThostFtdcPasswordType	vPasswd){
@@ -51,7 +53,11 @@ void CtpMdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
 		CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 		if (!IsErrorRspInfo(pRspInfo) && pRspUserLogin){
 		}
-		if(bIsLast) PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT_MD,NULL,nRequestID);
+		if(bIsLast){
+			while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT_MD,NULL,nRequestID) == 0){
+				Sleep(100);
+			};
+		}
 }
 
 int CtpMdSpi::ReqUserLogout(){
@@ -193,7 +199,9 @@ void CtpMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarket
 			if(pApp->m_pMainWnd){
 				memcpy(&(((CMainDlg*)(pApp->m_pMainWnd))->m_basicPage.m_depthMd),pDepthMarketData,sizeof(CThostFtdcDepthMarketDataField));
 			}
-			PostThreadMessage(MainThreadId,WM_MD_REFRESH,NULL,NULL);
+			while(PostThreadMessage(MainThreadId,WM_MD_REFRESH,NULL,NULL) == 0){
+				Sleep(100);
+			};
 		}
 	}
 	CalcPositionProfit();
@@ -249,7 +257,7 @@ double CtpMdSpi::CalcPositionProfit(){
 		AcquireSRWLockExclusive(&g_srwLock_TradingAccount);
 		pApp->m_cT->TradingAccount.PositionProfit = positionProfit;
 		ReleaseSRWLockExclusive(&g_srwLock_TradingAccount);
-	
+
 	}
 	//TRACE("¶¯Ì¬ %.02lf\n",positionProfit);
 	return positionProfit;

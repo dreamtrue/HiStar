@@ -87,6 +87,17 @@ CHedgePostProcessing::~CHedgePostProcessing()
 
 BOOL CHedgePostProcessing::InitInstance()
 {
+	MSG msg;BOOL bRet;long idHedgeCurrent = -1;
+	while((bRet = GetMessage(&msg,NULL,WM_BEGIN_POST_PROCESSING,WM_BEGIN_POST_PROCESSING)) != 0){
+		TRACE("收到WM_BEGIN_POST_PROCESSING\n");
+		if (!bRet){// handle the error and possibly exit
+			TRACE("收到WM_BEGIN_POST_PROCESSING error\n");
+		}
+		else{
+			idHedgeCurrent = msg.lParam;
+			PostProcessing(NULL,idHedgeCurrent);//后处理
+		}
+	}
 	return TRUE;
 }
 
@@ -97,7 +108,6 @@ int CHedgePostProcessing::ExitInstance()
 }
 
 BEGIN_MESSAGE_MAP(CHedgePostProcessing, CWinThread)
-	ON_THREAD_MESSAGE(WM_PREPARE_POST_PROCESSING,PostProcessing)
 END_MESSAGE_MAP()
 
 void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
@@ -460,9 +470,6 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 	}
 
 	hedgeTaskStatus = WAITING_FOR_FINISHED;//标记等待状态，在等待状态下对冲循环不会有新的任务
-	if(m_pHedgePostProcessing){
-		m_pHedgePostProcessing->PostThreadMessage(WM_PREPARE_POST_PROCESSING,NULL,NULL);
-	}
 	////////////////////////////////////////////////////////////
 	//////千万注意要先清零,否则将会导致意想不到的错误。
 	IfTask iftask;A50Task a50task;
@@ -554,7 +561,11 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 	}
 	//开始后处理
 	if(m_pHedgePostProcessing){
-		m_pHedgePostProcessing->PostThreadMessage(WM_BEGIN_POST_PROCESSING,NULL,pHD->id);
+		while(m_pHedgePostProcessing->PostThreadMessage(WM_BEGIN_POST_PROCESSING,NULL,pHD->id) == 0){
+			TRACE("发送失败\n");
+			Sleep(100);
+		};
+		TRACE("发送成功\n");
 	}
 	return 0;
 }
@@ -564,14 +575,7 @@ void CHedgePostProcessing::PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 	HWND hEdit = ::GetDlgItem(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->m_basicPage.m_hWnd,IDC_RICHEDIT_STATUS);
 	MSG msg;BOOL bRet;
 	long idHedgeCurrent = -1;
-	while((bRet = GetMessage(&msg,NULL,WM_BEGIN_POST_PROCESSING,WM_BEGIN_POST_PROCESSING)) != 0){
-		if (!bRet){// handle the error and possibly exit
-		}
-		else{
-			idHedgeCurrent = msg.lParam;
-			break;//已经开始，往下正式进行处理。
-		}
-	}
+	idHedgeCurrent = t_lParam;
 	//检索两种消息，分别是WM_RTN_INSERT和WM_RTN_ORDER
 	while((bRet = GetMessage(&msg,NULL,WM_RTN_INSERT,WM_RTN_ORDER)) != 0){
 		if (!bRet){
@@ -738,10 +742,16 @@ void CHedgePostProcessing::PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 	HedgeHold = HedgeHoldTemp;//更新Hold持仓
 	hedgeTaskStatus = NEW_HEDGE;
 	sprintf(buffer,_T("对冲结束\r\n=================================================\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
-	::PostThreadMessage(MainThreadId,WM_UPDATE_HEDGEHOLD,NULL,NULL);//更新账户
-	::PostThreadMessage(MainThreadId,WM_QRY_ACC_CTP,NULL,NULL);//更新账户
+	while(::PostThreadMessage(MainThreadId,WM_UPDATE_HEDGEHOLD,NULL,NULL) == 0){
+		Sleep(100);
+	};//更新账户
+	while(::PostThreadMessage(MainThreadId,WM_QRY_ACC_CTP,NULL,NULL) == 0){
+		Sleep(100);
+	};//更新账户
 	static int idSynchronize = 0;
-	::PostThreadMessage(MainThreadId,WM_SYNCHRONIZE_MARKET,NULL,++idSynchronize);//同步市场
+	while(::PostThreadMessage(MainThreadId,WM_SYNCHRONIZE_MARKET,NULL,++idSynchronize) == 0){
+		Sleep(100);
+	};//同步市场
 	while((bRet = GetMessage(&msg,NULL,WM_SYNCHRONIZE_NOTIFY,WM_SYNCHRONIZE_NOTIFY)) != 0){
 		if (!bRet){
 		}

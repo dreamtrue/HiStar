@@ -321,7 +321,9 @@ void CHiStarApp::OnReqMshq(WPARAM wParam,LPARAM lParam){
 		m_pMSHQ->m_bAutoDelete = true;
 	}
 	else{
-		::PostThreadMessage(m_pMSHQ->m_nThreadID, WM_QUIT,0,0);
+		while(::PostThreadMessage(m_pMSHQ->m_nThreadID, WM_QUIT,0,0) == 0){
+			Sleep(100);
+		};
 		WaitForSingleObject(m_pMSHQ->m_hThread, INFINITE); 
 		m_pMSHQ = NULL;
 	}
