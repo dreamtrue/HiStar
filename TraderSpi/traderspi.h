@@ -25,7 +25,7 @@ class CtpTraderSpi : public CThostFtdcTraderSpi
 public:
 	CtpTraderSpi(CThostFtdcTraderApi* api):pUserApi(api){ m_iRequestID =0; m_ifrontId=-1; m_isessionId=-1; connctp = NULL;
 
-	AcquireSRWLockExclusive(&g_srwLock_TradingAccount);//对于TradingAccount加读写锁其实是无意义的，同时这个地方加更是无意义，因为这个时候读写锁还没初始化呢
+	AcquireSRWLockExclusive(&g_srwLock_TradingAccount);
 	memset(&TradingAccount,0,sizeof(CThostFtdcTradingAccountField));
 	ReleaseSRWLockExclusive(&g_srwLock_TradingAccount);
 

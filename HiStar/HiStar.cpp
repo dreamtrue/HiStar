@@ -498,11 +498,21 @@ void CHiStarApp::OnSynchronizeMarket(WPARAM wParam,LPARAM lParam){
 				}
 			}
 			if(found01 && found){
-				if(m_cT->m_InvPosDetailVec[i].Direction == THOST_FTDC_D_Buy){
-					totalMargin = totalMargin + m_cT->m_InvPosDetailVec[i].OpenPrice * m_cT->m_InvPosDetailVec[i].Volume * m_cT->m_MargRateVec[index].LongMarginRatioByMoney * m_cT->m_InsinfVec[index01].iinf.VolumeMultiple;
+				if(strcmp(m_cT->m_InvPosDetailVec[i].OpenDate,m_accountCtp.m_todayDate) >= 0){
+					if(m_cT->m_InvPosDetailVec[i].Direction == THOST_FTDC_D_Buy || m_cT->m_InvPosDetailVec[i].LastSettlementPrice < 0.01){
+						totalMargin = totalMargin + m_cT->m_InvPosDetailVec[i].OpenPrice * m_cT->m_InvPosDetailVec[i].Volume * m_cT->m_MargRateVec[index].LongMarginRatioByMoney * m_cT->m_InsinfVec[index01].iinf.VolumeMultiple;
+					}
+					else{
+						totalMargin = totalMargin + m_cT->m_InvPosDetailVec[i].OpenPrice * m_cT->m_InvPosDetailVec[i].Volume * m_cT->m_MargRateVec[index].ShortMarginRatioByMoney * m_cT->m_InsinfVec[index01].iinf.VolumeMultiple;
+					}
 				}
 				else{
-					totalMargin = totalMargin + m_cT->m_InvPosDetailVec[i].OpenPrice * m_cT->m_InvPosDetailVec[i].Volume * m_cT->m_MargRateVec[index].ShortMarginRatioByMoney * m_cT->m_InsinfVec[index01].iinf.VolumeMultiple;
+					if(m_cT->m_InvPosDetailVec[i].Direction == THOST_FTDC_D_Buy || m_cT->m_InvPosDetailVec[i].LastSettlementPrice < 0.01){
+						totalMargin = totalMargin + m_cT->m_InvPosDetailVec[i].LastSettlementPrice * m_cT->m_InvPosDetailVec[i].Volume * m_cT->m_MargRateVec[index].LongMarginRatioByMoney * m_cT->m_InsinfVec[index01].iinf.VolumeMultiple;
+					}
+					else{
+						totalMargin = totalMargin + m_cT->m_InvPosDetailVec[i].LastSettlementPrice * m_cT->m_InvPosDetailVec[i].Volume * m_cT->m_MargRateVec[index].ShortMarginRatioByMoney * m_cT->m_InsinfVec[index01].iinf.VolumeMultiple;
+					}
 				}
 			}
 			ReleaseSRWLockShared(&g_srwLock_MargRate);

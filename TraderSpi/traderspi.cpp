@@ -1441,6 +1441,11 @@ void CtpTraderSpi::OnRtnFromBankToFutureByFuture(CThostFtdcRspTransferField *pRs
 	///////新增银期反馈
 	else 
 	{
+		AcquireSRWLockExclusive(&g_srwLock_TradingAccount);
+		if(pRspTransfer->ErrorID == 0){
+			TradingAccount.Deposit = TradingAccount.Deposit + pRspTransfer->TradeAmount;
+		}
+		ReleaseSRWLockExclusive(&g_srwLock_TradingAccount);
 		m_BfTransVec.push_back(bfTrans);
 		if(!g_bRecconnectT)
 		{
@@ -1515,6 +1520,11 @@ void CtpTraderSpi::OnRtnFromFutureToBankByFuture(CThostFtdcRspTransferField *pRs
 	///////新增银期反馈
 	else 
 	{
+		AcquireSRWLockExclusive(&g_srwLock_TradingAccount);
+		if(pRspTransfer->ErrorID == 0){
+			TradingAccount.Withdraw = TradingAccount.Withdraw + pRspTransfer->TradeAmount;
+		}
+		ReleaseSRWLockExclusive(&g_srwLock_TradingAccount);
 		m_BfTransVec.push_back(bfTrans);
 		if(!g_bRecconnectT)
 		{
