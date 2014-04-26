@@ -3,6 +3,8 @@
 #include "HiStar.h"
 #include "global.h"
 #include "UserMsg.h"
+#include "OrderState.h"
+#include "ibaccount.h"
 #define NOT_AN_FA_ACCOUNT_ERROR 321
 #define NUM_FA_ERROR_CODES 6
 extern double AvailIB;
@@ -13,6 +15,7 @@ static int faErrorCodes[NUM_FA_ERROR_CODES] =
 extern int netPositionA50;
 DWORD MainThreadId = 0;
 DWORD IndexThreadId = 0;
+bool iAccountDownloadEnd = false;
 CString getField( TickType tickType) {
 	switch( tickType)
 	{
@@ -147,11 +150,19 @@ void CHiStarApp::orderStatus( OrderId orderId, const IBString &status, int fille
 			if(m_pHedgePostProcessing->PostThreadMessage(WM_RTN_ORDER_IB,NULL,(UINT)pOrderStatus) == 0){
 				Sleep(100);
 			};
-		}		
+		}
 }
-void CHiStarApp::openOrder( OrderId orderId, const Contract&, const Order&, const OrderState&){
-	TRACE("openOrder\n");
+
+void CHiStarApp::openOrder(OrderId orderId, const Contract& contract, const Order& order, const OrderState& orderstate){
+	if(m_A50Contract.symbol == contract.symbol
+		&& m_A50Contract.exchange == contract.exchange
+		&& m_A50Contract.currency == contract.currency
+		&& m_A50Contract.expiry.Left(6) == contract.expiry.Left(6)
+		&& m_A50Contract.secType == contract.secType){
+			m_accountvalue.InitMarginIfAddOneA50 = atof(orderstate.initMargin);
+	}
 }
+
 void CHiStarApp::openOrderEnd(){
 	TRACE("openOrderEnd\n");
 }
@@ -165,41 +176,67 @@ void CHiStarApp::connectionClosed(){
 	PostOrderStatus(cStatus);
 }
 
-
 void CHiStarApp::updateAccountValue(const IBString& key, const IBString& val,
 	const IBString& currency, const IBString& accountName){
-	//TRACE("%s,%s\n",key,val);
-	if(key == "AvailableFunds" && currency == "USD"){
-		//TRACE("IB可用资金 %.f USD\r\n",atof(val));
-		AvailIB = atof(val);
-	}
-	if(key == "NetLiquidation" && currency == "USD"){
-	}
+		if(!iAccountDownloadEnd){
+			if(key == "AvailableFunds" && currency == "USD"){
+				AvailIB = atof(val);
+				m_accountvalue.AvailableFunds = atof(val);
+			}
+			else if(key == "NetLiquidation" && currency == "USD"){
+				m_accountvalue.NetLiquidation = atof(val);
+			}
+			else if(key == "InitMarginReq" && currency == "USD"){
+				m_accountvalue.InitMarginReq = atof(val);
+			}
+		}
 }
 
 void CHiStarApp::updatePortfolio( const Contract& contract, int position,
 	double marketPrice, double marketValue, double averageCost,
 	double unrealizedPNL, double realizedPNL, const IBString& accountName){
-		//TRACE("updatePortfolio\n");
-		//TRACE("持仓 %d\r\n",position);
+		if(!iAccountDownloadEnd){
+			Portfolio porf;
+			porf.account = accountName;porf.contract = contract;porf.position = position;porf.avgCost = averageCost;
+			porf.marketPrice = marketPrice;porf.marketValue = marketValue;porf.unrealizedPNL = unrealizedPNL;porf.realizedPNL = realizedPNL;
+			bool found = false;
+			for(unsigned int i = 0;i < m_portfolio.size();i++){
+				//暂时这样对比，日后还有期权，因为存在行权价，可能contract比较方法有异
+				if(accountName == m_portfolio[i].account 
+					&& contract.symbol == m_portfolio[i].contract.symbol
+					&& contract.exchange == m_portfolio[i].contract.exchange
+					&& contract.currency == m_portfolio[i].contract.currency
+					&& contract.expiry.Left(6) == m_portfolio[i].contract.expiry.Left(6)
+					&& contract.secType == m_portfolio[i].contract.secType){
+						found = true;m_portfolio[i] = porf;break;
+				}
+			}
+			if(!found){
+				m_portfolio.push_back(porf);
+			}
+		}
 }
 
 void CHiStarApp::updateAccountTime(const IBString& timeStamp){
 	//TRACE("updateAccountTime\n");
-	CString cStatus;
-	cStatus.Format("Account Time: %s", timeStamp);
-	PostOrderStatus(cStatus);
 }
 
 void CHiStarApp::accountDownloadEnd(const IBString& accountName){
-	TRACE("accountDownloadEnd\n");
+	//TRACE("accountDownloadEnd\n");
 	CString cStatus;
 	cStatus.Format("Account Download End: %s",accountName);
 	PostOrderStatus(cStatus);
+	iAccountDownloadEnd = true;
 }
 
 void CHiStarApp::nextValidId( OrderId orderId){
 	m_id = orderId;
+	//查询A50保证金
+	m_IBOrder.action = "BUY";
+	m_IBOrder.totalQuantity = 1;
+	m_IBOrder.lmtPrice = 8000;
+	m_IBOrder.whatIf = true;
+	m_pIBClient->placeOrder(++m_id,m_A50Contract,m_IBOrder);
 	TRACE("nextValidId\n");
 }
 
@@ -335,7 +372,7 @@ void CHiStarApp::commissionReport( const CommissionReport &commissionReport){
 }
 
 void CHiStarApp::position( const IBString& account, const Contract& contract, int position, double avgCost){
-	if(m_A50Contract.symbol == contract.symbol && m_A50Contract.expiry == contract.expiry.Left(6)){
+	if(m_A50Contract.symbol == contract.symbol && m_A50Contract.expiry.Left(6) == contract.expiry.Left(6)){
 		netPositionA50 = position;
 		TRACE("A50持仓%d\r\n",position);
 	}

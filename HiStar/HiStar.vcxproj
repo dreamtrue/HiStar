@@ -204,6 +204,7 @@
     <ClInclude Include="global.h" />
     <ClInclude Include="HiStar.h" />
     <ClInclude Include="BasicPage.h" />
+    <ClInclude Include="ibaccount.h" />
     <ClInclude Include="MainDlg.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />

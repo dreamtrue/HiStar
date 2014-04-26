@@ -15,12 +15,12 @@
 #include "traderspi.h"
 #include "Index.h"
 #include "contract.h"
-#include "contract.h"
 #include "my_global.h"
 #include "mysql.h"
 #include "HedgePostProcessing.h"
 #include "MSHQ.h"
 #include "order.h"
+#include "ibaccount.h"
 extern DWORD MainThreadId;
 struct HoldDetail{
 	double adjustedCost;//根据datumdiff调整后的价格
@@ -58,7 +58,7 @@ public:
 	virtual void orderStatus( OrderId orderId, const IBString &status, int filled,
 		int remaining, double avgFillPrice, int permId, int parentId,
 		double lastFillPrice, int clientId, const IBString& whyHeld);
-	virtual void openOrder( OrderId orderId, const Contract&, const Order&, const OrderState&);
+	virtual void openOrder(OrderId orderId, const Contract& contract, const Order& order, const OrderState& orderstate);
 	virtual void openOrderEnd();
 	virtual void winError( const IBString &str, int lastError);
 	virtual void connectionClosed();
@@ -157,6 +157,9 @@ public:
 	CString m_marketTableName;CString m_positionTableName;
 	std::string str,str01,str02,str03,str04,str05,str06,str07,str08;
 	virtual BOOL OnIdle(LONG lCount);
+	//IB的账户参数
+	std::vector<Portfolio> m_portfolio;
+	AccountValue m_accountvalue;
 };
 
 extern CHiStarApp theApp;

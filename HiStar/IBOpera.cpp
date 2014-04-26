@@ -16,8 +16,8 @@ void CHiStarApp::OnConnectIB(WPARAM wParam,LPARAM lParam){
 				m_pIBClient->serverVersion(), m_pIBClient->TwsConnectionTime());
 			PostOrderStatus(cStatus);
 			m_pIBClient->reqAccountUpdates(true,m_accountIB.m_accountName);
-			m_pIBClient->reqCurrentTime();
-			m_pIBClient->reqPositions();
+			//m_pIBClient->reqCurrentTime();
+			//m_pIBClient->reqPositions();
 			//m_pIBClient->reqMktDepth(++m_id,m_A50Contract,20,m_mktDepthOptions);//取消市场深度,用reqMktData代替。
 			m_pIBClient->reqMktData(++m_id,m_A50Contract,"100,101,104,105,106,107,165,221,225,233,236,258,293,294,295,318",false,m_mktDataOptions);
 		}
