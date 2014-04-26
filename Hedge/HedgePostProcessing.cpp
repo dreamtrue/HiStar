@@ -162,14 +162,16 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 		if(isHedgeLoopingPause){//暂停
 			return;
 		}
-		if(_isnan(datumDiff) != 0 || _isnan(premium)!=0 ||_isnan(deviation)!=0){
-			return;//判断非零值错误
-		}
-		if(g_a50Bid1 < 1 || g_a50Ask1 < 1 || g_ifAsk1 < 1 || g_ifBid1 < 1 || A50Index < 1 || HS300Index < 1){
-			return;
-		}
-		if(fabs(premium) > 700 || fabs(premium) < 0.01){
-			return;//排除开盘时有可能报价不全导致的错误溢价计算
+		if(isReal){
+			if(_isnan(datumDiff) != 0 || _isnan(premium)!=0 ||_isnan(deviation)!=0){
+				return;//判断非零值错误
+			}
+			if(g_a50Bid1 < 1 || g_a50Ask1 < 1 || g_ifAsk1 < 1 || g_ifBid1 < 1 || A50Index < 1 || HS300Index < 1){
+				return;
+			}
+			if(fabs(premium) > 500 || fabs(premium) < 0.01){
+				return;//排除开盘时有可能报价不全导致的错误溢价计算
+			}
 		}
 		//统计净持仓
 		for(unsigned int i = 0;i < HedgeHoldTemp.size();i++){
@@ -740,7 +742,6 @@ void CHedgePostProcessing::PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 	SelectIndex();
 	sprintf(buffer,_T("HEDGE INFORMATION:%.02lf,A50:%.02lf,IF:%.02lf,A50INDEX:%.02lf,HS300INDEX:%.02lf\r\n"),t_avgPriceA50 - t_avgPriceIf * A50Index / HS300Index,t_avgPriceA50,t_avgPriceIf,A50Index,HS300Index);hedgeStatusPrint = hedgeStatusPrint + buffer;SendMsg(buffer);
 	HedgeHold = HedgeHoldTemp;//更新Hold持仓
-	hedgeTaskStatus = NEW_HEDGE;
 	sprintf(buffer,_T("对冲结束\r\n=================================================\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
 	while(::PostThreadMessage(MainThreadId,WM_UPDATE_HEDGEHOLD,NULL,NULL) == 0){
 		Sleep(100);
@@ -762,6 +763,7 @@ void CHedgePostProcessing::PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 		}
 	}
 	Sleep(3000);
+	hedgeTaskStatus = NEW_HEDGE;
 }
 
 double DealA50Price(bool isBuy, double A50Price)
