@@ -39,9 +39,11 @@ bool CmpByTime(const CThostFtdcInvestorPositionDetailField first,const CThostFtd
 //网络故障恢复正常后 自动重连
 void CtpTraderSpi::OnFrontConnected()
 {
-	while(PostThreadMessage(MainThreadId,WM_LOGIN_TD,NULL,NULL) == 0){
-		Sleep(100);
-	};
+	if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+		while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_LOGIN_TD,NULL,NULL) == 0){
+			Sleep(100);
+		}
+	}
 }
 
 int CtpTraderSpi::ReqUserLogin(TThostFtdcBrokerIDType	vAppId,TThostFtdcUserIDType	vUserId,TThostFtdcPasswordType	vPasswd)
@@ -330,9 +332,11 @@ void CtpTraderSpi::OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument,
 	}
 	if(bIsLast){
 		TRACE(_T("合约查询完毕\n"));
-		while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
-			Sleep(100);
-		};
+		if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+			while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+				Sleep(100);
+			}
+		}
 		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
 			Sleep(100);
 		};
@@ -403,9 +407,11 @@ void CtpTraderSpi::OnRspQryTradingAccount(
 		ReleaseSRWLockExclusive(&g_srwLock_TradingAccount);
 	}
 	if(bIsLast){
-		while(PostThreadMessage(MainThreadId,WM_MD_REFRESH,NULL,NULL) == 0){
-			Sleep(100);
-		};
+		if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+			while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_MD_REFRESH,NULL,NULL) == 0){
+				Sleep(100);
+			}
+		}
 		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
 			Sleep(100);
 		};
@@ -468,9 +474,11 @@ void CtpTraderSpi::OnRspQryInvestorPosition(
 		}
 	}
 	if(bIsLast){ 
-		while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
-			Sleep(100);
-		};
+		if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+			while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+				Sleep(100);
+			}
+		}
 		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
 			Sleep(100);
 		};
@@ -559,9 +567,11 @@ void  CtpTraderSpi::OnRspQryOrder(CThostFtdcOrderField *pOrder, CThostFtdcRspInf
 		}
 	}
 	if(bIsLast) {
-		while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
-			Sleep(100);
-		};
+		if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+			while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+				Sleep(100);
+			}
+		}
 		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
 			Sleep(100);
 		};
@@ -630,12 +640,16 @@ void CtpTraderSpi::OnRspQryTrade(CThostFtdcTradeField *pTrade, CThostFtdcRspInfo
 	}
 	if(bIsLast) {
 		//同步市场数据包括保证金计算、市场深度获取获取等等。
-		while(PostThreadMessage(MainThreadId,WM_SYNCHRONIZE_MARKET,NULL,NULL) == 0){
-			Sleep(100);
-		};
-		while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
-			Sleep(100);
-		};
+		if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+			while(PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_SYNCHRONIZE_MARKET,NULL,NULL) == 0){
+				Sleep(100);
+			};
+		}
+		if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+			while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+				Sleep(100);
+			}
+		}
 		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
 			Sleep(100);
 		};
@@ -699,9 +713,12 @@ void CtpTraderSpi::OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDeta
 		sort(m_InvPosDetailVec.begin(),m_InvPosDetailVec.end(),CmpByTime);
 		ReleaseSRWLockExclusive(&g_srwLock_PosDetail); 
 
-		while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
-			Sleep(100);
-		};
+		if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+			while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+				Sleep(100);
+			}
+		}
+
 		while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,nRequestID) == 0){
 			Sleep(100);
 		};
@@ -764,9 +781,11 @@ int CtpTraderSpi::ReqOrdLimit(TThostFtdcInstrumentIDType instId,TThostFtdcDirect
 
 	pUserApi->ReqOrderInsert(&req, ++m_iRequestID);
 	m_onRoadVec.push_back(req);
-	while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
-		Sleep(100);
-	};
+	if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+		while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+			Sleep(100);
+		}
+	}
 	return orderref;
 }
 
@@ -799,9 +818,11 @@ int CtpTraderSpi::ReqOrdAny(TThostFtdcInstrumentIDType instId,TThostFtdcDirectio
 
 	pUserApi->ReqOrderInsert(&req, ++m_iRequestID);	
 	m_onRoadVec.push_back(req);
-	while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
-		Sleep(100);
-	};
+	if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+		while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+			Sleep(100);
+		}
+	}
 	return m_iRequestID;
 }
 
@@ -835,9 +856,11 @@ int CtpTraderSpi::ReqOrdCondition(TThostFtdcInstrumentIDType instId,TThostFtdcDi
 
 	pUserApi->ReqOrderInsert(&req, ++m_iRequestID);
 	m_onRoadVec.push_back(req);
-	while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
-		Sleep(100);
-	};
+	if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+		while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+			Sleep(100);
+		}
+	}
 	return m_iRequestID;
 }
 
@@ -876,9 +899,11 @@ int CtpTraderSpi::ReqOrdFAOK(TThostFtdcInstrumentIDType instId,TThostFtdcDirecti
 
 	pUserApi->ReqOrderInsert(&req, ++m_iRequestID);
 	m_onRoadVec.push_back(req);
-	while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
-		Sleep(100);
-	};
+	if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+		while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+			Sleep(100);
+		}
+	}
 	return m_iRequestID;
 }
 
@@ -1007,9 +1032,11 @@ void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder){
 			founded = true;
 			//修改命令状态
 			m_orderVec[i] = order;
-			while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
-				Sleep(100);
-			};
+			if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+				while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+					Sleep(100);
+				}
+			}
 			break;
 		}
 	}		
@@ -1023,15 +1050,19 @@ void CtpTraderSpi::OnRtnOrder(CThostFtdcOrderField *pOrder){
 		else{
 			//挂单返回，表示已经递送出去，将该挂单删除(已经变成委托单或其他)
 			m_onRoadVec.erase(nRet);
-			while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
-				Sleep(100);
-			};
+			if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+				while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+					Sleep(100);
+				}
+			}
 		}
 		///////新增加委托单
 		m_orderVec.push_back(order);
-		while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
-			Sleep(100);
-		};
+		if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+			while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+				Sleep(100);
+			}
+		}
 	}
 	//后处理
 	if(pApp->m_pHedgePostProcessing){
@@ -1099,9 +1130,11 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 	else 
 	{
 		m_tradeVec.push_back(trade);
-		while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
-			Sleep(100);
-		};
+		if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+			while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+				Sleep(100);
+			}
+		}
 	}
 	//更改持仓明细单
 	if(trade.OffsetFlag == THOST_FTDC_OF_Open){
@@ -1125,12 +1158,16 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 			strcpy(posDetail.OpenDate,trade.TradeDate);strcpy(posDetail.TradingDay,trade.TradingDay);
 			posDetail.Volume = trade.Volume;
 			m_InvPosDetailVec.push_back(posDetail);
-			while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
-				Sleep(100);
-			};
-			while(PostThreadMessage(MainThreadId,WM_SYNCHRONIZE_MARKET,NULL,NULL) == 0){
-				Sleep(100);
-			};
+			if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+				while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+					Sleep(100);
+				}
+			}
+			if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+				while(PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_SYNCHRONIZE_MARKET,NULL,NULL) == 0){
+					Sleep(100);
+				};
+			}
 		}
 		ReleaseSRWLockExclusive(&g_srwLock_PosDetail);
 
@@ -1164,12 +1201,16 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 					else{
 						TradingAccount.CloseProfit = TradingAccount.CloseProfit - (trade.Price - m_InvPosDetailVec[i].OpenPrice) * closeNum * VolumeMultiple;
 					}
-					while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
-						Sleep(100);
-					};
-					while(PostThreadMessage(MainThreadId,WM_SYNCHRONIZE_MARKET,NULL,NULL) == 0){
-						Sleep(100);
-					};
+					if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+						while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+							Sleep(100);
+						}
+					}
+					if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+						while(PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_SYNCHRONIZE_MARKET,NULL,NULL) == 0){
+							Sleep(100);
+						};
+					}
 					break;
 				}
 				else if(m_InvPosDetailVec[i].Volume == closeNum){
@@ -1182,12 +1223,16 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 					std::vector<CThostFtdcInvestorPositionDetailField>::iterator it = m_InvPosDetailVec.begin() + i;
 					m_InvPosDetailVec.erase(it);
 					i--;
-					while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
-						Sleep(100);
-					};
-					while(PostThreadMessage(MainThreadId,WM_SYNCHRONIZE_MARKET,NULL,NULL) == 0){
-						Sleep(100);
-					};
+					if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+						while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+							Sleep(100);
+						}
+					}
+					if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+						while(PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_SYNCHRONIZE_MARKET,NULL,NULL) == 0){
+							Sleep(100);
+						};
+					}
 					break;
 				}
 				else{

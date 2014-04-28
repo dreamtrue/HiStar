@@ -125,7 +125,6 @@ public:
 	void LogoutCtp(WPARAM wParam,LPARAM lParam);
 	void LoginCtpMD(WPARAM wParam,LPARAM lParam);
 	void LoginCtpTD(WPARAM wParam,LPARAM lParam);
-	void OnQryAccCtp(WPARAM wParam,LPARAM lParam);
 	void OnUpdateLstCtrl(WPARAM wParam,LPARAM lParam);
 	void UpdateHedgeHold(WPARAM wParam,LPARAM lParam);
 	void OnHedgeLooping(WPARAM wParam,LPARAM lParam);

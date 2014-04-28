@@ -31,9 +31,11 @@ void CtpMdSpi::OnHeartBeatWarning(int nTimeLapse){
 
 void CtpMdSpi::OnFrontConnected(){
 	TRACE("OnFrontConnected\n");
-	while(PostThreadMessage(MainThreadId,WM_LOGIN_MD,NULL,NULL) == 0){
-		Sleep(100);
-	};
+	if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+		while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_LOGIN_MD,NULL,NULL) == 0){
+			Sleep(100);
+		}
+	}
 }
 
 int CtpMdSpi::ReqUserLogin(TThostFtdcBrokerIDType	vAppId,TThostFtdcUserIDType	vUserId,TThostFtdcPasswordType	vPasswd){
@@ -199,9 +201,11 @@ void CtpMdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarket
 			if(pApp->m_pMainWnd){
 				memcpy(&(((CMainDlg*)(pApp->m_pMainWnd))->m_basicPage.m_depthMd),pDepthMarketData,sizeof(CThostFtdcDepthMarketDataField));
 			}
-			while(PostThreadMessage(MainThreadId,WM_MD_REFRESH,NULL,NULL) == 0){
-				Sleep(100);
-			};
+			if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+				while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_MD_REFRESH,NULL,NULL) == 0){
+					Sleep(100);
+				}
+			}
 		}
 	}
 	CalcPositionProfit();

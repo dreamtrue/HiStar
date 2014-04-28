@@ -5,6 +5,7 @@
 #include "UserMsg.h"
 #include "OrderState.h"
 #include "ibaccount.h"
+#include "MainDlg.h"
 #define NOT_AN_FA_ACCOUNT_ERROR 321
 #define NUM_FA_ERROR_CODES 6
 extern double AvailIB;
@@ -87,17 +88,21 @@ void CHiStarApp::tickPrice( TickerId tickerId, TickType field, double price, int
 	if(strcmp((const char*)getField(field),"bidPrice") == 0){
 		if(price != g_a50Bid1){
 			g_a50Bid1 = price;
-			while(::PostThreadMessage(MainThreadId,WM_MD_REFRESH,NULL,NULL) == 0){
-				Sleep(100);
-			};
+			if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+				while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_MD_REFRESH,NULL,NULL) == 0){
+					Sleep(100);
+				}
+			}
 		}
 	}
 	else if(strcmp((const char*)getField(field),"askPrice") == 0){
 		if(price != g_a50Ask1){
 			g_a50Ask1 = price;
-			while(::PostThreadMessage(MainThreadId,WM_MD_REFRESH,NULL,NULL) == 0){
-				Sleep(100);
-			};
+			if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+				while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_MD_REFRESH,NULL,NULL) == 0){
+					Sleep(100);
+				}
+			}
 		}
 	}
 	else if(strcmp((const char*)getField(field),"lastPrice") == 0){
@@ -286,9 +291,11 @@ void CHiStarApp::updateMktDepth(TickerId id, int position, int operation, int si
 				if(price != g_a50Bid1){
 					g_a50Bid1 = price;
 					g_a50Bid1Size = size;
-					while(::PostThreadMessage(MainThreadId,WM_MD_REFRESH,NULL,NULL) == 0){
-						Sleep(100);
-					};
+					if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+						while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_MD_REFRESH,NULL,NULL) == 0){
+							Sleep(100);
+						}
+					}
 				}
 			}
 			else{

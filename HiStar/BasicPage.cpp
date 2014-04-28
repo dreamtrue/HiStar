@@ -11,6 +11,7 @@
 #include "UserMsg.h"
 #include "resource.h"
 #include <sstream>
+#include "MainDlg.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -276,30 +277,38 @@ HCURSOR CBasicPage::OnQueryDragIcon()
 
 void CBasicPage::OnConnectIB()
 {
-	while(PostThreadMessage(MainThreadId,WM_CONNECT_IB,NULL,NULL) == 0){
-		Sleep(100);
-	};
+	if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+		while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_CONNECT_IB,NULL,NULL) == 0){
+			Sleep(100);
+		}
+	}
 }
 
 void CBasicPage::OnDisconnectIB()
 {
-	while(PostThreadMessage(GetCurrentThreadId(),WM_DISCONNECT_IB,NULL,NULL) == 0){
-		Sleep(100);
-	};
+	if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+		while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_DISCONNECT_IB,NULL,NULL) == 0){
+			Sleep(100);
+		}
+	}
 }
 
 void CBasicPage::OnLoginCtp()
 {
-	while(PostThreadMessage(GetCurrentThreadId(),WM_LOGIN_CTP,NULL,NULL) == 0){
-		Sleep(100);
-	};
+	if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+		while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_LOGIN_CTP,NULL,NULL) == 0){
+			Sleep(100);
+		}
+	}
 }
 
 void CBasicPage::OnLogoutCtp()
 {
-	while(PostThreadMessage(GetCurrentThreadId(),WM_LOGOUT_CTP,NULL,NULL) == 0){
-		Sleep(100);
-	};
+	if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+		while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_LOGOUT_CTP,NULL,NULL) == 0){
+			Sleep(100);
+		}
+	}
 }
 
 void CBasicPage::ProgressUpdate(LPCTSTR szMsg, const int nPercentDone)
@@ -395,9 +404,11 @@ void CBasicPage::OnResume()
 
 void CBasicPage::OnBnClickedTest()
 {
-	while(PostThreadMessage(MainThreadId,WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
-		Sleep(100);
-	};
+	if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+		while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
+			Sleep(100);
+		}
+	}
 	while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL) == 0){
 		Sleep(100);
 	};
@@ -417,9 +428,11 @@ void CBasicPage::OnBnClickedUpdate()
 
 void CBasicPage::OnIniSql()
 {
-	while(PostThreadMessage(MainThreadId,WM_CONNECT_SQL,NULL,NULL) == 0){
-		Sleep(100);
-	};
+	if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+		while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_CONNECT_SQL,NULL,NULL) == 0){
+			Sleep(100);
+		}
+	}
 }
 
 void CBasicPage::OnBnClickedCheck1()
@@ -436,9 +449,11 @@ void CBasicPage::OnBnClickedCheck1()
 
 void CBasicPage::OnIni()
 {
-	while(PostThreadMessage(MainThreadId,WM_INI,NULL,NULL) == 0){
-		Sleep(100);
-	};
+	if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+		while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_INI,NULL,NULL) == 0){
+			Sleep(100);
+		}
+	}
 }
 
 void CBasicPage::OnGetHedgeHold(NMHDR *pNMHDR, LRESULT *pResult){
@@ -575,9 +590,11 @@ void CBasicPage::OnBnClickedButton8()
 
 void CBasicPage::OnBnClickedMshq()
 {
-	while(PostThreadMessage(MainThreadId,WM_REQ_MSHQ,NULL,NULL) == 0){
-		Sleep(100);
-	};
+	if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+		while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_REQ_MSHQ,NULL,NULL) == 0){
+			Sleep(100);
+		}
+	}
 }
 
 

@@ -293,15 +293,6 @@ void CHiStarApp::LoginCtpTD(WPARAM wParam,LPARAM lParam){
 #endif
 }
 
-void CHiStarApp::OnQryAccCtp(WPARAM wParam,LPARAM lParam){
-	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
-	if(g_bLoginCtpT){
-		if(pApp->m_cT){
-			pApp->m_cT->ReqQryTdAcc();
-		}
-	}
-}
-
 void CHiStarApp::UpdateHedgeHold(WPARAM wParam,LPARAM lParam){
 	if(m_pMainWnd){
 		((CMainDlg*)m_pMainWnd)->m_basicPage.SynchronizeHoldDataToView();

@@ -40,4 +40,18 @@ public:
 	afx_msg LRESULT OnRefreshMdPane(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnKickIdle();
 	void UpdateAccount();
+	//原先是主线程的消息响应函数,修改为主窗口响应
+	afx_msg LRESULT OnConnectIB(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT OnDisconnectIB(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT LoginCtp(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT LogoutCtp(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT UpdateHedgeHold(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT OnUpdateLstCtrl(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT OnReqMshq(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT OnHedgeLooping(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT OnConnectSql(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT OnIni(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT LoginCtpTD(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT LoginCtpMD(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT OnSynchronizeMarket(WPARAM wParam, LPARAM lParam);
 };

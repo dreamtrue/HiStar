@@ -36,6 +36,19 @@ BEGIN_MESSAGE_MAP(CMainDlg, CDialogEx)
 	ON_MESSAGE(WM_ORDER_STATUS, &CMainDlg::OnOrderStatus)
 	ON_MESSAGE(WM_ERRORS, &CMainDlg::OnErrors)
 	ON_MESSAGE_VOID(WM_KICKIDLE,OnKickIdle)
+	ON_MESSAGE(WM_CONNECT_IB,OnConnectIB)
+	ON_MESSAGE(WM_DISCONNECT_IB,OnDisconnectIB)
+	ON_MESSAGE(WM_LOGIN_CTP,LoginCtp)
+	ON_MESSAGE(WM_LOGOUT_CTP,LogoutCtp)
+	ON_MESSAGE(WM_UPDATE_HEDGEHOLD,UpdateHedgeHold)
+	ON_MESSAGE(WM_UPDATE_LSTCTRL,OnUpdateLstCtrl)
+	ON_MESSAGE(WM_REQ_MSHQ,OnReqMshq)
+	ON_MESSAGE(WM_MD_REFRESH,OnHedgeLooping)
+	ON_MESSAGE(WM_CONNECT_SQL,OnConnectSql)
+	ON_MESSAGE(WM_INI,OnIni)
+	ON_MESSAGE(WM_LOGIN_TD,LoginCtpTD)
+	ON_MESSAGE(WM_LOGIN_MD,LoginCtpMD)
+	ON_MESSAGE(WM_SYNCHRONIZE_MARKET,OnSynchronizeMarket)
 	ON_WM_TIMER()
 	ON_BN_CLICKED(IDOK, &CMainDlg::OnOk)
 	ON_NOTIFY(TCN_SELCHANGE, IDC_TAB, &CMainDlg::OnTcnSelchangeTab)
@@ -120,7 +133,6 @@ void CMainDlg::addCombInst(void)
 	ReleaseSRWLockShared(&g_srwLock_Insinf);
 }
 
-
 void CMainDlg::OnTcnSelchangeTab(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	int CurSel = m_tab.GetCurSel();
@@ -156,5 +168,28 @@ afx_msg LRESULT CMainDlg::OnRefreshMdPane(WPARAM wParam, LPARAM lParam)
 
 void CMainDlg::OnKickIdle()
 {
-	//static int i;TRACE("i,%d\n",++i);
+
 }
+
+#define FILL_MESSAGE_FUNCTION(OnMessage) afx_msg LRESULT CMainDlg::##OnMessage##(WPARAM wParam, LPARAM lParam){\
+	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();\
+	if(pApp){\
+	pApp->##OnMessage##(wParam,lParam);\
+	}\
+	return 0;\
+}
+FILL_MESSAGE_FUNCTION(OnConnectIB)
+	FILL_MESSAGE_FUNCTION(OnDisconnectIB)
+	FILL_MESSAGE_FUNCTION(LoginCtp)
+	FILL_MESSAGE_FUNCTION(LogoutCtp)
+	FILL_MESSAGE_FUNCTION(UpdateHedgeHold)
+	FILL_MESSAGE_FUNCTION(OnUpdateLstCtrl)
+	FILL_MESSAGE_FUNCTION(OnReqMshq)
+	FILL_MESSAGE_FUNCTION(OnHedgeLooping)
+	FILL_MESSAGE_FUNCTION(OnConnectSql)
+	FILL_MESSAGE_FUNCTION(OnIni)
+	FILL_MESSAGE_FUNCTION(LoginCtpTD)
+	FILL_MESSAGE_FUNCTION(LoginCtpMD)
+	FILL_MESSAGE_FUNCTION(OnSynchronizeMarket)
+#undef FILL_MESSAGE_FUNCTION
+

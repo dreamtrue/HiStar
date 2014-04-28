@@ -664,7 +664,6 @@ void CHedgePostProcessing::PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 			hedgetask.ifalltask[i].avgPrice = hedgetask.ifalltask[i].receivedValue / hedgetask.ifalltask[i].receivedTradedVolume;
 		}
 	}
-
 	while((bRet = GetMessage(&msg,NULL,WM_RTN_ORDER_IB,WM_RTN_ORDER_IB)) != 0){
 		if (!bRet){
 		}
@@ -744,16 +743,17 @@ void CHedgePostProcessing::PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 	sprintf(buffer,_T("HEDGE INFORMATION:%.02lf,A50:%.02lf,IF:%.02lf,A50INDEX:%.02lf,HS300INDEX:%.02lf\r\n"),t_avgPriceA50 - t_avgPriceIf * A50Index / HS300Index,t_avgPriceA50,t_avgPriceIf,A50Index,HS300Index);hedgeStatusPrint = hedgeStatusPrint + buffer;SendMsg(buffer);
 	HedgeHold = HedgeHoldTemp;//更新Hold持仓
 	sprintf(buffer,_T("对冲结束\r\n=================================================\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
-	while(::PostThreadMessage(MainThreadId,WM_UPDATE_HEDGEHOLD,NULL,NULL) == 0){
-		Sleep(100);
-	};//更新账户
-	while(::PostThreadMessage(MainThreadId,WM_QRY_ACC_CTP,NULL,NULL) == 0){
-		Sleep(100);
-	};//更新账户
+	if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+		while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_UPDATE_HEDGEHOLD,NULL,NULL) == 0){
+			Sleep(100);
+		}
+	}
 	static int idSynchronize = 0;
-	while(::PostThreadMessage(MainThreadId,WM_SYNCHRONIZE_MARKET,NULL,++idSynchronize) == 0){
-		Sleep(100);
-	};//同步市场
+	if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+		while(PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_SYNCHRONIZE_MARKET,NULL,++idSynchronize) == 0){
+			Sleep(100);
+		};
+	}
 	while((bRet = GetMessage(&msg,NULL,WM_SYNCHRONIZE_NOTIFY,WM_SYNCHRONIZE_NOTIFY)) != 0){
 		if (!bRet){
 		}
