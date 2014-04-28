@@ -58,7 +58,7 @@ void CtpMdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
 		if(bIsLast){
 			while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT_MD,NULL,nRequestID) == 0){
 				Sleep(100);
-			};
+			}
 		}
 }
 

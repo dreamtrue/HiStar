@@ -411,7 +411,7 @@ void CBasicPage::OnBnClickedTest()
 	}
 	while(PostThreadMessage(MainThreadId,WM_NOTIFY_EVENT,NULL,NULL) == 0){
 		Sleep(100);
-	};
+	}
 	((CHiStarApp*)AfxGetApp())->OnHedgeLooping(NULL,NULL);
 	SynchronizeHoldDataToView();
 	//((CHiStarApp*)AfxGetApp())->m_cT->ReqQryTfSerial("1");
@@ -602,5 +602,5 @@ void CBasicPage::OnUpdateIndexref()
 {
 	while(PostThreadMessage(IndexThreadId,WM_UPDATE_INDEX_REF,NULL,NULL) == 0){
 		Sleep(100);
-	};
+	}
 }

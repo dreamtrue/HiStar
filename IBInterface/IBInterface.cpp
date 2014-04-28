@@ -154,7 +154,7 @@ void CHiStarApp::orderStatus( OrderId orderId, const IBString &status, int fille
 			pOrderStatus->whyHeld = whyHeld;
 			if(m_pHedgePostProcessing->PostThreadMessage(WM_RTN_ORDER_IB,NULL,(UINT)pOrderStatus) == 0){
 				Sleep(100);
-			};
+			}
 		}
 }
 
@@ -304,7 +304,7 @@ void CHiStarApp::updateMktDepth(TickerId id, int position, int operation, int si
 					g_a50Ask1Size = size;
 					while(::PostThreadMessage(MainThreadId,WM_MD_REFRESH,NULL,NULL) == 0){
 						Sleep(100);
-					};
+					}
 				}
 			}
 		}

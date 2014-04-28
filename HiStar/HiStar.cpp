@@ -233,14 +233,14 @@ CHiStarApp::~CHiStarApp(void)
 	if(m_pHedgePostProcessing){
 		while(::PostThreadMessage(m_pHedgePostProcessing->m_nThreadID, WM_QUIT,0,0) == 0){
 			Sleep(100);
-		};
+		}
 		WaitForSingleObject(m_pHedgePostProcessing->m_hThread, INFINITE); 
 		m_pHedgePostProcessing = NULL;
 	}
 	if(m_pIndexThread){
 		while(::PostThreadMessage(m_pIndexThread->m_nThreadID, WM_QUIT,0,0) == 0){
 			Sleep(100);
-		};
+		}
 		WaitForSingleObject(m_pIndexThread->m_hThread, INFINITE);
 		m_pIndexThread = NULL;
 	}
@@ -248,7 +248,7 @@ CHiStarApp::~CHiStarApp(void)
 	if(m_pMSHQ){
 		while(::PostThreadMessage(m_pMSHQ->m_nThreadID, WM_QUIT,0,0) == 0){
 			Sleep(100);
-		};
+		}
 		WaitForSingleObject(m_pMSHQ->m_hThread, INFINITE); 
 		m_pMSHQ = NULL;
 	}
@@ -260,7 +260,7 @@ void CHiStarApp::PostOrderStatus(CString str)
 	if(m_pMainWnd){
 		while(PostMessage(m_pMainWnd->GetSafeHwnd(),WM_ORDER_STATUS,(UINT)pStatus,NULL) == 0){
 			Sleep(100);
-		};
+		}
 	}
 }
 
@@ -270,7 +270,7 @@ void CHiStarApp::PostErrors(CString str)
 	if(m_pMainWnd){
 		while(PostMessage(m_pMainWnd->GetSafeHwnd(),WM_ERRORS,(UINT)pErrors,NULL) == 0){
 			Sleep(100);
-		};
+		}
 	}
 }
 
@@ -598,7 +598,7 @@ void CHiStarApp::OnSynchronizeMarket(WPARAM wParam,LPARAM lParam){
 	if(m_pHedgePostProcessing){
 		while(m_pHedgePostProcessing->PostThreadMessage(WM_SYNCHRONIZE_NOTIFY,NULL,lParam) == 0){
 			Sleep(100);
-		};
+		}
 	}
 }
 

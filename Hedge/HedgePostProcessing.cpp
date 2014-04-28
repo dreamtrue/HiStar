@@ -567,7 +567,7 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 		while(m_pHedgePostProcessing->PostThreadMessage(WM_BEGIN_POST_PROCESSING,NULL,pHD->id) == 0){
 			TRACE("发送失败\n");
 			Sleep(100);
-		};
+		}
 		TRACE("发送成功\n");
 	}
 	return 0;
@@ -752,7 +752,7 @@ void CHedgePostProcessing::PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 	if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
 		while(PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_SYNCHRONIZE_MARKET,NULL,++idSynchronize) == 0){
 			Sleep(100);
-		};
+		}
 	}
 	while((bRet = GetMessage(&msg,NULL,WM_SYNCHRONIZE_NOTIFY,WM_SYNCHRONIZE_NOTIFY)) != 0){
 		if (!bRet){
