@@ -415,7 +415,12 @@ void CBasicPage::OnBnClickedTest()
 	((CHiStarApp*)AfxGetApp())->OnHedgeLooping(NULL,NULL);
 	SynchronizeHoldDataToView();
 	//((CHiStarApp*)AfxGetApp())->m_cT->ReqQryTfSerial("1");
-	((CHiStarApp*)AfxGetApp())->m_cT->ReqQryInstFee("IF1405");
+	/*
+	while(true){
+		((CHiStarApp*)AfxGetApp())->m_cT->ReqQryInstFee("IF1405");
+		TRACE("·¢ËÍ³É¹¦\n");
+	}
+	*/
 	//TThostFtdcCombOffsetFlagType kpp;kpp[0] = THOST_FTDC_OF_Open;
 	//((CHiStarApp*)AfxGetApp())->m_cT->ReqParkedOrderInsert("IF1405",THOST_FTDC_D_Sell,kpp,2500.0,1);
 }
