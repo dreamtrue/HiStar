@@ -14,6 +14,7 @@
 #include "ColorListCtrl.h"
 #include "HiStar.h"
 #include "colorstatic.h"
+#include "c:\users\administrator\desktop\histar\trunk\diyctrl\colorstatic.h"
 
 // CBasicPage 对话框
 class CBasicPage : public CDialogEx
@@ -92,6 +93,7 @@ public:
 	CColorStatic m_closeProfit;
 	CColorStatic m_openProfit;
 	CColorStatic m_totalMargin;
+	CColorStatic m_availIb;
 };
 //其他变量
 const int N = 5;

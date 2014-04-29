@@ -17,6 +17,7 @@ extern int netPositionA50;
 DWORD MainThreadId = 0;
 DWORD IndexThreadId = 0;
 bool iAccountDownloadEnd = false;
+bool iInitMarginOIfAddOneA50 = false;
 CString getField( TickType tickType) {
 	switch( tickType)
 	{
@@ -108,6 +109,26 @@ void CHiStarApp::tickPrice( TickerId tickerId, TickType field, double price, int
 	else if(strcmp((const char*)getField(field),"lastPrice") == 0){
 		if(price != g_a50last){
 			g_a50last = price;
+			bool found = false;int index = -1;
+			for(unsigned int i = 0;i < m_portfolio.size();i++){
+				//暂时这样对比，日后还有期权，因为存在行权价，可能contract比较方法有异
+				if( m_A50Contract.symbol == m_portfolio[i].contract.symbol
+					&& m_A50Contract.exchange == m_portfolio[i].contract.exchange
+					&& m_A50Contract.currency == m_portfolio[i].contract.currency
+					&& m_A50Contract.expiry.Left(6) == m_portfolio[i].contract.expiry.Left(6)
+					&& m_A50Contract.secType == m_portfolio[i].contract.secType){
+						index = i;found = true;break;
+				}
+			}
+			if(found){
+				double unrealizedPNL = (price - m_portfolio[index].avgCost) * m_portfolio[index].position;
+				m_accountvalue.AvailableFunds = m_accountvalue.AvailableFundsO - m_accountvalue.UnrealizedPnLO + unrealizedPNL;
+				if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+					while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_MD_REFRESH,NULL,NULL) == 0){
+						Sleep(100);
+					}
+				}
+			}
 		}
 	}
 }
@@ -159,18 +180,22 @@ void CHiStarApp::orderStatus( OrderId orderId, const IBString &status, int fille
 }
 
 void CHiStarApp::openOrder(OrderId orderId, const Contract& contract, const Order& order, const OrderState& orderstate){
-	if(m_A50Contract.symbol == contract.symbol
-		&& m_A50Contract.exchange == contract.exchange
-		&& m_A50Contract.currency == contract.currency
-		&& m_A50Contract.expiry.Left(6) == contract.expiry.Left(6)
-		&& m_A50Contract.secType == contract.secType){
-			m_accountvalue.InitMarginIfAddOneA50 = atof(orderstate.initMargin);
+	if(!iInitMarginOIfAddOneA50){
+		if(m_A50Contract.symbol == contract.symbol
+			&& m_A50Contract.exchange == contract.exchange
+			&& m_A50Contract.currency == contract.currency
+			&& m_A50Contract.expiry.Left(6) == contract.expiry.Left(6)
+			&& m_A50Contract.secType == contract.secType){
+				m_accountvalue.InitMarginOIfAddOneA50 = atof(orderstate.initMargin);
+				iInitMarginOIfAddOneA50 = true;
+		}
 	}
 }
 
 void CHiStarApp::openOrderEnd(){
 	TRACE("openOrderEnd\n");
 }
+
 void CHiStarApp::winError( const IBString &str, int lastError){
 	TRACE("winError\n");
 }
@@ -183,16 +208,21 @@ void CHiStarApp::connectionClosed(){
 
 void CHiStarApp::updateAccountValue(const IBString& key, const IBString& val,
 	const IBString& currency, const IBString& accountName){
+		//TRACE("%s,%s\n",key,val);
 		if(!iAccountDownloadEnd){
 			if(key == "AvailableFunds" && currency == "USD"){
 				AvailIB = atof(val);
+				m_accountvalue.AvailableFundsO = atof(val);
 				m_accountvalue.AvailableFunds = atof(val);
 			}
 			else if(key == "NetLiquidation" && currency == "USD"){
-				m_accountvalue.NetLiquidation = atof(val);
+				m_accountvalue.NetLiquidationO = atof(val);
 			}
 			else if(key == "InitMarginReq" && currency == "USD"){
-				m_accountvalue.InitMarginReq = atof(val);
+				m_accountvalue.InitMarginReqO = atof(val);
+			}
+			else if(key == "UnrealizedPnL" && currency == "USD"){
+				m_accountvalue.UnrealizedPnLO = atof(val);
 			}
 		}
 }
@@ -202,7 +232,7 @@ void CHiStarApp::updatePortfolio( const Contract& contract, int position,
 	double unrealizedPNL, double realizedPNL, const IBString& accountName){
 		if(!iAccountDownloadEnd){
 			Portfolio porf;
-			porf.account = accountName;porf.contract = contract;porf.position = position;porf.avgCost = averageCost;
+			porf.account = accountName;porf.contract = contract;porf.position = position;porf.avgCost = averageCost;//将成本价修改为当前市场价，为后续计算资金作准备
 			porf.marketPrice = marketPrice;porf.marketValue = marketValue;porf.unrealizedPNL = unrealizedPNL;porf.realizedPNL = realizedPNL;
 			bool found = false;
 			for(unsigned int i = 0;i < m_portfolio.size();i++){
@@ -213,7 +243,8 @@ void CHiStarApp::updatePortfolio( const Contract& contract, int position,
 					&& contract.currency == m_portfolio[i].contract.currency
 					&& contract.expiry.Left(6) == m_portfolio[i].contract.expiry.Left(6)
 					&& contract.secType == m_portfolio[i].contract.secType){
-						found = true;m_portfolio[i] = porf;break;
+						m_portfolio[i] = porf;
+						found = true;break;
 				}
 			}
 			if(!found){
@@ -232,6 +263,11 @@ void CHiStarApp::accountDownloadEnd(const IBString& accountName){
 	cStatus.Format("Account Download End: %s",accountName);
 	PostOrderStatus(cStatus);
 	iAccountDownloadEnd = true;
+	if(m_pHedgePostProcessing){
+		while(m_pHedgePostProcessing->PostThreadMessage(WM_REQACCOUNTUPDATES_NOTIFY,NULL,NULL) == 0){
+			Sleep(100);
+		}
+	}
 }
 
 void CHiStarApp::nextValidId( OrderId orderId){

@@ -103,6 +103,7 @@ void CBasicPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_ClOSE_PROFIT, m_closeProfit);
 	DDX_Control(pDX, IDC_OPEN_PROFIT, m_openProfit);
 	DDX_Control(pDX, IDC_MARGIN, m_totalMargin);
+	DDX_Control(pDX, IDC_AVAIL_IB, m_availIb);
 }
 
 BEGIN_MESSAGE_MAP(CBasicPage, CDialogEx)
@@ -181,6 +182,8 @@ BOOL CBasicPage::OnInitDialog()
 	m_csA50Ask1.SetBkColor(ACC_BG);
 	m_csA50Ask1.SetWindowText(_T("0.0"),LITGRAY);
 	m_csA50Last.SetBkColor(ACC_BG);
+	m_availIb.SetWindowText(_T("0.0"),LITGRAY);
+	m_availIb.SetBkColor(ACC_BG);
 	m_csA50Last.SetWindowText(_T("0.0"),LITGRAY);
 	m_csHedgePriceHigh.SetBkColor(ACC_BG);
 	m_csHedgePriceHigh.SetWindowText(_T("0.0"),LITGRAY);
@@ -352,6 +355,7 @@ void CBasicPage::RefreshMdPane(void)
 {
 	double dPresp=m_depthMd.PreSettlementPrice;
 	double dUpD = m_depthMd.LastPrice-dPresp;
+	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	m_csS1P.SetDouble(m_depthMd.AskPrice1,CmpPriceColor(m_depthMd.AskPrice1,dPresp));
 	m_csLastP.SetDouble(m_depthMd.LastPrice,CmpPriceColor(m_depthMd.AskPrice1,dPresp));
 	m_csB1P.SetDouble(m_depthMd.BidPrice1,CmpPriceColor(m_depthMd.AskPrice1,dPresp));
@@ -360,12 +364,12 @@ void CBasicPage::RefreshMdPane(void)
 	m_csA50Bid1.SetDouble(g_a50Bid1,BLACK);
 	m_csA50Ask1.SetDouble(g_a50Ask1,BLACK);
 	m_csA50Last.SetDouble(g_a50last,BLACK);
+	m_availIb.SetDouble(pApp->m_accountvalue.AvailableFunds,BLACK);
 	m_csHedgePriceHigh.SetDouble(premiumHigh - datumDiff,BLACK);
 	m_csHedgePriceLow.SetDouble(premiumLow - datumDiff,BLACK);
 	m_A50UP.SetDouble(g_A50Index - g_A50IndexZT,CmpPriceColor(g_A50Index - g_A50IndexZT,0));
 	m_HS300UP.SetDouble(g_HS300Index - g_HS300IndexZT,CmpPriceColor(g_HS300Index - g_HS300IndexZT,0));
 
-	CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 	if(pApp && pApp->m_cT){
 
 		AcquireSRWLockShared(&g_srwLock_TradingAccount);

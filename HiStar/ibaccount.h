@@ -15,7 +15,10 @@ struct Portfolio{
 struct AccountValue{
 	double AvailableFunds;
 	double NetLiquidation;
-	double InitMarginReq;
-	double InitMarginIfAddOneA50;
+	double AvailableFundsO;
+	double NetLiquidationO;
+	double UnrealizedPnLO;
+	double InitMarginReqO;
+	double InitMarginOIfAddOneA50;
 };
 #endif

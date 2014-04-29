@@ -26,6 +26,8 @@ extern double g_ifAsk1,g_ifBid1;
 extern double g_A50Index,g_HS300Index;
 extern double g_A50IndexMSHQ,g_HS300IndexMSHQ;
 double A50Index = 0.0,HS300Index = 0.0;//本程序实际所用指数
+extern bool iAccountDownloadEnd;
+extern bool iInitMarginOIfAddOneA50;
 CString hedgeStatusPrint;
 void SelectIndex();
 /////////////////////////////////Hedge变量///////////////////////////////////////////////
@@ -87,6 +89,7 @@ CHedgePostProcessing::~CHedgePostProcessing()
 
 BOOL CHedgePostProcessing::InitInstance()
 {
+	/*
 	MSG msg;BOOL bRet;long idHedgeCurrent = -1;
 	while((bRet = GetMessage(&msg,NULL,WM_BEGIN_POST_PROCESSING,WM_BEGIN_POST_PROCESSING)) != 0){
 		TRACE("收到WM_BEGIN_POST_PROCESSING\n");
@@ -98,6 +101,7 @@ BOOL CHedgePostProcessing::InitInstance()
 			PostProcessing(NULL,idHedgeCurrent);//后处理
 		}
 	}
+	*/
 	return TRUE;
 }
 
@@ -108,10 +112,13 @@ int CHedgePostProcessing::ExitInstance()
 }
 
 BEGIN_MESSAGE_MAP(CHedgePostProcessing, CWinThread)
+	ON_THREAD_MESSAGE(WM_PREPARE_POST_PROCESSING,PostProcessing)
 END_MESSAGE_MAP()
 
 void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 	static bool iFirst = true;static HWND hEdit;
+	//A50合约保证金
+	MarginA50 = m_accountvalue.InitMarginOIfAddOneA50 - m_accountvalue.InitMarginReqO;
 	if(((CMainDlg*)m_pMainWnd)){
 		((CMainDlg*)m_pMainWnd)->OnRefreshMdPane(NULL,NULL);
 	}
@@ -135,6 +142,9 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 			(sys.wHour == 12)||
 			(sys.wHour < 9) || (sys.wHour > 15)){
 				return;
+		}
+		if(!iAccountDownloadEnd || !iInitMarginOIfAddOneA50){
+			return;
 		}
 	}
 	//求最大持仓id
@@ -471,6 +481,11 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 		}
 	}
 	hedgeTaskStatus = WAITING_FOR_FINISHED;//标记等待状态，在等待状态下对冲循环不会有新的任务
+	if(m_pHedgePostProcessing){
+		while(m_pHedgePostProcessing->PostThreadMessage(WM_PREPARE_POST_PROCESSING,NULL,NULL) == 0){
+			Sleep(100);
+		}
+	}
 	////////////////////////////////////////////////////////////
 	//////千万注意要先清零,否则将会导致意想不到的错误。
 	IfTask iftask;A50Task a50task;
@@ -578,7 +593,15 @@ void CHedgePostProcessing::PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 	HWND hEdit = ::GetDlgItem(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->m_basicPage.m_hWnd,IDC_RICHEDIT_STATUS);
 	MSG msg;BOOL bRet;
 	long idHedgeCurrent = -1;
-	idHedgeCurrent = t_lParam;
+	//idHedgeCurrent = t_lParam;
+	while((bRet = GetMessage(&msg,NULL,WM_BEGIN_POST_PROCESSING,WM_BEGIN_POST_PROCESSING)) != 0){
+		if (!bRet){// handle the error and possibly exit
+		}
+		else{
+			idHedgeCurrent = msg.lParam;
+			break;//已经开始，往下正式进行处理。
+		}
+	}
 	//检索两种消息，分别是WM_RTN_INSERT和WM_RTN_ORDER
 	while((bRet = GetMessage(&msg,NULL,WM_RTN_INSERT,WM_RTN_ORDER)) != 0){
 		if (!bRet){
@@ -748,6 +771,17 @@ void CHedgePostProcessing::PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 			Sleep(100);
 		}
 	}
+	if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+		while(PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_REQACCOUNTUPDATES,NULL,NULL) == 0){
+			Sleep(100);
+		}
+	}
+	while((bRet = GetMessage(&msg,NULL,WM_REQACCOUNTUPDATES_NOTIFY,WM_REQACCOUNTUPDATES_NOTIFY)) != 0){
+		if (!bRet){
+		}
+		else{
+		}
+	}
 	static int idSynchronize = 0;
 	if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
 		while(PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_SYNCHRONIZE_MARKET,NULL,++idSynchronize) == 0){
@@ -763,7 +797,7 @@ void CHedgePostProcessing::PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 			}
 		}
 	}
-	Sleep(3000);
+	Sleep(1000);
 	hedgeTaskStatus = NEW_HEDGE;
 }
 

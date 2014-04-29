@@ -2,6 +2,7 @@
 #include "HiStar.h"
 #include "global.h"
 #include "calendar.h"
+extern bool iAccountDownloadEnd;
 //IB交易系统
 void CHiStarApp::OnConnectIB(WPARAM wParam,LPARAM lParam){
 	UINT clientID = 0;
@@ -15,13 +16,20 @@ void CHiStarApp::OnConnectIB(WPARAM wParam,LPARAM lParam){
 			cStatus.Format( "Connected to Tws server version %d at %s.",
 				m_pIBClient->serverVersion(), m_pIBClient->TwsConnectionTime());
 			PostOrderStatus(cStatus);
-			m_pIBClient->reqAccountUpdates(true,m_accountIB.m_accountName);
+			OnReqAccountUpdates(NULL,NULL);
 			//m_pIBClient->reqCurrentTime();
 			//m_pIBClient->reqPositions();
 			//m_pIBClient->reqMktDepth(++m_id,m_A50Contract,20,m_mktDepthOptions);//取消市场深度,用reqMktData代替。
 			m_pIBClient->reqMktData(++m_id,m_A50Contract,"100,101,104,105,106,107,165,221,225,233,236,258,293,294,295,318",false,m_mktDataOptions);
 		}
 	}
+}
+
+void CHiStarApp::OnReqAccountUpdates(WPARAM wParam,LPARAM lParam){
+	//持仓先清空
+	iAccountDownloadEnd = false;
+	m_portfolio.clear();
+	m_pIBClient->reqAccountUpdates(true,m_accountIB.m_accountName);
 }
 
 void CHiStarApp::OnDisconnectIB(WPARAM wParam,LPARAM lParam){
