@@ -45,7 +45,7 @@ int CtpMdSpi::ReqUserLogin(TThostFtdcBrokerIDType	vAppId,TThostFtdcUserIDType	vU
 	strcpy(req.UserID, vUserId);  strcpy(m_sINVEST_ID, vUserId); 
 	strcpy(req.Password, vPasswd);
 	strcpy(req.UserProductInfo,PROD_INFO);
-	pUserApi->ReqUserLogin(&req, ++m_iRequestID);
+	while(pUserApi->ReqUserLogin(&req, ++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 
@@ -91,7 +91,7 @@ int CtpMdSpi::SubscribeMarketData(char *pInst[], int nCount)
 			InstSubscribed.push_back(str);
 		}
 	}
-	pUserApi->SubscribeMarketData(pInst, nCount);
+	while(pUserApi->SubscribeMarketData(pInst, nCount) != 0){}
 	return 0;
 }
 
@@ -165,7 +165,7 @@ int CtpMdSpi::UnSubscribeMarketData(char *pInst[], int nCount){
 		}
 		InstSubscribed.push_back(str);
 	}
-	pUserApi->UnSubscribeMarketData(pInst, nCount);
+	while(pUserApi->UnSubscribeMarketData(pInst, nCount) != 0){}
 	return 0;
 }
 

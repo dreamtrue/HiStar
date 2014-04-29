@@ -487,7 +487,6 @@ void CHiStarApp::OnSynchronizeMarket(WPARAM wParam,LPARAM lParam){
 						break;
 					}
 				}
-				Sleep(1000);
 			}
 			AcquireSRWLockShared(&g_srwLock_Insinf);
 			bool found01 = false;int index01 = -1;
@@ -555,7 +554,6 @@ void CHiStarApp::OnSynchronizeMarket(WPARAM wParam,LPARAM lParam){
 						break;
 					}
 				}
-				Sleep(1000);
 			}
 			AcquireSRWLockShared(&g_srwLock_Insinf);
 			bool found01 = false;int index01 = -1;
@@ -575,13 +573,28 @@ void CHiStarApp::OnSynchronizeMarket(WPARAM wParam,LPARAM lParam){
 			}
 			if(found01 && found02){
 				if(m_cT->WaitingForSettlementFee[i].OffsetFlag == THOST_FTDC_OF_Open){
-					totalFee = totalFee + m_cT->WaitingForSettlementFee[i].Price * m_cT->WaitingForSettlementFee[i].Volume * m_cT->m_InsinfVec[index01].iinf.VolumeMultiple * m_cT->FeeRateList[index02].OpenRatioByMoney;
+					if(abs(m_cT->FeeRateList[index02].OpenRatioByMoney) > 0.00000001){
+						totalFee = totalFee + m_cT->WaitingForSettlementFee[i].Price * m_cT->WaitingForSettlementFee[i].Volume * m_cT->m_InsinfVec[index01].iinf.VolumeMultiple * m_cT->FeeRateList[index02].OpenRatioByMoney;
+					}
+					else{
+						totalFee = totalFee + m_cT->WaitingForSettlementFee[i].Volume * m_cT->FeeRateList[index02].OpenRatioByVolume;
+					}
 				}
 				else if(m_cT->WaitingForSettlementFee[i].OffsetFlag == THOST_FTDC_OF_CloseYesterday){
-					totalFee = totalFee + m_cT->WaitingForSettlementFee[i].Price * m_cT->WaitingForSettlementFee[i].Volume * m_cT->m_InsinfVec[index01].iinf.VolumeMultiple * m_cT->FeeRateList[index02].CloseRatioByMoney;
+					if(abs(m_cT->FeeRateList[index02].CloseRatioByMoney) > 0.00000001){
+						totalFee = totalFee + m_cT->WaitingForSettlementFee[i].Price * m_cT->WaitingForSettlementFee[i].Volume * m_cT->m_InsinfVec[index01].iinf.VolumeMultiple * m_cT->FeeRateList[index02].CloseRatioByMoney;
+					}
+					else{
+						totalFee = totalFee + m_cT->WaitingForSettlementFee[i].Volume * m_cT->FeeRateList[index02].CloseRatioByVolume;
+					}
 				}
 				else{
-					totalFee = totalFee + m_cT->WaitingForSettlementFee[i].Price * m_cT->WaitingForSettlementFee[i].Volume * m_cT->m_InsinfVec[index01].iinf.VolumeMultiple * m_cT->FeeRateList[index02].CloseTodayRatioByMoney;
+					if(abs(m_cT->FeeRateList[index02].CloseTodayRatioByMoney) > 0.0000001){
+						totalFee = totalFee + m_cT->WaitingForSettlementFee[i].Price * m_cT->WaitingForSettlementFee[i].Volume * m_cT->m_InsinfVec[index01].iinf.VolumeMultiple * m_cT->FeeRateList[index02].CloseTodayRatioByMoney;
+					}
+					else{
+						totalFee = totalFee + m_cT->WaitingForSettlementFee[i].Volume * m_cT->FeeRateList[index02].CloseTodayRatioByVolume;
+					}
 				}
 			}
 			ReleaseSRWLockShared(&g_srwLock_FeeRate);

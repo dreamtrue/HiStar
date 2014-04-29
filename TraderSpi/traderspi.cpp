@@ -54,7 +54,7 @@ int CtpTraderSpi::ReqUserLogin(TThostFtdcBrokerIDType	vAppId,TThostFtdcUserIDTyp
 	strcpy(req.UserID, vUserId);  strcpy(INVEST_ID, vUserId); 
 	strcpy(req.Password, vPasswd);
 	strcpy(req.UserProductInfo,PROD_INFO);
-	int iRet = pUserApi->ReqUserLogin(&req, ++m_iRequestID);
+	while(pUserApi->ReqUserLogin(&req, ++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 
@@ -163,13 +163,7 @@ int CtpTraderSpi::ReqUserLogout()
 	memset(&req, 0, sizeof(req));
 	strcpy(req.BrokerID, BROKER_ID);
 	strcpy(req.UserID, INVEST_ID);
-	int iResult = pUserApi->ReqUserLogout(&req, ++m_iRequestID);
-	if(iResult == 0){
-		TRACE("ctp行情系统登出指令发送成功\r\n");
-	}
-	else{
-		TRACE("ctp行情系统登出指令发送失败\r\n");
-	}
+	while(pUserApi->ReqUserLogout(&req, ++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 
@@ -193,7 +187,7 @@ int CtpTraderSpi::ReqSettlementInfoConfirm()
 	memset(&req, 0, sizeof(req));
 	strcpy(req.BrokerID, BROKER_ID);
 	strcpy(req.InvestorID, INVEST_ID);
-	pUserApi->ReqSettlementInfoConfirm(&req, ++m_iRequestID);
+	while(pUserApi->ReqSettlementInfoConfirm(&req, ++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 
@@ -215,7 +209,7 @@ int CtpTraderSpi::ReqQryNotice()
 	CThostFtdcQryNoticeField req;
 	memset(&req, 0, sizeof(req));
 	strcpy(req.BrokerID, BROKER_ID);
-	pUserApi->ReqQryNotice(&req, ++m_iRequestID);
+	while(pUserApi->ReqQryNotice(&req, ++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 
@@ -235,7 +229,7 @@ int CtpTraderSpi::ReqQryTdNotice()
 	memset(&req, 0, sizeof(req));
 	strcpy(req.BrokerID, BROKER_ID);
 	strcpy(req.InvestorID, INVEST_ID);
-	pUserApi->ReqQryTradingNotice(&req, ++m_iRequestID);
+	while(pUserApi->ReqQryTradingNotice(&req, ++m_iRequestID) !=0){}
 	return m_iRequestID;
 }
 
@@ -255,7 +249,7 @@ int CtpTraderSpi::ReqQrySettlementInfoConfirm()
 	memset(&req, 0, sizeof(req));
 	strcpy(req.BrokerID, BROKER_ID);
 	strcpy(req.InvestorID, INVEST_ID);
-	pUserApi->ReqQrySettlementInfoConfirm(&req,++m_iRequestID);
+	while(pUserApi->ReqQrySettlementInfoConfirm(&req,++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 
@@ -278,7 +272,7 @@ int CtpTraderSpi::ReqQrySettlementInfo(TThostFtdcDateType TradingDay)
 	strcpy(req.InvestorID, INVEST_ID);
 	strcpy(req.TradingDay,TradingDay);
 
-	pUserApi->ReqQrySettlementInfo(&req,++m_iRequestID);
+	while(pUserApi->ReqQrySettlementInfo(&req,++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 
@@ -304,7 +298,7 @@ int CtpTraderSpi::ReqQryInst(TThostFtdcInstrumentIDType instId)
 	if (instId != NULL)
 	{ strcpy(req.InstrumentID, instId); }
 
-	pUserApi->ReqQryInstrument(&req, ++m_iRequestID);
+	while(pUserApi->ReqQryInstrument(&req, ++m_iRequestID) != 0){} 
 	return m_iRequestID;
 }
 
@@ -352,7 +346,7 @@ int CtpTraderSpi::ReqQryInstrumentMarginRate(TThostFtdcInstrumentIDType instId)
 	req.HedgeFlag = THOST_FTDC_HF_Speculation;
 	if (instId != NULL)
 	{ strcpy(req.InstrumentID, instId); }
-	pUserApi->ReqQryInstrumentMarginRate(&req, ++m_iRequestID);
+	while(pUserApi->ReqQryInstrumentMarginRate(&req, ++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 
@@ -392,7 +386,7 @@ int CtpTraderSpi::ReqQryTdAcc()
 	memset(&req, 0, sizeof(req));
 	strcpy(req.BrokerID, BROKER_ID);
 	strcpy(req.InvestorID, INVEST_ID);
-	pUserApi->ReqQryTradingAccount(&req, ++m_iRequestID);
+	while(pUserApi->ReqQryTradingAccount(&req, ++m_iRequestID) != 0){};
 	return m_iRequestID;
 }
 
@@ -427,7 +421,7 @@ int CtpTraderSpi::ReqQryInvPos(TThostFtdcInstrumentIDType instId)
 	strcpy(req.InvestorID, INVEST_ID);
 	if (instId!=NULL)
 	{strcpy(req.InstrumentID, instId);}		
-	pUserApi->ReqQryInvestorPosition(&req, ++m_iRequestID);
+	while(pUserApi->ReqQryInvestorPosition(&req, ++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 
@@ -492,7 +486,7 @@ int CtpTraderSpi::ReqQryOrder(TThostFtdcInstrumentIDType instId){
 	strcpy(req.InvestorID,INVEST_ID);
 	if (instId!=NULL)
 	{strcpy(req.InstrumentID, instId);}	
-	pUserApi->ReqQryOrder(&req, ++m_iRequestID);
+	while(pUserApi->ReqQryOrder(&req, ++m_iRequestID) != 0){};
 	return m_iRequestID;
 }
 
@@ -585,7 +579,7 @@ int CtpTraderSpi::ReqQryTrade(TThostFtdcInstrumentIDType instId){
 	strcpy(req.InvestorID,INVEST_ID);
 	if (instId!=NULL)
 	{strcpy(req.InstrumentID, instId);}		
-	pUserApi->ReqQryTrade(&req, ++m_iRequestID);
+	while(pUserApi->ReqQryTrade(&req, ++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 
@@ -665,7 +659,7 @@ int CtpTraderSpi::ReqQryInvPosEx(TThostFtdcInstrumentIDType instId)
 	strcpy(req.InvestorID, INVEST_ID);
 	if (instId!=NULL)
 	{strcpy(req.InstrumentID, instId);}		
-	pUserApi->ReqQryInvestorPositionDetail(&req, ++m_iRequestID);
+	while(pUserApi->ReqQryInvestorPositionDetail(&req, ++m_iRequestID) != 0){};
 	return m_iRequestID;
 }
 
@@ -733,7 +727,7 @@ int CtpTraderSpi::ReqQryInvPosCombEx(TThostFtdcInstrumentIDType instId)
 	strcpy(req.InvestorID, INVEST_ID);
 	if (instId!=NULL)
 	{strcpy(req.CombInstrumentID, instId);}		
-	pUserApi->ReqQryInvestorPositionCombineDetail(&req, ++m_iRequestID);
+	while(pUserApi->ReqQryInvestorPositionCombineDetail(&req, ++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 
@@ -779,7 +773,7 @@ int CtpTraderSpi::ReqOrdLimit(TThostFtdcInstrumentIDType instId,TThostFtdcDirect
 	req.IsAutoSuspend = 0;  //自动挂起标志:否	
 	req.UserForceClose = 0;   //用户强评标志:否
 
-	pUserApi->ReqOrderInsert(&req, ++m_iRequestID);
+	while(pUserApi->ReqOrderInsert(&req, ++m_iRequestID) != 0){}
 	m_onRoadVec.push_back(req);
 	if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
 		while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
@@ -816,7 +810,7 @@ int CtpTraderSpi::ReqOrdAny(TThostFtdcInstrumentIDType instId,TThostFtdcDirectio
 	req.IsAutoSuspend = 0;  //自动挂起标志:否	
 	req.UserForceClose = 0;   //用户强评标志:否
 
-	pUserApi->ReqOrderInsert(&req, ++m_iRequestID);	
+	while(pUserApi->ReqOrderInsert(&req, ++m_iRequestID) != 0){}	
 	m_onRoadVec.push_back(req);
 	if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
 		while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
@@ -854,7 +848,7 @@ int CtpTraderSpi::ReqOrdCondition(TThostFtdcInstrumentIDType instId,TThostFtdcDi
 	req.IsAutoSuspend = 0;  //自动挂起标志:否	
 	req.UserForceClose = 0;   //用户强评标志:否
 
-	pUserApi->ReqOrderInsert(&req, ++m_iRequestID);
+	while(pUserApi->ReqOrderInsert(&req, ++m_iRequestID) != 0){}
 	m_onRoadVec.push_back(req);
 	if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
 		while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
@@ -897,7 +891,7 @@ int CtpTraderSpi::ReqOrdFAOK(TThostFtdcInstrumentIDType instId,TThostFtdcDirecti
 	req.IsAutoSuspend = 0;  //自动挂起标志:否	
 	req.UserForceClose = 0;   //用户强评标志:否
 
-	pUserApi->ReqOrderInsert(&req, ++m_iRequestID);
+	while(pUserApi->ReqOrderInsert(&req, ++m_iRequestID) != 0){}
 	m_onRoadVec.push_back(req);
 	if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
 		while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
@@ -950,7 +944,7 @@ int CtpTraderSpi::ReqOrderCancel(TThostFtdcSequenceNoType orderSeq)
 	strcpy(req.OrderSysID, m_orderVec[i].OrderSysID);
 	req.ActionFlag = THOST_FTDC_AF_Delete;  //操作标志 
 
-	pUserApi->ReqOrderAction(&req, ++m_iRequestID);
+	while(pUserApi->ReqOrderAction(&req, ++m_iRequestID) != 0){}
 	//cerr<< " 请求 | 发送撤单..." <<((ret == 0)?"成功":"失败") << endl;
 	return m_iRequestID;
 }
@@ -969,7 +963,7 @@ int CtpTraderSpi::ReqOrderCancel(TThostFtdcInstrumentIDType instId,TThostFtdcOrd
 
 	req.ActionFlag = THOST_FTDC_AF_Delete;  //操作标志 
 
-	pUserApi->ReqOrderAction(&req, ++m_iRequestID);
+	while(pUserApi->ReqOrderAction(&req, ++m_iRequestID) != 0){}
 	//cerr<< " 请求 | 发送撤单..." <<((ret == 0)?"成功":"失败") << endl;
 	return m_iRequestID;
 }
@@ -1283,7 +1277,7 @@ int CtpTraderSpi::ReqQryTradingCode()
 	req.ClientIDType = THOST_FTDC_CIDT_Speculation;
 	strcpy(req.BrokerID, BROKER_ID);   //经纪公司代码	
 	strcpy(req.InvestorID, INVEST_ID); //投资者代码
-	pUserApi->ReqQryTradingCode(&req,++m_iRequestID);
+	while(pUserApi->ReqQryTradingCode(&req,++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 
@@ -1310,7 +1304,7 @@ int CtpTraderSpi::ReqQryInstMgr(TThostFtdcInstrumentIDType instId){
 	if (instId!=NULL)
 	{strcpy(req.InstrumentID, instId);}	
 	req.HedgeFlag = '1';
-	pUserApi->ReqQryInstrumentMarginRate(&req,++m_iRequestID);
+	while(pUserApi->ReqQryInstrumentMarginRate(&req,++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 
@@ -1324,13 +1318,13 @@ int CtpTraderSpi::ReqQryInstFee(TThostFtdcInstrumentIDType instId)
 	strcpy(req.InvestorID, INVEST_ID); //投资者代码
 	if (instId!=NULL)
 	{strcpy(req.InstrumentID, instId);}	
-	pUserApi->ReqQryInstrumentCommissionRate(&req,++m_iRequestID);
+	while(pUserApi->ReqQryInstrumentCommissionRate(&req,++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 
 void CtpTraderSpi::OnRspQryInstrumentCommissionRate(CThostFtdcInstrumentCommissionRateField *pInstrumentCommissionRate, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
-	if( !IsErrorRspInfo(pRspInfo) && pInstrumentCommissionRate )
+	if(!IsErrorRspInfo(pRspInfo) && pInstrumentCommissionRate)
 	{
 		AcquireSRWLockExclusive(&g_srwLock_FeeRate);
 		bool found = false;
@@ -1360,7 +1354,7 @@ int CtpTraderSpi::ReqQryInvestor()
 	strcpy(req.BrokerID, BROKER_ID);   //经纪公司代码	
 	strcpy(req.InvestorID, INVEST_ID); //投资者代码
 
-	pUserApi->ReqQryInvestor(&req, ++m_iRequestID);
+	while(pUserApi->ReqQryInvestor(&req, ++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 
@@ -1388,7 +1382,7 @@ int CtpTraderSpi::ReqUserPwdUpdate(TThostFtdcPasswordType szNewPass,TThostFtdcPa
 	strcpy(req.NewPassword, szNewPass);    	
 	strcpy(req.OldPassword,szOldPass);  
 
-	pUserApi->ReqUserPasswordUpdate(&req,++m_iRequestID);
+	while(pUserApi->ReqUserPasswordUpdate(&req,++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 
@@ -1421,7 +1415,7 @@ int CtpTraderSpi::ReqTdAccPwdUpdate(TThostFtdcPasswordType szNewPass,TThostFtdcP
 	strcpy(req.NewPassword, szNewPass);    	
 	strcpy(req.OldPassword,szOldPass);  
 
-	pUserApi->ReqTradingAccountPasswordUpdate(&req,++m_iRequestID);
+	while(pUserApi->ReqTradingAccountPasswordUpdate(&req,++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 
@@ -1452,7 +1446,7 @@ int CtpTraderSpi::ReqAuthenticate(TThostFtdcProductInfoType UserProdInf,TThostFt
 	strcpy(req.UserProductInfo, UserProdInf);    	
 	strcpy(req.AuthCode,AuthCode);  
 
-	pUserApi->ReqAuthenticate(&req,++m_iRequestID);
+	while(pUserApi->ReqAuthenticate(&req,++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 
@@ -1476,7 +1470,7 @@ int CtpTraderSpi::ReqQryAccreg()
 	strcpy(req.BrokerID, BROKER_ID);   //经纪公司代码	
 	strcpy(req.AccountID, INVEST_ID); //用户代码
 
-	pUserApi->ReqQryAccountregister(&req,++m_iRequestID);
+	while(pUserApi->ReqQryAccountregister(&req,++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 
@@ -1505,7 +1499,7 @@ int CtpTraderSpi::ReqQryTransBk(TThostFtdcBankIDType BankID,TThostFtdcBankBrchID
 	if(BankBrchID != NULL)
 		strcpy(req.BankBrchID,BankBrchID);
 
-	pUserApi->ReqQryTransferBank(&req,++m_iRequestID);
+	while(pUserApi->ReqQryTransferBank(&req,++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 
@@ -1533,7 +1527,7 @@ int CtpTraderSpi::ReqQryContractBk(TThostFtdcBankIDType BankID,TThostFtdcBankBrc
 	if(BankBrchID != NULL)
 		strcpy(req.BankBrchID,BankBrchID);
 
-	pUserApi->ReqQryContractBank(&req,++m_iRequestID);
+	while(pUserApi->ReqQryContractBank(&req,++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 
@@ -1567,7 +1561,7 @@ int CtpTraderSpi::ReqBk2FByF(TThostFtdcBankIDType BkID,TThostFtdcPasswordType Bk
 	req.TradeAmount=TdAmt;
 	req.SecuPwdFlag = THOST_FTDC_BPWDF_BlankCheck;
 
-	pUserApi->ReqFromBankToFutureByFuture(&req,++m_iRequestID);
+	while(pUserApi->ReqFromBankToFutureByFuture(&req,++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 
@@ -1647,7 +1641,7 @@ int CtpTraderSpi::ReqF2BkByF(TThostFtdcBankIDType BkID,TThostFtdcPasswordType Bk
 	req.TradeAmount=TdAmt;
 	req.SecuPwdFlag = THOST_FTDC_BPWDF_BlankCheck;
 
-	pUserApi->ReqFromFutureToBankByFuture(&req,++m_iRequestID);
+	while(pUserApi->ReqFromFutureToBankByFuture(&req,++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 
@@ -1729,7 +1723,7 @@ int CtpTraderSpi::ReqQryBkAccMoneyByF(TThostFtdcBankIDType BkID,TThostFtdcPasswo
 	strcpy(req.Password,Pwd);
 
 	req.SecuPwdFlag = THOST_FTDC_BPWDF_BlankCheck;
-	pUserApi->ReqQueryBankAccountMoneyByFuture(&req,++m_iRequestID);
+	while(pUserApi->ReqQueryBankAccountMoneyByFuture(&req,++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 
@@ -1771,7 +1765,7 @@ int CtpTraderSpi::ReqQryTfSerial(TThostFtdcBankIDType BkID)
 	strcpy(req.BrokerID, BROKER_ID);   //经纪公司代码	 
 	strcpy(req.AccountID, INVEST_ID); //用户代码
 	strcpy(req.BankID,BkID);
-	pUserApi->ReqQryTransferSerial(&req,++m_iRequestID);
+	while(pUserApi->ReqQryTransferSerial(&req,++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 ///请求查询转帐流水响应
@@ -1832,7 +1826,7 @@ int CtpTraderSpi::ReqQryCFMMCTdAccKey()
 	strcpy(req.BrokerID, BROKER_ID);   //经纪公司代码	 
 	strcpy(req.InvestorID, INVEST_ID); //用户代码
 
-	pUserApi->ReqQryCFMMCTradingAccountKey(&req,++m_iRequestID);
+	while(pUserApi->ReqQryCFMMCTradingAccountKey(&req,++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 
@@ -1855,7 +1849,7 @@ int CtpTraderSpi::ReqQryBkrTdParams()
 	strcpy(req.BrokerID,BROKER_ID);
 	strcpy(req.InvestorID,INVEST_ID);
 
-	pUserApi->ReqQryBrokerTradingParams(&req, ++m_iRequestID);
+	while(pUserApi->ReqQryBrokerTradingParams(&req, ++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 
@@ -1882,7 +1876,7 @@ int CtpTraderSpi::ReqQryBkrTdAlgos(TThostFtdcExchangeIDType ExhID,TThostFtdcInst
 	if(instID != NULL)
 		strcpy(req.InstrumentID, instID);
 
-	pUserApi->ReqQryBrokerTradingAlgos(&req, ++m_iRequestID);
+	while(pUserApi->ReqQryBrokerTradingAlgos(&req, ++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 
@@ -1902,7 +1896,7 @@ void CtpTraderSpi::OnRspQryBrokerTradingAlgos(CThostFtdcBrokerTradingAlgosField 
 ///预埋单录入请求
 int CtpTraderSpi::ReqParkedOrderInsert(CThostFtdcParkedOrderField *ParkedOrder)
 {
-	pUserApi->ReqParkedOrderInsert(ParkedOrder,++m_iRequestID);
+	while(pUserApi->ReqParkedOrderInsert(ParkedOrder,++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 
@@ -1933,7 +1927,7 @@ int CtpTraderSpi::ReqParkedOrderInsert(TThostFtdcInstrumentIDType instId,TThostF
 		req.IsAutoSuspend = 0;  //自动挂起标志:否	
 		req.UserForceClose = 0;   //用户强评标志:否
 
-		pUserApi->ReqParkedOrderInsert(&req,++m_iRequestID);
+		while(pUserApi->ReqParkedOrderInsert(&req,++m_iRequestID) != 0){}
 		return m_iRequestID;
 }
 
@@ -1954,7 +1948,7 @@ void CtpTraderSpi::OnRspParkedOrderInsert(CThostFtdcParkedOrderField *pParkedOrd
 ///预埋撤单录入请求
 int CtpTraderSpi::ReqParkedOrderAction(CThostFtdcParkedOrderActionField *ParkedOrderAction)
 {
-	pUserApi->ReqParkedOrderAction(ParkedOrderAction,++m_iRequestID);
+	while(pUserApi->ReqParkedOrderAction(ParkedOrderAction,++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 ///预埋撤单录入请求响应
@@ -1982,7 +1976,7 @@ int CtpTraderSpi::ReqQryParkedOrder(TThostFtdcInstrumentIDType InstrumentID,TTho
 		strcpy(req.InstrumentID,InstrumentID);
 	if(ExchangeID != NULL)
 		strcpy(req.ExchangeID,ExchangeID);
-	pUserApi->ReqQryParkedOrder(&req, ++m_iRequestID);
+	while(pUserApi->ReqQryParkedOrder(&req, ++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 
@@ -2011,7 +2005,7 @@ int CtpTraderSpi::ReqQryParkedOrderAction(TThostFtdcInstrumentIDType InstrumentI
 		strcpy(req.InstrumentID,InstrumentID);
 	if(ExchangeID != NULL)
 		strcpy(req.ExchangeID,ExchangeID);
-	pUserApi->ReqQryParkedOrderAction(&req, ++m_iRequestID);
+	while(pUserApi->ReqQryParkedOrderAction(&req, ++m_iRequestID) !=0){}
 	return m_iRequestID;
 }
 
@@ -2037,7 +2031,7 @@ int CtpTraderSpi::ReqRemoveParkedOrder(TThostFtdcParkedOrderIDType ParkedOrder_I
 	strcpy(req.BrokerID,BROKER_ID);
 	strcpy(req.InvestorID,INVEST_ID);
 	strcpy(req.ParkedOrderID,ParkedOrder_ID);
-	pUserApi->ReqRemoveParkedOrder(&req, ++m_iRequestID);
+	while(pUserApi->ReqRemoveParkedOrder(&req, ++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 
@@ -2063,14 +2057,14 @@ int CtpTraderSpi::ReqRemoveParkedOrderAction(TThostFtdcParkedOrderActionIDType P
 	strcpy(req.BrokerID,BROKER_ID);
 	strcpy(req.InvestorID,INVEST_ID);
 	strcpy(req.ParkedOrderActionID,ParkedOrderAction_ID);
-	pUserApi->ReqRemoveParkedOrderAction(&req, ++m_iRequestID);
+	while(pUserApi->ReqRemoveParkedOrderAction(&req, ++m_iRequestID) != 0){}
 	return m_iRequestID;
 }
 
 ///请求删除预埋撤单响应
 void CtpTraderSpi::OnRspQryParkedOrderAction(CThostFtdcParkedOrderActionField *pParkedOrderAction, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) 
 {
-	if( !IsErrorRspInfo(pRspInfo) && pParkedOrderAction)
+	if(!IsErrorRspInfo(pRspInfo) && pParkedOrderAction)
 	{
 
 	}

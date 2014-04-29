@@ -203,7 +203,6 @@ void CHiStarApp::LoginCtpTD(WPARAM wParam,LPARAM lParam){
 			((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查合约列表!"), 30);break;
 		}
 	}
-	Sleep(1000);
 	if(m_cT){
 		requestID = m_cT->ReqQryInvPos(NULL);
 	}
@@ -214,7 +213,6 @@ void CHiStarApp::LoginCtpTD(WPARAM wParam,LPARAM lParam){
 			((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查持仓信息!"), 40);break;
 		}
 	}
-	Sleep(1000);
 	if(m_cT){
 
 		AcquireSRWLockExclusive(&g_srwLock_PosDetail);
@@ -231,7 +229,6 @@ void CHiStarApp::LoginCtpTD(WPARAM wParam,LPARAM lParam){
 			break;
 		}
 	}
-	Sleep(1000);
 	if(m_cT){
 		requestID = m_cT->ReqQryTdAcc();
 	}
@@ -243,7 +240,6 @@ void CHiStarApp::LoginCtpTD(WPARAM wParam,LPARAM lParam){
 		}
 	}
 #ifdef _REAL_CTP_
-	Sleep(1000);
 	if(m_cT){
 		requestID = m_cT->ReqQryAccreg();
 	}
@@ -254,7 +250,6 @@ void CHiStarApp::LoginCtpTD(WPARAM wParam,LPARAM lParam){
 			((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查银期信息!"), 60);break;
 		}
 	}
-	Sleep(1000);
 	if(m_cT){
 		requestID = m_cT->ReqQryTradingCode();
 	}
@@ -265,7 +260,6 @@ void CHiStarApp::LoginCtpTD(WPARAM wParam,LPARAM lParam){
 			((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查交易编码!"), 65);break;
 		}
 	}
-	Sleep(1000);
 	if(m_cT){
 		requestID = m_cT->ReqQryOrder(NULL);
 	}
@@ -276,7 +270,6 @@ void CHiStarApp::LoginCtpTD(WPARAM wParam,LPARAM lParam){
 			((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查指令状态!"), 75);break;
 		}
 	}
-	Sleep(1000);
 	if(m_cT){
 		requestID = m_cT->ReqQryTrade(NULL);
 	}
@@ -287,7 +280,6 @@ void CHiStarApp::LoginCtpTD(WPARAM wParam,LPARAM lParam){
 			((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("查交易状态!"), 95);break;
 		}
 	}
-	Sleep(1000);
 	((CMainDlg*)(m_pMainWnd))->addCombInst();//增加合约列表
 	((CMainDlg*)m_pMainWnd)->m_basicPage.ProgressUpdate(_T("CTP登陆成功!"),100);
 #endif
