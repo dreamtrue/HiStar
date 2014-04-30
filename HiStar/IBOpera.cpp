@@ -16,7 +16,8 @@ void CHiStarApp::OnConnectIB(WPARAM wParam,LPARAM lParam){
 			cStatus.Format( "Connected to Tws server version %d at %s.",
 				m_pIBClient->serverVersion(), m_pIBClient->TwsConnectionTime());
 			PostOrderStatus(cStatus);
-			OnReqAccountUpdates(NULL,NULL);
+			OnReqAccountUpdates(NULL,0);
+			OnReqAccountUpdates(NULL,1);
 			//m_pIBClient->reqCurrentTime();
 			//m_pIBClient->reqPositions();
 			//m_pIBClient->reqMktDepth(++m_id,m_A50Contract,20,m_mktDepthOptions);//取消市场深度,用reqMktData代替。
@@ -26,10 +27,16 @@ void CHiStarApp::OnConnectIB(WPARAM wParam,LPARAM lParam){
 }
 
 void CHiStarApp::OnReqAccountUpdates(WPARAM wParam,LPARAM lParam){
-	//持仓先清空
-	iAccountDownloadEnd = false;
-	m_portfolio.clear();
-	m_pIBClient->reqAccountUpdates(true,m_accountIB.m_accountName);
+	if(lParam == 0){
+		m_pIBClient->reqAccountUpdates(false,m_accountIB.m_accountName);
+	}
+	else{
+		TRACE("OnReqAccountUpdates != 0\n");
+		//持仓先清空
+		iAccountDownloadEnd = false;
+		m_portfolio.clear();
+		m_pIBClient->reqAccountUpdates(true,m_accountIB.m_accountName);
+	}
 }
 
 void CHiStarApp::OnDisconnectIB(WPARAM wParam,LPARAM lParam){

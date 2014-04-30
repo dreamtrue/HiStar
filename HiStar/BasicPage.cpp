@@ -95,7 +95,6 @@ void CBasicPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_MINPROFIT,MinProfitAim);
 	DDX_Text(pDX, IDC_MAXPROFIT,MaxProfitAim);
 	DDX_Text(pDX,IDC_MULTI_POS,MultiPos);
-	DDX_Text(pDX,IDC_RICHEDIT23,MarginA50);
 	DDX_Control(pDX, IDC_LIST3, m_LstHedgeStatus);
 	DDX_Text(pDX, IDC_RICHEDIT26, MultiA50);
 	DDX_Control(pDX, IDC_UP_HS300, m_HS300UP);
@@ -205,7 +204,6 @@ BOOL CBasicPage::OnInitDialog()
 	SetDlgItemText(IDC_MINPROFIT,TEXT(_T("20.0")));
 	SetDlgItemText(IDC_MAXPROFIT,TEXT(_T("20.0")));
 	SetDlgItemText(IDC_MULTI_POS,TEXT(_T("1")));
-	SetDlgItemText(IDC_RICHEDIT23,TEXT(_T("416.0")));
 	SetDlgItemText(IDC_RICHEDIT26,TEXT(_T("16")));
 	//初始化列表控件
 	TCHAR* lpHdrs0[4] = {_T("ID"),_T("数量"),_T("所属区域"),_T("成本")};
@@ -427,6 +425,7 @@ void CBasicPage::OnBnClickedTest()
 	*/
 	//TThostFtdcCombOffsetFlagType kpp;kpp[0] = THOST_FTDC_OF_Open;
 	//((CHiStarApp*)AfxGetApp())->m_cT->ReqParkedOrderInsert("IF1405",THOST_FTDC_D_Sell,kpp,2500.0,1);
+	//((CHiStarApp*)AfxGetApp())->OnReqAccountUpdates(NULL,NULL);
 }
 
 

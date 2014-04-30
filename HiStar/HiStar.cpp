@@ -90,7 +90,7 @@ CHiStarApp::CHiStarApp()
 	InitializeSRWLock(&g_srwLock_FeeRate);
 }
 
-void CHiStarApp::OnIni(WPARAM wParam,LPARAM lParam){
+void CHiStarApp::OnInitialize(WPARAM wParam,LPARAM lParam){
 	SYSTEMTIME sys;
 	GetLocalTime(&sys);
 	TThostFtdcDateType buffer;

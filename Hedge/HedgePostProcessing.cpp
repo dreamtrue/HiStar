@@ -19,6 +19,7 @@ int MultiA50 = 16;//A50乘数
 double MarginA50 = 416.0,MarginIf = 0.15;
 double USDtoRMB = 6.07;//汇率
 bool isHedgeLoopingPause = true;
+bool iIfCanTrade = true,iA50CanTrade = true;
 double premium = 0,premiumHigh = 0,premiumLow = 0;
 double deviation = 0,DeviationSell = 0,DeviationBuy = 0;
 extern double g_a50Bid1,g_a50Ask1;
@@ -116,15 +117,29 @@ BEGIN_MESSAGE_MAP(CHedgePostProcessing, CWinThread)
 END_MESSAGE_MAP()
 
 void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
-	static bool iFirst = true;static HWND hEdit;
-	//A50合约保证金
-	MarginA50 = m_accountvalue.InitMarginOIfAddOneA50 - m_accountvalue.InitMarginReqO;
-	if(((CMainDlg*)m_pMainWnd)){
-		((CMainDlg*)m_pMainWnd)->OnRefreshMdPane(NULL,NULL);
+	if(!iAccountDownloadEnd || !iInitMarginOIfAddOneA50){
+		return;
 	}
+	static bool iFirst = true;static HWND hEdit;
 	if(iFirst){
+		//A50合约保证金
+		MarginA50 = fabs(m_accountvalue.InitMarginOIfAddOneA50 - m_accountvalue.InitMarginReqO);
 		hEdit = ::GetDlgItem(((CMainDlg*)m_pMainWnd)->m_basicPage.m_hWnd,IDC_RICHEDIT_STATUS);
 		iFirst = false;
+	}
+	//计算A50可用资金以及持仓
+	AvailIB = m_accountvalue.AvailableFunds;
+	for(unsigned int i = 0;i < m_portfolio.size();i++){
+		//暂时这样对比，日后还有期权，因为存在行权价，可能contract比较方法有异
+		if( m_A50Contract.symbol == m_portfolio[i].contract.symbol
+			&& m_A50Contract.currency == m_portfolio[i].contract.currency
+			&& m_A50Contract.expiry.Left(6) == m_portfolio[i].contract.expiry.Left(6)
+			&& m_A50Contract.secType == m_portfolio[i].contract.secType){
+				netPositionA50 = m_portfolio[i].position;
+		}
+	}
+	if(((CMainDlg*)m_pMainWnd)){
+		((CMainDlg*)m_pMainWnd)->OnRefreshMdPane(NULL,NULL);
 	}
 	//获取系统时间
 	SYSTEMTIME sys;
@@ -136,15 +151,18 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 			return;
 		}
 		//非常规交易时间
-		if((sys.wHour == 9 && sys.wMinute < 15) || 
-			(sys.wHour == 15 && sys.wMinute > 15) ||
-			(sys.wHour == 11 && sys.wMinute > 30) ||
+		if((sys.wHour == 9 && sys.wMinute < 10) || 
+			(sys.wHour == 15 && sys.wMinute > 14 && sys.wSecond > 50) ||
+			(sys.wHour == 11 && sys.wMinute > 29 && sys.wSecond > 50) ||
 			(sys.wHour == 12)||
 			(sys.wHour < 9) || (sys.wHour > 15)){
 				return;
 		}
-		if(!iAccountDownloadEnd || !iInitMarginOIfAddOneA50){
-			return;
+		else if(sys.wHour == 9 && sys.wMinute < 15){
+			iIfCanTrade = false;iA50CanTrade = true;
+		}
+		else{
+			iIfCanTrade = true;iA50CanTrade = true;
 		}
 	}
 	//求最大持仓id
@@ -377,7 +395,23 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 	double NeedNewMarginA50 = 0,NeedNewMarginIf = 0;
 	int PredictlongIf = 0,PredictshortIf = 0;
 	//IF预计要采取的操作包括买、卖、开、平
-	int PredictBuyOpenIF = 0,PredictBuyCloseIF = 0,PredictSellOpenIF = 0,PredictSellCloseIF = 0;	
+	int PredictBuyOpenIF = 0,PredictBuyCloseIF = 0,PredictSellOpenIF = 0,PredictSellCloseIF = 0;
+	//统计长短持仓
+	AcquireSRWLockShared(&g_srwLock_PosDetail);
+	longIf = 0;shortIf = 0;
+	for(unsigned int i = 0;i < m_cT->m_InvPosDetailVec.size();i++){
+		if(strcmp(m_cT->m_InvPosDetailVec[i].InstrumentID,m_accountCtp.m_szInst) == 0){
+			if(m_cT->m_InvPosDetailVec[i].Direction == THOST_FTDC_D_Buy){
+				longIf = longIf + m_cT->m_InvPosDetailVec[i].Volume;
+			}
+			else{
+				shortIf =  shortIf + m_cT->m_InvPosDetailVec[i].Volume;
+			}
+			break;
+		}
+	}
+	ReleaseSRWLockShared(&g_srwLock_PosDetail); 
+	//
 	if(OffsetFlag == OPEN){
 		//开仓
 		PredictPositionA50 = netPositionA50 + pHD->HedgeNum * MultiA50;
@@ -492,7 +526,53 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 	hedgetask.clear();/*禁止memset(&hedgetask,0,sizeof(hedgetask));*/
 	memset(&iftask,0,sizeof(iftask));memset(&a50task,0,sizeof(a50task));
 	////////////////////////////////////////////////////////////
-	//IF下单
+	//A50下单
+	if(abs(NeedBuyA50 - NeedSellA50) != 0){
+		if(((CHiStarApp*)AfxGetApp())->m_pIBClient){
+			if(NeedBuyA50 - NeedSellA50 > 0){
+				((CHiStarApp*)AfxGetApp())->m_IBOrder.action = "BUY";
+				((CHiStarApp*)AfxGetApp())->m_IBOrder.totalQuantity = NeedBuyA50 - NeedSellA50;
+				((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice = DealA50Price(true,g_a50Ask1 + 500.0);
+				((CHiStarApp*)AfxGetApp())->m_IBOrder.whatIf = false;
+				if(((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice < 1.0){
+					sprintf(buffer,_T("A50买价小于1.0,异常\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
+					return -1;
+				}
+				if(((CHiStarApp*)AfxGetApp())->m_pIBClient){
+					if(iA50CanTrade){
+						((CHiStarApp*)AfxGetApp())->m_pIBClient->placeOrder(++((CHiStarApp*)AfxGetApp())->m_id,((CHiStarApp*)AfxGetApp())->m_A50Contract,((CHiStarApp*)AfxGetApp())->m_IBOrder);
+					}
+					a50task.id = ((CHiStarApp*)AfxGetApp())->m_id;a50task.volumeRecord = NeedBuyA50 - NeedSellA50;a50task.direction = 'l';a50task.priceRecord = g_a50Ask1;
+					hedgetask.a50alltask.push_back(a50task);
+				}
+			}
+			else if(NeedBuyA50 - NeedSellA50 < 0){
+				((CHiStarApp*)AfxGetApp())->m_IBOrder.action = "SELL";
+				((CHiStarApp*)AfxGetApp())->m_IBOrder.totalQuantity = -(NeedBuyA50 - NeedSellA50);
+				((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice = DealA50Price(false,g_a50Bid1 - 500.0);
+				((CHiStarApp*)AfxGetApp())->m_IBOrder.whatIf = false;
+				if(((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice < 1.0){
+					sprintf(buffer,_T("A50买价小于1.0,异常\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
+					return -1;
+				}
+				if(((CHiStarApp*)AfxGetApp())->m_pIBClient){
+					if(iA50CanTrade){
+						((CHiStarApp*)AfxGetApp())->m_pIBClient->placeOrder(++((CHiStarApp*)AfxGetApp())->m_id,((CHiStarApp*)AfxGetApp())->m_A50Contract,((CHiStarApp*)AfxGetApp())->m_IBOrder);
+					}
+					a50task.id = ((CHiStarApp*)AfxGetApp())->m_id;a50task.volumeRecord = -(NeedBuyA50 - NeedSellA50);a50task.direction = 's';a50task.priceRecord = g_a50Bid1;
+					hedgetask.a50alltask.push_back(a50task);
+				}
+			}
+		}
+	}
+	//IF下单,保证9点一刻前不下单，一直到9：15分下单
+	while(!iIfCanTrade){
+		SYSTEMTIME sys;
+		GetLocalTime(&sys);
+		if(sys.wHour == 9 && sys.wMinute > 15){
+			iIfCanTrade = true;
+		}
+	}
 	TThostFtdcCombOffsetFlagType kpp;
 	char szInst[MAX_PATH];
 	uni2ansi(CP_ACP,((CHiStarApp*)AfxGetApp())->m_accountCtp.m_szInst,szInst);
@@ -542,41 +622,6 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 		}
 	}
 	delete []pInst;//防止内存泄露
-	//A50下单
-	if(abs(NeedBuyA50 - NeedSellA50) != 0){
-		if(((CHiStarApp*)AfxGetApp())->m_pIBClient){
-			if(NeedBuyA50 - NeedSellA50 > 0){
-				((CHiStarApp*)AfxGetApp())->m_IBOrder.action = "BUY";
-				((CHiStarApp*)AfxGetApp())->m_IBOrder.totalQuantity = NeedBuyA50 - NeedSellA50;
-				((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice = DealA50Price(true,g_a50Ask1 + 500.0);
-				((CHiStarApp*)AfxGetApp())->m_IBOrder.whatIf = false;
-				if(((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice < 1.0){
-					sprintf(buffer,_T("A50买价小于1.0,异常\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
-					return -1;
-				}
-				if(((CHiStarApp*)AfxGetApp())->m_pIBClient){
-					((CHiStarApp*)AfxGetApp())->m_pIBClient->placeOrder(++((CHiStarApp*)AfxGetApp())->m_id,((CHiStarApp*)AfxGetApp())->m_A50Contract,((CHiStarApp*)AfxGetApp())->m_IBOrder);
-					a50task.id = ((CHiStarApp*)AfxGetApp())->m_id;a50task.volumeRecord = NeedBuyA50 - NeedSellA50;a50task.direction = 'l';a50task.priceRecord = g_a50Ask1;
-					hedgetask.a50alltask.push_back(a50task);
-				}
-			}
-			else if(NeedBuyA50 - NeedSellA50 < 0){
-				((CHiStarApp*)AfxGetApp())->m_IBOrder.action = "SELL";
-				((CHiStarApp*)AfxGetApp())->m_IBOrder.totalQuantity = -(NeedBuyA50 - NeedSellA50);
-				((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice = DealA50Price(false,g_a50Bid1 - 500.0);
-				((CHiStarApp*)AfxGetApp())->m_IBOrder.whatIf = false;
-				if(((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice < 1.0){
-					sprintf(buffer,_T("A50买价小于1.0,异常\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
-					return -1;
-				}
-				if(((CHiStarApp*)AfxGetApp())->m_pIBClient){
-					((CHiStarApp*)AfxGetApp())->m_pIBClient->placeOrder(++((CHiStarApp*)AfxGetApp())->m_id,((CHiStarApp*)AfxGetApp())->m_A50Contract,((CHiStarApp*)AfxGetApp())->m_IBOrder);
-					a50task.id = ((CHiStarApp*)AfxGetApp())->m_id;a50task.volumeRecord = -(NeedBuyA50 - NeedSellA50);a50task.direction = 's';a50task.priceRecord = g_a50Bid1;
-					hedgetask.a50alltask.push_back(a50task);
-				}
-			}
-		}
-	}
 	//开始后处理
 	if(m_pHedgePostProcessing){
 		while(m_pHedgePostProcessing->PostThreadMessage(WM_BEGIN_POST_PROCESSING,NULL,pHD->id) == 0){
@@ -716,22 +761,22 @@ void CHedgePostProcessing::PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 	double t_totalValueIf = 0.0;int t_totalTradedIf = 0;double t_avgPriceIf = 0.0;
 	for(unsigned int i = 0;i < hedgetask.ifalltask.size();i++){
 		if(hedgetask.ifalltask[i].direction == THOST_FTDC_D_Buy && hedgetask.ifalltask[i].offset[0] == THOST_FTDC_OF_Open){
-			longIf = longIf + hedgetask.ifalltask[i].traded;
+			//longIf = longIf + hedgetask.ifalltask[i].traded;
 			t_totalTradedIf = t_totalTradedIf + hedgetask.ifalltask[i].traded;
 			t_totalValueIf = t_totalValueIf + hedgetask.ifalltask[i].receivedValue;
 		}
 		else if(hedgetask.ifalltask[i].direction == THOST_FTDC_D_Buy && hedgetask.ifalltask[i].offset[0] == THOST_FTDC_OF_Close){
-			shortIf = shortIf - hedgetask.ifalltask[i].traded;
+			//shortIf = shortIf - hedgetask.ifalltask[i].traded;
 			t_totalTradedIf = t_totalTradedIf + hedgetask.ifalltask[i].traded;
 			t_totalValueIf = t_totalValueIf + hedgetask.ifalltask[i].receivedValue;
 		}
 		else if(hedgetask.ifalltask[i].direction == THOST_FTDC_D_Sell && hedgetask.ifalltask[i].offset[0] == THOST_FTDC_OF_Open){
-			shortIf = shortIf + hedgetask.ifalltask[i].traded;
+			//shortIf = shortIf + hedgetask.ifalltask[i].traded;
 			t_totalTradedIf = t_totalTradedIf - hedgetask.ifalltask[i].traded;
 			t_totalValueIf = t_totalValueIf - hedgetask.ifalltask[i].receivedValue;
 		}
 		else{
-			longIf = longIf - hedgetask.ifalltask[i].traded;
+			//longIf = longIf - hedgetask.ifalltask[i].traded;
 			t_totalTradedIf = t_totalTradedIf - hedgetask.ifalltask[i].traded;
 			t_totalValueIf = t_totalValueIf - hedgetask.ifalltask[i].receivedValue;
 		}
@@ -742,12 +787,12 @@ void CHedgePostProcessing::PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 	double t_totalValueA50 = 0.0;int t_totalTradedA50 = 0;double t_avgPriceA50 = 0.0;
 	for(unsigned int i = 0;i < hedgetask.a50alltask.size();i++){
 		if( hedgetask.a50alltask[i].direction == 'l'){
-			netPositionA50 = netPositionA50 + hedgetask.a50alltask[i].traded;
+			//netPositionA50 = netPositionA50 + hedgetask.a50alltask[i].traded;
 			t_totalTradedA50 = t_totalTradedA50 + hedgetask.a50alltask[i].traded;
 			t_totalValueA50 = t_totalValueA50 + hedgetask.a50alltask[i].traded * hedgetask.a50alltask[i].avgPrice;
 		}
 		else{
-			netPositionA50 = netPositionA50 - hedgetask.a50alltask[i].traded;
+			//netPositionA50 = netPositionA50 - hedgetask.a50alltask[i].traded;
 			t_totalTradedA50 = t_totalTradedA50 - hedgetask.a50alltask[i].traded;
 			t_totalValueA50 = t_totalValueA50 - hedgetask.a50alltask[i].traded * hedgetask.a50alltask[i].avgPrice;
 		}
@@ -772,14 +817,23 @@ void CHedgePostProcessing::PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 		}
 	}
 	if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
-		while(PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_REQACCOUNTUPDATES,NULL,NULL) == 0){
+		while(PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_REQACCOUNTUPDATES,NULL,0) == 0){
 			Sleep(100);
 		}
-	}
-	while((bRet = GetMessage(&msg,NULL,WM_REQACCOUNTUPDATES_NOTIFY,WM_REQACCOUNTUPDATES_NOTIFY)) != 0){
-		if (!bRet){
+		TRACE("REQACCOUNTUPDATES 1\n");
+		while(PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_REQACCOUNTUPDATES,NULL,1) == 0){
+			Sleep(100);
 		}
-		else{
+		while((bRet = GetMessage(&msg,NULL,WM_REQACCOUNTUPDATES_NOTIFY,WM_REQACCOUNTUPDATES_NOTIFY)) != 0){
+			TRACE("GetAccountDownloadEnd\n");
+			if (!bRet){
+			}
+			else{
+				while(PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_REQACCOUNTUPDATES,NULL,0) == 0){
+					Sleep(100);
+				}
+				break;
+			}
 		}
 	}
 	static int idSynchronize = 0;
@@ -797,7 +851,7 @@ void CHedgePostProcessing::PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 			}
 		}
 	}
-	Sleep(1000);
+	//Sleep(1000);
 	hedgeTaskStatus = NEW_HEDGE;
 }
 

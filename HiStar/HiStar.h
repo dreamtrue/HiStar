@@ -141,7 +141,7 @@ public:
 	void OnConnectIB(WPARAM wParam,LPARAM lParam);
 	void OnDisconnectIB(WPARAM wParam,LPARAM lParam);
 	void OnConnectSql(WPARAM wParam,LPARAM lParam);
-	void OnIni(WPARAM wParam,LPARAM lParam);
+	void OnInitialize(WPARAM wParam,LPARAM lParam);
 	void OnReqAccountUpdates(WPARAM wParam,LPARAM lParam);
 	Contract m_A50Contract;
 	WORD m_LifeA50;

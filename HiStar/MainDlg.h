@@ -50,7 +50,7 @@ public:
 	afx_msg LRESULT OnReqMshq(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT OnHedgeLooping(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT OnConnectSql(WPARAM wParam, LPARAM lParam);
-	afx_msg LRESULT OnIni(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT OnInitialize(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT LoginCtpTD(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT LoginCtpMD(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT OnSynchronizeMarket(WPARAM wParam, LPARAM lParam);

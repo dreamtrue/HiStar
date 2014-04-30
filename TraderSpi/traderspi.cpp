@@ -452,6 +452,7 @@ void CtpTraderSpi::OnRspQryInvestorPosition(
 		if(!founded){
 			m_InvPosVec.push_back(InvPos);
 		}
+		/*
 		//³õÊ¼»¯IF³Ö²Ö
 		CHiStarApp* pApp = (CHiStarApp*)AfxGetApp();
 		char szInst[MAX_PATH];
@@ -466,6 +467,7 @@ void CtpTraderSpi::OnRspQryInvestorPosition(
 				TRACE("IF¶Ì²Ö%d\r\n",pInvestorPosition->Position);
 			}
 		}
+		*/
 	}
 	if(bIsLast){ 
 		if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
@@ -1190,10 +1192,20 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 					m_InvPosDetailVec[i].CloseVolume = m_InvPosDetailVec[i].CloseVolume + closeNum;
 					m_InvPosDetailVec[i].Volume = m_InvPosDetailVec[i].Volume - closeNum;
 					if(m_InvPosDetailVec[i].Direction == THOST_FTDC_D_Buy){
-						TradingAccount.CloseProfit = TradingAccount.CloseProfit + (trade.Price - m_InvPosDetailVec[i].OpenPrice) * closeNum * VolumeMultiple;
+						if(strcmp(m_InvPosDetailVec[i].OpenDate,pApp->m_accountCtp.m_todayDate) >= 0 || m_InvPosDetailVec[i].LastSettlementPrice < 0.00000001){
+							TradingAccount.CloseProfit = TradingAccount.CloseProfit + (trade.Price - m_InvPosDetailVec[i].OpenPrice) * closeNum * VolumeMultiple;
+						}
+						else{
+							TradingAccount.CloseProfit = TradingAccount.CloseProfit + (trade.Price - m_InvPosDetailVec[i].LastSettlementPrice) * closeNum * VolumeMultiple;
+						}
 					}
 					else{
-						TradingAccount.CloseProfit = TradingAccount.CloseProfit - (trade.Price - m_InvPosDetailVec[i].OpenPrice) * closeNum * VolumeMultiple;
+						if(strcmp(m_InvPosDetailVec[i].OpenDate,pApp->m_accountCtp.m_todayDate ) >= 0 || m_InvPosDetailVec[i].LastSettlementPrice < 0.00000001){
+							TradingAccount.CloseProfit = TradingAccount.CloseProfit - (trade.Price - m_InvPosDetailVec[i].OpenPrice) * closeNum * VolumeMultiple;
+						}
+						else{
+							TradingAccount.CloseProfit = TradingAccount.CloseProfit - (trade.Price - m_InvPosDetailVec[i].LastSettlementPrice) * closeNum * VolumeMultiple;
+						}
 					}
 					if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
 						while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
@@ -1209,10 +1221,20 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 				}
 				else if(m_InvPosDetailVec[i].Volume == closeNum){
 					if(m_InvPosDetailVec[i].Direction == THOST_FTDC_D_Buy){
-						TradingAccount.CloseProfit = TradingAccount.CloseProfit + (trade.Price - m_InvPosDetailVec[i].OpenPrice) * closeNum * VolumeMultiple;
+						if(strcmp(m_InvPosDetailVec[i].OpenDate,pApp->m_accountCtp.m_todayDate) >= 0 || m_InvPosDetailVec[i].LastSettlementPrice < 0.00000001){
+							TradingAccount.CloseProfit = TradingAccount.CloseProfit + (trade.Price - m_InvPosDetailVec[i].OpenPrice) * closeNum * VolumeMultiple;
+						}
+						else{
+							TradingAccount.CloseProfit = TradingAccount.CloseProfit + (trade.Price - m_InvPosDetailVec[i].LastSettlementPrice) * closeNum * VolumeMultiple;
+						}
 					}
 					else{
-						TradingAccount.CloseProfit = TradingAccount.CloseProfit - (trade.Price - m_InvPosDetailVec[i].OpenPrice) * closeNum * VolumeMultiple;
+						if(strcmp(m_InvPosDetailVec[i].OpenDate,pApp->m_accountCtp.m_todayDate) >= 0 || m_InvPosDetailVec[i].LastSettlementPrice < 0.00000001){
+							TradingAccount.CloseProfit = TradingAccount.CloseProfit - (trade.Price - m_InvPosDetailVec[i].OpenPrice) * closeNum * VolumeMultiple;
+						}
+						else{
+							TradingAccount.CloseProfit = TradingAccount.CloseProfit - (trade.Price - m_InvPosDetailVec[i].LastSettlementPrice) * closeNum * VolumeMultiple;
+						}
 					}
 					std::vector<CThostFtdcInvestorPositionDetailField>::iterator it = m_InvPosDetailVec.begin() + i;
 					m_InvPosDetailVec.erase(it);
@@ -1232,10 +1254,20 @@ void CtpTraderSpi::OnRtnTrade(CThostFtdcTradeField *pTrade){
 				else{
 					closeNum = closeNum - m_InvPosDetailVec[i].Volume;
 					if(m_InvPosDetailVec[i].Direction == THOST_FTDC_D_Buy){
-						TradingAccount.CloseProfit = TradingAccount.CloseProfit + (trade.Price - m_InvPosDetailVec[i].OpenPrice) * m_InvPosDetailVec[i].Volume * VolumeMultiple;
+						if(strcmp(m_InvPosDetailVec[i].OpenDate,pApp->m_accountCtp.m_todayDate) >= 0 || m_InvPosDetailVec[i].LastSettlementPrice < 0.00000001){
+							TradingAccount.CloseProfit = TradingAccount.CloseProfit + (trade.Price - m_InvPosDetailVec[i].OpenPrice) * m_InvPosDetailVec[i].Volume * VolumeMultiple;
+						}
+						else{
+							TradingAccount.CloseProfit = TradingAccount.CloseProfit + (trade.Price - m_InvPosDetailVec[i].LastSettlementPrice) * m_InvPosDetailVec[i].Volume * VolumeMultiple;
+						}
 					}
 					else{
-						TradingAccount.CloseProfit = TradingAccount.CloseProfit - (trade.Price - m_InvPosDetailVec[i].OpenPrice) * m_InvPosDetailVec[i].Volume * VolumeMultiple;
+						if(strcmp(m_InvPosDetailVec[i].OpenDate,pApp->m_accountCtp.m_todayDate) >= 0 || m_InvPosDetailVec[i].LastSettlementPrice < 0.00000001){
+							TradingAccount.CloseProfit = TradingAccount.CloseProfit - (trade.Price - m_InvPosDetailVec[i].OpenPrice) * m_InvPosDetailVec[i].Volume * VolumeMultiple;
+						}
+						else{
+							TradingAccount.CloseProfit = TradingAccount.CloseProfit - (trade.Price - m_InvPosDetailVec[i].LastSettlementPrice) * m_InvPosDetailVec[i].Volume * VolumeMultiple;
+						}
 					}
 					std::vector<CThostFtdcInvestorPositionDetailField>::iterator it = m_InvPosDetailVec.begin() + i;
 					m_InvPosDetailVec.erase(it);

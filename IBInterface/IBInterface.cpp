@@ -86,8 +86,8 @@ CString getField( TickType tickType) {
 //IB交易系统
 void CHiStarApp::tickPrice( TickerId tickerId, TickType field, double price, int canAutoExecute){
 	//TRACE("tickPrice\n");
-	if(strcmp((const char*)getField(field),"bidPrice") == 0){
-		if(price != g_a50Bid1){
+	if(price > 0.00000001){
+		if(strcmp((const char*)getField(field),"bidPrice") == 0){
 			g_a50Bid1 = price;
 			if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
 				while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_MD_REFRESH,NULL,NULL) == 0){
@@ -95,9 +95,7 @@ void CHiStarApp::tickPrice( TickerId tickerId, TickType field, double price, int
 				}
 			}
 		}
-	}
-	else if(strcmp((const char*)getField(field),"askPrice") == 0){
-		if(price != g_a50Ask1){
+		else if(strcmp((const char*)getField(field),"askPrice") == 0){
 			g_a50Ask1 = price;
 			if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
 				while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_MD_REFRESH,NULL,NULL) == 0){
@@ -105,15 +103,12 @@ void CHiStarApp::tickPrice( TickerId tickerId, TickType field, double price, int
 				}
 			}
 		}
-	}
-	else if(strcmp((const char*)getField(field),"lastPrice") == 0){
-		if(price != g_a50last){
+		else if(strcmp((const char*)getField(field),"lastPrice") == 0){
 			g_a50last = price;
 			bool found = false;int index = -1;
 			for(unsigned int i = 0;i < m_portfolio.size();i++){
 				//暂时这样对比，日后还有期权，因为存在行权价，可能contract比较方法有异
 				if( m_A50Contract.symbol == m_portfolio[i].contract.symbol
-					&& m_A50Contract.exchange == m_portfolio[i].contract.exchange
 					&& m_A50Contract.currency == m_portfolio[i].contract.currency
 					&& m_A50Contract.expiry.Left(6) == m_portfolio[i].contract.expiry.Left(6)
 					&& m_A50Contract.secType == m_portfolio[i].contract.secType){
@@ -180,9 +175,9 @@ void CHiStarApp::orderStatus( OrderId orderId, const IBString &status, int fille
 }
 
 void CHiStarApp::openOrder(OrderId orderId, const Contract& contract, const Order& order, const OrderState& orderstate){
+	TRACE("openOrder\n");
 	if(!iInitMarginOIfAddOneA50){
 		if(m_A50Contract.symbol == contract.symbol
-			&& m_A50Contract.exchange == contract.exchange
 			&& m_A50Contract.currency == contract.currency
 			&& m_A50Contract.expiry.Left(6) == contract.expiry.Left(6)
 			&& m_A50Contract.secType == contract.secType){
@@ -211,7 +206,7 @@ void CHiStarApp::updateAccountValue(const IBString& key, const IBString& val,
 		//TRACE("%s,%s\n",key,val);
 		if(!iAccountDownloadEnd){
 			if(key == "AvailableFunds" && currency == "USD"){
-				AvailIB = atof(val);
+				//AvailIB = atof(val);
 				m_accountvalue.AvailableFundsO = atof(val);
 				m_accountvalue.AvailableFunds = atof(val);
 			}
@@ -258,12 +253,13 @@ void CHiStarApp::updateAccountTime(const IBString& timeStamp){
 }
 
 void CHiStarApp::accountDownloadEnd(const IBString& accountName){
-	//TRACE("accountDownloadEnd\n");
+	TRACE("accountDownloadEnd\n");
 	CString cStatus;
 	cStatus.Format("Account Download End: %s",accountName);
 	PostOrderStatus(cStatus);
 	iAccountDownloadEnd = true;
 	if(m_pHedgePostProcessing){
+		TRACE("PostAccountDownloadEnd\n");
 		while(m_pHedgePostProcessing->PostThreadMessage(WM_REQACCOUNTUPDATES_NOTIFY,NULL,NULL) == 0){
 			Sleep(100);
 		}
@@ -416,7 +412,7 @@ void CHiStarApp::commissionReport( const CommissionReport &commissionReport){
 
 void CHiStarApp::position( const IBString& account, const Contract& contract, int position, double avgCost){
 	if(m_A50Contract.symbol == contract.symbol && m_A50Contract.expiry.Left(6) == contract.expiry.Left(6)){
-		netPositionA50 = position;
+		//netPositionA50 = position;
 		TRACE("A50持仓%d\r\n",position);
 	}
 }
