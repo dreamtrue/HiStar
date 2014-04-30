@@ -18,6 +18,7 @@ DWORD MainThreadId = 0;
 DWORD IndexThreadId = 0;
 bool iAccountDownloadEnd = false;
 bool iInitMarginOIfAddOneA50 = false;
+int idReqA50Margin = -1;
 CString getField( TickType tickType) {
 	switch( tickType)
 	{
@@ -176,7 +177,7 @@ void CHiStarApp::orderStatus( OrderId orderId, const IBString &status, int fille
 
 void CHiStarApp::openOrder(OrderId orderId, const Contract& contract, const Order& order, const OrderState& orderstate){
 	TRACE("openOrder\n");
-	if(!iInitMarginOIfAddOneA50){
+	if(!iInitMarginOIfAddOneA50 && idReqA50Margin == orderId){
 		if(m_A50Contract.symbol == contract.symbol
 			&& m_A50Contract.currency == contract.currency
 			&& m_A50Contract.expiry.Left(6) == contract.expiry.Left(6)
@@ -194,11 +195,14 @@ void CHiStarApp::openOrderEnd(){
 void CHiStarApp::winError( const IBString &str, int lastError){
 	TRACE("winError\n");
 }
+
 void CHiStarApp::connectionClosed(){
 	TRACE("connectionClosed\n");
 	CString cStatus;
 	cStatus.Format("ConnectionClosed");
 	PostOrderStatus(cStatus);
+	iAccountDownloadEnd = false;
+	iInitMarginOIfAddOneA50 = false;
 }
 
 void CHiStarApp::updateAccountValue(const IBString& key, const IBString& val,
@@ -274,6 +278,7 @@ void CHiStarApp::nextValidId( OrderId orderId){
 	m_IBOrder.lmtPrice = 8000;
 	m_IBOrder.whatIf = true;
 	m_pIBClient->placeOrder(++m_id,m_A50Contract,m_IBOrder);
+	idReqA50Margin = m_id;
 	TRACE("nextValidId\n");
 }
 
