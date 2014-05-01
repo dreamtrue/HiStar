@@ -195,62 +195,6 @@ BOOL CHiStarApp::InitInstance()
 
 CHiStarApp::~CHiStarApp(void)
 {
-	if(conn){
-		mysql_close(conn);
-		conn = NULL;
-	}
-	if(m_pIBClient){
-		delete m_pIBClient;
-		m_pIBClient = NULL;
-	}
-	if(m_TApi){
-		m_TApi->RegisterSpi(NULL);
-	}
-	if(m_TApi){
-		m_TApi->Release();
-	}
-	if(m_TApi){
-		m_TApi = NULL;
-	}
-	if(m_cT){
-		delete m_cT;
-		m_cT = NULL;
-	}
-	if(m_MApi){
-		m_MApi->RegisterSpi(NULL);
-	}
-	if(m_MApi){
-		m_MApi->Release();
-	}
-	if(m_MApi){
-		m_MApi = NULL;
-	}
-	if(m_cQ){
-		delete m_cQ;
-		m_cQ = NULL;
-	}
-	if(m_pHedgePostProcessing){
-		while(::PostThreadMessage(m_pHedgePostProcessing->m_nThreadID, WM_QUIT,0,0) == 0){
-			Sleep(100);
-		}
-		WaitForSingleObject(m_pHedgePostProcessing->m_hThread, INFINITE); 
-		m_pHedgePostProcessing = NULL;
-	}
-	if(m_pIndexThread){
-		while(::PostThreadMessage(m_pIndexThread->m_nThreadID, WM_QUIT,0,0) == 0){
-			Sleep(100);
-		}
-		WaitForSingleObject(m_pIndexThread->m_hThread, INFINITE);
-		m_pIndexThread = NULL;
-	}
-	//MSHQ 从通达信获取的实时行情
-	if(m_pMSHQ){
-		while(::PostThreadMessage(m_pMSHQ->m_nThreadID, WM_QUIT,0,0) == 0){
-			Sleep(100);
-		}
-		WaitForSingleObject(m_pMSHQ->m_hThread, INFINITE); 
-		m_pMSHQ = NULL;
-	}
 }
 
 void CHiStarApp::PostOrderStatus(CString str)
@@ -619,4 +563,66 @@ BOOL CHiStarApp::OnIdle(LONG lCount)
 	//因为是模态对话框，这个地方调用不到
 	TRACE("i,%ld\n",lCount);
 	return __super::OnIdle(lCount);
+}
+
+
+int CHiStarApp::ExitInstance()
+{
+	if(conn){
+		mysql_close(conn);
+		conn = NULL;
+	}
+	if(m_pIBClient){
+		delete m_pIBClient;
+		m_pIBClient = NULL;
+	}
+	if(m_TApi){
+		m_TApi->RegisterSpi(NULL);
+	}
+	if(m_TApi){
+		m_TApi->Release();
+	}
+	if(m_TApi){
+		m_TApi = NULL;
+	}
+	if(m_cT){
+		delete m_cT;
+		m_cT = NULL;
+	}
+	if(m_MApi){
+		m_MApi->RegisterSpi(NULL);
+	}
+	if(m_MApi){
+		m_MApi->Release();
+	}
+	if(m_MApi){
+		m_MApi = NULL;
+	}
+	if(m_cQ){
+		delete m_cQ;
+		m_cQ = NULL;
+	}
+	if(m_pHedgePostProcessing){
+		while(m_pHedgePostProcessing->PostThreadMessage(WM_QUIT,NULL,NULL) == 0){
+			Sleep(100);
+		}
+		WaitForSingleObject(m_pHedgePostProcessing->m_hThread,INFINITE); 
+		m_pHedgePostProcessing = NULL;
+	}
+	if(m_pIndexThread){
+		while(::PostThreadMessage(m_pIndexThread->m_nThreadID,WM_QUIT,0,0) == 0){
+			Sleep(100);
+		}
+		WaitForSingleObject(m_pIndexThread->m_hThread,INFINITE);
+		m_pIndexThread = NULL;
+	}
+	//MSHQ 从通达信获取的实时行情
+	if(m_pMSHQ){
+		while(::PostThreadMessage(m_pMSHQ->m_nThreadID,WM_QUIT,0,0) == 0){
+			Sleep(100);
+		}
+		WaitForSingleObject(m_pMSHQ->m_hThread, INFINITE); 
+		m_pMSHQ = NULL;
+	}
+	return __super::ExitInstance();
 }

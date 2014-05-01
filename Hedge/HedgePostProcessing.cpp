@@ -90,19 +90,6 @@ CHedgePostProcessing::~CHedgePostProcessing()
 
 BOOL CHedgePostProcessing::InitInstance()
 {
-	/*
-	MSG msg;BOOL bRet;long idHedgeCurrent = -1;
-	while((bRet = GetMessage(&msg,NULL,WM_BEGIN_POST_PROCESSING,WM_BEGIN_POST_PROCESSING)) != 0){
-		TRACE("收到WM_BEGIN_POST_PROCESSING\n");
-		if (!bRet){// handle the error and possibly exit
-			TRACE("收到WM_BEGIN_POST_PROCESSING error\n");
-		}
-		else{
-			idHedgeCurrent = msg.lParam;
-			PostProcessing(NULL,idHedgeCurrent);//后处理
-		}
-	}
-	*/
 	return TRUE;
 }
 
@@ -113,7 +100,8 @@ int CHedgePostProcessing::ExitInstance()
 }
 
 BEGIN_MESSAGE_MAP(CHedgePostProcessing, CWinThread)
-	ON_THREAD_MESSAGE(WM_PREPARE_POST_PROCESSING,PostProcessing)
+	//ON_THREAD_MESSAGE(WM_PREPARE_POST_PROCESSING,PostProcessing)
+	ON_THREAD_MESSAGE(WM_PREPARE_POST_PROCESSING,Run_PostProcessing)
 END_MESSAGE_MAP()
 
 void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
@@ -852,6 +840,248 @@ void CHedgePostProcessing::PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 		}
 	}
 	//Sleep(1000);
+	hedgeTaskStatus = NEW_HEDGE;
+}
+
+void CHedgePostProcessing::Run_PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
+	HWND hEdit = ::GetDlgItem(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->m_basicPage.m_hWnd,IDC_RICHEDIT_STATUS);
+	long idHedgeCurrent = -1;
+	ASSERT_VALID(this); 
+	MSG m_msgCur;
+	while(true){
+		if(::PeekMessage(&m_msgCur,NULL,WM_QUIT,WM_QUIT,PM_NOREMOVE)){
+			while(::PeekMessage(&m_msgCur,NULL,NULL,NULL,PM_REMOVE)){};
+			while(::PostThreadMessage(::GetCurrentThreadId(),WM_QUIT,0,0) == 0){
+				Sleep(100);
+			}
+			return;
+		}
+		else if(::PeekMessage(&m_msgCur,NULL,WM_BEGIN_POST_PROCESSING,WM_BEGIN_POST_PROCESSING,PM_REMOVE)){
+			idHedgeCurrent = m_msgCur.lParam;
+			break;//已经开始，往下正式进行处理。
+		}
+	}
+	while(true){
+		if(::PeekMessage(&m_msgCur,NULL,WM_QUIT,WM_QUIT,PM_NOREMOVE)){
+			while(::PeekMessage(&m_msgCur,NULL,NULL,NULL,PM_REMOVE)){};
+			while(::PostThreadMessage(::GetCurrentThreadId(),WM_QUIT,0,0) == 0){
+				Sleep(100);
+			}
+			return;
+		}
+		else if(::PeekMessage(&m_msgCur,NULL,WM_RTN_INSERT,WM_RTN_ORDER,PM_REMOVE)){
+			switch(m_msgCur.message)
+			{
+			case WM_RTN_INSERT:
+				{//存在瑕疵，最好用requestid来区分
+					sprintf(buffer,"收到WM_RTN_INSERT\r\n");hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
+					CThostFtdcInputOrderField *pOrderInsert = (CThostFtdcInputOrderField *)m_msgCur.lParam;
+					for(unsigned int i = 0;i < hedgetask.ifalltask.size();i++){
+						if(hedgetask.ifalltask[i].ref == atoi(pOrderInsert->OrderRef)){
+							hedgetask.ifalltask[i].bReceivedInsertRtn = true;
+						}
+					}
+					delete (CThostFtdcInputOrderField*)m_msgCur.lParam;
+					break;
+				}
+			case WM_RTN_ORDER:
+				{
+					sprintf(buffer,"收到WM_RTN_ORDER\r\n");hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
+					CThostFtdcOrderField *pOrderRtn = (CThostFtdcOrderField *)m_msgCur.lParam;
+					for(unsigned int i = 0;i < hedgetask.ifalltask.size();i++){
+						if(hedgetask.ifalltask[i].ref == atoi(pOrderRtn->OrderRef)
+							&&hedgetask.ifalltask[i].frontid == pOrderRtn->FrontID
+							&&hedgetask.ifalltask[i].sessionid == pOrderRtn->SessionID){
+								if(pOrderRtn->OrderStatus == THOST_FTDC_OST_AllTraded || pOrderRtn->OrderStatus == THOST_FTDC_OST_Canceled 
+									|| pOrderRtn->OrderStatus == THOST_FTDC_OST_NoTradeNotQueueing || pOrderRtn->OrderStatus == THOST_FTDC_OST_PartTradedNotQueueing){
+										hedgetask.ifalltask[i].traded = pOrderRtn->VolumeTraded;
+										hedgetask.ifalltask[i].sysid = atoi(pOrderRtn->OrderSysID);
+										strcpy(hedgetask.ifalltask[i].ExchangeID,pOrderRtn->ExchangeID);
+										hedgetask.ifalltask[i].bReceivedAllOrder = true;
+										sprintf(buffer,"Order,ref%d,最终状态%c\r\n",atoi(pOrderRtn->OrderRef),pOrderRtn->OrderStatus);hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
+								}			
+						}
+					}
+					delete (CThostFtdcOrderField*)m_msgCur.lParam;
+					break;
+				}
+			}
+			bool bBreakGetMsg = true;
+			for(unsigned int i = 0;i < hedgetask.ifalltask.size();i++){
+				if(!(hedgetask.ifalltask[i].bReceivedAllOrder || hedgetask.ifalltask[i].bReceivedInsertRtn)){
+					bBreakGetMsg = false;break;
+				}
+			}
+			if(bBreakGetMsg) break;
+		}
+	}
+	//检查是否有成交量,可能都被取消而没有成交量
+	bool bVolumeTraded = false;
+	for(unsigned int i = 0;i < hedgetask.ifalltask.size();i++){
+		if(hedgetask.ifalltask[i].traded > 0){
+			bVolumeTraded = true;break;
+		}
+	}
+	if(bVolumeTraded){
+		while(true){
+			if(::PeekMessage(&m_msgCur,NULL,WM_QUIT,WM_QUIT,PM_NOREMOVE)){
+				while(::PeekMessage(&m_msgCur,NULL,NULL,NULL,PM_REMOVE)){};
+				while(::PostThreadMessage(::GetCurrentThreadId(),WM_QUIT,0,0) == 0){
+					Sleep(100);
+				}
+				return;
+			}
+			else if(::PeekMessage(&m_msgCur,NULL,WM_RTN_TRADE,WM_RTN_TRADE,PM_REMOVE)){
+				sprintf(buffer,"收到WM_RTN_TRADE\r\n");hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW
+					CThostFtdcTradeField *pTradeRtn = (CThostFtdcTradeField *)m_msgCur.lParam;
+				for(unsigned int i = 0;i < hedgetask.ifalltask.size();i++){
+					if(hedgetask.ifalltask[i].sysid == atoi(pTradeRtn->OrderSysID) && strcmp(hedgetask.ifalltask[i].ExchangeID,pTradeRtn->ExchangeID) == 0){
+						hedgetask.ifalltask[i].receivedTradedVolume = hedgetask.ifalltask[i].receivedTradedVolume + pTradeRtn->Volume;
+						hedgetask.ifalltask[i].receivedValue = hedgetask.ifalltask[i].receivedValue + pTradeRtn->Price * pTradeRtn->Volume;	
+					}
+				}
+				delete (CThostFtdcTradeField*)m_msgCur.lParam;
+				bool bBreakGetMsg = true;
+				for(unsigned int i = 0;i < hedgetask.ifalltask.size();i++){
+					if(hedgetask.ifalltask[i].receivedTradedVolume != hedgetask.ifalltask[i].traded){
+						bBreakGetMsg = false;break;
+					}
+				}
+				if(bBreakGetMsg) break;
+			}
+		}
+		//计算平均价格
+		for(unsigned int i = 0;i < hedgetask.ifalltask.size();i++){
+			hedgetask.ifalltask[i].avgPrice = hedgetask.ifalltask[i].receivedValue / hedgetask.ifalltask[i].receivedTradedVolume;
+		}
+	}
+	while(true){
+		if(::PeekMessage(&m_msgCur,NULL,WM_QUIT,WM_QUIT,PM_NOREMOVE)){
+			while(::PeekMessage(&m_msgCur,NULL,NULL,NULL,PM_REMOVE)){};
+			while(::PostThreadMessage(::GetCurrentThreadId(),WM_QUIT,0,0) == 0){
+				Sleep(100);
+			}
+			return;
+		}
+		else if(::PeekMessage(&m_msgCur,NULL,WM_RTN_ORDER_IB,WM_RTN_ORDER_IB,PM_REMOVE)){
+			sprintf(buffer,"收到WM_RTN_ORDER_IB\r\n");hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
+			OrderStatus *pStatus = (OrderStatus *)m_msgCur.lParam; 
+			for(unsigned int i = 0;i < hedgetask.a50alltask.size();i++){
+				if(hedgetask.a50alltask[i].id == pStatus->orderId){
+					if(pStatus->status == CString("Cancelled") || pStatus->status == CString("ApiCancelled") || hedgetask.a50alltask[i].volumeRecord == pStatus->filled){
+						hedgetask.a50alltask[i].traded = pStatus->filled;
+						hedgetask.a50alltask[i].avgPrice = pStatus->avgFillPrice;
+						hedgetask.a50alltask[i].bReceivedAllStatus = true;
+					}
+				}
+			}
+			delete (OrderStatus*)m_msgCur.lParam;
+			bool bBreakGetMsg = true;
+			for(unsigned int i = 0;i < hedgetask.a50alltask.size();i++){
+				if(!hedgetask.a50alltask[i].bReceivedAllStatus){
+					bBreakGetMsg = false;
+				}
+			}
+			if(bBreakGetMsg) break;
+		}
+	}
+	//具体持仓统计
+	double t_totalValueIf = 0.0;int t_totalTradedIf = 0;double t_avgPriceIf = 0.0;
+	for(unsigned int i = 0;i < hedgetask.ifalltask.size();i++){
+		if(hedgetask.ifalltask[i].direction == THOST_FTDC_D_Buy && hedgetask.ifalltask[i].offset[0] == THOST_FTDC_OF_Open){
+			t_totalTradedIf = t_totalTradedIf + hedgetask.ifalltask[i].traded;
+			t_totalValueIf = t_totalValueIf + hedgetask.ifalltask[i].receivedValue;
+		}
+		else if(hedgetask.ifalltask[i].direction == THOST_FTDC_D_Buy && hedgetask.ifalltask[i].offset[0] == THOST_FTDC_OF_Close){
+			t_totalTradedIf = t_totalTradedIf + hedgetask.ifalltask[i].traded;
+			t_totalValueIf = t_totalValueIf + hedgetask.ifalltask[i].receivedValue;
+		}
+		else if(hedgetask.ifalltask[i].direction == THOST_FTDC_D_Sell && hedgetask.ifalltask[i].offset[0] == THOST_FTDC_OF_Open){
+			t_totalTradedIf = t_totalTradedIf - hedgetask.ifalltask[i].traded;
+			t_totalValueIf = t_totalValueIf - hedgetask.ifalltask[i].receivedValue;
+		}
+		else{
+			t_totalTradedIf = t_totalTradedIf - hedgetask.ifalltask[i].traded;
+			t_totalValueIf = t_totalValueIf - hedgetask.ifalltask[i].receivedValue;
+		}
+	}
+	if(t_totalTradedIf != 0){
+		t_avgPriceIf = fabs(t_totalValueIf / t_totalTradedIf);
+	}
+	double t_totalValueA50 = 0.0;int t_totalTradedA50 = 0;double t_avgPriceA50 = 0.0;
+	for(unsigned int i = 0;i < hedgetask.a50alltask.size();i++){
+		if( hedgetask.a50alltask[i].direction == 'l'){
+			t_totalTradedA50 = t_totalTradedA50 + hedgetask.a50alltask[i].traded;
+			t_totalValueA50 = t_totalValueA50 + hedgetask.a50alltask[i].traded * hedgetask.a50alltask[i].avgPrice;
+		}
+		else{
+			t_totalTradedA50 = t_totalTradedA50 - hedgetask.a50alltask[i].traded;
+			t_totalValueA50 = t_totalValueA50 - hedgetask.a50alltask[i].traded * hedgetask.a50alltask[i].avgPrice;
+		}
+	}
+	if(t_totalTradedA50 != 0){
+		t_avgPriceA50 = fabs(t_totalValueA50 / t_totalTradedA50);
+	}
+	for(unsigned int i = 0;i < HedgeHoldTemp.size();i++){
+		if(HedgeHoldTemp[i].id == idHedgeCurrent){
+			if(fabs(t_avgPriceA50 - t_avgPriceIf * A50Index / HS300Index - HedgeHoldTemp[i].originalCost) < 10.0 && _isnan((t_avgPriceA50 - t_avgPriceIf * A50Index / HS300Index)) == 0){
+				HedgeHoldTemp[i].originalCost = t_avgPriceA50 - t_avgPriceIf * A50Index / HS300Index;
+			}
+		}
+	}
+	SelectIndex();
+	sprintf(buffer,_T("HEDGE INFORMATION:%.02lf,A50:%.02lf,IF:%.02lf,A50INDEX:%.02lf,HS300INDEX:%.02lf\r\n"),t_avgPriceA50 - t_avgPriceIf * A50Index / HS300Index,t_avgPriceA50,t_avgPriceIf,A50Index,HS300Index);hedgeStatusPrint = hedgeStatusPrint + buffer;SendMsg(buffer);
+	HedgeHold = HedgeHoldTemp;//更新Hold持仓
+	sprintf(buffer,_T("对冲结束\r\n=================================================\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
+	if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+		while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_UPDATE_HEDGEHOLD,NULL,NULL) == 0){
+			Sleep(100);
+		}
+	}
+	if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+		while(PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_REQACCOUNTUPDATES,NULL,0) == 0){
+			Sleep(100);
+		}
+		TRACE("REQACCOUNTUPDATES 1\n");
+		while(PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_REQACCOUNTUPDATES,NULL,1) == 0){
+			Sleep(100);
+		}
+		while(true){
+			if(::PeekMessage(&m_msgCur,NULL,WM_QUIT,WM_QUIT,PM_NOREMOVE)){
+				while(::PeekMessage(&m_msgCur,NULL,NULL,NULL,PM_REMOVE)){};
+				while(::PostThreadMessage(::GetCurrentThreadId(),WM_QUIT,0,0) == 0){
+					Sleep(100);
+				}
+				return;
+			}
+			else if(::PeekMessage(&m_msgCur,NULL,WM_REQACCOUNTUPDATES_NOTIFY,WM_REQACCOUNTUPDATES_NOTIFY,PM_REMOVE)){
+				while(PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_REQACCOUNTUPDATES,NULL,0) == 0){
+					Sleep(100);
+				}
+				break;
+			}
+		}
+	}
+	static int idSynchronize = 0;
+	if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+		while(PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_SYNCHRONIZE_MARKET,NULL,++idSynchronize) == 0){
+			Sleep(100);
+		}
+	}
+	while(true){
+		if(::PeekMessage(&m_msgCur,NULL,WM_QUIT,WM_QUIT,PM_NOREMOVE)){
+			while(::PeekMessage(&m_msgCur,NULL,NULL,NULL,PM_REMOVE)){};
+			while(::PostThreadMessage(::GetCurrentThreadId(),WM_QUIT,0,0) == 0){
+				Sleep(100);
+			}
+			return;
+		}
+		else if(::PeekMessage(&m_msgCur,NULL,WM_SYNCHRONIZE_NOTIFY,WM_SYNCHRONIZE_NOTIFY,PM_REMOVE)){
+			if(idSynchronize == m_msgCur.lParam){
+				break;
+			}
+		}
+	}
 	hedgeTaskStatus = NEW_HEDGE;
 }
 

@@ -406,6 +406,7 @@ void CBasicPage::OnResume()
 
 void CBasicPage::OnBnClickedTest()
 {
+	//测试
 	if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
 		while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_UPDATE_LSTCTRL,NULL,NULL) == 0){
 			Sleep(100);
@@ -419,8 +420,8 @@ void CBasicPage::OnBnClickedTest()
 	//((CHiStarApp*)AfxGetApp())->m_cT->ReqQryTfSerial("1");
 	/*
 	while(true){
-		((CHiStarApp*)AfxGetApp())->m_cT->ReqQryInstFee("IF1405");
-		TRACE("发送成功\n");
+	((CHiStarApp*)AfxGetApp())->m_cT->ReqQryInstFee("IF1405");
+	TRACE("发送成功\n");
 	}
 	*/
 	//TThostFtdcCombOffsetFlagType kpp;kpp[0] = THOST_FTDC_OF_Open;

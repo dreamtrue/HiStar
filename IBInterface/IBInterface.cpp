@@ -169,7 +169,7 @@ void CHiStarApp::orderStatus( OrderId orderId, const IBString &status, int fille
 			pOrderStatus->lastFillPrice = lastFillPrice;
 			pOrderStatus->clientId = clientId;
 			pOrderStatus->whyHeld = whyHeld;
-			if(m_pHedgePostProcessing->PostThreadMessage(WM_RTN_ORDER_IB,NULL,(UINT)pOrderStatus) == 0){
+			while(m_pHedgePostProcessing->PostThreadMessage(WM_RTN_ORDER_IB,NULL,(UINT)pOrderStatus) == 0){
 				Sleep(100);
 			}
 		}

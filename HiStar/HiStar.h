@@ -160,6 +160,7 @@ public:
 	//IB的账户参数
 	std::vector<Portfolio> m_portfolio;
 	AccountValue m_accountvalue;
+	virtual int ExitInstance();
 };
 
 extern CHiStarApp theApp;

@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "StdAfx.h"
+#include "..\HiStar\StdAfx.h"
 #include "global.h"
 #include "CVector.h"
 #include "mysql.h"
