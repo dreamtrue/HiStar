@@ -16,7 +16,6 @@ public:
 	virtual BOOL InitInstance();
 	virtual int ExitInstance();
 public:
-	void PostProcessing(WPARAM t_wParam,LPARAM t_lParam);//∫Û¥¶¿Ì
 	void Run_PostProcessing(WPARAM t_wParam,LPARAM t_lParam);
 protected:
 	DECLARE_MESSAGE_MAP()
