@@ -133,6 +133,7 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 	}
 	if(isReal){
 		tradePermit(iIfCanTrade,iA50CanTrade);
+		if(!iA50CanTrade && !iIfCanTrade) return;
 	}
 	//求最大持仓id
 	for(unsigned int i = 0;i < HedgeHold.size();i++){
@@ -466,7 +467,7 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 	//IB表示需要新的保证金
 	if(abs(PredictPositionA50) > abs(netPositionA50)){
 		NeedNewMarginA50 = pointValueA50 * MarginA50 * (abs(PredictPositionA50) - abs(netPositionA50));
-		if(NeedNewMarginA50 - AvailIB > 1000.0){
+		if(NeedNewMarginA50 - AvailIB > 300.0){
 			sprintf(buffer,_T("IB保证金不足,需要%.02lf\r\n"),NeedNewMarginA50);
 			hedgeStatusPrint = hedgeStatusPrint + buffer;
 			sprintf(buffer,_T("======================END07======================\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
@@ -476,7 +477,7 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag){
 	//IF需要新的保证金
 	if(PredictshortIf + PredictlongIf > longIf + shortIf){
 		NeedNewMarginIf = (g_ifAsk1 + g_ifBid1) / 2.0 *  pointValueIf * MarginIf * (PredictshortIf + PredictlongIf - (longIf + shortIf));
-		if(NeedNewMarginIf - AvailCtp > 6000.0){
+		if(NeedNewMarginIf - AvailCtp > 2000.0){
 			sprintf(buffer,_T("CTP保证金不足,需要%.02lf\r\n"),NeedNewMarginIf);
 			hedgeStatusPrint = hedgeStatusPrint + buffer;
 			sprintf(buffer,_T("======================END08======================\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
