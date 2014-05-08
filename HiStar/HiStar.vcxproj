@@ -90,7 +90,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\visual leak detector\bin;..\Visual Leak Detector\include;..\mysql-5.7.3-m13-win32\include;..\MSHQ;..\Hedge;..\calendar;..\Index;..\DIYCtrl;..\TraderSpi;..\api_libs;..\THostFtdc;..\MdSpi;.;..\IBInterface;..\CppClient\lib;..\CppClient\src;..\CppClient\Shared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\CButtonST;..\visual leak detector\bin;..\Visual Leak Detector\include;..\mysql-5.7.3-m13-win32\include;..\MSHQ;..\Hedge;..\calendar;..\Index;..\DIYCtrl;..\TraderSpi;..\api_libs;..\THostFtdc;..\MdSpi;.;..\IBInterface;..\CppClient\lib;..\CppClient\src;..\CppClient\Shared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -141,7 +141,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\mysql-5.7.3-m13-win32\include;..\visual leak detector\include;..\include;..\Hedge;..\Index;..\MSHQ;..\calendar;..\DIYCtrl;..\api_libs;..\TraderSpi;..\THostFtdc;..\MdSpi;..\CppClient\Shared;..\CppClient\lib;..\CppClient\src;.;..\IBInterface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\CButtonST;..\mysql-5.7.3-m13-win32\include;..\visual leak detector\include;..\include;..\Hedge;..\Index;..\MSHQ;..\calendar;..\DIYCtrl;..\api_libs;..\TraderSpi;..\THostFtdc;..\MdSpi;..\CppClient\Shared;..\CppClient\lib;..\CppClient\src;.;..\IBInterface;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -187,6 +187,40 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <None Include="..\CButtonST\res\About.ico" />
+    <None Include="..\CButtonST\res\Baloon.ico" />
+    <None Include="..\CButtonST\res\Cancel1_32x32x16.ico" />
+    <None Include="..\CButtonST\res\Cancel3_32x32x256.ico" />
+    <None Include="..\CButtonST\res\Cancel4_32x32x2.ico" />
+    <None Include="..\CButtonST\res\CDRom.ico" />
+    <None Include="..\CButtonST\res\Classes1_32x32x16.ico" />
+    <None Include="..\CButtonST\res\EOapp.ico" />
+    <None Include="..\CButtonST\res\Explorer.ico" />
+    <None Include="..\CButtonST\res\Halloween1.ico" />
+    <None Include="..\CButtonST\res\Halloween2.ico" />
+    <None Include="..\CButtonST\res\Help.ico" />
+    <None Include="..\CButtonST\res\Help2_32x32x256.ico" />
+    <None Include="..\CButtonST\res\IEDocument_48x48x256.ico" />
+    <None Include="..\CButtonST\res\JPEG Image.ico" />
+    <None Include="..\CButtonST\res\Key manager.ico" />
+    <None Include="..\CButtonST\res\Lamp1.ico" />
+    <None Include="..\CButtonST\res\LedOff.ico" />
+    <None Include="..\CButtonST\res\LedOn.ico" />
+    <None Include="..\CButtonST\res\Left6_32x32x256.ico" />
+    <None Include="..\CButtonST\res\LogOff.ico" />
+    <None Include="..\CButtonST\res\No3_32x32x256.ico" />
+    <None Include="..\CButtonST\res\Ok3_32x32x256.ico" />
+    <None Include="..\CButtonST\res\Open.ico" />
+    <None Include="..\CButtonST\res\Razor_32x32x256.ico" />
+    <None Include="..\CButtonST\res\Right6_32x32x256.ico" />
+    <None Include="..\CButtonST\res\Run.ico" />
+    <None Include="..\CButtonST\res\Search1.ico" />
+    <None Include="..\CButtonST\res\Sound.ico" />
+    <None Include="..\CButtonST\res\Tools4.ico" />
+    <None Include="..\CButtonST\res\Web2.ico" />
+    <None Include="..\CButtonST\res\Winzip1.ico" />
+    <None Include="..\CButtonST\res\Winzip2.ico" />
+    <None Include="..\CButtonST\res\Workgroup.ico" />
     <None Include="ReadMe.txt" />
     <None Include="res\HiStar.ico" />
     <None Include="res\HiStar.rc2" />
@@ -214,10 +248,25 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\calendar\calendar.cpp" />
+    <ClCompile Include="..\CButtonST\BackgroundUtil.cpp" />
+    <ClCompile Include="..\CButtonST\BCMenu.cpp" />
+    <ClCompile Include="..\CButtonST\BkDialog.cpp" />
+    <ClCompile Include="..\CButtonST\BtnST.cpp" />
+    <ClCompile Include="..\CButtonST\CButtonST_Demo.cpp" />
+    <ClCompile Include="..\CButtonST\CButtonST_DemoDlg.cpp" />
+    <ClCompile Include="..\CButtonST\CeXDib.cpp" />
+    <ClCompile Include="..\CButtonST\DlgAbout.cpp" />
+    <ClCompile Include="..\CButtonST\DlgAdvanced.cpp" />
+    <ClCompile Include="..\CButtonST\DlgBasic.cpp" />
+    <ClCompile Include="..\CButtonST\DlgShadeButtonST.cpp" />
+    <ClCompile Include="..\CButtonST\DlgTransparent.cpp" />
+    <ClCompile Include="..\CButtonST\HyperLink.cpp" />
+    <ClCompile Include="..\CButtonST\MyTabCtrl.cpp" />
+    <ClCompile Include="..\CButtonST\ShadeButtonST.cpp" />
+    <ClCompile Include="..\CButtonST\WinXPButtonST.cpp" />
     <ClCompile Include="..\CppClient\Shared\HScrollListBox.cpp" />
     <ClCompile Include="..\CppClient\src\EClientSocket.cpp" />
     <ClCompile Include="..\CppClient\src\EClientSocketBase.cpp" />
-    <ClCompile Include="..\CppClient\src\StdAfx.cpp" />
     <ClCompile Include="..\DIYCtrl\ColorListCtrl.cpp" />
     <ClCompile Include="..\DIYCtrl\ColorStatic.cpp" />
     <ClCompile Include="..\Hedge\HedgePostProcessing.cpp" />
@@ -235,6 +284,7 @@
     <ClCompile Include="BasicPage.cpp" />
     <ClCompile Include="MainDlg.cpp" />
     <ClCompile Include="StatusPage.cpp" />
+    <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="HiStar.rc" />

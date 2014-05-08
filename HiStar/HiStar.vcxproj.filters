@@ -46,6 +46,9 @@
     <Filter Include="源文件\MXHQ">
       <UniqueIdentifier>{561ff03c-fe20-472e-a2b5-3eda3e8693d0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\CButtonST">
+      <UniqueIdentifier>{0d558ef9-a718-4a4c-a797-fa4d5d8b03a3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -53,6 +56,108 @@
       <Filter>资源文件</Filter>
     </None>
     <None Include="res\HiStar.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\Cancel1_32x32x16.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\Cancel4_32x32x2.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\EOapp.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\Halloween1.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\Halloween2.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\Key manager.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\Sound.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\Lamp1.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\Winzip1.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\Winzip2.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\JPEG Image.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\Baloon.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\CDRom.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\Search1.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\Workgroup.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\LogOff.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\Open.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\Help.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\Explorer.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\About.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\LedOn.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\LedOff.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\Web2.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\Tools4.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\Run.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\Ok3_32x32x256.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\Cancel3_32x32x256.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\IEDocument_48x48x256.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\Help2_32x32x256.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\Razor_32x32x256.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\Classes1_32x32x16.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\No3_32x32x256.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\Right6_32x32x256.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\CButtonST\res\Left6_32x32x256.ico">
       <Filter>资源文件</Filter>
     </None>
   </ItemGroup>
@@ -122,9 +227,6 @@
     <ClCompile Include="..\CppClient\src\EClientSocketBase.cpp">
       <Filter>源文件\IBClient</Filter>
     </ClCompile>
-    <ClCompile Include="..\CppClient\src\StdAfx.cpp">
-      <Filter>源文件\IBClient</Filter>
-    </ClCompile>
     <ClCompile Include="..\IBInterface\IBInterface.cpp">
       <Filter>源文件\IBInterface</Filter>
     </ClCompile>
@@ -181,6 +283,57 @@
     </ClCompile>
     <ClCompile Include="..\Index\UpdateIndex.cpp">
       <Filter>源文件\Index</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CButtonST\BackgroundUtil.cpp">
+      <Filter>源文件\CButtonST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CButtonST\BCMenu.cpp">
+      <Filter>源文件\CButtonST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CButtonST\BkDialog.cpp">
+      <Filter>源文件\CButtonST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CButtonST\BtnST.cpp">
+      <Filter>源文件\CButtonST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CButtonST\CButtonST_Demo.cpp">
+      <Filter>源文件\CButtonST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CButtonST\CButtonST_DemoDlg.cpp">
+      <Filter>源文件\CButtonST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CButtonST\CeXDib.cpp">
+      <Filter>源文件\CButtonST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CButtonST\DlgAbout.cpp">
+      <Filter>源文件\CButtonST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CButtonST\DlgAdvanced.cpp">
+      <Filter>源文件\CButtonST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CButtonST\DlgBasic.cpp">
+      <Filter>源文件\CButtonST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CButtonST\DlgShadeButtonST.cpp">
+      <Filter>源文件\CButtonST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CButtonST\DlgTransparent.cpp">
+      <Filter>源文件\CButtonST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CButtonST\HyperLink.cpp">
+      <Filter>源文件\CButtonST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CButtonST\MyTabCtrl.cpp">
+      <Filter>源文件\CButtonST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CButtonST\ShadeButtonST.cpp">
+      <Filter>源文件\CButtonST</Filter>
+    </ClCompile>
+    <ClCompile Include="..\CButtonST\WinXPButtonST.cpp">
+      <Filter>源文件\CButtonST</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>源文件\HiStar</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

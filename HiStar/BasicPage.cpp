@@ -6,12 +6,13 @@
 #include "HiStar.h"
 #include "afxdialogex.h"
 #include "BasicPage.h"
-#include "EClientSocket.h"   // C:\JTS\SocketClient\include must be added to include path
+#include "EClientSocket.h"
 #include "global.h"
 #include "UserMsg.h"
 #include "resource.h"
 #include <sstream>
 #include "MainDlg.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -103,6 +104,7 @@ void CBasicPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_OPEN_PROFIT, m_openProfit);
 	DDX_Control(pDX, IDC_MARGIN, m_totalMargin);
 	DDX_Control(pDX, IDC_AVAIL_IB, m_availIb);
+	DDX_Control(pDX, IDC_BUTTON2, m_btnRun);
 }
 
 BEGIN_MESSAGE_MAP(CBasicPage, CDialogEx)
@@ -165,7 +167,7 @@ BOOL CBasicPage::OnInitDialog()
 	ShowWindow(SW_NORMAL);
 
 	// TODO: 在此添加额外的初始化代码
-	((CButton *)GetDlgItem(IDC_CHECK1))->SetCheck(TRUE);
+    ((CButton *)GetDlgItem(IDC_CHECK1))->SetCheck(TRUE);
 	m_csS1P.SetBkColor(ACC_BG);
 	m_csS1P.SetWindowText(_T("0.0"),LITGRAY);
 	m_csLastP.SetBkColor(ACC_BG);
@@ -396,12 +398,14 @@ void CBasicPage::RefreshMdPane(void)
 void CBasicPage::OnPause()
 {
 	isHedgeLoopingPause = true;
+	m_btnRun.SetWindowText(_T("暂停"));
 }
 
 
 void CBasicPage::OnResume()
 {
 	isHedgeLoopingPause = false;
+	m_btnRun.SetWindowText(_T("运行中..."));
 }
 
 void CBasicPage::OnBnClickedTest()

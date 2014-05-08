@@ -1,0 +1,378 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// 非特定语言 resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEU)
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+#pragma code_page(936)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_CANCEL1             ICON                    "res\\Cancel1_32x32x16.ico"
+IDI_CANCEL4             ICON                    "res\\Cancel4_32x32x2.ico"
+IDI_EOAPP               ICON                    "res\\EOapp.ico"
+IDI_HALLOWEEN1          ICON                    "res\\Halloween1.ico"
+IDI_HALLOWEEN2          ICON                    "res\\Halloween2.ico"
+IDI_KEYMANAGER          ICON                    "res\\Key manager.ico"
+IDI_SOUND               ICON                    "res\\Sound.ico"
+IDI_LAMP1               ICON                    "res\\Lamp1.ico"
+IDI_ZIP1                ICON                    "res\\Winzip1.ico"
+IDI_ZIP2                ICON                    "res\\Winzip2.ico"
+IDI_JPEG                ICON                    "res\\JPEG Image.ico"
+IDI_BALOON              ICON                    "res\\Baloon.ico"
+IDI_CDROM               ICON                    "res\\CDRom.ico"
+IDI_SEARCH1             ICON                    "res\\Search1.ico"
+IDI_WORKGROUP           ICON                    "res\\Workgroup.ico"
+IDI_LOGOFF              ICON                    "res\\LogOff.ico"
+IDI_OPEN                ICON                    "res\\Open.ico"
+IDI_HELP                ICON                    "res\\Help.ico"
+IDI_EXPLORER            ICON                    "res\\Explorer.ico"
+IDI_ABOUT               ICON                    "res\\About.ico"
+IDI_LEDON               ICON                    "res\\LedOn.ico"
+IDI_LEDOFF              ICON                    "res\\LedOff.ico"
+IDI_WEB2                ICON                    "res\\Web2.ico"
+IDI_TOOLS4              ICON                    "res\\Tools4.ico"
+IDI_RUN                 ICON                    "res\\Run.ico"
+IDI_OK3                 ICON                    "res\\Ok3_32x32x256.ico"
+IDI_CANCEL3             ICON                    "res\\Cancel3_32x32x256.ico"
+IDI_IEDOCUMENT          ICON                    "res\\IEDocument_48x48x256.ico"
+IDI_HELP2               ICON                    "res\\Help2_32x32x256.ico"
+IDI_RAZOR               ICON                    "res\\Razor_32x32x256.ico"
+IDI_CLASSES1            ICON                    "res\\Classes1_32x32x16.ico"
+IDI_NO3                 ICON                    "res\\No3_32x32x256.ico"
+IDI_RIGHT6              ICON                    "res\\Right6_32x32x256.ico"
+IDI_LEFT6               ICON                    "res\\Left6_32x32x256.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_CBUTTONST_DEMO_DIALOG DIALOGEX 0, 0, 320, 200
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "CButtonST"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    PUSHBUTTON      "Close",IDCANCEL,237,173,80,24
+    CONTROL         "Tab1",IDC_TAB,"SysTabControl32",0x0,6,9,306,155
+    LTEXT           "SoftechSoftware Email",IDC_EMAILLINK,6,186,100,8
+    LTEXT           "SoftechSoftware homepage",IDC_HOMEPAGELINK,6,175,100,8
+END
+
+IDD_BASIC DIALOGEX 0, 0, 300, 140
+STYLE DS_SETFONT | WS_CHILD
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    PUSHBUTTON      "Standard",IDC_BTNSTANDARD,5,11,76,24
+    PUSHBUTTON      "Halloween",IDC_BTNHALLOWEEN,92,11,76,24
+    PUSHBUTTON      "Click to\r\ndisable",IDC_BTNDISABLED,175,11,76,24
+    PUSHBUTTON      "",IDC_BTNLAMP,263,11,24,24
+    PUSHBUTTON      "48x48 icon",IDC_BTNKEYMANAGER,5,43,76,35
+    PUSHBUTTON      "Zip",IDC_BTNZIP,92,43,76,24
+    PUSHBUTTON      "Search",IDC_BTNSEARCH,175,43,47,40
+    PUSHBUTTON      "",IDC_BTNCDROM,263,41,24,24
+    PUSHBUTTON      "72x72 icon\r\nAlmost a bitmap!",IDC_BTNJPEG,5,82,110,56
+    PUSHBUTTON      "Back",IDC_BTNBACK,123,113,59,24
+    PUSHBUTTON      "Next",IDC_BTNNEXT,185,113,59,24
+    PUSHBUTTON      "",IDC_BTNTOOLTIP,263,72,24,24
+    GROUPBOX        " Standard button ",IDC_STATIC,0,0,86,40
+END
+
+IDD_ADVANCED DIALOG 0, 0, 300, 140
+STYLE DS_SETFONT | WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        " CWinXPButtonST ",IDC_STATIC,0,0,96,40
+    PUSHBUTTON      "Example of\r\nderived class",IDC_BTNDERIVED,5,11,86,24
+    GROUPBOX        " Hyperlink ",IDC_STATIC,102,0,96,40
+    PUSHBUTTON      "SoftechSoftware",IDC_BTNHYPERLINK,107,11,86,24
+    GROUPBOX        " Menu ",IDC_STATIC,203,0,96,40
+    PUSHBUTTON      "Open menu",IDC_BTNCURSOR,208,11,86,24
+    CONTROL         "Traces enabled",IDC_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,208,107,86,12
+    PUSHBUTTON      "Click!",IDC_BTNFOCUSRECT,208,54,86,28
+    GROUPBOX        " Focus rectangle ",IDC_STATIC,203,44,96,42
+    GROUPBOX        " Checkbox support ",IDC_STATIC,203,90,96,40
+    GROUPBOX        " Bitmap support ",IDC_STATIC,0,44,198,85
+    PUSHBUTTON      "Bitmap support finally added!",IDC_BTNBITMAP,5,54,188,71
+END
+
+IDD_TRANSPARENT DIALOG 0, 0, 300, 140
+STYLE DS_SETFONT | WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "48x48 icon",IDC_BTNLOGOFF,13,16,76,35
+    PUSHBUTTON      "",IDC_BTNOPEN,158,20,24,24
+    PUSHBUTTON      "",IDC_BTNSEARCH,184,20,24,24
+    PUSHBUTTON      "",IDC_BTNEXPLORER,210,20,24,24
+    PUSHBUTTON      "",IDC_BTNHELP,236,20,24,24
+    PUSHBUTTON      "",IDC_BTNABOUT,262,20,24,24
+    PUSHBUTTON      "72x72 icon",IDC_BTNWORKGROUP,13,55,110,56
+    PUSHBUTTON      "This is a bitmap\r\nOut for lunch?",IDC_BTNCANNIBAL,149,55,145,78
+    CONTROL         "A CButtonST checkbox",IDC_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,119,110,12
+    GROUPBOX        "",IDC_STATIC,3,0,296,138
+    GROUPBOX        "",IDC_STATIC,148,10,147,40
+END
+
+IDD_ABOUT DIALOG 0, 0, 300, 140
+STYLE DS_SETFONT | WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "",IDC_BTNSTLOGO,0,0,299,32,WS_DISABLED
+    CTEXT           "CButtonST vx.x",IDC_VERSION,60,34,180,8,SS_NOPREFIX
+    CTEXT           "Copyright (C) 1998-2002 by SoftechSoftware",IDC_STATIC,40,44,220,8
+    PUSHBUTTON      "",IDC_BTNFACE,0,80,57,60,WS_DISABLED
+    LTEXT           "I would like to thank the following people for their classes used in this application.",IDC_STATIC,77,80,186,19
+    ICON            IDR_MAINFRAME,IDC_STATIC,17,44,20,20
+    LTEXT           "Chris Maunder\t\tchris@codeproject.com\r\nben@shido.fsnet.co.uk\t(www.shido.fsnet.co.uk)\r\nDavide Pizzolato\t\ting.davide.pizzolato@libero.it",IDC_STATIC,77,103,213,32
+END
+
+IDD_SHADED DIALOG 0, 0, 300, 140
+STYLE DS_SETFONT | WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "&Metal",IDC_BTNSHADE1,27,14,76,35
+    PUSHBUTTON      "&Noise",IDC_BTNSHADE4,112,14,76,35
+    PUSHBUTTON      "V Shade",IDC_BTNSHADE7,196,14,76,35
+    PUSHBUTTON      "&HardBump",IDC_BTNSHADE2,27,52,76,35
+    PUSHBUTTON      "V Bump",IDC_BTNSHADE5,112,52,76,35
+    PUSHBUTTON      "H Shade",IDC_BTNSHADE8,196,52,76,35
+    PUSHBUTTON      "&SoftBump",IDC_BTNSHADE3,27,91,76,35
+    PUSHBUTTON      "H Bump",IDC_BTNSHADE6,112,91,76,35
+    PUSHBUTTON      "&Diagonal",IDC_BTNSHADE9,196,91,76,35
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_BMPBACK             BITMAP                  "res\\BmpBack.bmp"
+IDB_SKY                 BITMAP                  "res\\Sky.bmp"
+IDB_CANNIBAL            BITMAP                  "res\\Cannibal.bmp"
+IDB_EAGLE               BITMAP                  "res\\Eagle.bmp"
+IDB_STLOGO              BITMAP                  "res\\STLogo_Small.bmp"
+IDB_FACE                BITMAP                  "res\\Face.bmp"
+IDB_PALETTE             BITMAP                  "res\\Palette.bmp"
+IDR_TOOLBAR             BITMAP                  "res\\toolbar.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Cursor
+//
+
+IDC_HAND2               CURSOR                  "res\\Hand.cur"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENU MENU
+BEGIN
+    POPUP "Menu"
+    BEGIN
+        MENUITEM "Option &1",                   IDM_ITEM1
+        MENUITEM "Option &2",                   IDM_ITEM2
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDR_TOOLBAR TOOLBAR 16, 16
+BEGIN
+    BUTTON      IDM_ITEM1
+    BUTTON      IDM_ITEM2
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_BASIC, DIALOG
+    BEGIN
+    END
+
+    IDD_ADVANCED, DIALOG
+    BEGIN
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // 非特定语言 resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// 中文(简体，中国) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+#pragma code_page(936)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_BMP_TEST            BITMAP                  "res\\bitmap1.bmp"
+#endif    // 中文(简体，中国) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// 英语(美国) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "FileDescription", "CButtonST_Demo MFC Application"
+            VALUE "FileVersion", "1, 0, 0, 1"
+            VALUE "InternalName", "CButtonST_Demo"
+            VALUE "LegalCopyright", "Copyright (C) 2001"
+            VALUE "OriginalFilename", "CButtonST_Demo.EXE"
+            VALUE "ProductName", "CButtonST_Demo Application"
+            VALUE "ProductVersion", "1, 0, 0, 1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // 英语(美国) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// 意大利语(意大利) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ITA)
+LANGUAGE LANG_ITALIAN, SUBLANG_ITALIAN
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\CButtonST_Demo.ico"
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\\CButtonST_Demo.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // 意大利语(意大利) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif //_WIN32
+#include "res\CButtonST_Demo.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
