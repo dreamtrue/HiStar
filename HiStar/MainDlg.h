@@ -55,4 +55,5 @@ public:
 	afx_msg LRESULT LoginCtpMD(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT OnSynchronizeMarket(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT OnReqAccountUpdates(WPARAM wParam, LPARAM lParam);
+	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 };

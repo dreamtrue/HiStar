@@ -105,6 +105,7 @@ void CBasicPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_MARGIN, m_totalMargin);
 	DDX_Control(pDX, IDC_AVAIL_IB, m_availIb);
 	DDX_Control(pDX, IDC_BUTTON2, m_btnRun);
+	DDX_Control(pDX, IDC_BUTTON13, m_btnIni);
 }
 
 BEGIN_MESSAGE_MAP(CBasicPage, CDialogEx)
@@ -117,8 +118,7 @@ BEGIN_MESSAGE_MAP(CBasicPage, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON5, &CBasicPage::OnLogoutCtp)
 	ON_CBN_SELCHANGE(IDC_COMBO2, &CBasicPage::OnInsSelchange)
 	ON_BN_CLICKED(IDC_BUTTON6, &CBasicPage::OnReqComboSelMarketDepth)
-	ON_BN_CLICKED(IDC_BUTTON9, &CBasicPage::OnPause)
-	ON_BN_CLICKED(IDC_BUTTON2, &CBasicPage::OnResume)
+	ON_BN_CLICKED(IDC_BUTTON2, &CBasicPage::OnResumeOrPause)
 	ON_BN_CLICKED(IDC_BUTTON_TEST, &CBasicPage::OnBnClickedTest)
 	ON_BN_CLICKED(IDC_UPDATE, &CBasicPage::OnBnClickedUpdate)
 	ON_BN_CLICKED(IDC_BUTTON7, &CBasicPage::OnIniSql)
@@ -167,6 +167,7 @@ BOOL CBasicPage::OnInitDialog()
 	ShowWindow(SW_NORMAL);
 
 	// TODO: 在此添加额外的初始化代码
+	m_btnRun.SetIcon(IDI_HALLOWEEN2, IDI_HALLOWEEN1);
     ((CButton *)GetDlgItem(IDC_CHECK1))->SetCheck(TRUE);
 	m_csS1P.SetBkColor(ACC_BG);
 	m_csS1P.SetWindowText(_T("0.0"),LITGRAY);
@@ -395,17 +396,16 @@ void CBasicPage::RefreshMdPane(void)
 	}	
 }
 
-void CBasicPage::OnPause()
+void CBasicPage::OnResumeOrPause()
 {
-	isHedgeLoopingPause = true;
-	m_btnRun.SetWindowText(_T("暂停"));
-}
-
-
-void CBasicPage::OnResume()
-{
-	isHedgeLoopingPause = false;
-	m_btnRun.SetWindowText(_T("运行中..."));
+	if(isHedgeLoopingPause){
+		isHedgeLoopingPause = false;
+		m_btnRun.SetWindowText(_T("运行中..."));
+	}
+	else{
+		isHedgeLoopingPause = true;
+		m_btnRun.SetWindowText(_T("暂停中..."));
+	}
 }
 
 void CBasicPage::OnBnClickedTest()
@@ -467,6 +467,7 @@ void CBasicPage::OnIni()
 			Sleep(100);
 		}
 	}
+	m_btnIni.EnableWindow(false);
 }
 
 void CBasicPage::OnGetHedgeHold(NMHDR *pNMHDR, LRESULT *pResult){

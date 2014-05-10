@@ -53,6 +53,7 @@ BEGIN_MESSAGE_MAP(CMainDlg, CDialogEx)
 	ON_WM_TIMER()
 	ON_BN_CLICKED(IDOK, &CMainDlg::OnOk)
 	ON_NOTIFY(TCN_SELCHANGE, IDC_TAB, &CMainDlg::OnTcnSelchangeTab)
+	ON_WM_SYSCOMMAND()
 END_MESSAGE_MAP()
 
 
@@ -195,3 +196,8 @@ FILL_MESSAGE_FUNCTION(OnConnectIB)
 	FILL_MESSAGE_FUNCTION(OnReqAccountUpdates)
 #undef FILL_MESSAGE_FUNCTION
 
+	void CMainDlg::OnSysCommand(UINT nID, LPARAM lParam)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	CDialogEx::OnSysCommand(nID, lParam);
+}

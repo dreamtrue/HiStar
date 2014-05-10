@@ -160,6 +160,108 @@
     <None Include="..\CButtonST\res\Left6_32x32x256.ico">
       <Filter>资源文件</Filter>
     </None>
+    <None Include="res\Cancel1_32x32x16.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\Cancel4_32x32x2.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\EOapp.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\Halloween1.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\Halloween2.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\Key manager.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\Sound.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\Lamp1.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\Winzip1.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\Winzip2.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\JPEG Image.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\Baloon.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\CDRom.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\Search1.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\Workgroup.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\LogOff.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\Open.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\Help.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\Explorer.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\About.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\LedOn.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\LedOff.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\Web2.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\Tools4.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\Run.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\Ok3_32x32x256.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\Cancel3_32x32x256.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\IEDocument_48x48x256.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\Help2_32x32x256.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\Razor_32x32x256.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\Classes1_32x32x16.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\No3_32x32x256.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\Right6_32x32x256.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\Left6_32x32x256.ico">
+      <Filter>资源文件</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="HiStar.h">
