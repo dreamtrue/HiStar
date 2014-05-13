@@ -4,6 +4,8 @@
 #include <vector>
 #include "Index.h"
 #include <string>
+#include "mysql.h"
+#include "HiStar.h"
 #define A50NUM 50
 #define HS300NUM 300
 #define TOTAL 350
@@ -13,7 +15,7 @@ double volume[TOTAL];
 double g_A50Index = 0;
 double g_HS300Index = 0;
 double g_A50IndexZT = 0,g_HS300IndexZT = 0;
-extern double totalValueA50ZT,totalValueHS300ZT;
+extern double A50IndexRef,A50totalValueRef,HS300IndexRef,HS300totalValueRef;
 struct stock{
 	std::string exch;
 	std::string code;
@@ -21,6 +23,7 @@ struct stock{
 };
 extern std::vector<stock> g_hs300;
 extern std::vector<stock> g_a50;
+MYSQL *connindex;
 VOID CIndex::UpdateIndexData(HWND wnd, UINT msg, UINT_PTR id, DWORD d)
 {
 	try{
@@ -68,8 +71,16 @@ VOID CIndex::UpdateIndexData(HWND wnd, UINT msg, UINT_PTR id, DWORD d)
 			totalValueHS300 = totalValueHS300 + price[i] * volume[i];
 		}
 	}
-	g_A50Index = g_A50IndexZT * totalValueA50 / totalValueA50ZT;
-	g_HS300Index = g_HS300IndexZT * totalValueHS300 / totalValueHS300ZT;
+	g_A50Index = A50IndexRef * totalValueA50 / A50totalValueRef;
+	g_HS300Index = HS300IndexRef * totalValueHS300 / HS300totalValueRef;
+	//´æÈëÖ¸Êý
+	char data01[1000];
+	sprintf(data01,"UPDATE HISTARINDEX SET A50REF = %.02lf,A50VALUE = %.02lf,HS300REF = %.02lf,HS300VALUE = %.02lf WHERE NAME = 'index'",g_A50Index,totalValueA50,g_HS300Index,totalValueHS300);
+	if(connindex){
+		if(mysql_query(connindex,data01)){
+			TRACE("Error %u: %s\n", mysql_errno(connindex), mysql_error(connindex));
+		}
+	}
 	myHttpFile->Close();
 	delete myHttpFile;
 	myHttpFile = NULL;

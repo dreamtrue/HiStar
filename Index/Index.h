@@ -1,7 +1,7 @@
 #pragma once
 #include "afxsock.h"
 #include <afxinet.h> 
-
+#include "mysql.h"
 
 // CIndex
 

@@ -12,6 +12,7 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+extern double A50Index,HS300Index;//本程序实际所用指数
 extern DWORD IndexThreadId;
 std::fstream fileInput;
 bool isReal = true;

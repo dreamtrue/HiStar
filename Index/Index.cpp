@@ -5,11 +5,15 @@
 #include "Index.h"
 #include "UserMsg.h"
 #include "afxsock.h"
+#include "mysql.h"
+#include "HiStar.h"
 #include <afxinet.h>
 #include <vector>
 #define A50NUM 50
 #define HS300NUM 300
+SYSTEMTIME systime01,time_09_00_00,time_09_40_00;
 extern double g_A50IndexZT,g_HS300IndexZT;
+int seconds(SYSTEMTIME &time);
 double totalValueA50ZT = 0;
 double totalValueHS300ZT = 0;
 double A50IndexRef;double A50totalValueRef;double HS300IndexRef;double HS300totalValueRef;
@@ -18,6 +22,14 @@ struct stock{
 	std::string code;
 	int volume;
 };
+struct sqldb{
+	std::string host;
+	std::string user;
+	std::string passwd;
+	std::string db;
+	sqldb();
+};
+extern sqldb m_db;
 extern std::vector<stock> g_hs300;
 extern std::vector<stock> g_a50;
 #define TOTAL 350
@@ -35,9 +47,10 @@ CString CIndex::myURL_code("");
 CString CIndex::m_URL("http://hq.sinajs.cn/list=");
 CString CIndex::m_hexunA50("http://webglobal.hermes.hexun.com/global_index/quotelist?code=FTSE.FTXIN9&column=LastClose");
 CString CIndex::m_hexunHS300("http://flashquote.stock.hexun.com/Stock_Combo.ASPX?mc=1_000300&dt=Q,MI&t=0.9522008465137333");
-
+extern MYSQL *connindex;
 CIndex::CIndex()
 {
+	connindex = NULL;
 	myHttpFile = NULL;
 	for(int k = 0;k < A50NUM;k++){
 		myURL_code = myURL_code + ",";
@@ -67,6 +80,36 @@ CIndex::~CIndex()
 
 BOOL CIndex::InitInstance()
 {
+	connindex = mysql_init(NULL); 
+	if(connindex == NULL) {
+		TRACE("Error %u: %s\n", mysql_errno(connindex), mysql_error(connindex));      
+		//exit(1);  
+	}  
+	if(connindex){
+		if(mysql_real_connect(connindex,m_db.host.c_str(),m_db.user.c_str(),m_db.passwd.c_str(),m_db.db.c_str(),0,NULL,0) == NULL)
+		{      
+			TRACE("Error %u: %s\n", mysql_errno(connindex), mysql_error(connindex));
+		}
+	}
+	//创建指数储存表格
+	if(connindex){
+		if(mysql_query(connindex,"CREATE TABLE IF NOT EXISTS HISTARINDEX (name VARCHAR(40),A50REF DOUBLE,A50VALUE DOUBLE,HS300REF DOUBLE,HS300VALUE DOUBLE,primary key (name))")) 
+		{      
+			TRACE("Error %u: %s\n", mysql_errno(connindex), mysql_error(connindex));      
+		}
+		if(mysql_query(connindex,"select * from HISTARINDEX")){
+			TRACE("Error %u: %s\n", mysql_errno(connindex), mysql_error(connindex)); 
+		}
+		MYSQL_RES * res_set;MYSQL_ROW row;unsigned int num_fields;
+		res_set = mysql_store_result(connindex);
+		num_fields = mysql_num_fields(res_set);
+		while ((row = mysql_fetch_row(res_set))){
+			A50IndexRef = atol(row[1]);
+			A50totalValueRef = atol(row[2]);
+			HS300IndexRef = atol(row[3]);
+			HS300totalValueRef = atol(row[4]);
+		}	
+	}
 	try{
 		myHttpFile = (CHttpFile*)mySession.OpenURL(m_hexunA50,1,INTERNET_FLAG_RELOAD|INTERNET_FLAG_TRANSFER_ASCII);
 	}
@@ -153,9 +196,19 @@ BOOL CIndex::InitInstance()
 	delete myHttpFile;
 	myHttpFile = NULL;
 
-	A50totalValueRef = totalValueA50ZT;A50IndexRef = g_A50IndexZT;
-	HS300totalValueRef = totalValueHS300ZT;HS300IndexRef = g_HS300IndexZT;
-
+	static bool iFirst = true;
+	if(iFirst){
+		time_09_00_00.wHour = 9;time_09_00_00.wMinute = 0;time_09_00_00.wSecond = 0;
+		time_09_40_00.wHour = 9;time_09_40_00.wMinute = 40;time_09_40_00.wSecond = 0;
+		iFirst = false;
+	}
+	GetLocalTime(&systime01);
+	if(seconds(systime01) >= seconds(time_09_00_00) && seconds(systime01) < seconds(time_09_40_00)){
+	}
+	else{
+		A50totalValueRef = totalValueA50ZT;A50IndexRef = g_A50IndexZT;
+		HS300totalValueRef = totalValueHS300ZT;HS300IndexRef = g_HS300IndexZT;
+	}
 	_timerID = SetTimer(NULL,0,(UINT)3000,UpdateIndexData); 
 	return TRUE;
 }
