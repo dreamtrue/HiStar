@@ -13,6 +13,7 @@
 #define HS300NUM 300
 SYSTEMTIME systime01,time_09_00_00,time_09_40_00;
 extern double g_A50IndexZT,g_HS300IndexZT;
+char data01[1000];
 int seconds(SYSTEMTIME &time);
 double totalValueA50ZT = 0;
 double totalValueHS300ZT = 0;
@@ -104,10 +105,10 @@ BOOL CIndex::InitInstance()
 		res_set = mysql_store_result(connindex);
 		num_fields = mysql_num_fields(res_set);
 		while ((row = mysql_fetch_row(res_set))){
-			A50IndexRef = atol(row[1]);
-			A50totalValueRef = atol(row[2]);
-			HS300IndexRef = atol(row[3]);
-			HS300totalValueRef = atol(row[4]);
+			A50IndexRef = atof(row[1]);
+			A50totalValueRef = atof(row[2]);
+			HS300IndexRef = atof(row[3]);
+			HS300totalValueRef = atof(row[4]);
 		}	
 	}
 	try{
@@ -208,6 +209,13 @@ BOOL CIndex::InitInstance()
 	else{
 		A50totalValueRef = totalValueA50ZT;A50IndexRef = g_A50IndexZT;
 		HS300totalValueRef = totalValueHS300ZT;HS300IndexRef = g_HS300IndexZT;
+		//¥Ê»Î÷∏ ˝
+		sprintf(data01,"INSERT INTO HISTARINDEX (name,A50REF,A50VALUE,HS300REF,HS300VALUE) VALUES('indexref',%.02lf,%.02lf,%.02lf,%.02lf) ON DUPLICATE KEY UPDATE A50REF = %.02lf,A50VALUE = %.02lf,HS300REF = %.02lf,HS300VALUE = %.02lf",g_A50IndexZT,totalValueA50ZT,g_HS300IndexZT,totalValueHS300ZT,g_A50IndexZT,totalValueA50ZT,g_HS300IndexZT,totalValueHS300ZT);
+		if(connindex){
+			if(mysql_query(connindex,data01)){
+				TRACE("Error %u: %s\n", mysql_errno(connindex), mysql_error(connindex));
+			}
+		}
 	}
 	_timerID = SetTimer(NULL,0,(UINT)3000,UpdateIndexData); 
 	return TRUE;

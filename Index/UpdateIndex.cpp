@@ -73,14 +73,6 @@ VOID CIndex::UpdateIndexData(HWND wnd, UINT msg, UINT_PTR id, DWORD d)
 	}
 	g_A50Index = A50IndexRef * totalValueA50 / A50totalValueRef;
 	g_HS300Index = HS300IndexRef * totalValueHS300 / HS300totalValueRef;
-	//´æÈëÖ¸Êý
-	char data01[1000];
-	sprintf(data01,"UPDATE HISTARINDEX SET A50REF = %.02lf,A50VALUE = %.02lf,HS300REF = %.02lf,HS300VALUE = %.02lf WHERE NAME = 'index'",g_A50Index,totalValueA50,g_HS300Index,totalValueHS300);
-	if(connindex){
-		if(mysql_query(connindex,data01)){
-			TRACE("Error %u: %s\n", mysql_errno(connindex), mysql_error(connindex));
-		}
-	}
 	myHttpFile->Close();
 	delete myHttpFile;
 	myHttpFile = NULL;
