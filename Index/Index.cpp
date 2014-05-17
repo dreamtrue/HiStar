@@ -5,7 +5,6 @@
 #include "Index.h"
 #include "UserMsg.h"
 #include "afxsock.h"
-#include "mysql.h"
 #include "HiStar.h"
 #include <afxinet.h>
 #include <vector>

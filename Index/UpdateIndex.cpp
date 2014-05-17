@@ -4,7 +4,6 @@
 #include <vector>
 #include "Index.h"
 #include <string>
-#include "mysql.h"
 #include "HiStar.h"
 #define A50NUM 50
 #define HS300NUM 300

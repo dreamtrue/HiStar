@@ -19,8 +19,9 @@ public:
 
 protected:
 	DECLARE_MESSAGE_MAP()
-public:
+protected:
 	UINT_PTR _timerID;
+public:
 	static VOID CALLBACK UpdateIndexData(HWND wnd, UINT msg, UINT_PTR id, DWORD d);
 	static CInternetSession mySession;
 	static CHttpFile* myHttpFile;

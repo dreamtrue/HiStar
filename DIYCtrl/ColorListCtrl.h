@@ -6,7 +6,6 @@
 #endif // _MSC_VER > 1000
 // ColorListCtrl.h : header file
 //
-#include <afxtempl.h>
 #include <afxcmn.h>
 /////////////////////////////////////////////////////////////////////////////
 // CColorListCtrl window
@@ -26,7 +25,7 @@ public:
 // Overrides
 	// ClassWizard generated virtual function overrides
 	//{{AFX_VIRTUAL(CColorListCtrl)
-	protected:
+	public:
 	virtual void PreSubclassWindow();
 	//}}AFX_VIRTUAL
 

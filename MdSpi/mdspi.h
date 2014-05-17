@@ -8,7 +8,18 @@
 class CtpMdSpi : public CThostFtdcMdSpi
 {
 public:
-	CtpMdSpi(CThostFtdcMdApi* api):pUserApi(api){ m_iRequestID = 0;}
+	CtpMdSpi(CThostFtdcMdApi* api):m_iRequestID(0),pUserApi(api){
+		memset(m_sBkrID,0,sizeof(m_sBkrID));
+		memset(m_sINVEST_ID,0,sizeof(m_sINVEST_ID));
+	}
+	CtpMdSpi():m_iRequestID(0),pUserApi(NULL){
+		memset(m_sBkrID,0,sizeof(m_sBkrID));
+		memset(m_sINVEST_ID,0,sizeof(m_sINVEST_ID));
+	}
+public:
+	~CtpMdSpi(){
+		pUserApi = NULL;
+	}
 	///错误应答
 	virtual void OnRspError(CThostFtdcRspInfoField *pRspInfo,
 		int nRequestID, bool bIsLast);
@@ -42,16 +53,17 @@ public:
 	int UnSubscribeMarketData(char *pInst[], int nCount);
 	bool IsErrorRspInfo(CThostFtdcRspInfoField *pRspInfo);
 	double CalcPositionProfit();
-public:
+protected:
 	int m_iRequestID;
 	TThostFtdcBrokerIDType	m_sBkrID;
 	TThostFtdcUserIDType m_sINVEST_ID;		// 投资者代码
-private:
-	CThostFtdcMdApi* pUserApi;
+	CVector<CThostFtdcDepthMarketDataField> Marketdata;
 public:
 	std::vector<CString> InstSubscribed;//提交报价的Inst
 	std::vector<CString> InstMustSubscribe;//必须提交报价的Inst
-	CVector<CThostFtdcDepthMarketDataField> Marketdata;
+private:
+	CThostFtdcMdApi* pUserApi;
+public:
 	void SynchronizeMarket(std::vector<CString> &InstSubscribed,std::vector<CString> &InstMustSubscribe,std::vector<CThostFtdcInvestorPositionDetailField> &InvPosDetailVec);//同步市场，即将需要提交报价的提交，需要撤销报价的撤销
 };
 

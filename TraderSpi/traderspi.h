@@ -23,16 +23,43 @@ struct WaitSettlementForFee{
 class CtpTraderSpi : public CThostFtdcTraderSpi
 {
 public:
-	CtpTraderSpi(CThostFtdcTraderApi* api):pUserApi(api){ m_iRequestID =0; m_ifrontId=-1; m_isessionId=-1; connctp = NULL;
+	CtpTraderSpi(CThostFtdcTraderApi* api):m_iRequestID(0),m_ifrontId(-1),m_isessionId(-1),pUserApi(api),connctp(NULL){
 
-	AcquireSRWLockExclusive(&g_srwLock_TradingAccount);
-	memset(&TradingAccount,0,sizeof(CThostFtdcTradingAccountField));
-	ReleaseSRWLockExclusive(&g_srwLock_TradingAccount);
+		AcquireSRWLockExclusive(&g_srwLock_TradingAccount);
+		memset(&TradingAccount,0,sizeof(CThostFtdcTradingAccountField));
+		ReleaseSRWLockExclusive(&g_srwLock_TradingAccount);
 
-	memset(&m_TdAcc,0,sizeof(CThostFtdcTradingAccountField));
-	ClearAllVectors();
+		memset(BROKER_ID,0,sizeof(BROKER_ID));
+		memset(INVEST_ID,0,sizeof(INVEST_ID));
+		memset(m_sOrdRef,0,sizeof(m_sOrdRef));
+		memset(m_sTdday,0,sizeof(m_sTdday));
+		memset(m_sTmBegin,0,sizeof(m_sTmBegin));
+		memset(&m_FeeRateRev,0,sizeof(m_FeeRateRev));
+		memset(&m_RspMsg,0,sizeof(m_RspMsg));
+		memset(&m_TdAcc,0,sizeof(CThostFtdcTradingAccountField));
+		ClearAllVectors();
 	}
-   //~CtpTraderSpi();
+	CtpTraderSpi():m_iRequestID(0),m_ifrontId(-1),m_isessionId(-1),pUserApi(NULL),connctp(NULL){
+
+		AcquireSRWLockExclusive(&g_srwLock_TradingAccount);
+		memset(&TradingAccount,0,sizeof(CThostFtdcTradingAccountField));
+		ReleaseSRWLockExclusive(&g_srwLock_TradingAccount);
+
+		memset(BROKER_ID,0,sizeof(BROKER_ID));
+		memset(INVEST_ID,0,sizeof(INVEST_ID));
+		memset(m_sOrdRef,0,sizeof(m_sOrdRef));
+		memset(m_sTdday,0,sizeof(m_sTdday));
+		memset(m_sTmBegin,0,sizeof(m_sTmBegin));
+		memset(&m_FeeRateRev,0,sizeof(m_FeeRateRev));
+		memset(&m_RspMsg,0,sizeof(m_RspMsg));
+		memset(&m_TdAcc,0,sizeof(CThostFtdcTradingAccountField));
+		ClearAllVectors();
+	}
+
+	~CtpTraderSpi(){
+		pUserApi = NULL;
+		connctp = NULL;
+	}
 
 	///当客户端与交易后台建立起通信连接时（还未登录前），该方法被调用。
 	virtual void OnFrontConnected();
@@ -144,7 +171,7 @@ public:
 	///用户登录请求
 	int ReqUserLogin(TThostFtdcBrokerIDType appId,TThostFtdcUserIDType	userId,	TThostFtdcPasswordType	passwd);
 	int ReqUserLogout();
-	const char* GetTradingDay();
+	char* const GetTradingDay();
 	///投资者结算结果确认
 	int ReqSettlementInfoConfirm();
 	///请求查询结算信息确认
@@ -234,10 +261,11 @@ public:
 	// 是否收到成功的响应
 	bool IsErrorRspInfo(CThostFtdcRspInfoField *pRspInfo);
 	int ShowErrTips(TThostFtdcErrorMsgType ErrorMsg);
-  //void PrintOrders();
-  //void PrintTrades();
-public:
+	//void PrintOrders();
+	//void PrintTrades();
+private:
 	int m_iRequestID;
+public:
 	TThostFtdcBrokerIDType BROKER_ID;		// 经纪公司
 	TThostFtdcUserIDType INVEST_ID;		// 投资者代码
 

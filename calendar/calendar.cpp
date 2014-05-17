@@ -2,12 +2,10 @@
 #include "calendar.h"
 //最后交易日计算
 WORD ifFinalDay(WORD t_year,WORD t_month){
-	WORD t_monthDays = 0;
-	WORD t_weekDay = 0;
-	t_monthDays = MonthDays( t_year,t_month);
+	WORD const t_monthDays = MonthDays( t_year,t_month);
 	int totalFriday = 0;//统计一共多少个星期五，第三个星期五是最后交易日
 	for(WORD i = 1;i <= t_monthDays;i++){
-		t_weekDay = WeekDay(t_year,t_month,i);
+		WORD const t_weekDay = WeekDay(t_year,t_month,i);
 		if(t_weekDay ==  5){
 			totalFriday++;
 		}
@@ -20,8 +18,7 @@ WORD ifFinalDay(WORD t_year,WORD t_month){
 	return t_monthDays;//没有找到最后交易日,将最后交易日认为t_monthDays号,这样当月最后倒数第二天切换合约
 }
 WORD A50FinalDay(WORD t_year,WORD t_month){
-	WORD t_monthDays = 0;
-	t_monthDays = MonthDays( t_year,t_month);
+	WORD const t_monthDays = MonthDays( t_year,t_month);
 	int total  = 0;//倒数开始的交易天数统计
 	for(WORD i = t_monthDays;i >= 1;i--){
 		if(isTradeDay(t_year,t_month,i)){
@@ -34,8 +31,7 @@ WORD A50FinalDay(WORD t_year,WORD t_month){
 	return t_monthDays;//没有找到最后交易日,将最后交易日认为t_monthDays号,这样当月最后倒数第二天切换合约
 }
 bool isTradeDay(WORD t_year,WORD t_month,WORD t_day){
-	WORD t_weekday = 0;
-	t_weekday = WeekDay(t_year,t_month,t_day);
+	WORD const t_weekday = WeekDay(t_year,t_month,t_day);
 	//交易日历	
 	if(t_weekday == 6 || t_weekday == 0){
 		return false;
@@ -76,7 +72,7 @@ bool isTradeDay(WORD t_year,WORD t_month,WORD t_day){
 		return true;
 	}
 }
-WORD MonthDays(WORD year, WORD month)//根据输入的年号和月份，返回该月的天数    
+WORD MonthDays(WORD const year, WORD const month)//根据输入的年号和月份，返回该月的天数    
 {
 	switch(month)
 	{
@@ -98,7 +94,7 @@ WORD MonthDays(WORD year, WORD month)//根据输入的年号和月份，返回该月的天数
 	default: return 0;  
 	}
 }
-WORD WeekDay(WORD year,WORD month,WORD day)
+WORD WeekDay(WORD year,WORD const month,WORD const day)
 {
 	long sum;
 	WORD i;

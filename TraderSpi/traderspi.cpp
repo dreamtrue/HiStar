@@ -152,7 +152,7 @@ void CtpTraderSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
 		}
 }
 
-const char* CtpTraderSpi::GetTradingDay()
+char* const CtpTraderSpi::GetTradingDay()
 {
 	return m_sTdday;
 }
