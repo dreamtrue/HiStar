@@ -16,6 +16,7 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+extern bool iSell,iBuy;
 extern DWORD IndexThreadId;
 extern double datumDiff;
 extern bool isHedgeLoopingPause;
@@ -107,6 +108,7 @@ void CBasicPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_AVAIL_IB, m_availIb);
 	DDX_Control(pDX, IDC_BUTTON2, m_btnRun);
 	DDX_Control(pDX, IDC_BUTTON13, m_btnIni);
+	DDX_Control(pDX, IDC_SELL_OPEN, m_sellbuy);
 }
 
 BEGIN_MESSAGE_MAP(CBasicPage, CDialogEx)
@@ -131,6 +133,7 @@ BEGIN_MESSAGE_MAP(CBasicPage, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON8, &CBasicPage::OnBnClickedButton8)
 	ON_BN_CLICKED(IDC_MSHQ, &CBasicPage::OnBnClickedMshq)
 	ON_BN_CLICKED(IDC_UPDATE_INDEXREF, &CBasicPage::OnUpdateIndexref)
+	ON_BN_CLICKED(IDC_SELL_OPEN, &CBasicPage::OnBnClickedSellOpen)
 END_MESSAGE_MAP()
 
 
@@ -618,4 +621,24 @@ void CBasicPage::OnUpdateIndexref()
 	while(PostThreadMessage(IndexThreadId,WM_UPDATE_INDEX_REF,NULL,NULL) == 0){
 		Sleep(100);
 	}
+}
+
+
+void CBasicPage::OnBnClickedSellOpen()
+{
+	static int i = 0;
+	if(i % 3 == 0)
+	{
+		iSell = false;iBuy = true;
+		m_sellbuy.SetWindowText("OnlyBuy");
+	}
+	else if(i % 3 == 1){
+		iSell = true;iBuy = false;
+		m_sellbuy.SetWindowText("OnlySell");
+	}
+	else{
+		iSell = true;iBuy = true;
+		m_sellbuy.SetWindowText("Sell&&Buy");
+	}
+	i++;
 }

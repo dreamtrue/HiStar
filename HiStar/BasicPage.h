@@ -15,7 +15,6 @@
 #include "HiStar.h"
 #include "colorstatic.h"
 #include "BtnST.h"
-#include "c:\users\administrator\desktop\histar\trunk\cbuttonst\btnst.h"
 
 // CBasicPage 对话框
 class CBasicPage : public CDialogEx
@@ -96,6 +95,8 @@ public:
 	CColorStatic m_availIb;
 	CButtonST m_btnRun;
 	CButtonST m_btnIni;
+	afx_msg void OnBnClickedSellOpen();
+	CButtonST m_sellbuy;
 };
 //其他变量
 const int N = 5;

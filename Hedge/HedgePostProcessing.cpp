@@ -12,6 +12,7 @@ int SendMsg(CString msg);
 #define OPEN true
 #define CLOSE false
 extern bool isReal;
+bool iSell = true,iBuy = true;
 extern DWORD MainThreadId;
 double datumDiff = 0.0;
 double pointValueA50 = 1.0;double pointValueIf = 300.0;//合约每个点的价值
@@ -316,7 +317,7 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 			}
 		}
 		//开仓操作
-		if(isSupposedBuyOpen){
+		if(isSupposedBuyOpen && iBuy){
 			if(CurrentSectionSell <= SupposedSectionBuyOpen){
 				//需要开仓
 				HoldDetail newhold;
@@ -333,7 +334,7 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 				return;
 			}
 		}
-		if(isSupposedSellOpen){
+		if(isSupposedSellOpen && iSell){
 			if(CurrentSectionBuy >= SupposedSectionSellOpen){
 				//需要开仓
 				HoldDetail newhold;
