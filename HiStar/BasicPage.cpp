@@ -213,14 +213,14 @@ BOOL CBasicPage::OnInitDialog()
 	SetDlgItemText(IDC_MULTI_POS,TEXT(_T("1")));
 	SetDlgItemText(IDC_RICHEDIT26,TEXT(_T("16")));
 	//初始化列表控件
-	TCHAR* lpHdrs0[4] = {_T("ID"),_T("数量"),_T("所属区域"),_T("成本")};
-	int iWidths0[4] = {32,52,68,68};
+	TCHAR* lpHdrs0[6] = {_T("ID"),_T("数量"),_T("所属区域"),_T("成本"),_T("IF持仓"),_T("A50持仓")};
+	int iWidths0[6] = {32,52,68,68,68,68};
 	int i;
 	int total_cx = 0;
 	LVCOLUMN lvcolumn;
 	memset(&lvcolumn, 0, sizeof(lvcolumn));
 
-	for (i = 0;i < 4 ; i++)
+	for (i = 0;i < 6 ; i++)
 	{
 		lvcolumn.mask     = LVCF_FMT | LVCF_SUBITEM | LVCF_TEXT | LVCF_WIDTH|LVCFMT_IMAGE;
 		lvcolumn.fmt      = LVCFMT_RIGHT;
@@ -501,6 +501,14 @@ void CBasicPage::OnGetHedgeHold(NMHDR *pNMHDR, LRESULT *pResult){
 			str.Format("%.02lf",m_hedgeHold[iItem].originalCost);
 			lstrcpy(pItem->pszText,str);
 			break;
+		case 4:
+			str.Format("%ld",m_hedgeHold[iItem].numIf);
+			lstrcpy(pItem->pszText,str);
+			break;
+		case 5:
+			str.Format("%ld",m_hedgeHold[iItem].numA50);
+			lstrcpy(pItem->pszText,str);
+			break;
 		}
 	}
 	*pResult = 0;
@@ -557,13 +565,16 @@ void CBasicPage::SynchronizeSql(){
 	//数据库同步
 	if(((CHiStarApp*)AfxGetApp())->conn){
 		for(unsigned int j = 0;j < m_hedgeHold.size();j++){
-			char id[100],amou[100],sec[100],price[100];
+			char id[100],amou[100],sec[100],price[100],numIf[100],numA50[100];
+			memset(id,0,sizeof(id));memset(amou,0,sizeof(amou));memset(sec,0,sizeof(sec));memset(price,0,sizeof(price));memset(numIf,0,sizeof(numIf));memset(numA50,0,sizeof(numA50));
 			sprintf(id,"%ld,",m_hedgeHold[j].id);
 			sprintf(amou,"%d,",m_hedgeHold[j].HedgeNum);
 			sprintf(sec,"%d,",m_hedgeHold[j].HedgeSection);
-			sprintf(price,"%.02lf",m_hedgeHold[j].originalCost);
+			sprintf(price,"%.02lf,",m_hedgeHold[j].originalCost);
+			sprintf(numIf,"%ld,",m_hedgeHold[j].numIf);
+			sprintf(numA50,"%ld",m_hedgeHold[j].numA50);
 			CString insertdata = "INSERT INTO " + ((CHiStarApp*)AfxGetApp())->m_positionTableName 
-				+ " (ID,amount,section,price) VALUES (" + CString(id) + CString(amou) + CString(sec) + CString(price) + ")";
+				+ " (ID,amount,section,price,numIf,numA50) VALUES (" + CString(id) + CString(amou) + CString(sec) + CString(price) + CString(numIf)+ CString(numA50) + ")";
 			if(mysql_query(((CHiStarApp*)AfxGetApp())->conn,insertdata.GetBuffer())){
 				TRACE("Error %u: %s\n", mysql_errno(((CHiStarApp*)AfxGetApp())->conn), mysql_error(((CHiStarApp*)AfxGetApp())->conn));
 			}
@@ -573,7 +584,7 @@ void CBasicPage::SynchronizeSql(){
 
 void CBasicPage::OnBnClickedButton8()
 {
-	char text[100];int id;int num;int section;double price;memset(text,0,sizeof(text));
+	char text[100];int id;int num;int section;double price;long numIf;long numA50;memset(text,0,sizeof(text));
 	std::stringstream stream;
 	GetDlgItemTextA(IDC_RICHEDIT24,text,100);
 	if(strcmp(text,"") == 0)return;
@@ -583,7 +594,7 @@ void CBasicPage::OnBnClickedButton8()
 		}
 	}
 	stream << text;
-	stream >> id >> num >> section >> price;
+	stream >> id >> num >> section >> price >> numIf >> numA50;
 	bool idfouned = false;
 	for(unsigned int j = 0;j < m_hedgeHold.size();j++){
 		if(id == m_hedgeHold[j].id){
@@ -599,7 +610,7 @@ void CBasicPage::OnBnClickedButton8()
 		}
 	}
 	HoldDetail hd;
-	hd.id = id;hd.HedgeNum = num;hd.HedgeSection = section;hd.originalCost = price;
+	hd.id = id;hd.HedgeNum = num;hd.HedgeSection = section;hd.originalCost = price;hd.numIf = numIf;hd.numA50 = numA50;
 	m_hedgeHold.push_back(hd);
 	SetDlgItemTextA(IDC_RICHEDIT24,_T(""));
 	SynchronizeHoldViewToData();

@@ -28,6 +28,8 @@ struct HoldDetail{
 	int HedgeNum;
 	int HedgeSection;//开仓时所在的Section
 	long id;//序号
+	long numA50;
+	long numIf;
 };
 struct OrderStatus{
 	OrderId orderId;IBString status;int filled;

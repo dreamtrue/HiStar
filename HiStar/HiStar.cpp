@@ -373,7 +373,7 @@ void CHiStarApp::OnConnectSql(WPARAM wParam,LPARAM lParam)
 	//创建Hedge持仓明细表格
 	m_positionTableName = "position";
 	if(conn){
-		if(mysql_query(conn,"CREATE TABLE IF NOT EXISTS " + m_positionTableName + " (ID INTEGER,amount INTEGER,section INTEGER,price DOUBLE,primary key (ID))")) 
+		if(mysql_query(conn,"CREATE TABLE IF NOT EXISTS " + m_positionTableName + " (ID INTEGER,amount INTEGER,section INTEGER,price DOUBLE,NumIf INTEGER,NumA50 INTEGER,primary key (ID))")) 
 		{      
 			TRACE("Error %u: %s\n", mysql_errno(conn), mysql_error(conn));      
 		}
@@ -392,6 +392,8 @@ void CHiStarApp::OnConnectSql(WPARAM wParam,LPARAM lParam)
 			hd.HedgeNum = atoi(row[1]);
 			hd.HedgeSection = atoi(row[2]);
 			hd.originalCost = atof(row[3]);
+			hd.numIf = atol(row[4]);
+			hd.numA50 = atol(row[5]);
 			HedgeHold.push_back(hd);
 		}
 	}
