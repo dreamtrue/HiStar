@@ -394,6 +394,12 @@ void CHiStarApp::OnConnectSql(WPARAM wParam,LPARAM lParam)
 			hd.originalCost = atof(row[3]);
 			hd.numIf = atol(row[4]);
 			hd.numA50 = atol(row[5]);
+			if(hd.HedgeNum * hd.numA50 < 0 || hd.HedgeNum * hd.numIf > 0){
+				int res = ::MessageBox(NULL,_T("数据库持仓数量矛盾！"),_T(""),MB_OK|MB_ICONERROR);
+				if(res == IDOK){
+					return;
+				}
+			}
 			HedgeHold.push_back(hd);
 		}
 	}

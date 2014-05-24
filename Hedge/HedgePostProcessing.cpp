@@ -790,8 +790,12 @@ void CHedgePostProcessing::Run_PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 	}
 	if((OffsetFlag == OPEN && (hd.numA50 != t_totalTradedA50 || hd.numIf != -t_totalTradedIf))
 		|| (OffsetFlag == CLOSE && (hd.numA50 != -t_totalTradedA50 || hd.numIf != t_totalTradedIf))){
-			isHedgeLoopingPause = true;((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->m_basicPage.m_btnRun.SetWindowText(_T("成交错误！"));hedgeTaskStatus = NEW_HEDGE;
-			sprintf(buffer,_T("HEDGE INFORMATION:Trade num error!\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;SendMsg(buffer);
+			isHedgeLoopingPause = true;
+			if((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd)){
+				((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->m_basicPage.m_btnRun.SetWindowText(_T("成交错误！"));
+			}
+			hedgeTaskStatus = NEW_HEDGE;
+			sprintf(buffer,_T("HEDGE INFORMATION:TRADE ERROR OF NUM!\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;SendMsg(buffer);
 			return;
 	}
 	SelectIndex();

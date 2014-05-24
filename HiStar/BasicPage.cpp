@@ -609,6 +609,13 @@ void CBasicPage::OnBnClickedButton8()
 			return;
 		}
 	}
+	if(num * numA50 < 0 || num * numIf > 0){
+		int res = ::MessageBox(m_hWnd,_T("³Ö²ÖÊýÁ¿Ã¬¶Ü£¡"),_T(""),MB_OK|MB_ICONERROR);
+		if(res == IDOK){
+			SetDlgItemTextA(IDC_RICHEDIT24,_T(""));
+			return;
+		}
+	}
 	HoldDetail hd;
 	hd.id = id;hd.HedgeNum = num;hd.HedgeSection = section;hd.originalCost = price;hd.numIf = numIf;hd.numA50 = numA50;
 	m_hedgeHold.push_back(hd);
