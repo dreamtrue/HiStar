@@ -382,25 +382,27 @@ void CHiStarApp::OnConnectSql(WPARAM wParam,LPARAM lParam)
 		}
 		MYSQL_RES * res_set;MYSQL_ROW row;unsigned int num_fields;
 		res_set = mysql_store_result(conn);
-		num_fields = mysql_num_fields(res_set);
-		HedgeHold.clear();//先清空
-		while ((row = mysql_fetch_row(res_set))){
-			unsigned long *lengths;
-			lengths = mysql_fetch_lengths(res_set);
-			HoldDetail hd;
-			hd.id = atol(row[0]);
-			hd.HedgeNum = atoi(row[1]);
-			hd.HedgeSection = atoi(row[2]);
-			hd.originalCost = atof(row[3]);
-			hd.numIf = atol(row[4]);
-			hd.numA50 = atol(row[5]);
-			if(hd.HedgeNum * hd.numA50 < 0 || hd.HedgeNum * hd.numIf > 0){
-				int res = ::MessageBox(NULL,_T("数据库持仓数量矛盾！"),_T(""),MB_OK|MB_ICONERROR);
-				if(res == IDOK){
-					return;
+		if(res_set != NULL){
+			num_fields = mysql_num_fields(res_set);
+			HedgeHold.clear();//先清空
+			while ((row = mysql_fetch_row(res_set))){
+				unsigned long *lengths;
+				lengths = mysql_fetch_lengths(res_set);
+				HoldDetail hd;
+				hd.id = atol(row[0]);
+				hd.HedgeNum = atoi(row[1]);
+				hd.HedgeSection = atoi(row[2]);
+				hd.originalCost = atof(row[3]);
+				hd.numIf = atol(row[4]);
+				hd.numA50 = atol(row[5]);
+				if(hd.HedgeNum * hd.numA50 < 0 || hd.HedgeNum * hd.numIf > 0){
+					int res = ::MessageBox(NULL,_T("数据库持仓数量矛盾！"),_T(""),MB_OK|MB_ICONERROR);
+					if(res == IDOK){
+						return;
+					}
 				}
+				HedgeHold.push_back(hd);
 			}
-			HedgeHold.push_back(hd);
 		}
 	}
 	//更新持仓
