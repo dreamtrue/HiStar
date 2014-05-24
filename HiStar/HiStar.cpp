@@ -380,7 +380,7 @@ void CHiStarApp::OnConnectSql(WPARAM wParam,LPARAM lParam)
 		if(mysql_query(conn,"select * from position")){
 			TRACE("Error %u: %s\n", mysql_errno(conn), mysql_error(conn)); 
 		}
-		MYSQL_RES * res_set;MYSQL_ROW row;unsigned int num_fields;
+		MYSQL_RES * res_set = NULL;MYSQL_ROW row;unsigned int num_fields;
 		res_set = mysql_store_result(conn);
 		if(res_set != NULL){
 			num_fields = mysql_num_fields(res_set);
