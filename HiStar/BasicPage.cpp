@@ -134,6 +134,7 @@ BEGIN_MESSAGE_MAP(CBasicPage, CDialogEx)
 	ON_BN_CLICKED(IDC_MSHQ, &CBasicPage::OnBnClickedMshq)
 	ON_BN_CLICKED(IDC_UPDATE_INDEXREF, &CBasicPage::OnUpdateIndexref)
 	ON_BN_CLICKED(IDC_SELL_OPEN, &CBasicPage::OnBnClickedSellOpen)
+	ON_BN_CLICKED(IDC_UPDATE_IB, &CBasicPage::OnBnClickedUpdateIb)
 END_MESSAGE_MAP()
 
 
@@ -659,4 +660,17 @@ void CBasicPage::OnBnClickedSellOpen()
 		m_sellbuy.SetWindowText("Sell&&Buy");
 	}
 	i++;
+}
+
+void CBasicPage::OnBnClickedUpdateIb()
+{
+	if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+		while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_REQACCOUNTUPDATES,NULL,0) == 0){
+			Sleep(100);
+		}
+		TRACE("REQACCOUNTUPDATES 1\n");
+		while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_REQACCOUNTUPDATES,NULL,1) == 0){
+			Sleep(100);
+		}
+	}
 }

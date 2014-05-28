@@ -97,6 +97,7 @@ public:
 	CButtonST m_btnIni;
 	afx_msg void OnBnClickedSellOpen();
 	CButtonST m_sellbuy;
+	afx_msg void OnBnClickedUpdateIb();
 };
 //其他变量
 const int N = 5;
