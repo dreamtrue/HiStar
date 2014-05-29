@@ -2,6 +2,7 @@
 #include "HiStar.h"
 #include "global.h"
 #include "calendar.h"
+#include "MainDlg.h"
 extern bool iAccountDownloadEnd;
 //IB交易系统
 void CHiStarApp::OnConnectIB(WPARAM wParam,LPARAM lParam){
@@ -72,7 +73,7 @@ void CHiStarApp::SetA50Contract(){
 	CString a50days;
 	a50days.Format("%d",A50Final - sys.wDay);	
 	//到最后一天的前一天换合约
-	if(sys.wDay < A50Final){
+	if(sys.wDay < A50Final - 3){
 		expiry.Format(_T("%.4d%.2d"),sys.wYear,sys.wMonth);
 		m_LifeA50 = A50FinalDay(sys.wYear,sys.wMonth + 1) - sys.wDay + 1;
 	}
@@ -87,6 +88,14 @@ void CHiStarApp::SetA50Contract(){
 			m_LifeA50 = MonthDays(sys.wYear,sys.wMonth) - sys.wDay
 				+ A50FinalDay(sys.wYear + 1,1) + 1;
 		}
+	}
+	char A50NAME[100];memset(A50NAME,0,sizeof(A50NAME));
+	sprintf(A50NAME,"%s %s,%d",symbol,expiry,m_LifeA50);
+	if(sys.wDay < A50Final - 3){
+		((CMainDlg*)m_pMainWnd)->m_basicPage.m_csA50Show.SetWindowText(A50NAME,RED);
+	}
+	else{
+		((CMainDlg*)m_pMainWnd)->m_basicPage.m_csA50Show.SetWindowText(A50NAME,YELLOW);
 	}
 	right = _T("");
 	multiplier = _T("");

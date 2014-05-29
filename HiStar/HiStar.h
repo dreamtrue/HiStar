@@ -147,6 +147,7 @@ public:
 	void OnReqAccountUpdates(WPARAM wParam,LPARAM lParam);
 	Contract m_A50Contract;
 	WORD m_LifeA50;
+	WORD m_LifeIf;
 	TagValueListSPtr m_mktDepthOptions;
 	TagValueListSPtr m_mktDataOptions;
 	CHedgePostProcessing* m_pHedgePostProcessing;

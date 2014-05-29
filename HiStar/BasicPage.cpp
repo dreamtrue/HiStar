@@ -109,6 +109,8 @@ void CBasicPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BUTTON2, m_btnRun);
 	DDX_Control(pDX, IDC_BUTTON13, m_btnIni);
 	DDX_Control(pDX, IDC_SELL_OPEN, m_sellbuy);
+	DDX_Control(pDX, IDC_A50CONTRACT, m_csA50Show);
+	DDX_Control(pDX, IDC_IFCONTRACT, m_csIfShow);
 }
 
 BEGIN_MESSAGE_MAP(CBasicPage, CDialogEx)
@@ -206,6 +208,8 @@ BOOL CBasicPage::OnInitDialog()
 	m_openProfit.SetWindowText(_T("0.0"),LITGRAY);
 	m_closeProfit.SetBkColor(ACC_BG);
 	m_closeProfit.SetWindowText(_T("0.0"),LITGRAY);
+	m_csIfShow.SetBkColor(ACC_BG);
+	m_csA50Show.SetBkColor(ACC_BG);
 	//
 	SetDlgItemText(IDC_COST_ADJUST,TEXT(_T("0.0")));
 	SetDlgItemText(IDC_DATUMDIFF,TEXT(_T("0.0")));

@@ -15,6 +15,7 @@
 #include "HiStar.h"
 #include "colorstatic.h"
 #include "BtnST.h"
+#include "colorstatic.h"
 
 // CBasicPage 对话框
 class CBasicPage : public CDialogEx
@@ -98,6 +99,8 @@ public:
 	afx_msg void OnBnClickedSellOpen();
 	CButtonST m_sellbuy;
 	afx_msg void OnBnClickedUpdateIb();
+	CColorStatic m_csA50Show;
+	CColorStatic m_csIfShow;
 };
 //其他变量
 const int N = 5;

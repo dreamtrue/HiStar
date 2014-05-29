@@ -225,23 +225,34 @@ void CHiStarApp::SetIFContract(void)
 	GetLocalTime(&sys);
 	WORD ifFinal = ifFinalDay(sys.wYear,sys.wMonth);
 	CString insID;
-	if(ifFinal - sys.wDay <= 3){
-	}
 	//到最后一天的前一天换合约
-	if(sys.wDay < ifFinal){
+	if(sys.wDay < ifFinal - 3){
 		insID.Format(_T("%.4d%.2d"),sys.wYear,sys.wMonth);
+		m_LifeIf = ifFinalDay(sys.wYear,sys.wMonth + 1) - sys.wDay + 1;
 	}
 	else{
 		if(sys.wMonth < 12){
 			insID.Format(_T("%.4d%.2d"),sys.wYear,sys.wMonth + 1);
+			m_LifeIf = MonthDays(sys.wYear,sys.wMonth) - sys.wDay
+				+ ifFinalDay(sys.wYear,sys.wMonth + 1) + 1;
 		}
 		else{//年末
 			insID.Format(_T("%.4d%.2d"),sys.wYear + 1,1);
+			m_LifeIf = MonthDays(sys.wYear,sys.wMonth) - sys.wDay
+				+ ifFinalDay(sys.wYear + 1,1) + 1;
 		}
 	}
 	//多字节编码里的字母数字和ASCII是兼容的，所以才用CString和char[]在这儿效果一样。
 	//为了保持这种兼容，本程序只能采用多字节编码，否则会出错的。
 	m_accountCtp.m_szInst = _T("IF") + insID.Right(4);
+	char IFNAME[100];memset(IFNAME,0,sizeof(IFNAME));
+	sprintf(IFNAME,"IF%s,%d",insID,m_LifeIf);
+	if(sys.wDay < ifFinal - 3){
+		((CMainDlg*)m_pMainWnd)->m_basicPage.m_csIfShow.SetWindowText(IFNAME,RED);
+	}
+	else{
+		((CMainDlg*)m_pMainWnd)->m_basicPage.m_csIfShow.SetWindowText(IFNAME,YELLOW);
+	}
 }
 
 int CHiStarApp::FileInput(void)
