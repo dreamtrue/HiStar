@@ -788,8 +788,8 @@ void CHedgePostProcessing::Run_PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 			}
 		}
 	}
-	if((OffsetFlag == OPEN && (hd.numA50 != t_totalTradedA50 || hd.numIf != -t_totalTradedIf))
-		|| (OffsetFlag == CLOSE && (hd.numA50 != -t_totalTradedA50 || hd.numIf != t_totalTradedIf))){
+	if((OffsetFlag == OPEN && (hd.numA50 != t_totalTradedA50 || hd.numIf != t_totalTradedIf))
+		|| (OffsetFlag == CLOSE && (hd.numA50 != -t_totalTradedA50 || hd.numIf != -t_totalTradedIf))){
 			isHedgeLoopingPause = true;
 			if((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd)){
 				((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->m_basicPage.m_btnRun.SetWindowText(_T("³É½»´íÎó£¡"));
