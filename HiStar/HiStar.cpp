@@ -384,7 +384,7 @@ void CHiStarApp::OnConnectSql(WPARAM wParam,LPARAM lParam)
 	//创建Hedge持仓明细表格
 	m_positionTableName = "position";
 	if(conn){
-		if(mysql_query(conn,"CREATE TABLE IF NOT EXISTS " + m_positionTableName + " (ID INTEGER,amount INTEGER,section INTEGER,price DOUBLE,NumIf INTEGER,NumA50 INTEGER,primary key (ID))")) 
+		if(mysql_query(conn,"CREATE TABLE IF NOT EXISTS " + m_positionTableName + " (ID INTEGER,amount INTEGER,section INTEGER,price DOUBLE,numIf INTEGER,priceIf DOUBLE,indexHS300 DOUBLE,numA50 INTEGER,priceA50 DOUBLE,indexA50 DOUBLE,primary key (ID))")) 
 		{      
 			TRACE("Error %u: %s\n", mysql_errno(conn), mysql_error(conn));      
 		}
@@ -405,7 +405,11 @@ void CHiStarApp::OnConnectSql(WPARAM wParam,LPARAM lParam)
 				hd.HedgeSection = atoi(row[2]);
 				hd.originalCost = atof(row[3]);
 				hd.numIf = atol(row[4]);
-				hd.numA50 = atol(row[5]);
+				hd.priceIf = atof(row[5]);
+				hd.indexHS300 = atof(row[6]);
+				hd.numA50 = atol(row[7]);
+				hd.priceA50 = atof(row[8]);
+				hd.indexA50 = atof(row[9]);
 				if(hd.HedgeNum * hd.numA50 < 0 || hd.HedgeNum * hd.numIf > 0){
 					int res = ::MessageBox(NULL,_T("数据库持仓数量矛盾！"),_T(""),MB_OK|MB_ICONERROR);
 					if(res == IDOK){

@@ -31,6 +31,9 @@ extern double MarginA50;extern int MultiA50;
 extern double g_A50IndexZT,g_HS300IndexZT;
 extern bool isReal;
 extern CVector<HoldDetail> HedgeHold;
+extern bool iBackTest01;
+extern double profitBackTest,feeBackTest,NetProfitBackTest;
+UINT nTimerID;
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
 class CAboutDlg : public CDialogEx
@@ -111,6 +114,10 @@ void CBasicPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_SELL_OPEN, m_sellbuy);
 	DDX_Control(pDX, IDC_A50CONTRACT, m_csA50Show);
 	DDX_Control(pDX, IDC_IFCONTRACT, m_csIfShow);
+	DDX_Control(pDX, IDC_BUTTON14, m_bBackTest01);
+	DDX_Control(pDX, IDC_profit_bt, m_profitBT);
+	DDX_Control(pDX, IDC_fee_bt, m_feeBT);
+	DDX_Control(pDX, IDC_net_bt, m_netBT);
 }
 
 BEGIN_MESSAGE_MAP(CBasicPage, CDialogEx)
@@ -137,6 +144,8 @@ BEGIN_MESSAGE_MAP(CBasicPage, CDialogEx)
 	ON_BN_CLICKED(IDC_UPDATE_INDEXREF, &CBasicPage::OnUpdateIndexref)
 	ON_BN_CLICKED(IDC_SELL_OPEN, &CBasicPage::OnBnClickedSellOpen)
 	ON_BN_CLICKED(IDC_UPDATE_IB, &CBasicPage::OnBnClickedUpdateIb)
+	ON_BN_CLICKED(IDC_BUTTON14, &CBasicPage::OnBnClickedButton14)
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
@@ -210,6 +219,12 @@ BOOL CBasicPage::OnInitDialog()
 	m_closeProfit.SetWindowText(_T("0.0"),LITGRAY);
 	m_csIfShow.SetBkColor(ACC_BG);
 	m_csA50Show.SetBkColor(ACC_BG);
+	m_profitBT.SetBkColor(ACC_BG);
+	m_profitBT.SetWindowText(_T("0.0"),LITGRAY);
+	m_feeBT.SetBkColor(ACC_BG);
+	m_feeBT.SetWindowText(_T("0.0"),LITGRAY);
+	m_netBT.SetBkColor(ACC_BG);
+	m_netBT.SetWindowText(_T("0.0"),LITGRAY);
 	//
 	SetDlgItemText(IDC_COST_ADJUST,TEXT(_T("0.0")));
 	SetDlgItemText(IDC_DATUMDIFF,TEXT(_T("0.0")));
@@ -218,14 +233,14 @@ BOOL CBasicPage::OnInitDialog()
 	SetDlgItemText(IDC_MULTI_POS,TEXT(_T("1")));
 	SetDlgItemText(IDC_RICHEDIT26,TEXT(_T("16")));
 	//初始化列表控件
-	TCHAR* lpHdrs0[6] = {_T("ID"),_T("数量"),_T("所属区域"),_T("成本"),_T("IF持仓"),_T("A50持仓")};
-	int iWidths0[6] = {32,52,68,68,68,68};
+	TCHAR* lpHdrs0[10] = {_T("ID"),_T("数量"),_T("所属区域"),_T("成本"),_T("IF持仓"),_T("IF价格"),_T("IF指数"),_T("A50持仓"),_T("A50价格"),_T("A50指数")};
+	int iWidths0[10] = {32,52,68,68,68,68,68,68,68,68};
 	int i;
 	int total_cx = 0;
 	LVCOLUMN lvcolumn;
 	memset(&lvcolumn, 0, sizeof(lvcolumn));
 
-	for (i = 0;i < 6 ; i++)
+	for (i = 0;i < 10 ; i++)
 	{
 		lvcolumn.mask     = LVCF_FMT | LVCF_SUBITEM | LVCF_TEXT | LVCF_WIDTH|LVCFMT_IMAGE;
 		lvcolumn.fmt      = LVCFMT_RIGHT;
@@ -380,6 +395,10 @@ void CBasicPage::RefreshMdPane(void)
 	m_A50UP.SetDouble(g_A50Index - g_A50IndexZT,CmpPriceColor(g_A50Index - g_A50IndexZT,0));
 	m_HS300UP.SetDouble(g_HS300Index - g_HS300IndexZT,CmpPriceColor(g_HS300Index - g_HS300IndexZT,0));
 
+	m_profitBT.SetDouble(profitBackTest,CmpPriceColor(profitBackTest,0));
+	m_feeBT.SetDouble(feeBackTest,CmpPriceColor(feeBackTest,0));
+	m_netBT.SetDouble(NetProfitBackTest,CmpPriceColor(NetProfitBackTest,0));
+
 	if(pApp && pApp->m_cT){
 
 		AcquireSRWLockShared(&g_srwLock_TradingAccount);
@@ -389,20 +408,21 @@ void CBasicPage::RefreshMdPane(void)
 		ReleaseSRWLockShared(&g_srwLock_TradingAccount);
 
 	}
-
-	SYSTEMTIME sys;
-	GetLocalTime(&sys);
-	char data[1000],datetime[100];
-	if(((CHiStarApp*)AfxGetApp())->conn){
-		sprintf(datetime,"'%d-%d-%d %d:%d:%d',%d,",sys.wYear,sys.wMonth,sys.wDay,sys.wHour,sys.wMinute,sys.wSecond,sys.wMilliseconds);
-		sprintf(data,"%.02lf,%.02lf,%.02lf,%.02lf,%.02lf,%.02lf,%.02lf,%.02lf",g_A50Index,g_a50Bid1,g_a50Ask1,g_HS300Index,m_depthMd.BidPrice1,m_depthMd.AskPrice1,
-			g_a50Ask1 - m_depthMd.BidPrice1 / g_HS300Index * g_A50Index,g_a50Bid1 - m_depthMd.AskPrice1 / g_HS300Index * g_A50Index);
-		CString insertdata = "INSERT INTO " + ((CHiStarApp*)AfxGetApp())->m_marketTableName 
-			+ " (datetime,millisecond,a50index,a50bid,a50ask,hs300index,hs300bid,hs300ask,preniumHigh,preniumLow) VALUES (" + CString(datetime) + CString(data) +")";
-		if(mysql_query(((CHiStarApp*)AfxGetApp())->conn,insertdata.GetBuffer())){
-			TRACE("Error %u: %s\n", mysql_errno(((CHiStarApp*)AfxGetApp())->conn), mysql_error(((CHiStarApp*)AfxGetApp())->conn));
+	if(isReal){
+		SYSTEMTIME sys;
+		GetLocalTime(&sys);
+		char data[1000],datetime[100];
+		if(((CHiStarApp*)AfxGetApp())->conn){
+			sprintf(datetime,"'%d-%d-%d %d:%d:%d',%d,",sys.wYear,sys.wMonth,sys.wDay,sys.wHour,sys.wMinute,sys.wSecond,sys.wMilliseconds);
+			sprintf(data,"%.02lf,%.02lf,%.02lf,%.02lf,%.02lf,%.02lf,%.02lf,%.02lf",g_A50Index,g_a50Bid1,g_a50Ask1,g_HS300Index,m_depthMd.BidPrice1,m_depthMd.AskPrice1,
+				g_a50Ask1 - m_depthMd.BidPrice1 / g_HS300Index * g_A50Index,g_a50Bid1 - m_depthMd.AskPrice1 / g_HS300Index * g_A50Index);
+			CString insertdata = "INSERT INTO " + ((CHiStarApp*)AfxGetApp())->m_marketTableName 
+				+ " (datetime,millisecond,a50index,a50bid,a50ask,hs300index,hs300bid,hs300ask,preniumHigh,preniumLow) VALUES (" + CString(datetime) + CString(data) +")";
+			if(mysql_query(((CHiStarApp*)AfxGetApp())->conn,insertdata.GetBuffer())){
+				TRACE("Error %u: %s\n", mysql_errno(((CHiStarApp*)AfxGetApp())->conn), mysql_error(((CHiStarApp*)AfxGetApp())->conn));
+			}
 		}
-	}	
+	}
 }
 
 void CBasicPage::OnResumeOrPause()
@@ -511,7 +531,23 @@ void CBasicPage::OnGetHedgeHold(NMHDR *pNMHDR, LRESULT *pResult){
 			lstrcpy(pItem->pszText,str);
 			break;
 		case 5:
+			str.Format("%.02lf",m_hedgeHold[iItem].priceIf);
+			lstrcpy(pItem->pszText,str);
+			break;
+		case 6:
+			str.Format("%.02lf",m_hedgeHold[iItem].indexHS300);
+			lstrcpy(pItem->pszText,str);
+			break;
+		case 7:
 			str.Format("%ld",m_hedgeHold[iItem].numA50);
+			lstrcpy(pItem->pszText,str);
+			break;
+		case 8:
+			str.Format("%.02lf",m_hedgeHold[iItem].priceA50);
+			lstrcpy(pItem->pszText,str);
+			break;
+		case 9:
+			str.Format("%.02lf",m_hedgeHold[iItem].indexA50);
 			lstrcpy(pItem->pszText,str);
 			break;
 		}
@@ -570,16 +606,21 @@ void CBasicPage::SynchronizeSql(){
 	//数据库同步
 	if(((CHiStarApp*)AfxGetApp())->conn){
 		for(unsigned int j = 0;j < m_hedgeHold.size();j++){
-			char id[100],amou[100],sec[100],price[100],numIf[100],numA50[100];
+			char id[100],amou[100],sec[100],price[100],numIf[100],priceIf[100],indexHS300[100],numA50[100],priceA50[100],indexA50[100];
 			memset(id,0,sizeof(id));memset(amou,0,sizeof(amou));memset(sec,0,sizeof(sec));memset(price,0,sizeof(price));memset(numIf,0,sizeof(numIf));memset(numA50,0,sizeof(numA50));
+			memset(priceIf,0,sizeof(priceIf));memset(indexHS300,0,sizeof(indexHS300));memset(priceA50,0,sizeof(priceA50));memset(indexA50,0,sizeof(indexA50));
 			sprintf(id,"%ld,",m_hedgeHold[j].id);
 			sprintf(amou,"%d,",m_hedgeHold[j].HedgeNum);
 			sprintf(sec,"%d,",m_hedgeHold[j].HedgeSection);
 			sprintf(price,"%.02lf,",m_hedgeHold[j].originalCost);
 			sprintf(numIf,"%ld,",m_hedgeHold[j].numIf);
-			sprintf(numA50,"%ld",m_hedgeHold[j].numA50);
+			sprintf(priceIf,"%.02lf,",m_hedgeHold[j].priceIf);
+			sprintf(indexHS300,"%.02lf,",m_hedgeHold[j].indexHS300);
+			sprintf(numA50,"%ld,",m_hedgeHold[j].numA50);
+			sprintf(priceA50,"%.02lf,",m_hedgeHold[j].priceA50);
+			sprintf(indexA50,"%.02lf",m_hedgeHold[j].indexA50);
 			CString insertdata = "INSERT INTO " + ((CHiStarApp*)AfxGetApp())->m_positionTableName 
-				+ " (ID,amount,section,price,numIf,numA50) VALUES (" + CString(id) + CString(amou) + CString(sec) + CString(price) + CString(numIf)+ CString(numA50) + ")";
+				+ " (ID,amount,section,price,numIf,priceIf,indexHS300,numA50,priceA50,indexA50) VALUES (" + CString(id) + CString(amou) + CString(sec) + CString(price) + CString(numIf) + CString(priceIf) + CString(indexHS300) + CString(numA50) + CString(priceA50) + CString(indexA50) + ")";
 			if(mysql_query(((CHiStarApp*)AfxGetApp())->conn,insertdata.GetBuffer())){
 				TRACE("Error %u: %s\n", mysql_errno(((CHiStarApp*)AfxGetApp())->conn), mysql_error(((CHiStarApp*)AfxGetApp())->conn));
 			}
@@ -590,6 +631,7 @@ void CBasicPage::SynchronizeSql(){
 void CBasicPage::OnBnClickedButton8()
 {
 	char text[100];int id;int num;int section;double price;long numIf;long numA50;memset(text,0,sizeof(text));
+	double priceIf,priceA50,indexHS300,indexA50;
 	std::stringstream stream;
 	GetDlgItemTextA(IDC_RICHEDIT24,text,100);
 	if(strcmp(text,"") == 0)return;
@@ -599,7 +641,7 @@ void CBasicPage::OnBnClickedButton8()
 		}
 	}
 	stream << text;
-	stream >> id >> num >> section >> price >> numIf >> numA50;
+	stream >> id >> num >> section >> price >> numIf >> priceIf >> indexHS300 >> numA50 >> priceA50 >> indexA50;
 	bool idfouned = false;
 	for(unsigned int j = 0;j < m_hedgeHold.size();j++){
 		if(id == m_hedgeHold[j].id){
@@ -623,6 +665,7 @@ void CBasicPage::OnBnClickedButton8()
 	}
 	HoldDetail hd;
 	hd.id = id;hd.HedgeNum = num;hd.HedgeSection = section;hd.originalCost = price;hd.numIf = numIf;hd.numA50 = numA50;
+	hd.priceIf = priceIf;hd.priceA50 = priceA50;hd.indexHS300 = indexHS300;hd.indexA50 = indexA50;
 	m_hedgeHold.push_back(hd);
 	SetDlgItemTextA(IDC_RICHEDIT24,_T(""));
 	SynchronizeHoldViewToData();
@@ -677,4 +720,32 @@ void CBasicPage::OnBnClickedUpdateIb()
 			Sleep(100);
 		}
 	}
+}
+
+void CBasicPage::OnBnClickedButton14()
+{
+	if(!isReal){
+		if(!iBackTest01){
+			iBackTest01 = true;
+			m_bBackTest01.SetWindowText("回测01运行...");
+			SetTimer(nTimerID,1,NULL);
+		}
+		else{
+			iBackTest01 = false;
+			m_bBackTest01.SetWindowText("回测01暂停...");
+			KillTimer(nTimerID);
+		}
+	}
+}
+
+void CBasicPage::OnTimer(UINT_PTR nIDEvent)
+{
+	if(iBackTest01){
+		if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
+			while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_MD_REFRESH,NULL,NULL) == 0){
+				Sleep(100);
+			}
+		}
+	}
+	CDialogEx::OnTimer(nIDEvent);
 }

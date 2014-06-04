@@ -16,6 +16,10 @@
 #include "colorstatic.h"
 #include "BtnST.h"
 #include "colorstatic.h"
+#include "c:\users\administrator\desktop\histar\trunk\cbuttonst\btnst.h"
+#include "c:\users\administrator\desktop\histar\trunk\diyctrl\colorstatic.h"
+#include "c:\users\administrator\desktop\histar\trunk\diyctrl\colorstatic.h"
+#include "c:\users\administrator\desktop\histar\trunk\diyctrl\colorstatic.h"
 
 // CBasicPage 对话框
 class CBasicPage : public CDialogEx
@@ -101,6 +105,12 @@ public:
 	afx_msg void OnBnClickedUpdateIb();
 	CColorStatic m_csA50Show;
 	CColorStatic m_csIfShow;
+	afx_msg void OnBnClickedButton14();
+	CButtonST m_bBackTest01;
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	CColorStatic m_profitBT;
+	CColorStatic m_feeBT;
+	CColorStatic m_netBT;
 };
 //其他变量
 const int N = 5;

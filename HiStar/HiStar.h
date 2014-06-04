@@ -30,6 +30,7 @@ struct HoldDetail{
 	long id;//ÐòºÅ
 	long numA50;
 	long numIf;
+    double priceIf,priceA50,indexHS300,indexA50;
 };
 struct OrderStatus{
 	OrderId orderId;IBString status;int filled;
@@ -151,7 +152,7 @@ public:
 	TagValueListSPtr m_mktDepthOptions;
 	TagValueListSPtr m_mktDataOptions;
 	CHedgePostProcessing* m_pHedgePostProcessing;
-	int ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag);
+	int ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag,double &a50Bid1,double &a50Ask1,double &ifBid1,double &ifAsk1,double &A50IndexNow,double &HS300IndexNow);
 	Order m_IBOrder;
 	CMSHQ* m_pMSHQ;
 	int FileInput(void);
