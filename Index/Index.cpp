@@ -100,15 +100,17 @@ BOOL CIndex::InitInstance()
 		if(mysql_query(connindex,"select * from HISTARINDEX")){
 			TRACE("Error %u: %s\n", mysql_errno(connindex), mysql_error(connindex)); 
 		}
-		MYSQL_RES * res_set;MYSQL_ROW row;unsigned int num_fields;
+		MYSQL_RES * res_set = NULL;MYSQL_ROW row;unsigned int num_fields = 0;
 		res_set = mysql_store_result(connindex);
-		num_fields = mysql_num_fields(res_set);
-		while ((row = mysql_fetch_row(res_set))){
-			A50IndexRef = atof(row[1]);
-			A50totalValueRef = atof(row[2]);
-			HS300IndexRef = atof(row[3]);
-			HS300totalValueRef = atof(row[4]);
-		}	
+		if(res_set != NULL){
+			num_fields = mysql_num_fields(res_set);
+			while ((row = mysql_fetch_row(res_set))){
+				A50IndexRef = atof(row[1]);
+				A50totalValueRef = atof(row[2]);
+				HS300IndexRef = atof(row[3]);
+				HS300totalValueRef = atof(row[4]);
+			}	
+		}
 	}
 	try{
 		myHttpFile = (CHttpFile*)mySession.OpenURL(m_hexunA50,1,INTERNET_FLAG_RELOAD|INTERNET_FLAG_TRANSFER_ASCII);
