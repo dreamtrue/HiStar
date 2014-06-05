@@ -16,10 +16,6 @@
 #include "colorstatic.h"
 #include "BtnST.h"
 #include "colorstatic.h"
-#include "c:\users\administrator\desktop\histar\trunk\cbuttonst\btnst.h"
-#include "c:\users\administrator\desktop\histar\trunk\diyctrl\colorstatic.h"
-#include "c:\users\administrator\desktop\histar\trunk\diyctrl\colorstatic.h"
-#include "c:\users\administrator\desktop\histar\trunk\diyctrl\colorstatic.h"
 
 // CBasicPage ¶Ô»°¿ò
 class CBasicPage : public CDialogEx
