@@ -126,7 +126,7 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 				static MYSQL_RES * res_set = NULL;MYSQL_ROW row;
 				static bool iFirstSql = true;
 				if(iFirstSql){
-					if(mysql_query(conn,"select * from market_20140528")){
+					if(mysql_query(conn,"select * from market_20140606")){
 						TRACE("Error %u: %s\n", mysql_errno(conn), mysql_error(conn)); 
 					}
 					res_set = mysql_store_result(conn);
@@ -553,32 +553,33 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag,double &a50Bid1,do
 						if(iBackTest01){
 							t_avgPriceA50_BackTest = a50Ask1;
 						}
-						else
+						else{
 							((CHiStarApp*)AfxGetApp())->m_pIBClient->placeOrder(++((CHiStarApp*)AfxGetApp())->m_id,((CHiStarApp*)AfxGetApp())->m_A50Contract,((CHiStarApp*)AfxGetApp())->m_IBOrder);
-						a50task.id = ((CHiStarApp*)AfxGetApp())->m_id;a50task.volumeRecord = NeedBuyA50 - NeedSellA50;a50task.direction = 'l';a50task.priceRecord = a50Ask1;
-						hedgetask.a50alltask.push_back(a50task);
+							a50task.id = ((CHiStarApp*)AfxGetApp())->m_id;a50task.volumeRecord = NeedBuyA50 - NeedSellA50;a50task.direction = 'l';a50task.priceRecord = a50Ask1;
+							hedgetask.a50alltask.push_back(a50task);
+						}
 					}
 				}
 			}
-		}
-		else if(NeedBuyA50 - NeedSellA50 < 0){
-			((CHiStarApp*)AfxGetApp())->m_IBOrder.action = "SELL";
-			((CHiStarApp*)AfxGetApp())->m_IBOrder.totalQuantity = -(NeedBuyA50 - NeedSellA50);
-			((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice = DealA50Price(false,a50Bid1 - 500.0);
-			((CHiStarApp*)AfxGetApp())->m_IBOrder.whatIf = false;
-			if(((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice < 1.0){
-				sprintf(buffer,_T("A50买价小于1.0,异常\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
-				return -1;
-			}
-			if(((CHiStarApp*)AfxGetApp())->m_pIBClient){
-				if(iA50CanTrade){
-					if(iBackTest01){
-						t_avgPriceA50_BackTest = a50Bid1;
-					}
-					else{
-						((CHiStarApp*)AfxGetApp())->m_pIBClient->placeOrder(++((CHiStarApp*)AfxGetApp())->m_id,((CHiStarApp*)AfxGetApp())->m_A50Contract,((CHiStarApp*)AfxGetApp())->m_IBOrder);
-						a50task.id = ((CHiStarApp*)AfxGetApp())->m_id;a50task.volumeRecord = -(NeedBuyA50 - NeedSellA50);a50task.direction = 's';a50task.priceRecord = a50Bid1;
-						hedgetask.a50alltask.push_back(a50task);
+			else if(NeedBuyA50 - NeedSellA50 < 0){
+				((CHiStarApp*)AfxGetApp())->m_IBOrder.action = "SELL";
+				((CHiStarApp*)AfxGetApp())->m_IBOrder.totalQuantity = -(NeedBuyA50 - NeedSellA50);
+				((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice = DealA50Price(false,a50Bid1 - 500.0);
+				((CHiStarApp*)AfxGetApp())->m_IBOrder.whatIf = false;
+				if(((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice < 1.0){
+					sprintf(buffer,_T("A50买价小于1.0,异常\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
+					return -1;
+				}
+				if(((CHiStarApp*)AfxGetApp())->m_pIBClient){
+					if(iA50CanTrade){
+						if(iBackTest01){
+							t_avgPriceA50_BackTest = a50Bid1;
+						}
+						else{
+							((CHiStarApp*)AfxGetApp())->m_pIBClient->placeOrder(++((CHiStarApp*)AfxGetApp())->m_id,((CHiStarApp*)AfxGetApp())->m_A50Contract,((CHiStarApp*)AfxGetApp())->m_IBOrder);
+							a50task.id = ((CHiStarApp*)AfxGetApp())->m_id;a50task.volumeRecord = -(NeedBuyA50 - NeedSellA50);a50task.direction = 's';a50task.priceRecord = a50Bid1;
+							hedgetask.a50alltask.push_back(a50task);
+						}
 					}
 				}
 			}
