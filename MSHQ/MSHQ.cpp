@@ -2,15 +2,11 @@
 #include "HiStar.h"
 #include "MSHQ.h"
 #include "DealIndex.h"
+#include "me.h"
 double g_totalA50Value = 0;//A50总值
 double g_totalHS300Value = 0;//HS300总值
 double g_A50IndexMSHQ = 0;
 double g_HS300IndexMSHQ = 0;
-struct stock{
-	std::string exch;
-	std::string code;
-	int volume;
-};
 extern std::vector<stock> g_hs300;
 extern std::vector<stock> g_a50;
 extern double A50IndexRef,A50totalValueRef,HS300IndexRef,HS300totalValueRef;
@@ -69,14 +65,14 @@ IMPLEMENT_DYNCREATE(CMSHQ, CWinThread)
 	memset(stock.Code,0,sizeof(stock.Code));
 	for(unsigned int i = 0;i < 50;i++){
 		if(i < g_a50.size()){
-			strcpy(stock.Code,g_a50[i].code.c_str());
+			strcpy_s(stock.Code,g_a50[i].code.c_str());
 			stock.volume = g_a50[i].volume;
 			StockSlfList.Add(stock);
 		}
 	}
 	for(unsigned int i = 0;i < 300;i++){
 		if(i < g_hs300.size()){
-			strcpy(stock.Code,g_hs300[i].code.c_str());
+			strcpy_s(stock.Code,g_hs300[i].code.c_str());
 			stock.volume = g_hs300[i].volume;
 			StockSlfList.Add(stock);
 		}

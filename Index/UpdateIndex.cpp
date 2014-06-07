@@ -5,6 +5,7 @@
 #include "Index.h"
 #include <string>
 #include "HiStar.h"
+#include "me.h"
 #define A50NUM 50
 #define HS300NUM 300
 #define TOTAL 350
@@ -15,11 +16,6 @@ double g_A50Index = 0;
 double g_HS300Index = 0;
 double g_A50IndexZT = 0,g_HS300IndexZT = 0;
 extern double A50IndexRef,A50totalValueRef,HS300IndexRef,HS300totalValueRef;
-struct stock{
-	std::string exch;
-	std::string code;
-	int volume;
-};
 extern std::vector<stock> g_hs300;
 extern std::vector<stock> g_a50;
 MYSQL *connindex;

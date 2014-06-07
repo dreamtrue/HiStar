@@ -228,8 +228,8 @@ BOOL CBasicPage::OnInitDialog()
 	//
 	SetDlgItemText(IDC_COST_ADJUST,TEXT(_T("0.0")));
 	SetDlgItemText(IDC_DATUMDIFF,TEXT(_T("0.0")));
-	SetDlgItemText(IDC_MINPROFIT,TEXT(_T("10.0")));
-	SetDlgItemText(IDC_MAXPROFIT,TEXT(_T("10.0")));
+	SetDlgItemText(IDC_MINPROFIT,TEXT(_T("20.0")));
+	SetDlgItemText(IDC_MAXPROFIT,TEXT(_T("20.0")));
 	SetDlgItemText(IDC_MULTI_POS,TEXT(_T("1")));
 	SetDlgItemText(IDC_RICHEDIT26,TEXT(_T("16")));
 	//初始化列表控件
@@ -413,8 +413,8 @@ void CBasicPage::RefreshMdPane(void)
 		GetLocalTime(&sys);
 		char data[1000],datetime[100];
 		if(((CHiStarApp*)AfxGetApp())->conn){
-			sprintf(datetime,"'%d-%d-%d %d:%d:%d',%d,",sys.wYear,sys.wMonth,sys.wDay,sys.wHour,sys.wMinute,sys.wSecond,sys.wMilliseconds);
-			sprintf(data,"%.02lf,%.02lf,%.02lf,%.02lf,%.02lf,%.02lf,%.02lf,%.02lf",g_A50Index,g_a50Bid1,g_a50Ask1,g_HS300Index,m_depthMd.BidPrice1,m_depthMd.AskPrice1,
+			sprintf_s(datetime,"'%d-%d-%d %d:%d:%d',%d,",sys.wYear,sys.wMonth,sys.wDay,sys.wHour,sys.wMinute,sys.wSecond,sys.wMilliseconds);
+			sprintf_s(data,"%.02lf,%.02lf,%.02lf,%.02lf,%.02lf,%.02lf,%.02lf,%.02lf",g_A50Index,g_a50Bid1,g_a50Ask1,g_HS300Index,m_depthMd.BidPrice1,m_depthMd.AskPrice1,
 				g_a50Ask1 - m_depthMd.BidPrice1 / g_HS300Index * g_A50Index,g_a50Bid1 - m_depthMd.AskPrice1 / g_HS300Index * g_A50Index);
 			CString insertdata = "INSERT INTO " + ((CHiStarApp*)AfxGetApp())->m_marketTableName 
 				+ " (datetime,millisecond,a50index,a50bid,a50ask,hs300index,hs300bid,hs300ask,preniumHigh,preniumLow) VALUES (" + CString(datetime) + CString(data) +")";
@@ -609,16 +609,16 @@ void CBasicPage::SynchronizeSql(){
 			char id[100],amou[100],sec[100],price[100],numIf[100],priceIf[100],indexHS300[100],numA50[100],priceA50[100],indexA50[100];
 			memset(id,0,sizeof(id));memset(amou,0,sizeof(amou));memset(sec,0,sizeof(sec));memset(price,0,sizeof(price));memset(numIf,0,sizeof(numIf));memset(numA50,0,sizeof(numA50));
 			memset(priceIf,0,sizeof(priceIf));memset(indexHS300,0,sizeof(indexHS300));memset(priceA50,0,sizeof(priceA50));memset(indexA50,0,sizeof(indexA50));
-			sprintf(id,"%ld,",m_hedgeHold[j].id);
-			sprintf(amou,"%d,",m_hedgeHold[j].HedgeNum);
-			sprintf(sec,"%d,",m_hedgeHold[j].HedgeSection);
-			sprintf(price,"%.02lf,",m_hedgeHold[j].originalCost);
-			sprintf(numIf,"%ld,",m_hedgeHold[j].numIf);
-			sprintf(priceIf,"%.02lf,",m_hedgeHold[j].priceIf);
-			sprintf(indexHS300,"%.02lf,",m_hedgeHold[j].indexHS300);
-			sprintf(numA50,"%ld,",m_hedgeHold[j].numA50);
-			sprintf(priceA50,"%.02lf,",m_hedgeHold[j].priceA50);
-			sprintf(indexA50,"%.02lf",m_hedgeHold[j].indexA50);
+			sprintf_s(id,"%ld,",m_hedgeHold[j].id);
+			sprintf_s(amou,"%d,",m_hedgeHold[j].HedgeNum);
+			sprintf_s(sec,"%d,",m_hedgeHold[j].HedgeSection);
+			sprintf_s(price,"%.02lf,",m_hedgeHold[j].originalCost);
+			sprintf_s(numIf,"%ld,",m_hedgeHold[j].numIf);
+			sprintf_s(priceIf,"%.02lf,",m_hedgeHold[j].priceIf);
+			sprintf_s(indexHS300,"%.02lf,",m_hedgeHold[j].indexHS300);
+			sprintf_s(numA50,"%ld,",m_hedgeHold[j].numA50);
+			sprintf_s(priceA50,"%.02lf,",m_hedgeHold[j].priceA50);
+			sprintf_s(indexA50,"%.02lf",m_hedgeHold[j].indexA50);
 			CString insertdata = "INSERT INTO " + ((CHiStarApp*)AfxGetApp())->m_positionTableName 
 				+ " (ID,amount,section,price,numIf,priceIf,indexHS300,numA50,priceA50,indexA50) VALUES (" + CString(id) + CString(amou) + CString(sec) + CString(price) + CString(numIf) + CString(priceIf) + CString(indexHS300) + CString(numA50) + CString(priceA50) + CString(indexA50) + ")";
 			if(mysql_query(((CHiStarApp*)AfxGetApp())->conn,insertdata.GetBuffer())){

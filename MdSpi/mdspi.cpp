@@ -41,10 +41,10 @@ void CtpMdSpi::OnFrontConnected(){
 int CtpMdSpi::ReqUserLogin(TThostFtdcBrokerIDType	vAppId,TThostFtdcUserIDType	vUserId,TThostFtdcPasswordType	vPasswd){
 	CThostFtdcReqUserLoginField req;
 	memset(&req, 0, sizeof(req));
-	strcpy(req.BrokerID, vAppId); strcpy(m_sBkrID, vAppId); 
-	strcpy(req.UserID, vUserId);  strcpy(m_sINVEST_ID, vUserId); 
-	strcpy(req.Password, vPasswd);
-	strcpy(req.UserProductInfo,PROD_INFO);
+	strcpy_s(req.BrokerID, vAppId); strcpy_s(m_sBkrID, vAppId); 
+	strcpy_s(req.UserID, vUserId);  strcpy_s(m_sINVEST_ID, vUserId); 
+	strcpy_s(req.Password, vPasswd);
+	strcpy_s(req.UserProductInfo,PROD_INFO);
 	while(pUserApi->ReqUserLogin(&req, ++m_iRequestID) != 0){}
 	return m_iRequestID;
 }

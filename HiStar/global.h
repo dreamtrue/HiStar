@@ -969,7 +969,7 @@ inline BOOL AddSvr2Ar(CStringArray& szArTs,CStringArray& szArMd,CString szTitle)
 		for (xpath_node_set::const_iterator it = sVrs.begin(); it !=  sVrs.end(); ++it)
 		{
 			xpath_node node = *it;
-			strcpy(strName,node.node().child(sNmae).child_value());//
+			strcpy_s(strName,node.node().child(sNmae).child_value());//
 			ansi2uni(CP_UTF8,strName,tName.GetBuffer(MAX_PATH));
 
 			if (tName.Compare(szTitle)==0)

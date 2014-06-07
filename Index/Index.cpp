@@ -8,6 +8,7 @@
 #include "HiStar.h"
 #include <afxinet.h>
 #include <vector>
+#include "me.h"
 #define A50NUM 50
 #define HS300NUM 300
 SYSTEMTIME systime01,time_09_00_00,time_09_40_00;
@@ -17,18 +18,6 @@ int seconds(SYSTEMTIME &time);
 double totalValueA50ZT = 0;
 double totalValueHS300ZT = 0;
 double A50IndexRef;double A50totalValueRef;double HS300IndexRef;double HS300totalValueRef;
-struct stock{
-	std::string exch;
-	std::string code;
-	int volume;
-};
-struct sqldb{
-	std::string host;
-	std::string user;
-	std::string passwd;
-	std::string db;
-	sqldb();
-};
 extern sqldb m_db;
 extern std::vector<stock> g_hs300;
 extern std::vector<stock> g_a50;
@@ -211,7 +200,7 @@ BOOL CIndex::InitInstance()
 		A50totalValueRef = totalValueA50ZT;A50IndexRef = g_A50IndexZT;
 		HS300totalValueRef = totalValueHS300ZT;HS300IndexRef = g_HS300IndexZT;
 		//¥Ê»Î÷∏ ˝
-		sprintf(data01,"INSERT INTO HISTARINDEX (name,A50REF,A50VALUE,HS300REF,HS300VALUE) VALUES('indexref',%.02lf,%.02lf,%.02lf,%.02lf) ON DUPLICATE KEY UPDATE A50REF = %.02lf,A50VALUE = %.02lf,HS300REF = %.02lf,HS300VALUE = %.02lf",g_A50IndexZT,totalValueA50ZT,g_HS300IndexZT,totalValueHS300ZT,g_A50IndexZT,totalValueA50ZT,g_HS300IndexZT,totalValueHS300ZT);
+		sprintf_s(data01,"INSERT INTO HISTARINDEX (name,A50REF,A50VALUE,HS300REF,HS300VALUE) VALUES('indexref',%.02lf,%.02lf,%.02lf,%.02lf) ON DUPLICATE KEY UPDATE A50REF = %.02lf,A50VALUE = %.02lf,HS300REF = %.02lf,HS300VALUE = %.02lf",g_A50IndexZT,totalValueA50ZT,g_HS300IndexZT,totalValueHS300ZT,g_A50IndexZT,totalValueA50ZT,g_HS300IndexZT,totalValueHS300ZT);
 		if(connindex){
 			if(mysql_query(connindex,data01)){
 				TRACE("Error %u: %s\n", mysql_errno(connindex), mysql_error(connindex));

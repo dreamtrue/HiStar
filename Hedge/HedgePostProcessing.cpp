@@ -39,9 +39,9 @@ int MultiPos = 1;//持仓乘数
 double HedgeLadder[21] = {   -200, -180, -160, -140, -120, -100, -80, -60, -40, -30, -10,  20,  40,  60,  80,  100,  120,  140,  160,  180,  200};
 int PositionAimUnit[22] = {11,    10,    9,    8,    7,    6,    5,   4,   3,   2,   1,   0,  -1,  -2,  -3,  -4,  -5,    -6,   -7,   -8,   -9,   -10};//默认持仓目标单位（没有乘以乘数）
 //double HedgeLadder[21] = {   -95, -85, -75, -65, -55, -45, -35, -25, -15, -5,  0,  5,   15,  25,  35,  45,  55,  65,   75,   85,   95};
-//int PositionAimUnit[22] = { 10,  9,   8,   7,   6,   5,    4,  3,   2,   1,  0,  0,  -1,  -2,  -3,  -4,  -5,  -6,  -7,   -8,   -9,  -10};//
+//int PositionAimUnit[22] = { 10,  9,   8,   7,   6,   5,    4,  3,   2,   1,  0,  0,  -1,  -2,  -3,  -4,  -5,  -6,  -7,   -8,   -9,  -10};
 int PositionAim[22];
-double MaxProfitAim = 10.0,MinProfitAim = 10.0;//最小盈利目标，最大盈利目标（不分多空）
+double MaxProfitAim = 20.0,MinProfitAim = 20.0;//最小盈利目标，最大盈利目标（不分多空）
 ///////////////////////////////////////////////////////
 int netPositionA50 = 0,longIf = 0,shortIf = 0;//净持仓,需要计算;IF分空头净持仓和多头净持仓
 double AvailIB = 0.0,AvailCtp = 0.0;//可用资金，需要计算
@@ -83,7 +83,7 @@ void tradePermit(bool &iIfTrade,bool &iA50Trade);
 int seconds(SYSTEMTIME &time);//计算某个时刻的秒数
 bool iBackTest01 = false;
 double A50IndexNow_BackTest = 0.0,HS300IndexNow_BackTest = 0.0,t_avgPriceA50_BackTest = 0.0,t_avgPriceIf_BackTest = 0.0;
-SYSTEMTIME systime,time_09_10_10,time_09_15_00,time_11_29_50,time_13_00_00,time_15_14_50;
+SYSTEMTIME systime,time_09_10_10,time_09_15_00,time_11_29_50,time_13_00_00,time_15_14_50,time_09_40_01;
 // CHedgePostProcessing
 
 IMPLEMENT_DYNCREATE(CHedgePostProcessing, CWinThread)
@@ -126,7 +126,7 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 				static MYSQL_RES * res_set = NULL;MYSQL_ROW row;
 				static bool iFirstSql = true;
 				if(iFirstSql){
-					if(mysql_query(conn,"select * from market_20140529")){
+					if(mysql_query(conn,"select * from market_20140528")){
 						TRACE("Error %u: %s\n", mysql_errno(conn), mysql_error(conn)); 
 					}
 					res_set = mysql_store_result(conn);
@@ -508,9 +508,9 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag,double &a50Bid1,do
 	if(abs(PredictPositionA50) > abs(netPositionA50)){
 		NeedNewMarginA50 = pointValueA50 * MarginA50 * (abs(PredictPositionA50) - abs(netPositionA50));
 		if(NeedNewMarginA50 - AvailIB > 300.0){
-			sprintf(buffer,_T("IB保证金不足,需要%.02lf\r\n"),NeedNewMarginA50);
+			sprintf_s(buffer,_T("IB保证金不足,需要%.02lf\r\n"),NeedNewMarginA50);
 			hedgeStatusPrint = hedgeStatusPrint + buffer;
-			sprintf(buffer,_T("======================END07======================\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
+			sprintf_s(buffer,_T("======================END07======================\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
 			return -1;
 		}
 	}
@@ -518,9 +518,9 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag,double &a50Bid1,do
 	if(PredictshortIf + PredictlongIf > longIf + shortIf){
 		NeedNewMarginIf = (ifAsk1 + ifBid1) / 2.0 *  pointValueIf * MarginIf * (PredictshortIf + PredictlongIf - (longIf + shortIf));
 		if(NeedNewMarginIf - AvailCtp > 2000.0){
-			sprintf(buffer,_T("CTP保证金不足,需要%.02lf\r\n"),NeedNewMarginIf);
+			sprintf_s(buffer,_T("CTP保证金不足,需要%.02lf\r\n"),NeedNewMarginIf);
 			hedgeStatusPrint = hedgeStatusPrint + buffer;
-			sprintf(buffer,_T("======================END08======================\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
+			sprintf_s(buffer,_T("======================END08======================\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
 			return -1;
 		}
 	}
@@ -545,7 +545,7 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag,double &a50Bid1,do
 				((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice = DealA50Price(true,a50Ask1 + 500.0);
 				((CHiStarApp*)AfxGetApp())->m_IBOrder.whatIf = false;
 				if(((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice < 1.0){
-					sprintf(buffer,_T("A50买价小于1.0,异常\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
+					sprintf_s(buffer,_T("A50买价小于1.0,异常\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
 					return -1;
 				}
 				if(((CHiStarApp*)AfxGetApp())->m_pIBClient){
@@ -567,7 +567,7 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag,double &a50Bid1,do
 				((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice = DealA50Price(false,a50Bid1 - 500.0);
 				((CHiStarApp*)AfxGetApp())->m_IBOrder.whatIf = false;
 				if(((CHiStarApp*)AfxGetApp())->m_IBOrder.lmtPrice < 1.0){
-					sprintf(buffer,_T("A50买价小于1.0,异常\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
+					sprintf_s(buffer,_T("A50买价小于1.0,异常\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
 					return -1;
 				}
 				if(((CHiStarApp*)AfxGetApp())->m_pIBClient){
@@ -687,7 +687,7 @@ void CHedgePostProcessing::Run_PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 			return;
 		}
 		else if(::PeekMessage(&m_msgCur,NULL,WM_BEGIN_POST_PROCESSING,WM_BEGIN_POST_PROCESSING,PM_REMOVE)){
-			hd = *((HoldDetail*)m_msgCur.lParam);OffsetFlag = (HoldDetail*)m_msgCur.wParam;
+			hd = *((HoldDetail*)m_msgCur.lParam);OffsetFlag = (bool)(m_msgCur.wParam);
 			delete (HoldDetail*)m_msgCur.lParam;
 			break;//已经开始，往下正式进行处理。
 		}
@@ -706,7 +706,7 @@ void CHedgePostProcessing::Run_PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 				{
 				case WM_RTN_INSERT:
 					{//存在瑕疵，最好用requestid来区分
-						sprintf(buffer,_T("收到WM_RTN_INSERT\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
+						sprintf_s(buffer,_T("收到WM_RTN_INSERT\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
 						CThostFtdcInputOrderField *pOrderInsert = (CThostFtdcInputOrderField *)m_msgCur.lParam;
 						for(unsigned int i = 0;i < hedgetask.ifalltask.size();i++){
 							if(hedgetask.ifalltask[i].ref == atoi(pOrderInsert->OrderRef)){
@@ -718,7 +718,7 @@ void CHedgePostProcessing::Run_PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 					}
 				case WM_RTN_ORDER:
 					{
-						sprintf(buffer,_T("收到WM_RTN_ORDER\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
+						sprintf_s(buffer,_T("收到WM_RTN_ORDER\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
 						CThostFtdcOrderField *pOrderRtn = (CThostFtdcOrderField *)m_msgCur.lParam;
 						for(unsigned int i = 0;i < hedgetask.ifalltask.size();i++){
 							if(hedgetask.ifalltask[i].ref == atoi(pOrderRtn->OrderRef)
@@ -728,9 +728,9 @@ void CHedgePostProcessing::Run_PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 										|| pOrderRtn->OrderStatus == THOST_FTDC_OST_NoTradeNotQueueing || pOrderRtn->OrderStatus == THOST_FTDC_OST_PartTradedNotQueueing){
 											hedgetask.ifalltask[i].traded = pOrderRtn->VolumeTraded;
 											hedgetask.ifalltask[i].sysid = atoi(pOrderRtn->OrderSysID);
-											strcpy(hedgetask.ifalltask[i].ExchangeID,pOrderRtn->ExchangeID);
+											strcpy_s(hedgetask.ifalltask[i].ExchangeID,pOrderRtn->ExchangeID);
 											hedgetask.ifalltask[i].bReceivedAllOrder = true;
-											sprintf(buffer,_T("Order,ref%d,最终状态%c\r\n"),atoi(pOrderRtn->OrderRef),pOrderRtn->OrderStatus);hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
+											sprintf_s(buffer,_T("Order,ref%d,最终状态%c\r\n"),atoi(pOrderRtn->OrderRef),pOrderRtn->OrderStatus);hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
 									}			
 							}
 						}
@@ -764,7 +764,7 @@ void CHedgePostProcessing::Run_PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 					return;
 				}
 				else if(::PeekMessage(&m_msgCur,NULL,WM_RTN_TRADE,WM_RTN_TRADE,PM_REMOVE)){
-					sprintf(buffer,_T("收到WM_RTN_TRADE\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW
+					sprintf_s(buffer,_T("收到WM_RTN_TRADE\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW
 						CThostFtdcTradeField *pTradeRtn = (CThostFtdcTradeField *)m_msgCur.lParam;
 					for(unsigned int i = 0;i < hedgetask.ifalltask.size();i++){
 						if(hedgetask.ifalltask[i].sysid == atoi(pTradeRtn->OrderSysID) && strcmp(hedgetask.ifalltask[i].ExchangeID,pTradeRtn->ExchangeID) == 0){
@@ -796,7 +796,7 @@ void CHedgePostProcessing::Run_PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 				return;
 			}
 			else if(::PeekMessage(&m_msgCur,NULL,WM_RTN_ORDER_IB,WM_RTN_ORDER_IB,PM_REMOVE)){
-				sprintf(buffer,_T("收到WM_RTN_ORDER_IB\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
+				sprintf_s(buffer,_T("收到WM_RTN_ORDER_IB\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
 				OrderStatus *pStatus = (OrderStatus *)m_msgCur.lParam; 
 				for(unsigned int i = 0;i < hedgetask.a50alltask.size();i++){
 					if(hedgetask.a50alltask[i].id == pStatus->orderId){
@@ -890,14 +890,14 @@ void CHedgePostProcessing::Run_PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 				((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->m_basicPage.m_btnRun.SetWindowText(_T("成交错误！"));
 			}
 			hedgeTaskStatus = NEW_HEDGE;
-			sprintf(buffer,_T("HEDGE INFORMATION:TRADE ERROR OF NUM!\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
+			sprintf_s(buffer,_T("HEDGE INFORMATION:TRADE ERROR OF NUM!\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
 			if(isReal)SendMsg(buffer);
 			return;
 	}
-	sprintf(buffer,_T("HEDGE INFORMATION:%.02lf,A50:%.02lf,IF:%.02lf,A50INDEX:%.02lf,HS300INDEX:%.02lf\r\n"),t_avgPriceA50 - t_avgPriceIf * A50IndexNow / HS300IndexNow,t_avgPriceA50,t_avgPriceIf,A50IndexNow,HS300IndexNow);hedgeStatusPrint = hedgeStatusPrint + buffer;
+	sprintf_s(buffer,_T("HEDGE INFORMATION:%.02lf,A50:%.02lf,IF:%.02lf,A50INDEX:%.02lf,HS300INDEX:%.02lf\r\n"),t_avgPriceA50 - t_avgPriceIf * A50IndexNow / HS300IndexNow,t_avgPriceA50,t_avgPriceIf,A50IndexNow,HS300IndexNow);hedgeStatusPrint = hedgeStatusPrint + buffer;
 	if(isReal)SendMsg(buffer);
 	HedgeHold = HedgeHoldTemp;//更新Hold持仓
-	sprintf(buffer,_T("对冲结束\r\n=================================================\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
+	sprintf_s(buffer,_T("对冲结束\r\n=================================================\r\n"));hedgeStatusPrint = hedgeStatusPrint + buffer;SHOW;
 	if((CHiStarApp*)AfxGetApp()->m_pMainWnd){
 		while(::PostMessage(((CMainDlg*)((CHiStarApp*)AfxGetApp()->m_pMainWnd))->GetSafeHwnd(),WM_UPDATE_HEDGEHOLD,NULL,NULL) == 0){
 			Sleep(100);
@@ -1063,12 +1063,13 @@ bool iBackTestTime(SYSTEMTIME & systime){
 	if(iFirst){
 		time_09_10_10.wHour = 9;time_09_10_10.wMinute = 10;time_09_10_10.wSecond = 10;
 		time_09_15_00.wHour = 9;time_09_15_00.wMinute = 15;
+		time_09_40_01.wHour = 9;time_09_40_01.wMinute = 40;time_09_40_01.wSecond = 1;
 		time_11_29_50.wHour = 11;time_11_29_50.wMinute = 29;time_11_29_50.wSecond = 50;
 		time_13_00_00.wHour = 13;time_13_00_00.wMinute = 0;
 		time_15_14_50.wHour = 15;time_15_14_50.wMinute = 14;time_15_14_50.wSecond = 50;
 		iFirst = false;
 	}
-	if(seconds(systime) >= seconds(time_09_15_00) && seconds(time_15_14_50)){
+	if(seconds(systime) >= seconds(time_09_40_01) && seconds(systime) <= seconds(time_15_14_50)){
 		return true;
 	}
 	else{

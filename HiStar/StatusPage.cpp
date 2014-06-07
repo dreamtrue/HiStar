@@ -855,13 +855,13 @@ void CStatusPage::OnGetDispinf5(NMHDR *pNMHDR, LRESULT *pResult)
 		switch(pItem->iSubItem)
 		{
 		case 0:
-			strcpy(pItem->pszText, m_InsinfVec[iItem].iinf.ProductID);
+			strcpy_s(pItem->pszText,sizeof(m_InsinfVec[iItem].iinf.ProductID),m_InsinfVec[iItem].iinf.ProductID);
 			break;
 		case 1: 
-			strcpy(pItem->pszText, m_InsinfVec[iItem].iinf.InstrumentID);
+			strcpy_s(pItem->pszText,sizeof(m_InsinfVec[iItem].iinf.InstrumentID),m_InsinfVec[iItem].iinf.InstrumentID);
 			break;
 		case 2:
-			strcpy(pItem->pszText,m_InsinfVec[iItem].iinf.InstrumentName);
+			strcpy_s(pItem->pszText,sizeof(m_InsinfVec[iItem].iinf.InstrumentName),m_InsinfVec[iItem].iinf.InstrumentName);
 			break;
 		case 3:
 			szTemp = JgExchage(m_InsinfVec[iItem].iinf.ExchangeID);
@@ -883,7 +883,7 @@ void CStatusPage::OnGetDispinf5(NMHDR *pNMHDR, LRESULT *pResult)
 			lstrcpy(pItem->pszText,(LPCTSTR)szTemp);
 			break;
 		case 7:
-			strcpy(pItem->pszText,m_InsinfVec[iItem].iinf.ExpireDate);
+			strcpy_s(pItem->pszText,sizeof(m_InsinfVec[iItem].iinf.ExpireDate),m_InsinfVec[iItem].iinf.ExpireDate);
 			break;
 		case 8:
 			szTemp.Format(_T("%d%%"),D2Int(m_InsinfVec[iItem].iinf.LongMarginRatio*100));

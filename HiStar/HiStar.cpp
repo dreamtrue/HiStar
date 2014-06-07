@@ -9,6 +9,7 @@
 #include "calendar.h"
 #include <fstream>
 #include <sstream>
+#include "me.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -17,21 +18,9 @@ extern DWORD IndexThreadId;
 std::fstream fileInput;
 bool isReal = true;
 extern CVector<HoldDetail> HedgeHold;
-struct sqldb{
-	std::string host;
-	std::string user;
-	std::string passwd;
-	std::string db;
-	sqldb();
-};
 sqldb::sqldb(){
 	host = "";user = "";passwd = "";db = "";
 }
-struct stock{
-	std::string exch;
-	std::string code;
-	int volume;
-};
 std::vector<stock> g_hs300;
 std::vector<stock> g_a50;
 sqldb m_db;
@@ -96,8 +85,8 @@ void CHiStarApp::OnInitialize(WPARAM wParam,LPARAM lParam){
 	GetLocalTime(&sys);
 	TThostFtdcDateType buffer;
 	memset(buffer,0,sizeof(TThostFtdcDateType));memset(m_accountCtp.m_todayDate,0,sizeof(TThostFtdcDateType));
-	sprintf(buffer,"%04d%02d%02d",sys.wYear,sys.wMonth,sys.wDay);/*赋予数值*/
-	strcpy(m_accountCtp.m_todayDate,buffer);
+	sprintf_s(buffer,"%04d%02d%02d",sys.wYear,sys.wMonth,sys.wDay);/*赋予数值*/
+	strcpy_s(m_accountCtp.m_todayDate,buffer);
 	//TThostFtdcDateType
 	FileInput();
 	SetIFContract();//设置IF合约
@@ -182,13 +171,11 @@ BOOL CHiStarApp::InitInstance()
 		// TODO: 在此放置处理何时用
 		//  “取消”来关闭对话框的代码
 	}
-
 	// 删除上面创建的 shell 管理器。
 	if (pShellManager != NULL)
 	{
 		delete pShellManager;
 	}
-
 	// 由于对话框已关闭，所以将返回 FALSE 以便退出应用程序，
 	//  而不是启动应用程序的消息泵。
 	return FALSE;
@@ -246,7 +233,7 @@ void CHiStarApp::SetIFContract(void)
 	//为了保持这种兼容，本程序只能采用多字节编码，否则会出错的。
 	m_accountCtp.m_szInst = _T("IF") + insID.Right(4);
 	char IFNAME[100];memset(IFNAME,0,sizeof(IFNAME));
-	sprintf(IFNAME,"IF%s,%d",insID,m_LifeIf);
+	sprintf_s(IFNAME,"IF%s,%d",insID,m_LifeIf);
 	if(sys.wDay < ifFinal - 3){
 		((CMainDlg*)m_pMainWnd)->m_basicPage.m_csIfShow.SetWindowText(IFNAME,RED);
 	}
@@ -282,9 +269,9 @@ int CHiStarApp::FileInput(void)
 				memset(&m_accountCtp.m_sBROKER_ID, 0, sizeof(m_accountCtp.m_sBROKER_ID));
 				memset(&m_accountCtp.m_sINVESTOR_ID, 0, sizeof(m_accountCtp.m_sINVESTOR_ID));
 				memset(&m_accountCtp.m_sPASSWORD, 0, sizeof(m_accountCtp.m_sPASSWORD));
-				strcpy(m_accountCtp.m_sINVESTOR_ID,str01.c_str());
-				strcpy(m_accountCtp.m_sPASSWORD,str02.c_str());
-				strcpy(m_accountCtp.m_sBROKER_ID,str03.c_str());
+				strcpy_s(m_accountCtp.m_sINVESTOR_ID,str01.c_str());
+				strcpy_s(m_accountCtp.m_sPASSWORD,str02.c_str());
+				strcpy_s(m_accountCtp.m_sBROKER_ID,str03.c_str());
 			}
 		}
 		else if(str01 == "@mysql"){
@@ -363,7 +350,7 @@ void CHiStarApp::OnConnectSql(WPARAM wParam,LPARAM lParam)
 	SYSTEMTIME sys;
 	GetLocalTime(&sys);
 	char name[100];
-	sprintf(name,"Market_%04d%02d%02d",sys.wYear,sys.wMonth,sys.wDay);
+	sprintf_s(name,"Market_%04d%02d%02d",sys.wYear,sys.wMonth,sys.wDay);
 	m_marketTableName = name;
 	conn = mysql_init(NULL); 
 	if(conn == NULL) {

@@ -90,7 +90,7 @@ void CHiStarApp::SetA50Contract(){
 		}
 	}
 	char A50NAME[100];memset(A50NAME,0,sizeof(A50NAME));
-	sprintf(A50NAME,"%s %s,%d",symbol,expiry,m_LifeA50);
+	sprintf_s(A50NAME,"%s %s,%d",symbol,expiry,m_LifeA50);
 	if(sys.wDay < A50Final - 3){
 		((CMainDlg*)m_pMainWnd)->m_basicPage.m_csA50Show.SetWindowText(A50NAME,RED);
 	}
