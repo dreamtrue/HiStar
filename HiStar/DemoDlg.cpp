@@ -39,8 +39,8 @@ IMPLEMENT_DYNAMIC(CDemoDlg, CDialogEx)
 	, profit(0)
 	, NetProfit(0)
 	, hedgenum(0)
-	, numif(0)
-	, numA50(0)
+	, numif(0l)
+	, numA50(0l)
 {
 	//需要赋值的变量 
 	datumDiffDemo = 0.0;
@@ -48,6 +48,8 @@ IMPLEMENT_DYNAMIC(CDemoDlg, CDialogEx)
 	MaxProfitAim = 10.0;
 	MinProfitAim = 10.0;
 	m_MultiA50 = 0;
+	numif = 0l;
+	numA50 = 0l;
 	m_pHiStarApp = (CHiStarApp*)AfxGetApp();
 }
 
@@ -353,6 +355,7 @@ void CDemoDlg::DemoTaskRun(CString datetime)
 	}
 	//开仓操作
 	if(isSupposedBuyOpen){
+		if(hedgenum >= 4)return;
 		if(CurrentSectionSell <= SupposedSectionBuyOpen){
 			//需要开仓
 			HoldDetail newhold;
@@ -375,6 +378,7 @@ void CDemoDlg::DemoTaskRun(CString datetime)
 		}
 	}
 	if(isSupposedSellOpen){
+		if(hedgenum <= -4)return;
 		if(CurrentSectionBuy >= SupposedSectionSellOpen){
 			//需要开仓
 			HoldDetail newhold;
