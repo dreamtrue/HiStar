@@ -9,15 +9,17 @@
 CVector<HoldDetail> HedgeHoldDemo;
 extern bool iBackTestTime(SYSTEMTIME & systime);
 extern sqldb m_db;
-const double HedgeLadderDemo[21] = {   -95, -85, -75, -65, -55, -45, -35, -25, -15, -5,  0,  5,   15,  25,  35,  45,  55,  65,   75,   85,   95};
-const int PositionAimUnitDemo[22] = { 10,  9,   8,   7,   6,   5,    4,  3,   2,   1,  0,  0,  -1,  -2,  -3,  -4,  -5,  -6,  -7,   -8,   -9,  -10};
+const double HedgeLadderDemo[21] = {   -200, -180, -160, -140, -120, -100, -80, -60, -40, -30, -10,  20,  40,  60,  80,  100,  120,  140,  160,  180,  200};
+const int PositionAimUnitDemo[22] = {11,    10,    9,    8,    7,    6,    5,   4,   3,   2,   1,   0,  -1,  -2,  -3,  -4,  -5,    -6,   -7,   -8,   -9,   -10};
+//const double HedgeLadderDemo[21] = {   -95, -85, -75, -65, -55, -45, -35, -25, -15, -5,  0,  5,   15,  25,  35,  45,  55,  65,   75,   85,   95};
+//const int PositionAimUnitDemo[22] = { 10,  9,   8,   7,   6,   5,    4,  3,   2,   1,  0,  0,  -1,  -2,  -3,  -4,  -5,  -6,  -7,   -8,   -9,  -10};
 extern void CalcDeviation(double &a50Bid1,double &a50Ask1,double &ifBid1,double &ifAsk1,double &A50IndexNow,double &HS300IndexNow);
 // CDemoDlg 对话框
 
 IMPLEMENT_DYNAMIC(CDemoDlg, CDialogEx)
 
 	CDemoDlg::CDemoDlg(CWnd* pParent /*=NULL*/)
-	: CDialogEx(CDemoDlg::IDD, pParent),pHiStarApp(NULL),conndemo(NULL),res_set(NULL),row(NULL)
+	: CDialogEx(CDemoDlg::IDD, pParent),m_pHiStarApp(NULL),conndemo(NULL),res_set(NULL),row(NULL)
 	, m_tableName(_T("")),A50IndexDemo(0.0),a50Bid1Demo(0.0),a50Ask1Demo(0.0),HS300IndexDemo(0.0)
 	,ifBid1Demo(0.0),ifAsk1Demo(0.0)
 	, maxIdHoldDemo(0)
@@ -29,23 +31,26 @@ IMPLEMENT_DYNAMIC(CDemoDlg, CDialogEx)
 	, deviationDemo(0)
 	, DeviationSellDemo(0)
 	, DeviationBuyDemo(0)
-	, MaxProfitAim(10.0)
-	, MinProfitAim(10.0)
+	, MaxProfitAim(20.0)
+	, MinProfitAim(20.0)
 	, maxIdHold(0)
 	, m_MultiA50(16)
 	, fee(0)
 	, profit(0)
 	, NetProfit(0)
 {
-	MaxProfitAim = 10.0;
-	MinProfitAim = 10.0;
+	//需要赋值的变量 
+	datumDiffDemo = 0.0;
+	MultiPosDemo = 1;
+	MaxProfitAim = 20.0;
+	MinProfitAim = 20.0;
 	m_MultiA50 = 16;
-	pHiStarApp = (CHiStarApp*)AfxGetApp();
+	m_pHiStarApp = (CHiStarApp*)AfxGetApp();
 }
 
 CDemoDlg::~CDemoDlg()
 {
-	pHiStarApp = NULL;
+	m_pHiStarApp = NULL;
 	conndemo = NULL;
 	res_set = NULL;
 	row = NULL;
@@ -115,11 +120,6 @@ void CDemoDlg::OnBnClickedRunDemo()
 {
 	CString datetime,hour,minute,second;
 	m_runDemo.EnableWindow(false);
-	//需要赋值的变量 
-	datumDiffDemo = 0.0;
-	MultiPosDemo = 1;
-	MaxProfitAim = 10.0;
-	MinProfitAim = 10.0;
 	////////////////////
 	if(res_set != NULL){
 		m_runDemo.SetWindowText("RUNNING...");

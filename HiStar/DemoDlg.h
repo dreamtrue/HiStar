@@ -20,7 +20,7 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 public:
-	CHiStarApp* pHiStarApp;
+	CHiStarApp* m_pHiStarApp;
 	MYSQL* conndemo;
 	MYSQL_RES * res_set;
 	MYSQL_ROW row;
