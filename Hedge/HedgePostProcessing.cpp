@@ -32,7 +32,7 @@ extern bool iInitMarginOIfAddOneA50;
 CString hedgeStatusPrint;
 double profitBackTest = 0.0,feeBackTest = 0.0,NetProfitBackTest = 0.0;
 void SelectIndex(double &A50Index,double &HS300Index);
-bool iBackTestTime(SYSTEMTIME & systime);
+int iBackTestTime(SYSTEMTIME & systime);
 /////////////////////////////////Hedge变量///////////////////////////////////////////////
 int MultiPos = 1;//持仓乘数
 //梯级，一共21个分割点,分割成22(=21+1)个区间
@@ -140,7 +140,7 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 						datetime = row[0];
 						hour = datetime.Mid(11,2);minute = datetime.Mid(14,2);second = datetime.Mid(17,2);
 						timeBT.wHour = atoi(hour.GetBuffer());timeBT.wMinute = atoi(minute.GetBuffer());timeBT.wSecond = atoi(second.GetBuffer());
-						if(!iBackTestTime(timeBT))return;
+						if(iBackTestTime(timeBT) != 1)return;
 						A50IndexNow = atof(row[2]);
 						a50Bid1 = atof(row[3]);
 						a50Ask1 = atof(row[4]);
@@ -1058,7 +1058,7 @@ void tradePermit(bool &iIfTrade,bool &iA50Trade){
 	}
 }
 
-bool iBackTestTime(SYSTEMTIME & systime){
+int iBackTestTime(SYSTEMTIME & systime){
 	static bool iFirst = true;
 	if(iFirst){
 		time_09_10_10.wHour = 9;time_09_10_10.wMinute = 10;time_09_10_10.wSecond = 10;
@@ -1070,9 +1070,12 @@ bool iBackTestTime(SYSTEMTIME & systime){
 		iFirst = false;
 	}
 	if(seconds(systime) >= seconds(time_09_40_01) && seconds(systime) <= seconds(time_15_14_50)){
-		return true;
+		return 1;
+	}
+	else if(seconds(systime) > seconds(time_15_14_50)){
+		return -1;
 	}
 	else{
-		return false;
+		return 0;
 	}
 }

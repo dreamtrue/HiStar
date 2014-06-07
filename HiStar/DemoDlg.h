@@ -59,4 +59,7 @@ public:
 	int hedgenum;
 	long numif;
 	long numA50;
+	afx_msg void OnBnClickedButton5();
+	CString datetime;
+	void PrintProfit(void);
 };
