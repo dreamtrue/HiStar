@@ -9,10 +9,10 @@
 CVector<HoldDetail> HedgeHoldDemo;
 extern bool iBackTestTime(SYSTEMTIME & systime);
 extern sqldb m_db;
-const double HedgeLadderDemo[21] = {   -200, -180, -160, -140, -120, -100, -80, -60, -40, -30, -10,  20,  40,  60,  80,  100,  120,  140,  160,  180,  200};
-const int PositionAimUnitDemo[22] = {11,    10,    9,    8,    7,    6,    5,   4,   3,   2,   1,   0,  -1,  -2,  -3,  -4,  -5,    -6,   -7,   -8,   -9,   -10};
-//const double HedgeLadderDemo[21] = {   -95, -85, -75, -65, -55, -45, -35, -25, -15, -5,  0,  5,   15,  25,  35,  45,  55,  65,   75,   85,   95};
-//const int PositionAimUnitDemo[22] = { 10,  9,   8,   7,   6,   5,    4,  3,   2,   1,  0,  0,  -1,  -2,  -3,  -4,  -5,  -6,  -7,   -8,   -9,  -10};
+//const double HedgeLadderDemo[21] = {   -200, -180, -160, -140, -120, -100, -80, -60, -40, -30, -10,  20,  40,  60,  80,  100,  120,  140,  160,  180,  200};
+//const int PositionAimUnitDemo[22] = {11,    10,    9,    8,    7,    6,    5,   4,   3,   2,   1,   0,  -1,  -2,  -3,  -4,  -5,    -6,   -7,   -8,   -9,   -10};
+const double HedgeLadderDemo[21] = {   -95, -85, -75, -65, -55, -45, -35, -25, -15, -5,  0,  5,   15,  25,  35,  45,  55,  65,   75,   85,   95};
+const int PositionAimUnitDemo[22] = { 10,  9,   8,   7,   6,   5,    4,  3,   2,   1,  0,  0,  -1,  -2,  -3,  -4,  -5,  -6,  -7,   -8,   -9,  -10};
 extern void CalcDeviation(double &a50Bid1,double &a50Ask1,double &ifBid1,double &ifAsk1,double &A50IndexNow,double &HS300IndexNow);
 // CDemoDlg 对话框
 
@@ -38,13 +38,16 @@ IMPLEMENT_DYNAMIC(CDemoDlg, CDialogEx)
 	, fee(0)
 	, profit(0)
 	, NetProfit(0)
+	, hedgenum(0)
+	, numif(0)
+	, numA50(0)
 {
 	//需要赋值的变量 
 	datumDiffDemo = 0.0;
 	MultiPosDemo = 1;
-	MaxProfitAim = 20.0;
-	MinProfitAim = 20.0;
-	m_MultiA50 = 16;
+	MaxProfitAim = 10.0;
+	MinProfitAim = 10.0;
+	m_MultiA50 = 0;
 	m_pHiStarApp = (CHiStarApp*)AfxGetApp();
 }
 
@@ -64,6 +67,7 @@ void CDemoDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_RUN_DEMO, m_runDemo);
 	DDX_Control(pDX, IDC_DEMOSHOW, m_demoShow);
 	DDX_Control(pDX, IDC_LIST7, m_demoList);
+	DDX_Control(pDX, IDC_POSITION_DEMO, m_positionShow);
 }
 
 
@@ -272,10 +276,11 @@ void CDemoDlg::DemoTaskRun(CString datetime)
 					fee = fee + 1.5 * 2 * 6.2 * abs(HedgeHoldDemo[i].numA50) + 65 * 2 * abs(HedgeHoldDemo[i].numIf); 
 					profit = profit + (a50Bid1Demo - HedgeHoldDemo[i].priceA50) * 6.2 * HedgeHoldDemo[i].numA50 + (ifAsk1Demo - HedgeHoldDemo[i].priceIf) * 300.0 * HedgeHoldDemo[i].numIf;
 					NetProfit = profit - fee;
-					sprintf_s(list,"%s,卖平%d手,%.02f,%.02lf,%02.lf\r\n",datetime,HedgeHoldDemo[i].HedgeNum,DeviationBuyDemo,a50Bid1Demo,ifAsk1Demo);
+					sprintf_s(list,"%s,总持仓%d,if %ld,A50 %ld,卖平%d手,%.02f,%.02lf,%02.lf\r\n",datetime,hedgenum,numif,numA50,HedgeHoldDemo[i].HedgeNum,DeviationBuyDemo,a50Bid1Demo,ifAsk1Demo);
 					m_demoList.AddString(list);
 					HedgeHoldDemo.erase(HedgeHoldDemo.begin() + i);
 					i--;
+					PrintPosition();
 					return;
 				}
 			}
@@ -286,10 +291,11 @@ void CDemoDlg::DemoTaskRun(CString datetime)
 					fee = fee + 1.5 * 2 * 6.2 * abs(HedgeHoldDemo[i].numA50) + 65 * 2 * abs(HedgeHoldDemo[i].numIf); 
 					profit = profit + (a50Bid1Demo - HedgeHoldDemo[i].priceA50) * 6.2 * HedgeHoldDemo[i].numA50 + (ifAsk1Demo - HedgeHoldDemo[i].priceIf) * 300.0 * HedgeHoldDemo[i].numIf;
 					NetProfit = profit - fee;
-					sprintf_s(list,"%s,卖平%d手,%.02f,%.02lf,%02.lf\r\n",datetime,HedgeHoldDemo[i].HedgeNum,DeviationBuyDemo,a50Bid1Demo,ifAsk1Demo);
+					sprintf_s(list,"%s,总持仓%d,if %ld,A50 %ld,卖平%d手,%.02f,%.02lf,%02.lf\r\n",datetime,hedgenum,numif,numA50,HedgeHoldDemo[i].HedgeNum,DeviationBuyDemo,a50Bid1Demo,ifAsk1Demo);
 					m_demoList.AddString(list);
 					HedgeHoldDemo.erase(HedgeHoldDemo.begin() + i);
 					i--;
+					PrintPosition();
 					return;
 				}
 			}
@@ -301,10 +307,11 @@ void CDemoDlg::DemoTaskRun(CString datetime)
 					fee = fee + 1.5 * 2 * 6.2 * abs(HedgeHoldDemo[i].numA50) + 65 * 2 * abs(HedgeHoldDemo[i].numIf); 
 					profit = profit + (a50Ask1Demo - HedgeHoldDemo[i].priceA50) * 6.2 * HedgeHoldDemo[i].numA50 + (ifBid1Demo - HedgeHoldDemo[i].priceIf) * 300.0 * HedgeHoldDemo[i].numIf;
 					NetProfit = profit - fee;
-					sprintf_s(list,"%s,买平%d手,%.02f,%.02lf,%02.lf\r\n",datetime,HedgeHoldDemo[i].HedgeNum,DeviationSellDemo,a50Ask1Demo,ifBid1Demo);
+					sprintf_s(list,"%s,总持仓%d,if %ld,A50 %ld,买平%d手,%.02f,%.02lf,%02.lf\r\n",datetime,hedgenum,numif,numA50,HedgeHoldDemo[i].HedgeNum,DeviationSellDemo,a50Ask1Demo,ifBid1Demo);
 					m_demoList.AddString(list);
 					HedgeHoldDemo.erase(HedgeHoldDemo.begin() + i);
 					i--;
+					PrintPosition();
 					return;
 				}
 			}
@@ -314,10 +321,11 @@ void CDemoDlg::DemoTaskRun(CString datetime)
 					fee = fee + 1.5 * 2 * 6.2 * abs(HedgeHoldDemo[i].numA50) + 65 * 2 * abs(HedgeHoldDemo[i].numIf); 
 					profit = profit + (a50Ask1Demo - HedgeHoldDemo[i].priceA50) * 6.2 * HedgeHoldDemo[i].numA50 + (ifBid1Demo - HedgeHoldDemo[i].priceIf) * 300.0 * HedgeHoldDemo[i].numIf;
 					NetProfit = profit - fee;
-					sprintf_s(list,"%s,买平%d手,%.02f,%.02lf,%02.lf\r\n",datetime,HedgeHoldDemo[i].HedgeNum,DeviationSellDemo,a50Ask1Demo,ifBid1Demo);
+					sprintf_s(list,"%s,总持仓%d,if %ld,A50 %ld,买平%d手,%.02f,%.02lf,%02.lf\r\n",datetime,hedgenum,numif,numA50,HedgeHoldDemo[i].HedgeNum,DeviationSellDemo,a50Ask1Demo,ifBid1Demo);
 					m_demoList.AddString(list);
 					HedgeHoldDemo.erase(HedgeHoldDemo.begin() + i);
 					i--;
+					PrintPosition();
 					return;
 				}
 			}
@@ -359,9 +367,10 @@ void CDemoDlg::DemoTaskRun(CString datetime)
 			newhold.numA50 = SupposedBuyOpen * m_MultiA50;
 			newhold.numIf = -SupposedBuyOpen;
 			newhold.id = ++maxIdHold;
-			sprintf_s(list,"%s,买开%d手,%.02f,%.02lf,%02.lf\r\n",datetime,newhold.HedgeNum,DeviationSellDemo,a50Ask1Demo,ifBid1Demo);
+			sprintf_s(list,"%s,总持仓%d,if %ld,A50 %ld,买开%d手,%.02f,%.02lf,%02.lf\r\n",datetime,hedgenum,numif,numA50,newhold.HedgeNum,DeviationSellDemo,a50Ask1Demo,ifBid1Demo);
 			m_demoList.AddString(list);
 			HedgeHoldDemo.push_back(newhold);
+			PrintPosition();
 			return;
 		}
 	}
@@ -380,9 +389,10 @@ void CDemoDlg::DemoTaskRun(CString datetime)
 			newhold.numA50 = -SupposedSellOpen * m_MultiA50;
 			newhold.numIf = SupposedSellOpen;
 			newhold.id = ++maxIdHold;
-			sprintf_s(list,"%s,卖开%d手,%.02f,%.02lf,%02.lf\r\n",datetime,newhold.HedgeNum,DeviationBuyDemo,a50Bid1Demo,ifAsk1Demo);
+			sprintf_s(list,"%s,总持仓%d,if %ld,A50 %ld,卖开%d手,%.02f,%.02lf,%02.lf\r\n",datetime,hedgenum,numif,numA50,newhold.HedgeNum,DeviationBuyDemo,a50Bid1Demo,ifAsk1Demo);
 			m_demoList.AddString(list);
 			HedgeHoldDemo.push_back(newhold);
+			PrintPosition();
 			return;
 		}
 	}
@@ -393,6 +403,22 @@ void CDemoDlg::OnBnClickedClear()
 	fee = 0.0;
 	profit = 0.0;
 	NetProfit = 0.0;
+	hedgenum = 0;
+	numif = 0;
+	numA50 = 0;
 	HedgeHoldDemo.clear();
 	m_demoList.ResetContent();
+}
+
+void CDemoDlg::PrintPosition(void)
+{
+	char poList[1000];
+	hedgenum = 0;numif = 0;numA50 = 0;
+	for(unsigned int i = 0;i < HedgeHoldDemo.size();i++){
+		hedgenum = hedgenum + HedgeHoldDemo[i].HedgeNum;
+		numif = numif + HedgeHoldDemo[i].numIf;
+		numA50 = numA50 + HedgeHoldDemo[i].numA50;
+	}
+	sprintf_s(poList,"Hedge %d,If %ld,A50 %ld\r\n",hedgenum,numif,numA50);
+	m_positionShow.SetWindowText(poList);
 }

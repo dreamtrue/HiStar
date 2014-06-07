@@ -54,4 +54,9 @@ public:
 	afx_msg void OnBnClickedClear();
 	CStatic m_demoShow;
 	CListBox m_demoList;
+	CStatic m_positionShow;
+	void PrintPosition(void);
+	int hedgenum;
+	long numif;
+	long numA50;
 };
