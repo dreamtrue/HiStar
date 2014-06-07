@@ -38,10 +38,10 @@ int MultiPos = 1;//持仓乘数
 //梯级，一共21个分割点,分割成22(=21+1)个区间
 double HedgeLadder[21] = {   -200, -180, -160, -140, -120, -100, -80, -60, -40, -30, -10,  20,  40,  60,  80,  100,  120,  140,  160,  180,  200};
 int PositionAimUnit[22] = {11,    10,    9,    8,    7,    6,    5,   4,   3,   2,   1,   0,  -1,  -2,  -3,  -4,  -5,    -6,   -7,   -8,   -9,   -10};//默认持仓目标单位（没有乘以乘数）
-//double HedgeLadder[21] = {   -95, -85, -75, -65, -55, -45, -35, -25,  -15,  -5,   0,  5,  15,  25,  35,  45,  55,  65,   75,   85,   95};
-//int PositionAimUnit[22] = { 10,  9,   8,   7,   6,   5,    4,    3,    2,  1,   0,   0,  -1,  -2,  -3, -4,  -5,   -6,  -7,   -8,  -9, -10};//
+//double HedgeLadder[21] = {   -95, -85, -75, -65, -55, -45, -35, -25, -15, -5,  0,  5,   15,  25,  35,  45,  55,  65,   75,   85,   95};
+//int PositionAimUnit[22] = { 10,  9,   8,   7,   6,   5,    4,  3,   2,   1,  0,  0,  -1,  -2,  -3,  -4,  -5,  -6,  -7,   -8,   -9,  -10};//
 int PositionAim[22];
-double MaxProfitAim = 20.0,MinProfitAim = 20.0;//最小盈利目标，最大盈利目标（不分多空）
+double MaxProfitAim = 10.0,MinProfitAim = 10.0;//最小盈利目标，最大盈利目标（不分多空）
 ///////////////////////////////////////////////////////
 int netPositionA50 = 0,longIf = 0,shortIf = 0;//净持仓,需要计算;IF分空头净持仓和多头净持仓
 double AvailIB = 0.0,AvailCtp = 0.0;//可用资金，需要计算
@@ -126,7 +126,7 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 				static MYSQL_RES * res_set = NULL;MYSQL_ROW row;
 				static bool iFirstSql = true;
 				if(iFirstSql){
-					if(mysql_query(conn,"select * from market_20140606")){
+					if(mysql_query(conn,"select * from market_20140529")){
 						TRACE("Error %u: %s\n", mysql_errno(conn), mysql_error(conn)); 
 					}
 					res_set = mysql_store_result(conn);

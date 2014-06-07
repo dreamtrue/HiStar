@@ -2,6 +2,7 @@
 #include "BasicPage.h"
 #include "AccountPage.h"
 #include "StatusPage.h"
+#include "demodlg.h"
 // CMainDlg 对话框
 #include "resource.h"
 class CMainDlg : public CDialogEx
@@ -28,7 +29,8 @@ public:
 	CBasicPage m_basicPage;
 	CAccountPage m_accountPage;
 	CStatusPage m_statusPage;
-	CDialog* m_pDialog[3];  //用来保存对话框对象指针
+	CDemoDlg m_demoPage;
+	CDialog* m_pDialog[4];  //用来保存对话框对象指针
 protected:
 	afx_msg LRESULT OnOrderStatus(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT CMainDlg::OnErrors(WPARAM wParam, LPARAM lParam);

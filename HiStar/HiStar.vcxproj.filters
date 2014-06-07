@@ -321,6 +321,9 @@
     <ClInclude Include="ibaccount.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="DemoDlg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\CppClient\src\EClientSocket.cpp">
@@ -436,6 +439,9 @@
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件\HiStar</Filter>
+    </ClCompile>
+    <ClCompile Include="DemoDlg.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

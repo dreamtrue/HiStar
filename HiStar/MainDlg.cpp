@@ -67,11 +67,12 @@ BOOL CMainDlg::OnInitDialog(void)
 	m_tab.InsertItem(0, _T("基本"));
 	m_tab.InsertItem(1, _T("账户"));
 	m_tab.InsertItem(2,_T("状态"));
+	m_tab.InsertItem(3,_T("模拟"));
 	//创建两个对话框
 	m_accountPage.Create(IDD_ACCOUNT_PAGE, &m_tab);
 	m_basicPage.Create(IDD_BASIC_PAGE, &m_tab);
 	m_statusPage.Create(IDD_STATUS_PAGE, &m_tab);
-
+	m_demoPage.Create(IDD_DEMO_PAGE, &m_tab);
 	//设定在Tab内显示的范围
 	CRect rc;
 	m_tab.GetClientRect(rc);
@@ -82,14 +83,17 @@ BOOL CMainDlg::OnInitDialog(void)
 	m_basicPage.MoveWindow(&rc);
 	m_accountPage.MoveWindow(&rc);
 	m_statusPage.MoveWindow(&rc);
+	m_demoPage.MoveWindow(&rc);
 	//把对话框对象指针保存起来
 	m_pDialog[0] = &m_basicPage;
 	m_pDialog[1] = &m_accountPage;
 	m_pDialog[2] = &m_statusPage;
+	m_pDialog[3] = &m_demoPage;
 	//显示初始页面
 	m_pDialog[0]->ShowWindow(SW_SHOW);
 	m_pDialog[1]->ShowWindow(false);
 	m_pDialog[2]->ShowWindow(false);
+	m_pDialog[3]->ShowWindow(false);
 	m_tab.SetCurSel(0);
 	//保存当前选择
 	m_CurSelTab = 0;
@@ -145,18 +149,29 @@ void CMainDlg::OnTcnSelchangeTab(NMHDR *pNMHDR, LRESULT *pResult)
 		m_basicPage.ShowWindow(true);
 		m_accountPage.ShowWindow(false);
 		m_statusPage.ShowWindow(false);
+		m_demoPage.ShowWindow(false);
 		break;
 	case 1:
 		m_CurSelTab = 1;
 		m_accountPage.ShowWindow(true);
 		m_basicPage.ShowWindow(false);
 		m_statusPage.ShowWindow(false);
+		m_demoPage.ShowWindow(false);
 		break;
 	case 2:
 		m_CurSelTab = 2;
 		m_statusPage.ShowWindow(true);
 		m_accountPage.ShowWindow(false);
 		m_basicPage.ShowWindow(false);
+		m_demoPage.ShowWindow(false);
+		break;
+	case 3:
+		m_CurSelTab = 3;
+		m_demoPage.ShowWindow(true);
+		m_statusPage.ShowWindow(false);
+		m_accountPage.ShowWindow(false);
+		m_basicPage.ShowWindow(false);
+		break;
 	}
 	*pResult = 0;
 }

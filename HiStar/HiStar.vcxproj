@@ -269,6 +269,7 @@
     <ClInclude Include="..\THostFtdc\ThostFtdcUserApiDataType.h" />
     <ClInclude Include="..\THostFtdc\ThostFtdcUserApiStruct.h" />
     <ClInclude Include="AccountPage.h" />
+    <ClInclude Include="DemoDlg.h" />
     <ClInclude Include="global.h" />
     <ClInclude Include="HiStar.h" />
     <ClInclude Include="BasicPage.h" />
@@ -313,6 +314,7 @@
     <ClCompile Include="AccountPage.cpp" />
     <ClCompile Include="CtpOpera.cpp" />
     <ClCompile Include="CVector.h" />
+    <ClCompile Include="DemoDlg.cpp" />
     <ClCompile Include="HiStar.cpp" />
     <ClCompile Include="IBOpera.cpp" />
     <ClCompile Include="BasicPage.cpp" />
