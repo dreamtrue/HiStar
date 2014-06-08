@@ -126,7 +126,7 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 				static MYSQL_RES * res_set = NULL;MYSQL_ROW row;
 				static bool iFirstSql = true;
 				if(iFirstSql){
-					if(mysql_query(conn,"select * from market_20140528")){
+					if(mysql_query(conn,"select * from market_20140530")){
 						TRACE("Error %u: %s\n", mysql_errno(conn), mysql_error(conn)); 
 					}
 					res_set = mysql_store_result(conn);
@@ -184,7 +184,7 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 		}
 	}
 	if(((CMainDlg*)m_pMainWnd)){
-		((CMainDlg*)m_pMainWnd)->OnRefreshMdPane(NULL,NULL);
+		//((CMainDlg*)m_pMainWnd)->OnRefreshMdPane(NULL,NULL);
 	}
 	if(isReal){
 		tradePermit(iIfCanTrade,iA50CanTrade);
@@ -1062,14 +1062,14 @@ int iBackTestTime(SYSTEMTIME & systime){
 	static bool iFirst = true;
 	if(iFirst){
 		time_09_10_10.wHour = 9;time_09_10_10.wMinute = 10;time_09_10_10.wSecond = 10;
-		time_09_15_00.wHour = 9;time_09_15_00.wMinute = 15;
+		time_09_15_00.wHour = 9;time_09_15_00.wMinute = 15;time_09_15_00.wSecond = 0;
 		time_09_40_01.wHour = 9;time_09_40_01.wMinute = 40;time_09_40_01.wSecond = 1;
 		time_11_29_50.wHour = 11;time_11_29_50.wMinute = 29;time_11_29_50.wSecond = 50;
-		time_13_00_00.wHour = 13;time_13_00_00.wMinute = 0;
+		time_13_00_00.wHour = 13;time_13_00_00.wMinute = 0;time_13_00_00.wSecond = 0;
 		time_15_14_50.wHour = 15;time_15_14_50.wMinute = 14;time_15_14_50.wSecond = 50;
 		iFirst = false;
 	}
-	if(seconds(systime) >= seconds(time_09_40_01) && seconds(systime) <= seconds(time_15_14_50)){
+	if(seconds(systime) >= seconds(time_09_15_00) && seconds(systime) <= seconds(time_15_14_50)){
 		return 1;
 	}
 	else if(seconds(systime) > seconds(time_15_14_50)){
