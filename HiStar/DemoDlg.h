@@ -26,7 +26,7 @@ public:
 	MYSQL_ROW row;
 	double A50IndexDemo,a50Bid1Demo,a50Ask1Demo,HS300IndexDemo,ifBid1Demo,ifAsk1Demo;
 public:
-	afx_msg void OnOpenDB();
+	afx_msg void OnOpenDB01();
 	CComboBox m_tableList;
 	afx_msg void OnCbnSelchangeCombo1();
 	afx_msg void OnBnClickedRunDemo();
@@ -69,4 +69,6 @@ public:
 	virtual BOOL OnInitDialog();
 	std::vector<CString> m_csTableList;
 	void ColseAllDemo(void);
+	CListBox m_profitList;
+	void OpenDB(char *filter);
 };

@@ -52,7 +52,7 @@ IMPLEMENT_DYNAMIC(CDemoDlg, CDialogEx)
 	, numif(0l)
 	, numA50(0l)
 	, datetime(_T(""))
-	, maxhedgehold(4)
+	, maxhedgehold(2)
 {
 	//需要赋值的变量 
 	datumDiffDemo = 0.0;
@@ -86,11 +86,12 @@ void CDemoDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT2,datumDiffDemo);
 	DDX_Control(pDX, IDC_EDIT3, m_bMaxhold);
 	DDX_Text(pDX, IDC_EDIT3, maxhedgehold);
+	DDX_Control(pDX, IDC_LIST1, m_profitList);
 }
 
 
 BEGIN_MESSAGE_MAP(CDemoDlg, CDialogEx)
-	ON_BN_CLICKED(IDC_BUTTON1, &CDemoDlg::OnOpenDB)
+	ON_BN_CLICKED(IDC_BUTTON1, &CDemoDlg::OnOpenDB01)
 	ON_CBN_SELCHANGE(IDC_COMBO1, &CDemoDlg::OnCbnSelchangeCombo1)
 	ON_BN_CLICKED(IDC_RUN_DEMO, &CDemoDlg::OnBnClickedRunDemo)
 	ON_BN_CLICKED(IDC_CLEAR, &CDemoDlg::OnBnClickedClear)
@@ -102,43 +103,11 @@ END_MESSAGE_MAP()
 
 // CDemoDlg 消息处理程序
 
-void CDemoDlg::OnOpenDB()
+void CDemoDlg::OnOpenDB01()
 {
-	SYSTEMTIME sys;
-	GetLocalTime(&sys);
-	char sql[1000];memset(sql,0,sizeof(sql));
-	conndemo = mysql_init(NULL); 
-	if(conndemo == NULL) {
-		TRACE("Error %u: %s\n", mysql_errno(conndemo), mysql_error(conndemo)); 
-	}  
-	if(conndemo){
-		if(mysql_real_connect(conndemo,m_db.host.c_str(),m_db.user.c_str(),m_db.passwd.c_str(),m_db.db.c_str(),0,NULL,0) == NULL)
-		{      
-			TRACE("Error %u: %s\n", mysql_errno(conndemo), mysql_error(conndemo));
-		}
-		sprintf_s(sql,"show tables like \"%%market_%%\"");
-		if(mysql_query(conndemo,sql)) 
-		{      
-			TRACE("Error %u: %s\n", mysql_errno(conndemo), mysql_error(conndemo));      
-		}
-		unsigned int num_fields;
-		res_set = mysql_store_result(conndemo);
-		if(res_set != NULL){
-			num_fields = mysql_num_fields(res_set);
-			m_tableList.ResetContent();
-			m_csTableList.clear();
-			while ((row = mysql_fetch_row(res_set))){
-				m_tableList.AddString(*row);
-				m_csTableList.push_back(*row);
-			}
-			sort(m_csTableList.begin(),m_csTableList.end(),CmpByTimeDemo);//排序
-			mysql_free_result(res_set);
-			res_set = NULL;
-		}
-		row = NULL;
-	}	
+	char filter[1000] = "\"%%market_%%\"";
+	OpenDB(filter);
 }
-
 
 void CDemoDlg::OnCbnSelchangeCombo1()
 {
@@ -171,6 +140,14 @@ void CDemoDlg::OnBnClickedRunDemo()
 					continue;
 				}
 				else if(iBackTestTime(timeBT) == -1){
+					//一天结束时统计持仓浮动盈亏
+					double activeProfit = 0;char text[1000];memset(text,0,sizeof(text));
+					for(unsigned int i = 0;i < HedgeHoldDemo.size();i++){
+						activeProfit = activeProfit + HedgeHoldDemo[i].numIf * 300.0 * ((ifBid1Demo + ifAsk1Demo) /  2.0 - HedgeHoldDemo[i].priceIf)
+							+ HedgeHoldDemo[i].numA50 * 6.2 * ((a50Bid1Demo + a50Ask1Demo) / 2.0 - HedgeHoldDemo[i].priceA50);
+					}
+					sprintf_s(text,"%s,total %12.02f,active %12.02f,close %12.02f,if %ld,A50 %ld\r\n",date,activeProfit+NetProfit,activeProfit,NetProfit,numif,numA50);
+					m_profitList.AddString(text);
 					break;
 				}
 				A50IndexDemo = atof(row[2]);
@@ -467,39 +444,8 @@ void CDemoDlg::PrintProfit(void)
 
 void CDemoDlg::OnBnClickedOpenDb02()
 {
-	SYSTEMTIME sys;
-	GetLocalTime(&sys);
-	char sql[1000];memset(sql,0,sizeof(sql));
-	conndemo = mysql_init(NULL); 
-	if(conndemo == NULL) {
-		TRACE("Error %u: %s\n", mysql_errno(conndemo), mysql_error(conndemo)); 
-	}  
-	if(conndemo){
-		if(mysql_real_connect(conndemo,m_db.host.c_str(),m_db.user.c_str(),m_db.passwd.c_str(),m_db.db.c_str(),0,NULL,0) == NULL)
-		{      
-			TRACE("Error %u: %s\n", mysql_errno(conndemo), mysql_error(conndemo));
-		}
-		sprintf_s(sql,"show tables like \"%%market\"");
-		if(mysql_query(conndemo,sql)) 
-		{      
-			TRACE("Error %u: %s\n", mysql_errno(conndemo), mysql_error(conndemo));      
-		}
-		unsigned int num_fields;
-		res_set = mysql_store_result(conndemo);
-		if(res_set != NULL){
-			num_fields = mysql_num_fields(res_set);
-			m_tableList.ResetContent();
-			m_csTableList.clear();
-			while ((row = mysql_fetch_row(res_set))){
-				m_tableList.AddString(*row);
-				m_csTableList.push_back(*row);
-			}
-			sort(m_csTableList.begin(),m_csTableList.end(),CmpByTimeDemo);//排序
-			mysql_free_result(res_set);
-			res_set = NULL;
-		}
-		row = NULL;
-	}	
+	char filter[1000] = "\"%%market\"";
+	OpenDB(filter);
 }
 
 void CDemoDlg::OnBnClickedUpdateDemo()
@@ -511,7 +457,7 @@ BOOL CDemoDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
 	m_bDatumdiff.SetWindowText(_T("0.0"));
-	m_bMaxhold.SetWindowText(_T("4"));
+	m_bMaxhold.SetWindowText(_T("2"));
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
 }
@@ -538,4 +484,41 @@ void CDemoDlg::ColseAllDemo(void)
 	HedgeHoldDemo.clear();
 	PrintPosition();
 	PrintProfit();
+}
+
+void CDemoDlg::OpenDB(char *filter)
+{
+	SYSTEMTIME sys;
+	GetLocalTime(&sys);
+	char sql[1000];memset(sql,0,sizeof(sql));
+	conndemo = mysql_init(NULL); 
+	if(conndemo == NULL) {
+		TRACE("Error %u: %s\n", mysql_errno(conndemo), mysql_error(conndemo)); 
+	}  
+	if(conndemo){
+		if(mysql_real_connect(conndemo,m_db.host.c_str(),m_db.user.c_str(),m_db.passwd.c_str(),m_db.db.c_str(),0,NULL,0) == NULL)
+		{      
+			TRACE("Error %u: %s\n", mysql_errno(conndemo), mysql_error(conndemo));
+		}
+		sprintf_s(sql,"show tables like %s",filter);
+		if(mysql_query(conndemo,sql)) 
+		{      
+			TRACE("Error %u: %s\n", mysql_errno(conndemo), mysql_error(conndemo));      
+		}
+		unsigned int num_fields;
+		res_set = mysql_store_result(conndemo);
+		if(res_set != NULL){
+			num_fields = mysql_num_fields(res_set);
+			m_tableList.ResetContent();
+			m_csTableList.clear();
+			while ((row = mysql_fetch_row(res_set))){
+				m_tableList.AddString(*row);
+				m_csTableList.push_back(*row);
+			}
+			sort(m_csTableList.begin(),m_csTableList.end(),CmpByTimeDemo);//排序
+			mysql_free_result(res_set);
+			res_set = NULL;
+		}
+		row = NULL;
+	}	
 }
