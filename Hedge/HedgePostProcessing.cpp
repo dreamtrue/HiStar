@@ -29,6 +29,7 @@ extern double g_A50Index,g_HS300Index;
 extern double g_A50IndexMSHQ,g_HS300IndexMSHQ;
 extern bool iAccountDownloadEnd;
 extern bool iInitMarginOIfAddOneA50;
+int maxhold = 2;//最大持仓
 CString hedgeStatusPrint;
 double profitBackTest = 0.0,feeBackTest = 0.0,NetProfitBackTest = 0.0;
 void SelectIndex(double &A50Index,double &HS300Index);
@@ -36,10 +37,11 @@ int iBackTestTime(SYSTEMTIME & systime);
 /////////////////////////////////Hedge变量///////////////////////////////////////////////
 int MultiPos = 1;//持仓乘数
 //梯级，一共21个分割点,分割成22(=21+1)个区间
-double HedgeLadder[21] = {   -200, -180, -160, -140, -120, -100, -80, -60, -40, -30, -10,  20,  40,  60,  80,  100,  120,  140,  160,  180,  200};
-int PositionAimUnit[22] = {11,    10,    9,    8,    7,    6,    5,   4,   3,   2,   1,   0,  -1,  -2,  -3,  -4,  -5,    -6,   -7,   -8,   -9,   -10};//默认持仓目标单位（没有乘以乘数）
-//double HedgeLadder[21] = {   -95, -85, -75, -65, -55, -45, -35, -25, -15, -5,  0,  5,   15,  25,  35,  45,  55,  65,   75,   85,   95};
-//int PositionAimUnit[22] = { 10,  9,   8,   7,   6,   5,    4,  3,   2,   1,  0,  0,  -1,  -2,  -3,  -4,  -5,  -6,  -7,   -8,   -9,  -10};
+//double HedgeLadder[21] = {   -200, -180, -160, -140, -120, -100, -80, -60, -40, -30, -10,  20,  40,  60,  80,  100,  120,  140,  160,  180,  200};
+//int PositionAimUnit[22] = {11,    10,    9,    8,    7,    6,    5,   4,   3,   2,   1,   0,  -1,  -2,  -3,  -4,  -5,    -6,   -7,   -8,   -9,   -10};//默认持仓目标单位（没有乘以乘数）
+const double HedgeLadderRef[21] = {   -95, -85, -75, -65, -55, -45, -35, -25, -15, -5,  0,  5,   15,  25,  35,  45,  55,  65,   75,   85,   95};
+double HedgeLadder[21];
+int PositionAimUnit[22] = { 10,  9,   8,   7,   6,   5,    4,  3,   2,   1,  0,  0,  -1,  -2,  -3,  -4,  -5,  -6,  -7,   -8,   -9,  -10};
 int PositionAim[22];
 double MaxProfitAim = 20.0,MinProfitAim = 20.0;//最小盈利目标，最大盈利目标（不分多空）
 ///////////////////////////////////////////////////////
@@ -90,7 +92,10 @@ IMPLEMENT_DYNCREATE(CHedgePostProcessing, CWinThread)
 
 	CHedgePostProcessing::CHedgePostProcessing()
 {
-
+	//0.25是经过验证过的数据
+	for(unsigned int i = 0;i < 21;i++){
+		HedgeLadder[i] = HedgeLadderRef[i] * 0.25;
+	}
 }
 
 CHedgePostProcessing::~CHedgePostProcessing()
@@ -184,7 +189,7 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 		}
 	}
 	if(((CMainDlg*)m_pMainWnd)){
-		//((CMainDlg*)m_pMainWnd)->OnRefreshMdPane(NULL,NULL);
+		((CMainDlg*)m_pMainWnd)->OnRefreshMdPane(NULL,NULL);
 	}
 	if(isReal){
 		tradePermit(iIfCanTrade,iA50CanTrade);
@@ -356,6 +361,7 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 		}
 		//开仓操作
 		if(isSupposedBuyOpen && iBuy){
+			if(netPosition >= maxhold)return;
 			if(CurrentSectionSell <= SupposedSectionBuyOpen){
 				//需要开仓
 				HoldDetail newhold;
@@ -376,6 +382,7 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 			}
 		}
 		if(isSupposedSellOpen && iSell){
+			if(netPosition <= -maxhold)return;
 			if(CurrentSectionBuy >= SupposedSectionSellOpen){
 				//需要开仓
 				HoldDetail newhold;
@@ -947,6 +954,10 @@ void CHedgePostProcessing::Run_PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 				}
 			}
 		}
+	}
+	holdHedge = 0;
+	for(unsigned int i = 0;i < HedgeHold.size();i++){
+		holdHedge = holdHedge + HedgeHold[i].HedgeNum;
 	}
 	hedgeTaskStatus = NEW_HEDGE;
 }

@@ -444,7 +444,7 @@
       <Filter>源文件\HiStar</Filter>
     </ClCompile>
     <ClCompile Include="DemoDlg.cpp">
-      <Filter>源文件</Filter>
+      <Filter>源文件\Dialog</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
