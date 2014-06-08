@@ -71,4 +71,6 @@ public:
 	void ColseAllDemo(void);
 	CListBox m_profitList;
 	void OpenDB(char *filter);
+	double m_mLadder;
+	CEdit m_bMLadder;
 };

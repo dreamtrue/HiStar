@@ -10,10 +10,11 @@
 CVector<HoldDetail> HedgeHoldDemo;
 extern int iBackTestTime(SYSTEMTIME & systime);
 extern sqldb m_db;
-//const double HedgeLadderDemo[21] = {   -200, -180, -160, -140, -120, -100, -80, -60, -40, -30, -10,  20,  40,  60,  80,  100,  120,  140,  160,  180,  200};
+//const double HedgeLadderDemoRef[21] = {   -200, -180, -160, -140, -120, -100, -80, -60, -40, -30, -10,  20,  40,  60,  80,  100,  120,  140,  160,  180,  200};
 //const int PositionAimUnitDemo[22] = {11,    10,    9,    8,    7,    6,    5,   4,   3,   2,   1,   0,  -1,  -2,  -3,  -4,  -5,    -6,   -7,   -8,   -9,   -10};
-const double HedgeLadderDemo[21] = {   -95, -85, -75, -65, -55, -45, -35, -25, -15, -5,  0,  5,   15,  25,  35,  45,  55,  65,   75,   85,   95};
+const double HedgeLadderDemoRef[21] = {   -95, -85, -75, -65, -55, -45, -35, -25, -15, -5,  0,  5,   15,  25,  35,  45,  55,  65,   75,   85,   95};
 const int PositionAimUnitDemo[22] = { 10,  9,   8,   7,   6,   5,    4,  3,   2,   1,  0,  0,  -1,  -2,  -3,  -4,  -5,  -6,  -7,   -8,   -9,  -10};
+double HedgeLadderDemo[21];
 extern void CalcDeviation(double &a50Bid1,double &a50Ask1,double &ifBid1,double &ifAsk1,double &A50IndexNow,double &HS300IndexNow);
 bool CmpByTimeDemo(const CString first,const CString second) 
 {    
@@ -53,12 +54,13 @@ IMPLEMENT_DYNAMIC(CDemoDlg, CDialogEx)
 	, numA50(0l)
 	, datetime(_T(""))
 	, maxhedgehold(2)
+	, m_mLadder(1.0)
 {
 	//需要赋值的变量 
 	datumDiffDemo = 0.0;
 	MultiPosDemo = 1;
-	MaxProfitAim = 10.0;
-	MinProfitAim = 10.0;
+	MaxProfitAim = 20.0;
+	MinProfitAim = 20.0;
 	m_MultiA50 = 0;
 	numif = 0l;
 	numA50 = 0l;
@@ -87,6 +89,8 @@ void CDemoDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT3, m_bMaxhold);
 	DDX_Text(pDX, IDC_EDIT3, maxhedgehold);
 	DDX_Control(pDX, IDC_LIST1, m_profitList);
+	DDX_Text(pDX, IDC_LADDE_M, m_mLadder);
+	DDX_Control(pDX, IDC_LADDE_M, m_bMLadder);
 }
 
 
@@ -119,6 +123,9 @@ void CDemoDlg::OnBnClickedRunDemo()
 	CString date,hour,minute,second;
 	m_runDemo.EnableWindow(false);
 	m_runDemo.SetWindowText(_T("RUNNING..."));
+	for(unsigned int i = 0;i < 21;i++){
+		HedgeLadderDemo[i] = HedgeLadderDemoRef[i] * m_mLadder;
+	}
 	for(unsigned int i =0;i < m_csTableList.size();i++){
 		char sql[1000];memset(sql,0,sizeof(sql));
 		sprintf_s(sql,"select * from %s",m_csTableList[i].GetBuffer());
@@ -415,6 +422,7 @@ void CDemoDlg::OnBnClickedClear()
 	numA50 = 0;
 	HedgeHoldDemo.clear();
 	m_demoList.ResetContent();
+	m_profitList.ResetContent();
 }
 
 void CDemoDlg::PrintPosition(void)
@@ -458,6 +466,7 @@ BOOL CDemoDlg::OnInitDialog()
 	CDialogEx::OnInitDialog();
 	m_bDatumdiff.SetWindowText(_T("0.0"));
 	m_bMaxhold.SetWindowText(_T("2"));
+	m_bMLadder.SetWindowText(_T("1.0"));
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
 }
