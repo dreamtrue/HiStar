@@ -955,10 +955,6 @@ void CHedgePostProcessing::Run_PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 			}
 		}
 	}
-	holdHedge = 0;
-	for(unsigned int i = 0;i < HedgeHold.size();i++){
-		holdHedge = holdHedge + HedgeHold[i].HedgeNum;
-	}
 	hedgeTaskStatus = NEW_HEDGE;
 }
 
