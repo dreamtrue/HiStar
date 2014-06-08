@@ -31,7 +31,6 @@ public:
 	afx_msg void OnCbnSelchangeCombo1();
 	afx_msg void OnBnClickedRunDemo();
 	CString m_tableName;
-	afx_msg void OnBnClickedReadTable();
 	CButton m_runDemo;
 	long maxIdHoldDemo;
 	double datumDiffDemo;
@@ -62,4 +61,12 @@ public:
 	afx_msg void OnBnClickedButton5();
 	CString datetime;
 	void PrintProfit(void);
+	afx_msg void OnBnClickedOpenDb02();
+	int maxhedgehold;
+	afx_msg void OnBnClickedUpdateDemo();
+	CEdit m_bDatumdiff;
+	CEdit m_bMaxhold;
+	virtual BOOL OnInitDialog();
+	std::vector<CString> m_csTableList;
+	void ColseAllDemo(void);
 };

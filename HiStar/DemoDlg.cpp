@@ -6,6 +6,7 @@
 #include "DemoDlg.h"
 #include "afxdialogex.h"
 #include "me.h"
+#include <algorithm>
 CVector<HoldDetail> HedgeHoldDemo;
 extern int iBackTestTime(SYSTEMTIME & systime);
 extern sqldb m_db;
@@ -14,6 +15,15 @@ extern sqldb m_db;
 const double HedgeLadderDemo[21] = {   -95, -85, -75, -65, -55, -45, -35, -25, -15, -5,  0,  5,   15,  25,  35,  45,  55,  65,   75,   85,   95};
 const int PositionAimUnitDemo[22] = { 10,  9,   8,   7,   6,   5,    4,  3,   2,   1,  0,  0,  -1,  -2,  -3,  -4,  -5,  -6,  -7,   -8,   -9,  -10};
 extern void CalcDeviation(double &a50Bid1,double &a50Ask1,double &ifBid1,double &ifAsk1,double &A50IndexNow,double &HS300IndexNow);
+bool CmpByTimeDemo(const CString first,const CString second) 
+{    
+	if(strcmp(first,second) <= 0){
+		return true;
+	}
+	else{
+		return false;
+	}
+}
 // CDemoDlg 对话框
 
 IMPLEMENT_DYNAMIC(CDemoDlg, CDialogEx)
@@ -42,6 +52,7 @@ IMPLEMENT_DYNAMIC(CDemoDlg, CDialogEx)
 	, numif(0l)
 	, numA50(0l)
 	, datetime(_T(""))
+	, maxhedgehold(4)
 {
 	//需要赋值的变量 
 	datumDiffDemo = 0.0;
@@ -71,6 +82,10 @@ void CDemoDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_DEMOSHOW, m_demoShow);
 	DDX_Control(pDX, IDC_LIST7, m_demoList);
 	DDX_Control(pDX, IDC_POSITION_DEMO, m_positionShow);
+	DDX_Control(pDX, IDC_EDIT2, m_bDatumdiff);
+	DDX_Text(pDX, IDC_EDIT2,datumDiffDemo);
+	DDX_Control(pDX, IDC_EDIT3, m_bMaxhold);
+	DDX_Text(pDX, IDC_EDIT3, maxhedgehold);
 }
 
 
@@ -78,9 +93,10 @@ BEGIN_MESSAGE_MAP(CDemoDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON1, &CDemoDlg::OnOpenDB)
 	ON_CBN_SELCHANGE(IDC_COMBO1, &CDemoDlg::OnCbnSelchangeCombo1)
 	ON_BN_CLICKED(IDC_RUN_DEMO, &CDemoDlg::OnBnClickedRunDemo)
-	ON_BN_CLICKED(IDC_READ_TABLE, &CDemoDlg::OnBnClickedReadTable)
 	ON_BN_CLICKED(IDC_CLEAR, &CDemoDlg::OnBnClickedClear)
 	ON_BN_CLICKED(IDC_BUTTON5, &CDemoDlg::OnBnClickedButton5)
+	ON_BN_CLICKED(IDC_OPEN_DB_02, &CDemoDlg::OnBnClickedOpenDb02)
+	ON_BN_CLICKED(IDC_UPDATE_DEMO, &CDemoDlg::OnBnClickedUpdateDemo)
 END_MESSAGE_MAP()
 
 
@@ -110,11 +126,16 @@ void CDemoDlg::OnOpenDB()
 		if(res_set != NULL){
 			num_fields = mysql_num_fields(res_set);
 			m_tableList.ResetContent();
+			m_csTableList.clear();
 			while ((row = mysql_fetch_row(res_set))){
-				m_tableList.AddString(*row);			
+				m_tableList.AddString(*row);
+				m_csTableList.push_back(*row);
 			}
+			sort(m_csTableList.begin(),m_csTableList.end(),CmpByTimeDemo);//排序
+			mysql_free_result(res_set);
+			res_set = NULL;
 		}
-		res_set = NULL;row = NULL;
+		row = NULL;
 	}	
 }
 
@@ -126,50 +147,50 @@ void CDemoDlg::OnCbnSelchangeCombo1()
 
 void CDemoDlg::OnBnClickedRunDemo()
 {
-	CString hour,minute,second;
+	CString date,hour,minute,second;
 	m_runDemo.EnableWindow(false);
-	////////////////////
-	if(res_set != NULL){
-		m_runDemo.SetWindowText("RUNNING...");
-		while((row = mysql_fetch_row(res_set))){
-			SYSTEMTIME timeBT;
-			memset(&timeBT,0,sizeof(timeBT));
-			datetime = row[0];
-			hour = datetime.Mid(11,2);minute = datetime.Mid(14,2);second = datetime.Mid(17,2);
-			timeBT.wHour = atoi(hour.GetBuffer());timeBT.wMinute = atoi(minute.GetBuffer());timeBT.wSecond = atoi(second.GetBuffer());
-			if(iBackTestTime(timeBT) != 1 && iBackTestTime(timeBT) != -1){
-				continue;
+	m_runDemo.SetWindowText(_T("RUNNING..."));
+	for(unsigned int i =0;i < m_csTableList.size();i++){
+		char sql[1000];memset(sql,0,sizeof(sql));
+		sprintf_s(sql,"select * from %s",m_csTableList[i].GetBuffer());
+		if(conndemo){
+			if(mysql_query(conndemo,sql)){
+				TRACE("Error %u: %s\n", mysql_errno(conndemo), mysql_error(conndemo)); 
 			}
-			else if(iBackTestTime(timeBT) == -1){
-				break;
-			}
-			A50IndexDemo = atof(row[2]);
-			a50Bid1Demo = atof(row[3]);
-			a50Ask1Demo = atof(row[4]);
-			HS300IndexDemo = atof(row[5]);
-			ifBid1Demo = atof(row[6]);
-			ifAsk1Demo = atof(row[7]);
-			DemoTaskRun(datetime);
+			res_set = mysql_store_result(conndemo);
 		}
+		////////////////////
+		if(res_set != NULL){
+			while((row = mysql_fetch_row(res_set))){
+				SYSTEMTIME timeBT;
+				memset(&timeBT,0,sizeof(timeBT));
+				datetime = row[0];
+				date = datetime.Left(10);hour = datetime.Mid(11,2);minute = datetime.Mid(14,2);second = datetime.Mid(17,2);
+				timeBT.wHour = atoi(hour.GetBuffer());timeBT.wMinute = atoi(minute.GetBuffer());timeBT.wSecond = atoi(second.GetBuffer());
+				if(iBackTestTime(timeBT) != 1 && iBackTestTime(timeBT) != -1){
+					continue;
+				}
+				else if(iBackTestTime(timeBT) == -1){
+					break;
+				}
+				A50IndexDemo = atof(row[2]);
+				a50Bid1Demo = atof(row[3]);
+				a50Ask1Demo = atof(row[4]);
+				HS300IndexDemo = atof(row[5]);
+				ifBid1Demo = atof(row[6]);
+				ifAsk1Demo = atof(row[7]);
+				DemoTaskRun(datetime);
+			}
+			mysql_free_result(res_set);
+			res_set = NULL;
+		}
+		if(date == "2014-03-20" || date == "2014-03-28" || date == "2014-04-17" || date == "2014-04-29" || date == "2014-05-15" || date == "2014-05-28"){
+			ColseAllDemo();
+		}
+		PrintProfit();
 	}
-	mysql_free_result(res_set);
-	res_set = NULL;
-	PrintProfit();
-	m_runDemo.SetWindowText("OVER");
+	m_runDemo.SetWindowText(_T("continue"));
 	m_runDemo.EnableWindow(true);
-}
-
-void CDemoDlg::OnBnClickedReadTable()
-{
-	m_tableList.GetWindowText(m_tableName);
-	char sql[1000];memset(sql,0,sizeof(sql));
-	sprintf_s(sql,"select * from %s",m_tableName.GetBuffer());
-	if(conndemo){
-		if(mysql_query(conndemo,sql)){
-			TRACE("Error %u: %s\n", mysql_errno(conndemo), mysql_error(conndemo)); 
-		}
-		res_set = mysql_store_result(conndemo);
-	}
 }
 
 void CDemoDlg::DemoTaskRun(CString datetime)
@@ -360,7 +381,7 @@ void CDemoDlg::DemoTaskRun(CString datetime)
 	}
 	//开仓操作
 	if(isSupposedBuyOpen){
-		if(hedgenum >= 4)return;
+		if(hedgenum >= maxhedgehold)return;
 		if(CurrentSectionSell <= SupposedSectionBuyOpen){
 			//需要开仓
 			HoldDetail newhold;
@@ -383,7 +404,7 @@ void CDemoDlg::DemoTaskRun(CString datetime)
 		}
 	}
 	if(isSupposedSellOpen){
-		if(hedgenum <= -4)return;
+		if(hedgenum <= -maxhedgehold)return;
 		if(CurrentSectionBuy >= SupposedSectionSellOpen){
 			//需要开仓
 			HoldDetail newhold;
@@ -434,6 +455,69 @@ void CDemoDlg::PrintPosition(void)
 
 void CDemoDlg::OnBnClickedButton5()
 {
+	ColseAllDemo();
+}
+
+void CDemoDlg::PrintProfit(void)
+{
+	char demoShow[1000];memset(demoShow,0,sizeof(demoShow));
+	sprintf_s(demoShow,"profit %8.02lf,fee %8.02lf,NetProfit %8.02lf\r\n",profit,fee,NetProfit);
+	m_demoShow.SetWindowText(demoShow);
+}
+
+void CDemoDlg::OnBnClickedOpenDb02()
+{
+	SYSTEMTIME sys;
+	GetLocalTime(&sys);
+	char sql[1000];memset(sql,0,sizeof(sql));
+	conndemo = mysql_init(NULL); 
+	if(conndemo == NULL) {
+		TRACE("Error %u: %s\n", mysql_errno(conndemo), mysql_error(conndemo)); 
+	}  
+	if(conndemo){
+		if(mysql_real_connect(conndemo,m_db.host.c_str(),m_db.user.c_str(),m_db.passwd.c_str(),m_db.db.c_str(),0,NULL,0) == NULL)
+		{      
+			TRACE("Error %u: %s\n", mysql_errno(conndemo), mysql_error(conndemo));
+		}
+		sprintf_s(sql,"show tables like \"%%market\"");
+		if(mysql_query(conndemo,sql)) 
+		{      
+			TRACE("Error %u: %s\n", mysql_errno(conndemo), mysql_error(conndemo));      
+		}
+		unsigned int num_fields;
+		res_set = mysql_store_result(conndemo);
+		if(res_set != NULL){
+			num_fields = mysql_num_fields(res_set);
+			m_tableList.ResetContent();
+			m_csTableList.clear();
+			while ((row = mysql_fetch_row(res_set))){
+				m_tableList.AddString(*row);
+				m_csTableList.push_back(*row);
+			}
+			sort(m_csTableList.begin(),m_csTableList.end(),CmpByTimeDemo);//排序
+			mysql_free_result(res_set);
+			res_set = NULL;
+		}
+		row = NULL;
+	}	
+}
+
+void CDemoDlg::OnBnClickedUpdateDemo()
+{
+	UpdateData();
+}
+
+BOOL CDemoDlg::OnInitDialog()
+{
+	CDialogEx::OnInitDialog();
+	m_bDatumdiff.SetWindowText(_T("0.0"));
+	m_bMaxhold.SetWindowText(_T("4"));
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// 异常: OCX 属性页应返回 FALSE
+}
+
+void CDemoDlg::ColseAllDemo(void)
+{
 	char list[1000];memset(list,0,sizeof(list));
 	for(unsigned int i = 0;i < HedgeHoldDemo.size();i++){
 		if(HedgeHoldDemo[i].HedgeNum > 0){
@@ -454,11 +538,4 @@ void CDemoDlg::OnBnClickedButton5()
 	HedgeHoldDemo.clear();
 	PrintPosition();
 	PrintProfit();
-}
-
-void CDemoDlg::PrintProfit(void)
-{
-	char demoShow[1000];memset(demoShow,0,sizeof(demoShow));
-	sprintf_s(demoShow,"profit %8.02lf,fee %8.02lf,NetProfit %8.02lf\r\n",profit,fee,NetProfit);
-	m_demoShow.SetWindowText(demoShow);
 }
