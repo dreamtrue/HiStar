@@ -228,8 +228,8 @@ BOOL CBasicPage::OnInitDialog()
 	//
 	SetDlgItemText(IDC_COST_ADJUST,TEXT(_T("0.0")));
 	SetDlgItemText(IDC_DATUMDIFF,TEXT(_T("0.0")));
-	SetDlgItemText(IDC_MINPROFIT,TEXT(_T("20.0")));
-	SetDlgItemText(IDC_MAXPROFIT,TEXT(_T("20.0")));
+	SetDlgItemText(IDC_MINPROFIT,TEXT(_T("10.0")));
+	SetDlgItemText(IDC_MAXPROFIT,TEXT(_T("10.0")));
 	SetDlgItemText(IDC_MULTI_POS,TEXT(_T("1")));
 	SetDlgItemText(IDC_RICHEDIT26,TEXT(_T("16")));
 	//初始化列表控件

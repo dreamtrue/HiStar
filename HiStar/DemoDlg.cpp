@@ -59,8 +59,8 @@ IMPLEMENT_DYNAMIC(CDemoDlg, CDialogEx)
 	//需要赋值的变量 
 	datumDiffDemo = 0.0;
 	MultiPosDemo = 1;
-	MaxProfitAim = 20.0;
-	MinProfitAim = 20.0;
+	MaxProfitAim = 10.0;
+	MinProfitAim = 10.0;
 	m_MultiA50 = 0;
 	numif = 0l;
 	numA50 = 0l;
@@ -387,7 +387,7 @@ void CDemoDlg::DemoTaskRun(CString datetime)
 			return;
 		}
 	}
-	else if(isSupposedSellOpen){
+	if(isSupposedSellOpen){
 		if(CurrentSectionBuy >= SupposedSectionSellOpen){
 			//需要开仓
 			HoldDetail newhold;
