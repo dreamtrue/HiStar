@@ -359,9 +359,9 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 				}
 			}
 		}
+		if(abs(netPosition) >= abs(maxhold))return;
 		//开仓操作
 		if(isSupposedBuyOpen && iBuy){
-			if(netPosition >= maxhold)return;
 			if(CurrentSectionSell <= SupposedSectionBuyOpen){
 				//需要开仓
 				HoldDetail newhold;
@@ -381,8 +381,7 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 				return;
 			}
 		}
-		if(isSupposedSellOpen && iSell){
-			if(netPosition <= -maxhold)return;
+		else if(isSupposedSellOpen && iSell){
 			if(CurrentSectionBuy >= SupposedSectionSellOpen){
 				//需要开仓
 				HoldDetail newhold;

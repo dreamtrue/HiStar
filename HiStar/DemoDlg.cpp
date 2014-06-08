@@ -363,9 +363,9 @@ void CDemoDlg::DemoTaskRun(CString datetime)
 			}
 		}
 	}
+	if(abs(hedgenum) >= abs(maxhedgehold))return;
 	//开仓操作
 	if(isSupposedBuyOpen){
-		if(hedgenum >= maxhedgehold)return;
 		if(CurrentSectionSell <= SupposedSectionBuyOpen){
 			//需要开仓
 			HoldDetail newhold;
@@ -387,8 +387,7 @@ void CDemoDlg::DemoTaskRun(CString datetime)
 			return;
 		}
 	}
-	if(isSupposedSellOpen){
-		if(hedgenum <= -maxhedgehold)return;
+	else if(isSupposedSellOpen){
 		if(CurrentSectionBuy >= SupposedSectionSellOpen){
 			//需要开仓
 			HoldDetail newhold;
