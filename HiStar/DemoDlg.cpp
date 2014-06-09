@@ -344,7 +344,7 @@ void CDemoDlg::DemoTaskRun(CString datetime)
 		}
 	}
 	for(int i = 0;i <= 21;i++){
-		if(PositionAimDemo[i] < 0){
+		if(PositionAimDemo[i] < 0 && hedgenum <= 0){
 			if(-abs(netPosition) > PositionAimDemo[i]){
 				SupposedSellOpen = -abs(netPosition) - PositionAimDemo[i];
 				SupposedSectionSellOpen = i;
@@ -354,7 +354,7 @@ void CDemoDlg::DemoTaskRun(CString datetime)
 		}
 	}
 	for(int i = 21;i >= 0;i--){
-		if(PositionAimDemo[i] > 0){
+		if(PositionAimDemo[i] > 0 && hedgenum >= 0){
 			if(abs(netPosition) < PositionAimDemo[i]){
 				SupposedBuyOpen = -(abs(netPosition) - PositionAimDemo[i]);
 				SupposedSectionBuyOpen = i;

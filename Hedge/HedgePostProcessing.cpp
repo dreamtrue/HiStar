@@ -340,7 +340,7 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 			}
 		}
 		for(int i = 0;i <= 21;i++){
-			if(PositionAim[i] < 0){
+			if(PositionAim[i] < 0 && netPosition <= 0){
 				if(-abs(netPosition) > PositionAim[i]){
 					SupposedSellOpen = -abs(netPosition) - PositionAim[i];
 					SupposedSectionSellOpen = i;
@@ -350,7 +350,7 @@ void CHiStarApp::OnHedgeLooping(WPARAM wParam,LPARAM lParam){
 			}
 		}
 		for(int i = 21;i >= 0;i--){
-			if(PositionAim[i] > 0){
+			if(PositionAim[i] > 0 && netPosition >= 0){
 				if(abs(netPosition) < PositionAim[i]){
 					SupposedBuyOpen = -(abs(netPosition) - PositionAim[i]);
 					SupposedSectionBuyOpen = i;
