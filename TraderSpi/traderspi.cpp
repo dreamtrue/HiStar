@@ -73,7 +73,7 @@ void CtpTraderSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
 			::GetLocalTime(&curTime);
 			CTime tc(curTime);
 			int i=0;
-			int iHour[4],iMin[4],iSec[4];
+			int iHour[4]={0,0,0,0},iMin[4]={0,0,0,0},iSec[4]={0,0,0,0};
 			if (!strcmp(pRspUserLogin->DCETime,TIME_NULL) || !strcmp(pRspUserLogin->SHFETime,TIME_NULL)){
 				for (i=0;i<4;i++){
 					iHour[i]=curTime.wHour;
@@ -94,6 +94,7 @@ void CtpTraderSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin,
 			}
 			sprintf_s(m_sTmBegin,"%02d:%02d:%02d.%03d",curTime.wHour,curTime.wMinute,curTime.wSecond,curTime.wMilliseconds); 
 		}
+
 		//建立与数据库的连接
 		SYSTEMTIME sys;
 		GetLocalTime(&sys);
