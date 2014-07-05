@@ -165,6 +165,7 @@ public:
 	std::vector<Portfolio> m_portfolio;
 	AccountValue m_accountvalue;
 	virtual int ExitInstance();
+    bool Download(const  CString & strFileURLInServer, const  CString  & strFileLocalFullPath);
 };
 
 extern CHiStarApp theApp;

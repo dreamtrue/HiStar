@@ -7,6 +7,8 @@
 #include "MainDlg.h"
 #include "UserMsg.h"
 #include "calendar.h"
+#include "afxsock.h"
+#include <afxinet.h>
 #include <fstream>
 #include <sstream>
 #include "me.h"
@@ -18,6 +20,7 @@ extern DWORD IndexThreadId;
 std::fstream fileInput;
 bool isReal = true;
 extern CVector<HoldDetail> HedgeHold;
+extern unsigned int HS300NUM;
 sqldb::sqldb(){
 	host = "";user = "";passwd = "";db = "";
 }
@@ -87,6 +90,16 @@ void CHiStarApp::OnInitialize(WPARAM wParam,LPARAM lParam){
 	memset(buffer,0,sizeof(TThostFtdcDateType));memset(m_accountCtp.m_todayDate,0,sizeof(TThostFtdcDateType));
 	sprintf_s(buffer,"%04d%02d%02d",sys.wYear,sys.wMonth,sys.wDay);/*赋予数值*/
 	strcpy_s(m_accountCtp.m_todayDate,buffer);
+    //更新指数文件
+	CString cStatus;
+	if(Download("http://hk.ishares.com/product_info/fund/excel_holdings.htm?ticker=2823",".\\2823_Holdings.csv")){
+		cStatus.Format("Download 2823 Holdings Success.");
+		PostOrderStatus(cStatus);
+	}
+	if(Download("http://hk.ishares.com/product_info/fund/excel_holdings.htm?ticker=2846",".\\2846_Holdings.csv")){
+		cStatus.Format("Download 2846 Holdings Success.");
+		PostOrderStatus(cStatus);
+	}
 	//TThostFtdcDateType
 	FileInput();
 	SetIFContract();//设置IF合约
@@ -334,6 +347,10 @@ int CHiStarApp::FileInput(void)
 			std::vector<std::string> subvec;
 			while(getline(stream,sub_str,',')){
 				subvec.push_back(sub_str);
+			}
+			if(subvec.size() == 0){
+				HS300NUM = i - 13;
+				break;
 			}
 			if(subvec[2] >= "60000"){st.exch = "sh";}else{st.exch = "sz";}
 			st.code = subvec[2].substr(0,6);st.volume = atoi(subvec[6].c_str());
@@ -638,4 +655,108 @@ int CHiStarApp::ExitInstance()
 		m_pMSHQ = NULL;
 	}
 	return __super::ExitInstance();
+}
+
+bool CHiStarApp::Download(const CString& strFileURLInServer,const CString& strFileLocalFullPath)
+{
+	ASSERT(strFileURLInServer != "");
+	ASSERT(strFileLocalFullPath != "");
+	CHttpConnection *pHttpConnection = NULL;
+	CHttpFile *pHttpFile = NULL;
+	CString strServer,strObject;
+	INTERNET_PORT wPort;
+	DWORD dwType;
+	const int nTimeOut = 2000;
+    char *pszBuffer = NULL;
+	CInternetSession session("download",0);
+	session.SetOption(INTERNET_OPTION_CONNECT_TIMEOUT,nTimeOut);
+	session.SetOption(INTERNET_OPTION_CONNECT_RETRIES,1);
+	try
+	{
+		AfxParseURL(strFileURLInServer,dwType,strServer,strObject,wPort);
+		pHttpConnection = session.GetHttpConnection(strServer,wPort);
+		pHttpFile = pHttpConnection->OpenRequest(CHttpConnection::HTTP_VERB_GET,strObject);
+		if (pHttpFile->SendRequest() == FALSE)
+			return false;
+		DWORD dwStateCode;
+		pHttpFile->QueryInfoStatusCode(dwStateCode);
+		if (dwStateCode == HTTP_STATUS_OK)
+		{
+			HANDLE hFile = CreateFile(strFileLocalFullPath,GENERIC_WRITE,FILE_SHARE_WRITE,NULL,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL); //创建本地文件 
+			if (hFile == INVALID_HANDLE_VALUE)
+			{
+				pHttpFile->Close();
+				pHttpConnection->Close();
+				session.Close();
+				return false ;
+			} 
+			char szInfoBuffer[ 1000 ];
+			DWORD dwFileSize = 0;
+			DWORD dwInfoBufferSize = sizeof(szInfoBuffer);
+			BOOL bResult = FALSE;
+			bResult = pHttpFile->QueryInfo(HTTP_QUERY_CONTENT_LENGTH,
+				(void*)szInfoBuffer,&dwInfoBufferSize,NULL);
+			dwFileSize = atoi(szInfoBuffer);
+			const int BUFFER_LENGTH = 1024*10;
+			pszBuffer = new char[BUFFER_LENGTH];
+			DWORD dwWrite,dwTotalWrite;
+			dwWrite = dwTotalWrite = 0;
+			UINT nRead = pHttpFile->Read(pszBuffer,BUFFER_LENGTH);
+
+			while(nRead > 0)
+			{
+				WriteFile(hFile,pszBuffer,nRead,&dwWrite,NULL);
+				dwTotalWrite += dwWrite;
+				nRead = pHttpFile->Read(pszBuffer, BUFFER_LENGTH);
+			} 
+
+			delete[]pszBuffer;
+			pszBuffer = NULL;
+			CloseHandle(hFile);
+		} 
+		else 
+		{
+			delete[]pszBuffer;
+			pszBuffer = NULL;
+			if (pHttpFile != NULL)
+			{
+				pHttpFile->Close();
+				delete pHttpFile;
+				pHttpFile = NULL;
+			} 
+			if (pHttpConnection != NULL)
+			{
+				pHttpConnection->Close();
+				delete pHttpConnection;
+				pHttpConnection = NULL;
+			} 
+			session.Close();
+			return false ;
+		} 
+	} 
+	catch(CInternetException*)
+	{
+		delete[]pszBuffer;
+		pszBuffer = NULL;
+		if (pHttpFile != NULL)
+		{
+			pHttpFile->Close();
+			delete pHttpFile;
+			pHttpFile = NULL;
+		} 
+		if (pHttpConnection != NULL)
+		{
+			pHttpConnection->Close();
+			delete pHttpConnection;
+			pHttpConnection = NULL;
+		} 
+		session.Close();
+		return false ;
+	} 
+	if (pHttpFile != NULL)
+		pHttpFile->Close();
+	if (pHttpConnection != NULL)
+		pHttpConnection->Close();
+	session.Close();
+	return true ;
 }

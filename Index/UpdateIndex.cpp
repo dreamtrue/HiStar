@@ -6,12 +6,11 @@
 #include <string>
 #include "HiStar.h"
 #include "me.h"
-#define A50NUM 50
-#define HS300NUM 300
-#define TOTAL 350
-double price[TOTAL];
-double priceZT[TOTAL];
-double volume[TOTAL];
+extern unsigned int A50NUM;
+extern unsigned int HS300NUM;
+double price[350];
+double priceZT[350];
+double volume[350];
 double g_A50Index = 0;
 double g_HS300Index = 0;
 double g_A50IndexZT = 0,g_HS300IndexZT = 0;
@@ -44,7 +43,7 @@ VOID CIndex::UpdateIndexData(HWND wnd, UINT msg, UINT_PTR id, DWORD d)
 			AfxExtractSubString(strGet2,strGet1,3, _T(','));//现在的价格
 			LPTSTR  chValue = strGet2.GetBuffer( strGet2.GetLength() );
 			LPTSTR  chValueZT = strGet3.GetBuffer( strGet3.GetLength() );
-			double fValue = atof(chValue); //今天的价格
+			double fValue = atof(chValue);//今天的价格
 			strGet2.ReleaseBuffer(); 
 			if(fValue > 0.1){//防止等于0，等于0就用昨天的收盘价
 				price[i] = fValue;
@@ -58,7 +57,7 @@ VOID CIndex::UpdateIndexData(HWND wnd, UINT msg, UINT_PTR id, DWORD d)
 	//计算A50和HS300指数
 	double totalValueA50 = 0;
 	double totalValueHS300 = 0;
-	for(int i = 0;i < TOTAL;i++){
+	for(unsigned int i = 0;i < A50NUM + HS300NUM;i++){
 		if(i < A50NUM){
 			totalValueA50 = totalValueA50 + price[i] * volume[i];
 		}

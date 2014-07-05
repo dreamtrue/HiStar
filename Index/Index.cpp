@@ -9,8 +9,8 @@
 #include <afxinet.h>
 #include <vector>
 #include "me.h"
-#define A50NUM 50
-#define HS300NUM 300
+unsigned int A50NUM = 50;
+unsigned int HS300NUM=300;
 SYSTEMTIME systime01,time_09_00_00,time_09_40_00;
 extern double g_A50IndexZT,g_HS300IndexZT;
 char data01[1000];
@@ -21,9 +21,8 @@ double A50IndexRef;double A50totalValueRef;double HS300IndexRef;double HS300tota
 extern sqldb m_db;
 extern std::vector<stock> g_hs300;
 extern std::vector<stock> g_a50;
-#define TOTAL 350
-extern double volume[TOTAL];
-extern double priceZT[TOTAL];
+extern double volume[350];
+extern double priceZT[350];
 // CIndex
 
 IMPLEMENT_DYNCREATE(CIndex, CWinThread)
@@ -41,17 +40,17 @@ CIndex::CIndex()
 {
 	connindex = NULL;
 	myHttpFile = NULL;
-	for(int k = 0;k < A50NUM;k++){
+	for(unsigned int k = 0;k < A50NUM;k++){
 		myURL_code = myURL_code + ",";
 		myURL_code = myURL_code + g_a50[k].exch.c_str();
 		myURL_code = myURL_code + g_a50[k].code.c_str();
 	}
-	for(int k = 0;k < HS300NUM;k++){
+	for(unsigned int k = 0;k < HS300NUM;k++){
 		myURL_code = myURL_code + ",";
 		myURL_code = myURL_code + g_hs300[k].exch.c_str();
 		myURL_code = myURL_code + g_hs300[k].code.c_str();
 	}
-	for(unsigned int j = 0;j < TOTAL;j++){
+	for(unsigned int j = 0;j < A50NUM + HS300NUM;j++){
 		if(j < A50NUM){
 			volume[j] = g_a50[j].volume;
 		}
@@ -175,7 +174,7 @@ BOOL CIndex::InitInstance()
 		}
 	}
 	totalValueA50ZT = 0;totalValueHS300ZT = 0;
-	for(int i = 0;i < TOTAL;i++){
+	for(unsigned int i = 0;i <A50NUM + HS300NUM;i++){
 		if(i < A50NUM){
 			totalValueA50ZT = totalValueA50ZT + priceZT[i] * volume[i];
 		}
