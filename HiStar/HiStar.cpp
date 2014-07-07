@@ -226,7 +226,7 @@ void CHiStarApp::SetIFContract(void)
 	WORD ifFinal = ifFinalDay(sys.wYear,sys.wMonth);
 	CString insID;
 	//到最后一天的前一天换合约
-	if(sys.wDay < ifFinal - 3){
+	if(sys.wDay < ifFinal - 1){
 		insID.Format(_T("%.4d%.2d"),sys.wYear,sys.wMonth);
 		m_LifeIf = ifFinalDay(sys.wYear,sys.wMonth + 1) - sys.wDay + 1;
 	}
@@ -247,7 +247,7 @@ void CHiStarApp::SetIFContract(void)
 	m_accountCtp.m_szInst = _T("IF") + insID.Right(4);
 	char IFNAME[100];memset(IFNAME,0,sizeof(IFNAME));
 	sprintf_s(IFNAME,"IF%s,%d",insID,m_LifeIf);
-	if(sys.wDay < ifFinal - 3){
+	if(sys.wDay < ifFinal - 1){
 		((CMainDlg*)m_pMainWnd)->m_basicPage.m_csIfShow.SetWindowText(IFNAME,RED);
 	}
 	else{

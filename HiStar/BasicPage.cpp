@@ -251,6 +251,8 @@ BOOL CBasicPage::OnInitDialog()
 		total_cx += lvcolumn.cx;
 		m_LstHedgeStatus.InsertColumn(i, &lvcolumn);
 	}
+	//更新控件参数
+	UpdateData();
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 

@@ -62,8 +62,6 @@ IMPLEMENT_DYNAMIC(CDemoDlg, CDialogEx)
 	MaxProfitAim = 10.0;
 	MinProfitAim = 10.0;
 	m_MultiA50 = 0;
-	numif = 0l;
-	numA50 = 0l;
 	m_pHiStarApp = (CHiStarApp*)AfxGetApp();
 }
 
@@ -85,12 +83,20 @@ void CDemoDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_LIST7, m_demoList);
 	DDX_Control(pDX, IDC_POSITION_DEMO, m_positionShow);
 	DDX_Control(pDX, IDC_EDIT2, m_bDatumdiff);
+	DDX_Text(pDX,IDC_EDIT5,m_MultiA50);
+	DDX_Text(pDX,IDC_EDIT7,MaxProfitAim);
+	DDX_Text(pDX,IDC_EDIT8,MinProfitAim);
 	DDX_Text(pDX, IDC_EDIT2,datumDiffDemo);
 	DDX_Control(pDX, IDC_EDIT3, m_bMaxhold);
 	DDX_Text(pDX, IDC_EDIT3, maxhedgehold);
 	DDX_Control(pDX, IDC_LIST1, m_profitList);
 	DDX_Text(pDX, IDC_LADDE_M, m_mLadder);
 	DDX_Control(pDX, IDC_LADDE_M, m_bMLadder);
+	DDX_Control(pDX, IDC_DATETIMEPICKER2, m_dateBegin);
+	DDX_Control(pDX, IDC_DATETIMEPICKER1, m_dateEnd);
+	DDX_Control(pDX, IDC_EDIT5, m_A50Multi);
+	DDX_Control(pDX, IDC_EDIT7, m_max);
+	DDX_Control(pDX, IDC_EDIT8, m_min);
 }
 
 
@@ -120,7 +126,13 @@ void CDemoDlg::OnCbnSelchangeCombo1()
 
 void CDemoDlg::OnBnClickedRunDemo()
 {
+	CTime TimeBegin,TimeEnd;
+	CString dateBegin,dateEnd;
 	CString date,hour,minute,second;
+	m_dateBegin.GetTime(TimeBegin);
+	m_dateEnd.GetTime(TimeEnd);
+	dateBegin = TimeBegin.Format("%Y-%m-%d");
+	dateEnd = TimeEnd.Format("%Y-%m-%d");
 	m_runDemo.EnableWindow(false);
 	m_runDemo.SetWindowText(_T("RUNNING..."));
 	for(unsigned int i = 0;i < 21;i++){
@@ -143,6 +155,7 @@ void CDemoDlg::OnBnClickedRunDemo()
 				datetime = row[0];
 				date = datetime.Left(10);hour = datetime.Mid(11,2);minute = datetime.Mid(14,2);second = datetime.Mid(17,2);
 				timeBT.wHour = atoi(hour.GetBuffer());timeBT.wMinute = atoi(minute.GetBuffer());timeBT.wSecond = atoi(second.GetBuffer());
+				if(date < dateBegin || date > dateEnd) continue;
 				if(iBackTestTime(timeBT) != 1 && iBackTestTime(timeBT) != -1){
 					continue;
 				}
@@ -463,9 +476,15 @@ void CDemoDlg::OnBnClickedUpdateDemo()
 BOOL CDemoDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
+	m_dateBegin.SetFormat(_T("yyyy'- 'MM'- 'dd"));
+	m_dateEnd.SetFormat(_T("yyyy'- 'MM'- 'dd"));
 	m_bDatumdiff.SetWindowText(_T("0.0"));
 	m_bMaxhold.SetWindowText(_T("2"));
 	m_bMLadder.SetWindowText(_T("1.0"));
+	m_A50Multi.SetWindowText(_T("0"));
+	m_max.SetWindowText(_T("10.0"));
+	m_min.SetWindowText(_T("10.0"));
+	UpdateData();
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 异常: OCX 属性页应返回 FALSE
 }

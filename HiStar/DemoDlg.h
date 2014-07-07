@@ -2,6 +2,7 @@
 #include "HiStar.h"
 #include "mysql.h"
 #include "afxwin.h"
+#include "afxdtctl.h"
 // CDemoDlg ¶Ô»°¿ò
 
 class CDemoDlg : public CDialogEx
@@ -73,4 +74,9 @@ public:
 	void OpenDB(char *filter);
 	double m_mLadder;
 	CEdit m_bMLadder;
+	CDateTimeCtrl m_dateBegin;
+	CDateTimeCtrl m_dateEnd;
+	CEdit m_A50Multi;
+	CEdit m_max;
+	CEdit m_min;
 };
