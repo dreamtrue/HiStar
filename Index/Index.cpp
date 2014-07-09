@@ -29,9 +29,13 @@ IMPLEMENT_DYNCREATE(CIndex, CWinThread)
 
 CInternetSession CIndex::mySession("ssision",0);
 CHttpFile* CIndex::myHttpFile = NULL;
+CHttpFile* CIndex::myHttpFile01 = NULL;
+CHttpFile* CIndex::myHttpFile02 = NULL;
 CString CIndex::myData("");
-CString CIndex::myURL("");
-CString CIndex::myURL_code("");
+CString CIndex::myURL01("");
+CString CIndex::myURL02("");
+CString CIndex::myURL_code01("");
+CString CIndex::myURL_code02("");
 CString CIndex::m_URL("http://hq.sinajs.cn/list=");
 CString CIndex::m_hexunA50("http://webglobal.hermes.hexun.com/global_index/quotelist?code=FTSE.FTXIN9&column=LastClose");
 CString CIndex::m_hexunHS300("http://flashquote.stock.hexun.com/Stock_Combo.ASPX?mc=1_000300&dt=Q,MI&t=0.9522008465137333");
@@ -40,15 +44,24 @@ CIndex::CIndex()
 {
 	connindex = NULL;
 	myHttpFile = NULL;
+	myHttpFile01 = NULL;
+	myHttpFile02 = NULL;
 	for(unsigned int k = 0;k < A50NUM;k++){
-		myURL_code = myURL_code + ",";
-		myURL_code = myURL_code + g_a50[k].exch.c_str();
-		myURL_code = myURL_code + g_a50[k].code.c_str();
+		myURL_code01 = myURL_code01 + ",";
+		myURL_code01 = myURL_code01 + g_a50[k].exch.c_str();
+		myURL_code01 = myURL_code01 + g_a50[k].code.c_str();
 	}
 	for(unsigned int k = 0;k < HS300NUM;k++){
-		myURL_code = myURL_code + ",";
-		myURL_code = myURL_code + g_hs300[k].exch.c_str();
-		myURL_code = myURL_code + g_hs300[k].code.c_str();
+		if(k < 150){
+			myURL_code01 = myURL_code01 + ",";
+			myURL_code01 = myURL_code01 + g_hs300[k].exch.c_str();
+			myURL_code01 = myURL_code01 + g_hs300[k].code.c_str();
+		}
+		else{
+			myURL_code02 = myURL_code02 + ",";
+			myURL_code02 = myURL_code02 + g_hs300[k].exch.c_str();
+			myURL_code02 = myURL_code02 + g_hs300[k].code.c_str();
+		}
 	}
 	for(unsigned int j = 0;j < A50NUM + HS300NUM;j++){
 		if(j < A50NUM){
@@ -58,7 +71,8 @@ CIndex::CIndex()
 			volume[j] = g_hs300[j - A50NUM].volume;
 		}
 	}
-	myURL = m_URL + myURL_code;
+	myURL01 = m_URL + myURL_code01;
+	myURL02 = m_URL + myURL_code02;
 }
 
 CIndex::~CIndex()
@@ -68,6 +82,7 @@ CIndex::~CIndex()
 
 BOOL CIndex::InitInstance()
 {
+	DWORD dwStatusCode;
 	connindex = mysql_init(NULL); 
 	if(connindex == NULL) {
 		TRACE("Error %u: %s\n", mysql_errno(connindex), mysql_error(connindex));      
@@ -111,7 +126,8 @@ BOOL CIndex::InitInstance()
 		TRACE("读取指数失败!\r\n");
 		return FALSE;//读取失败,返回
 	}
-	if(myHttpFile != NULL){
+	myHttpFile->QueryInfoStatusCode(dwStatusCode);
+	if(myHttpFile != NULL && dwStatusCode == HTTP_STATUS_OK){
 		while(myHttpFile->ReadString(myData)){
 			CString strGet1(_T("")); 
 			CString strGet2(_T(""));
@@ -134,7 +150,8 @@ BOOL CIndex::InitInstance()
 		TRACE("读取行情失败!\r\n");
 		return FALSE;//读取失败,返回
 	}
-	if(myHttpFile != NULL){
+	myHttpFile->QueryInfoStatusCode(dwStatusCode);
+	if(myHttpFile != NULL && dwStatusCode == HTTP_STATUS_OK){
 		while(myHttpFile->ReadString(myData)){
 			CString strGet1(_T("")); 
 			CString strGet2(_T(""));
@@ -146,20 +163,39 @@ BOOL CIndex::InitInstance()
 	myHttpFile->Close();
 	delete myHttpFile;
 	myHttpFile = NULL;
-
 	try{
-		myHttpFile = (CHttpFile*)mySession.OpenURL(myURL,1,INTERNET_FLAG_RELOAD|INTERNET_FLAG_TRANSFER_ASCII);
+		myHttpFile01 = (CHttpFile*)mySession.OpenURL(myURL01,1,INTERNET_FLAG_RELOAD|INTERNET_FLAG_TRANSFER_ASCII);
+		myHttpFile02 = (CHttpFile*)mySession.OpenURL(myURL02,1,INTERNET_FLAG_RELOAD|INTERNET_FLAG_TRANSFER_ASCII);
 	}
 	catch(CInternetException*pException){
 		pException->Delete();
-		delete myHttpFile;
-		myHttpFile = NULL;
+		delete myHttpFile01;
+		delete myHttpFile02;
+		myHttpFile01 = NULL;
+        myHttpFile02 = NULL;
 		TRACE("读取昨日行情失败!\r\n");
 		return FALSE;//读取失败,返回
 	}
-	if(myHttpFile != NULL){
-		int i = 0;
-		while(myHttpFile->ReadString(myData))
+    int i = 0;
+	myHttpFile01->QueryInfoStatusCode(dwStatusCode);
+	if(myHttpFile01 != NULL && dwStatusCode == HTTP_STATUS_OK){
+		while(myHttpFile01->ReadString(myData))
+		{
+			CString strGet1(_T("")); 
+			CString strGet3(_T(""));
+			double temp = 0;
+			AfxExtractSubString(strGet1,myData,1, _T('\"'));
+			AfxExtractSubString(strGet3,strGet1,2, _T(','));//昨天的价格
+			LPTSTR  chValueZT = strGet3.GetBuffer( strGet3.GetLength() );
+			double fZT = atof(chValueZT);//昨天的价格
+			strGet3.ReleaseBuffer(); 
+			priceZT[i] = fZT;
+			i++;
+		}
+	}
+	myHttpFile02->QueryInfoStatusCode(dwStatusCode);
+	if(myHttpFile02 != NULL && dwStatusCode == HTTP_STATUS_OK){
+		while(myHttpFile02->ReadString(myData))
 		{
 			CString strGet1(_T("")); 
 			CString strGet3(_T(""));
@@ -182,10 +218,12 @@ BOOL CIndex::InitInstance()
 			totalValueHS300ZT = totalValueHS300ZT + priceZT[i] * volume[i];
 		}
 	}
-	myHttpFile->Close();
-	delete myHttpFile;
-	myHttpFile = NULL;
-
+	myHttpFile01->Close();
+	myHttpFile02->Close();
+	delete myHttpFile01;
+	delete myHttpFile02;
+	myHttpFile01 = NULL;
+	myHttpFile02 = NULL;
 	static bool iFirst = true;
 	if(iFirst){
 		time_09_00_00.wHour = 9;time_09_00_00.wMinute = 0;time_09_00_00.wSecond = 0;
