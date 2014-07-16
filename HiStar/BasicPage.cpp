@@ -230,15 +230,13 @@ BOOL CBasicPage::OnInitDialog()
 	m_feeBT.SetWindowText(_T("0.0"),LITGRAY);
 	m_netBT.SetBkColor(ACC_BG);
 	m_netBT.SetWindowText(_T("0.0"),LITGRAY);
-	//
 	SetDlgItemText(IDC_COST_ADJUST,TEXT(_T("0.0")));
 	SetDlgItemText(IDC_DATUMDIFF,TEXT(_T("0.0")));
 	SetDlgItemText(IDC_MINPROFIT,TEXT(_T("5.0")));
 	SetDlgItemText(IDC_MAXPROFIT,TEXT(_T("5.0")));
 	SetDlgItemText(IDC_MULTI_POS,TEXT(_T("1")));
 	SetDlgItemText(IDC_RICHEDIT26,TEXT(_T("0")));
-	((CButton *)GetDlgItem(IDC_RADIO1))->SetCheck(TRUE);//选上
-	((CButton *)GetDlgItem(IDC_RADIO2))->SetCheck(FALSE);//不选上
+	CheckRadioButton(IDC_RADIO1,IDC_RADIO2,IDC_RADIO1);
 	//初始化列表控件
 	TCHAR* lpHdrs0[10] = {_T("ID"),_T("数量"),_T("所属区域"),_T("成本"),_T("IF持仓"),_T("IF价格"),_T("IF指数"),_T("A50持仓"),_T("A50价格"),_T("A50指数")};
 	int iWidths0[10] = {32,52,68,68,68,68,68,68,68,68};
