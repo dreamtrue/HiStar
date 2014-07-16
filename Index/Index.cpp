@@ -51,16 +51,26 @@ CIndex::CIndex()
 		myURL_code01 = myURL_code01 + g_a50[k].exch.c_str();
 		myURL_code01 = myURL_code01 + g_a50[k].code.c_str();
 	}
+	unsigned int tempnum;
+	tempnum = HS300NUM;//分两批获取HS300股价行情的首批数目
 	for(unsigned int k = 0;k < HS300NUM;k++){
-		if(k < 150){
+		if(tempnum <= HS300NUM){
+			if(k < tempnum){
+				myURL_code01 = myURL_code01 + ",";
+				myURL_code01 = myURL_code01 + g_hs300[k].exch.c_str();
+				myURL_code01 = myURL_code01 + g_hs300[k].code.c_str();
+			}
+			else{
+				myURL_code02 = myURL_code02 + ",";
+				myURL_code02 = myURL_code02 + g_hs300[k].exch.c_str();
+				myURL_code02 = myURL_code02 + g_hs300[k].code.c_str();
+			}
+		}
+		else{
 			myURL_code01 = myURL_code01 + ",";
 			myURL_code01 = myURL_code01 + g_hs300[k].exch.c_str();
 			myURL_code01 = myURL_code01 + g_hs300[k].code.c_str();
-		}
-		else{
-			myURL_code02 = myURL_code02 + ",";
-			myURL_code02 = myURL_code02 + g_hs300[k].exch.c_str();
-			myURL_code02 = myURL_code02 + g_hs300[k].code.c_str();
+			myURL_code02 = "";
 		}
 	}
 	for(unsigned int j = 0;j < A50NUM + HS300NUM;j++){
@@ -72,7 +82,12 @@ CIndex::CIndex()
 		}
 	}
 	myURL01 = m_URL + myURL_code01;
-	myURL02 = m_URL + myURL_code02;
+	if(tempnum <= HS300NUM){
+		myURL02 = m_URL + myURL_code02;
+	}
+	else{
+		myURL02 = "";
+	}
 }
 
 CIndex::~CIndex()
@@ -117,14 +132,18 @@ BOOL CIndex::InitInstance()
 	}
 	try{
 		myHttpFile01 = (CHttpFile*)mySession.OpenURL(myURL01,1,INTERNET_FLAG_RELOAD|INTERNET_FLAG_TRANSFER_ASCII);
-		myHttpFile02 = (CHttpFile*)mySession.OpenURL(myURL02,1,INTERNET_FLAG_RELOAD|INTERNET_FLAG_TRANSFER_ASCII);
+		if(myURL02 != ""){
+			myHttpFile02 = (CHttpFile*)mySession.OpenURL(myURL02,1,INTERNET_FLAG_RELOAD|INTERNET_FLAG_TRANSFER_ASCII);
+		}
 	}
 	catch(CInternetException*pException){
 		pException->Delete();
 		delete myHttpFile01;
-		delete myHttpFile02;
 		myHttpFile01 = NULL;
-		myHttpFile02 = NULL;
+		if(myURL02 != ""){
+			delete myHttpFile02;
+			myHttpFile02 = NULL;
+		}
 		TRACE("读取昨日行情失败!\r\n");
 		return FALSE;//读取失败,返回
 	}
@@ -145,20 +164,22 @@ BOOL CIndex::InitInstance()
 			i++;
 		}
 	}
-	myHttpFile02->QueryInfoStatusCode(dwStatusCode);
-	if(myHttpFile02 != NULL && dwStatusCode == HTTP_STATUS_OK){
-		while(myHttpFile02->ReadString(myData))
-		{
-			CString strGet1(_T("")); 
-			CString strGet3(_T(""));
-			double temp = 0;
-			AfxExtractSubString(strGet1,myData,1, _T('\"'));
-			AfxExtractSubString(strGet3,strGet1,2, _T(','));//昨天的价格
-			LPTSTR  chValueZT = strGet3.GetBuffer( strGet3.GetLength() );
-			double fZT = atof(chValueZT);//昨天的价格
-			strGet3.ReleaseBuffer(); 
-			priceZT[i] = fZT;
-			i++;
+	if(myURL02 != ""){
+		myHttpFile02->QueryInfoStatusCode(dwStatusCode);
+		if(myHttpFile02 != NULL && dwStatusCode == HTTP_STATUS_OK){
+			while(myHttpFile02->ReadString(myData))
+			{
+				CString strGet1(_T("")); 
+				CString strGet3(_T(""));
+				double temp = 0;
+				AfxExtractSubString(strGet1,myData,1, _T('\"'));
+				AfxExtractSubString(strGet3,strGet1,2, _T(','));//昨天的价格
+				LPTSTR  chValueZT = strGet3.GetBuffer( strGet3.GetLength() );
+				double fZT = atof(chValueZT);//昨天的价格
+				strGet3.ReleaseBuffer(); 
+				priceZT[i] = fZT;
+				i++;
+			}
 		}
 	}
 	totalValueA50ZT = 0;totalValueHS300ZT = 0;
