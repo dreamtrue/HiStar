@@ -11,7 +11,7 @@
 #include "me.h"
 unsigned int A50NUM = 50;
 unsigned int HS300NUM=300;
-SYSTEMTIME systime01,time_09_00_00,time_09_40_00;
+SYSTEMTIME systime01,time_09_00_00,time_09_50_00;
 extern double g_A50IndexZT,g_HS300IndexZT;
 char data01[1000];
 int seconds(SYSTEMTIME &time);
@@ -116,54 +116,6 @@ BOOL CIndex::InitInstance()
 		}
 	}
 	try{
-		myHttpFile = (CHttpFile*)mySession.OpenURL(m_hexunA50,1,INTERNET_FLAG_RELOAD|INTERNET_FLAG_TRANSFER_ASCII);
-	}
-	catch(CInternetException*pException){
-		pException->Delete();
-		myHttpFile->Close();
-		delete myHttpFile;
-		myHttpFile = NULL;
-		TRACE("读取指数失败!\r\n");
-		return FALSE;//读取失败,返回
-	}
-	myHttpFile->QueryInfoStatusCode(dwStatusCode);
-	if(myHttpFile != NULL && dwStatusCode == HTTP_STATUS_OK){
-		while(myHttpFile->ReadString(myData)){
-			CString strGet1(_T("")); 
-			CString strGet2(_T(""));
-			AfxExtractSubString(strGet1,myData,3, _T('['));
-			AfxExtractSubString(strGet2,strGet1,0, _T(']'));
-			g_A50IndexZT = atof(strGet2.GetBuffer()) / 100.0;
-		}
-	}
-	myHttpFile->Close();
-	delete myHttpFile;
-	myHttpFile = NULL;
-	try{
-		myHttpFile = (CHttpFile*)mySession.OpenURL(m_hexunHS300,1,INTERNET_FLAG_RELOAD|INTERNET_FLAG_TRANSFER_ASCII);
-	}
-	catch(CInternetException*pException){
-		pException->Delete();
-		myHttpFile->Close();
-		delete myHttpFile;
-		myHttpFile = NULL;
-		TRACE("读取行情失败!\r\n");
-		return FALSE;//读取失败,返回
-	}
-	myHttpFile->QueryInfoStatusCode(dwStatusCode);
-	if(myHttpFile != NULL && dwStatusCode == HTTP_STATUS_OK){
-		while(myHttpFile->ReadString(myData)){
-			CString strGet1(_T("")); 
-			CString strGet2(_T(""));
-			AfxExtractSubString(strGet1,myData,4, _T(','));
-			AfxExtractSubString(strGet2,strGet1,1, _T('\''));
-			g_HS300IndexZT = atof(strGet2.GetBuffer());
-		}
-	}
-	myHttpFile->Close();
-	delete myHttpFile;
-	myHttpFile = NULL;
-	try{
 		myHttpFile01 = (CHttpFile*)mySession.OpenURL(myURL01,1,INTERNET_FLAG_RELOAD|INTERNET_FLAG_TRANSFER_ASCII);
 		myHttpFile02 = (CHttpFile*)mySession.OpenURL(myURL02,1,INTERNET_FLAG_RELOAD|INTERNET_FLAG_TRANSFER_ASCII);
 	}
@@ -172,11 +124,11 @@ BOOL CIndex::InitInstance()
 		delete myHttpFile01;
 		delete myHttpFile02;
 		myHttpFile01 = NULL;
-        myHttpFile02 = NULL;
+		myHttpFile02 = NULL;
 		TRACE("读取昨日行情失败!\r\n");
 		return FALSE;//读取失败,返回
 	}
-    int i = 0;
+	int i = 0;
 	myHttpFile01->QueryInfoStatusCode(dwStatusCode);
 	if(myHttpFile01 != NULL && dwStatusCode == HTTP_STATUS_OK){
 		while(myHttpFile01->ReadString(myData))
@@ -224,26 +176,6 @@ BOOL CIndex::InitInstance()
 	delete myHttpFile02;
 	myHttpFile01 = NULL;
 	myHttpFile02 = NULL;
-	static bool iFirst = true;
-	if(iFirst){
-		time_09_00_00.wHour = 9;time_09_00_00.wMinute = 0;time_09_00_00.wSecond = 0;
-		time_09_40_00.wHour = 9;time_09_40_00.wMinute = 40;time_09_40_00.wSecond = 0;
-		iFirst = false;
-	}
-	GetLocalTime(&systime01);
-	if(seconds(systime01) >= seconds(time_09_00_00) && seconds(systime01) < seconds(time_09_40_00)){
-	}
-	else{
-		A50totalValueRef = totalValueA50ZT;A50IndexRef = g_A50IndexZT;
-		HS300totalValueRef = totalValueHS300ZT;HS300IndexRef = g_HS300IndexZT;
-		//存入指数
-		sprintf_s(data01,"INSERT INTO HISTARINDEX (name,A50REF,A50VALUE,HS300REF,HS300VALUE) VALUES('indexref',%.02lf,%.02lf,%.02lf,%.02lf) ON DUPLICATE KEY UPDATE A50REF = %.02lf,A50VALUE = %.02lf,HS300REF = %.02lf,HS300VALUE = %.02lf",g_A50IndexZT,totalValueA50ZT,g_HS300IndexZT,totalValueHS300ZT,g_A50IndexZT,totalValueA50ZT,g_HS300IndexZT,totalValueHS300ZT);
-		if(connindex){
-			if(mysql_query(connindex,data01)){
-				TRACE("Error %u: %s\n", mysql_errno(connindex), mysql_error(connindex));
-			}
-		}
-	}
 	_timerID = SetTimer(NULL,0,(UINT)3000,UpdateIndexData); 
 	return TRUE;
 }
@@ -256,7 +188,75 @@ int CIndex::ExitInstance()
 }
 
 void CIndex::OnUpdateIndexRef(WPARAM wParam,LPARAM lParam){
-	InitInstance();
+	DWORD dwStatusCode;
+	try{
+		myHttpFile = (CHttpFile*)mySession.OpenURL(m_hexunA50,1,INTERNET_FLAG_RELOAD|INTERNET_FLAG_TRANSFER_ASCII);
+	}
+	catch(CInternetException*pException){
+		pException->Delete();
+		myHttpFile->Close();
+		delete myHttpFile;
+		myHttpFile = NULL;
+		TRACE("读取指数失败!\r\n");
+		return;//读取失败,返回
+	}
+	myHttpFile->QueryInfoStatusCode(dwStatusCode);
+	if(myHttpFile != NULL && dwStatusCode == HTTP_STATUS_OK){
+		while(myHttpFile->ReadString(myData)){
+			CString strGet1(_T("")); 
+			CString strGet2(_T(""));
+			AfxExtractSubString(strGet1,myData,3, _T('['));
+			AfxExtractSubString(strGet2,strGet1,0, _T(']'));
+			g_A50IndexZT = atof(strGet2.GetBuffer()) / 100.0;
+		}
+	}
+	myHttpFile->Close();
+	delete myHttpFile;
+	myHttpFile = NULL;
+	try{
+		myHttpFile = (CHttpFile*)mySession.OpenURL(m_hexunHS300,1,INTERNET_FLAG_RELOAD|INTERNET_FLAG_TRANSFER_ASCII);
+	}
+	catch(CInternetException*pException){
+		pException->Delete();
+		myHttpFile->Close();
+		delete myHttpFile;
+		myHttpFile = NULL;
+		TRACE("读取行情失败!\r\n");
+		return;//读取失败,返回
+	}
+	myHttpFile->QueryInfoStatusCode(dwStatusCode);
+	if(myHttpFile != NULL && dwStatusCode == HTTP_STATUS_OK){
+		while(myHttpFile->ReadString(myData)){
+			CString strGet1(_T("")); 
+			CString strGet2(_T(""));
+			AfxExtractSubString(strGet1,myData,4, _T(','));
+			AfxExtractSubString(strGet2,strGet1,1, _T('\''));
+			g_HS300IndexZT = atof(strGet2.GetBuffer());
+		}
+	}
+	myHttpFile->Close();
+	delete myHttpFile;
+	myHttpFile = NULL;
+	static bool iFirst = true;
+	if(iFirst){
+		time_09_00_00.wHour = 9;time_09_00_00.wMinute = 0;time_09_00_00.wSecond = 0;
+		time_09_50_00.wHour = 9;time_09_50_00.wMinute = 50;time_09_50_00.wSecond = 0;
+		iFirst = false;
+	}
+	GetLocalTime(&systime01);
+	if(seconds(systime01) < seconds(time_09_50_00)){
+	}
+	else{
+		A50totalValueRef = totalValueA50ZT;A50IndexRef = g_A50IndexZT;
+		HS300totalValueRef = totalValueHS300ZT;HS300IndexRef = g_HS300IndexZT;
+		//存入指数
+		sprintf_s(data01,"INSERT INTO HISTARINDEX (name,A50REF,A50VALUE,HS300REF,HS300VALUE) VALUES('indexref',%.02lf,%.02lf,%.02lf,%.02lf) ON DUPLICATE KEY UPDATE A50REF = %.02lf,A50VALUE = %.02lf,HS300REF = %.02lf,HS300VALUE = %.02lf",g_A50IndexZT,totalValueA50ZT,g_HS300IndexZT,totalValueHS300ZT,g_A50IndexZT,totalValueA50ZT,g_HS300IndexZT,totalValueHS300ZT);
+		if(connindex){
+			if(mysql_query(connindex,data01)){
+				TRACE("Error %u: %s\n", mysql_errno(connindex), mysql_error(connindex));
+			}
+		}
+	}
 }
 
 BEGIN_MESSAGE_MAP(CIndex, CWinThread)

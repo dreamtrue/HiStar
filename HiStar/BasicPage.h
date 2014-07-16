@@ -107,6 +107,9 @@ public:
 	CColorStatic m_profitBT;
 	CColorStatic m_feeBT;
 	CColorStatic m_netBT;
+	afx_msg void OnBnClickedCheck2();
+	afx_msg void OnBnClickedRadio1();
+	afx_msg void OnBnClickedRadio2();
 };
 //其他变量
 const int N = 5;

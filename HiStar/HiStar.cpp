@@ -18,7 +18,7 @@
 extern double A50Index,HS300Index;//本程序实际所用指数
 extern DWORD IndexThreadId;
 std::fstream fileInput;
-bool isReal = true;
+bool isReal = true,isDownload = false;
 extern CVector<HoldDetail> HedgeHold;
 extern unsigned int HS300NUM;
 sqldb::sqldb(){
@@ -90,15 +90,17 @@ void CHiStarApp::OnInitialize(WPARAM wParam,LPARAM lParam){
 	memset(buffer,0,sizeof(TThostFtdcDateType));memset(m_accountCtp.m_todayDate,0,sizeof(TThostFtdcDateType));
 	sprintf_s(buffer,"%04d%02d%02d",sys.wYear,sys.wMonth,sys.wDay);/*赋予数值*/
 	strcpy_s(m_accountCtp.m_todayDate,buffer);
-    //更新指数文件
-	CString cStatus;
-	if(Download("http://hk.ishares.com/product_info/fund/excel_holdings.htm?ticker=2823",".\\2823_Holdings.csv")){
-		cStatus.Format("Download 2823 Holdings Success.");
-		PostOrderStatus(cStatus);
-	}
-	if(Download("http://hk.ishares.com/product_info/fund/excel_holdings.htm?ticker=2846",".\\2846_Holdings.csv")){
-		cStatus.Format("Download 2846 Holdings Success.");
-		PostOrderStatus(cStatus);
+	//更新指数文件
+	if(isDownload){
+		CString cStatus;
+		if(Download("http://hk.ishares.com/product_info/fund/excel_holdings.htm?ticker=2823",".\\2823_Holdings.csv")){
+			cStatus.Format("Download 2823 Holdings Success.");
+			PostOrderStatus(cStatus);
+		}
+		if(Download("http://hk.ishares.com/product_info/fund/excel_holdings.htm?ticker=2846",".\\2846_Holdings.csv")){
+			cStatus.Format("Download 2846 Holdings Success.");
+			PostOrderStatus(cStatus);
+		}
 	}
 	//TThostFtdcDateType
 	FileInput();

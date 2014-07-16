@@ -16,7 +16,7 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-extern bool iSell,iBuy;
+extern bool iSell,iBuy,isDownload;
 extern DWORD IndexThreadId;
 extern double datumDiff;
 extern bool isHedgeLoopingPause;
@@ -33,6 +33,7 @@ extern bool isReal;
 extern CVector<HoldDetail> HedgeHold;
 extern bool iBackTest01;
 extern double profitBackTest,feeBackTest,NetProfitBackTest;
+extern int run_mode;//运行模式
 UINT nTimerID;
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
@@ -146,6 +147,9 @@ BEGIN_MESSAGE_MAP(CBasicPage, CDialogEx)
 	ON_BN_CLICKED(IDC_UPDATE_IB, &CBasicPage::OnBnClickedUpdateIb)
 	ON_BN_CLICKED(IDC_BUTTON14, &CBasicPage::OnBnClickedButton14)
 	ON_WM_TIMER()
+	ON_BN_CLICKED(IDC_CHECK2, &CBasicPage::OnBnClickedCheck2)
+	ON_BN_CLICKED(IDC_RADIO1, &CBasicPage::OnBnClickedRadio1)
+	ON_BN_CLICKED(IDC_RADIO2, &CBasicPage::OnBnClickedRadio2)
 END_MESSAGE_MAP()
 
 
@@ -185,6 +189,7 @@ BOOL CBasicPage::OnInitDialog()
 	// TODO: 在此添加额外的初始化代码
 	m_btnRun.SetIcon(IDI_HALLOWEEN2, IDI_HALLOWEEN1);
     ((CButton *)GetDlgItem(IDC_CHECK1))->SetCheck(TRUE);
+	((CButton *)GetDlgItem(IDC_CHECK2))->SetCheck(FALSE);
 	m_csS1P.SetBkColor(ACC_BG);
 	m_csS1P.SetWindowText(_T("0.0"),LITGRAY);
 	m_csLastP.SetBkColor(ACC_BG);
@@ -228,10 +233,12 @@ BOOL CBasicPage::OnInitDialog()
 	//
 	SetDlgItemText(IDC_COST_ADJUST,TEXT(_T("0.0")));
 	SetDlgItemText(IDC_DATUMDIFF,TEXT(_T("0.0")));
-	SetDlgItemText(IDC_MINPROFIT,TEXT(_T("10.0")));
-	SetDlgItemText(IDC_MAXPROFIT,TEXT(_T("10.0")));
+	SetDlgItemText(IDC_MINPROFIT,TEXT(_T("5.0")));
+	SetDlgItemText(IDC_MAXPROFIT,TEXT(_T("5.0")));
 	SetDlgItemText(IDC_MULTI_POS,TEXT(_T("1")));
-	SetDlgItemText(IDC_RICHEDIT26,TEXT(_T("16")));
+	SetDlgItemText(IDC_RICHEDIT26,TEXT(_T("0")));
+	((CButton *)GetDlgItem(IDC_RADIO1))->SetCheck(TRUE);//选上
+	((CButton *)GetDlgItem(IDC_RADIO2))->SetCheck(FALSE);//不选上
 	//初始化列表控件
 	TCHAR* lpHdrs0[10] = {_T("ID"),_T("数量"),_T("所属区域"),_T("成本"),_T("IF持仓"),_T("IF价格"),_T("IF指数"),_T("A50持仓"),_T("A50价格"),_T("A50指数")};
 	int iWidths0[10] = {32,52,68,68,68,68,68,68,68,68};
@@ -750,4 +757,28 @@ void CBasicPage::OnTimer(UINT_PTR nIDEvent)
 		}
 	}
 	CDialogEx::OnTimer(nIDEvent);
+}
+
+void CBasicPage::OnBnClickedCheck2()
+{
+	if (BST_CHECKED == IsDlgButtonChecked(IDC_CHECK2))
+	{
+		isDownload = true;
+	}
+	else
+	{
+		isDownload = false;
+	}
+}
+
+
+void CBasicPage::OnBnClickedRadio1()
+{
+	run_mode = 1;
+}
+
+
+void CBasicPage::OnBnClickedRadio2()
+{
+	run_mode = 2;
 }

@@ -3,9 +3,6 @@
 #include <afxinet.h> 
 #include <vector>
 #include <string>
-#define A50NUM 50
-#define HS300NUM 300
-#define TOTAL 350
 CString m_URL = _T("http://hq.sinajs.cn/list=");
 double A50IndexRef;
 double A50totalVolumeRef;
