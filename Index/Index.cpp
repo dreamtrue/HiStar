@@ -22,6 +22,7 @@ extern sqldb m_db;
 extern std::vector<stock> g_hs300;
 extern std::vector<stock> g_a50;
 extern double volume[350];
+extern double price[350];
 extern double priceZT[350];
 // CIndex
 
@@ -97,7 +98,6 @@ CIndex::~CIndex()
 
 BOOL CIndex::InitInstance()
 {
-	DWORD dwStatusCode;
 	connindex = mysql_init(NULL); 
 	if(connindex == NULL) {
 		TRACE("Error %u: %s\n", mysql_errno(connindex), mysql_error(connindex));      
@@ -130,73 +130,7 @@ BOOL CIndex::InitInstance()
 			}	
 		}
 	}
-	try{
-		myHttpFile01 = (CHttpFile*)mySession.OpenURL(myURL01,1,INTERNET_FLAG_RELOAD|INTERNET_FLAG_TRANSFER_ASCII);
-		if(myURL02 != ""){
-			myHttpFile02 = (CHttpFile*)mySession.OpenURL(myURL02,1,INTERNET_FLAG_RELOAD|INTERNET_FLAG_TRANSFER_ASCII);
-		}
-	}
-	catch(CInternetException*pException){
-		pException->Delete();
-		delete myHttpFile01;
-		myHttpFile01 = NULL;
-		if(myURL02 != ""){
-			delete myHttpFile02;
-			myHttpFile02 = NULL;
-		}
-		TRACE("读取昨日行情失败!\r\n");
-		return FALSE;//读取失败,返回
-	}
-	int i = 0;
-	myHttpFile01->QueryInfoStatusCode(dwStatusCode);
-	if(myHttpFile01 != NULL && dwStatusCode == HTTP_STATUS_OK){
-		while(myHttpFile01->ReadString(myData))
-		{
-			CString strGet1(_T("")); 
-			CString strGet3(_T(""));
-			double temp = 0;
-			AfxExtractSubString(strGet1,myData,1, _T('\"'));
-			AfxExtractSubString(strGet3,strGet1,2, _T(','));//昨天的价格
-			LPTSTR  chValueZT = strGet3.GetBuffer( strGet3.GetLength() );
-			double fZT = atof(chValueZT);//昨天的价格
-			strGet3.ReleaseBuffer(); 
-			priceZT[i] = fZT;
-			i++;
-		}
-	}
-	if(myURL02 != ""){
-		myHttpFile02->QueryInfoStatusCode(dwStatusCode);
-		if(myHttpFile02 != NULL && dwStatusCode == HTTP_STATUS_OK){
-			while(myHttpFile02->ReadString(myData))
-			{
-				CString strGet1(_T("")); 
-				CString strGet3(_T(""));
-				double temp = 0;
-				AfxExtractSubString(strGet1,myData,1, _T('\"'));
-				AfxExtractSubString(strGet3,strGet1,2, _T(','));//昨天的价格
-				LPTSTR  chValueZT = strGet3.GetBuffer( strGet3.GetLength() );
-				double fZT = atof(chValueZT);//昨天的价格
-				strGet3.ReleaseBuffer(); 
-				priceZT[i] = fZT;
-				i++;
-			}
-		}
-	}
-	totalValueA50ZT = 0;totalValueHS300ZT = 0;
-	for(unsigned int i = 0;i <A50NUM + HS300NUM;i++){
-		if(i < A50NUM){
-			totalValueA50ZT = totalValueA50ZT + priceZT[i] * volume[i];
-		}
-		if(i >= A50NUM){
-			totalValueHS300ZT = totalValueHS300ZT + priceZT[i] * volume[i];
-		}
-	}
-	myHttpFile01->Close();
-	myHttpFile02->Close();
-	delete myHttpFile01;
-	delete myHttpFile02;
-	myHttpFile01 = NULL;
-	myHttpFile02 = NULL;
+	GetIndexYd();//获得昨天的指数
 	_timerID = SetTimer(NULL,0,(UINT)3000,UpdateIndexData); 
 	return TRUE;
 }
@@ -209,6 +143,134 @@ int CIndex::ExitInstance()
 }
 
 void CIndex::OnUpdateIndexRef(WPARAM wParam,LPARAM lParam){
+	GetQuotation();//获取行情
+	totalValueA50ZT = 0;totalValueHS300ZT = 0;
+	for(unsigned int i = 0;i <A50NUM + HS300NUM;i++){
+		if(i < A50NUM){
+			totalValueA50ZT = totalValueA50ZT + priceZT[i] * volume[i];
+		}
+		if(i >= A50NUM){
+			totalValueHS300ZT = totalValueHS300ZT + priceZT[i] * volume[i];
+		}
+	}
+	GetIndexYd();//获得昨天的指数
+	static bool iFirst = true;
+	if(iFirst){
+		time_09_00_00.wHour = 9;time_09_00_00.wMinute = 0;time_09_00_00.wSecond = 0;
+		time_09_50_00.wHour = 9;time_09_50_00.wMinute = 50;time_09_50_00.wSecond = 0;
+		iFirst = false;
+	}
+	GetLocalTime(&systime01);
+	if(seconds(systime01) < seconds(time_09_50_00)){
+	}
+	else{
+		A50totalValueRef = totalValueA50ZT;A50IndexRef = g_A50IndexZT;
+		HS300totalValueRef = totalValueHS300ZT;HS300IndexRef = g_HS300IndexZT;
+		//存入指数
+		sprintf_s(data01,"INSERT INTO HISTARINDEX (name,A50REF,A50VALUE,HS300REF,HS300VALUE) VALUES('indexref',%.02lf,%.02lf,%.02lf,%.02lf) ON DUPLICATE KEY UPDATE A50REF = %.02lf,A50VALUE = %.02lf,HS300REF = %.02lf,HS300VALUE = %.02lf",g_A50IndexZT,totalValueA50ZT,g_HS300IndexZT,totalValueHS300ZT,g_A50IndexZT,totalValueA50ZT,g_HS300IndexZT,totalValueHS300ZT);
+		if(connindex){
+			if(mysql_query(connindex,data01)){
+				TRACE("Error %u: %s\n", mysql_errno(connindex), mysql_error(connindex));
+			}
+		}
+	}
+}
+
+BEGIN_MESSAGE_MAP(CIndex, CWinThread)
+	ON_THREAD_MESSAGE(WM_UPDATE_INDEX_REF,OnUpdateIndexRef)
+END_MESSAGE_MAP()
+
+void CIndex::GetQuotation(void)
+{
+	try{
+		myHttpFile01 = (CHttpFile*)mySession.OpenURL(myURL01,1,INTERNET_FLAG_RELOAD|INTERNET_FLAG_TRANSFER_ASCII);
+		if(myURL02 != ""){
+			myHttpFile02 = (CHttpFile*)mySession.OpenURL(myURL02,1,INTERNET_FLAG_RELOAD|INTERNET_FLAG_TRANSFER_ASCII);
+		}
+	}
+	catch(CInternetException*pException){
+		pException->Delete();
+		myHttpFile01->Close();
+		delete myHttpFile01;
+		myHttpFile01 = NULL;
+		if(myURL02 != ""){
+			myHttpFile02->Close();
+			delete myHttpFile02;	
+			myHttpFile02 = NULL;
+		}
+		TRACE("读取指数失败!\r\n");
+		return;//读取失败,返回
+	}
+	int i = 0;
+	DWORD dwStatusCode;
+	myHttpFile01->QueryInfoStatusCode(dwStatusCode);
+	if(myHttpFile01 != NULL && dwStatusCode == HTTP_STATUS_OK){
+		while(myHttpFile01->ReadString(myData))
+		{
+			CString strGet1(_T("")); 
+			CString strGet2(_T(""));
+			CString strGet3(_T(""));
+			double temp = 0;
+			AfxExtractSubString(strGet1,myData,1, _T('\"'));
+			AfxExtractSubString(strGet2,strGet1,3, _T(','));//现在的价格
+			AfxExtractSubString(strGet3,strGet1,2, _T(','));//昨天的价格
+			LPTSTR  chValue = strGet2.GetBuffer( strGet2.GetLength() );
+			LPTSTR  chValueZT = strGet3.GetBuffer( strGet3.GetLength() );
+			double fZT = atof(chValueZT);//昨天的价格
+			strGet3.ReleaseBuffer(); 
+			priceZT[i] = fZT;
+			double fValue = atof(chValue);//今天的价格
+			strGet2.ReleaseBuffer(); 
+			if(fValue > 0.1){//防止等于0，等于0就用昨天的收盘价
+				price[i] = fValue;
+			}
+			else{
+				price[i] = priceZT[i];
+			}
+			i++;
+		}
+	}
+	if(myURL02 != ""){
+		myHttpFile02->QueryInfoStatusCode(dwStatusCode);
+		if(myHttpFile02 != NULL && dwStatusCode == HTTP_STATUS_OK){
+			while(myHttpFile02->ReadString(myData))
+			{
+				CString strGet1(_T("")); 
+				CString strGet2(_T(""));
+				CString strGet3(_T(""));
+				double temp = 0;
+				AfxExtractSubString(strGet1,myData,1, _T('\"'));
+				AfxExtractSubString(strGet2,strGet1,3, _T(','));//现在的价格
+				AfxExtractSubString(strGet3,strGet1,2, _T(','));//昨天的价格
+				LPTSTR  chValue = strGet2.GetBuffer( strGet2.GetLength() );
+				LPTSTR  chValueZT = strGet3.GetBuffer( strGet3.GetLength() );
+				double fZT = atof(chValueZT);//昨天的价格
+				strGet3.ReleaseBuffer(); 
+				priceZT[i] = fZT;
+				double fValue = atof(chValue);//今天的价格
+				strGet2.ReleaseBuffer(); 
+				if(fValue > 0.1){//防止等于0，等于0就用昨天的收盘价
+					price[i] = fValue;
+				}
+				else{
+					price[i] = priceZT[i];
+				}
+				i++;
+			}
+		}
+	}
+	myHttpFile01->Close();
+	delete myHttpFile01;
+	myHttpFile01 = NULL;
+	if(myURL02 != ""){
+		myHttpFile02->Close();
+		delete myHttpFile02;	
+		myHttpFile02 = NULL;
+	}
+}
+
+void CIndex::GetIndexYd(void)
+{
 	DWORD dwStatusCode;
 	try{
 		myHttpFile = (CHttpFile*)mySession.OpenURL(m_hexunA50,1,INTERNET_FLAG_RELOAD|INTERNET_FLAG_TRANSFER_ASCII);
@@ -258,28 +320,4 @@ void CIndex::OnUpdateIndexRef(WPARAM wParam,LPARAM lParam){
 	myHttpFile->Close();
 	delete myHttpFile;
 	myHttpFile = NULL;
-	static bool iFirst = true;
-	if(iFirst){
-		time_09_00_00.wHour = 9;time_09_00_00.wMinute = 0;time_09_00_00.wSecond = 0;
-		time_09_50_00.wHour = 9;time_09_50_00.wMinute = 50;time_09_50_00.wSecond = 0;
-		iFirst = false;
-	}
-	GetLocalTime(&systime01);
-	if(seconds(systime01) < seconds(time_09_50_00)){
-	}
-	else{
-		A50totalValueRef = totalValueA50ZT;A50IndexRef = g_A50IndexZT;
-		HS300totalValueRef = totalValueHS300ZT;HS300IndexRef = g_HS300IndexZT;
-		//存入指数
-		sprintf_s(data01,"INSERT INTO HISTARINDEX (name,A50REF,A50VALUE,HS300REF,HS300VALUE) VALUES('indexref',%.02lf,%.02lf,%.02lf,%.02lf) ON DUPLICATE KEY UPDATE A50REF = %.02lf,A50VALUE = %.02lf,HS300REF = %.02lf,HS300VALUE = %.02lf",g_A50IndexZT,totalValueA50ZT,g_HS300IndexZT,totalValueHS300ZT,g_A50IndexZT,totalValueA50ZT,g_HS300IndexZT,totalValueHS300ZT);
-		if(connindex){
-			if(mysql_query(connindex,data01)){
-				TRACE("Error %u: %s\n", mysql_errno(connindex), mysql_error(connindex));
-			}
-		}
-	}
 }
-
-BEGIN_MESSAGE_MAP(CIndex, CWinThread)
-	ON_THREAD_MESSAGE(WM_UPDATE_INDEX_REF,OnUpdateIndexRef)
-END_MESSAGE_MAP()

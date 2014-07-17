@@ -36,6 +36,8 @@ public:
 	static CString m_hexunA50;
 	static CString m_hexunHS300;
 	void OnUpdateIndexRef(WPARAM wParam,LPARAM lParam);
+	static void GetQuotation(void);
+	void GetIndexYd(void);
 };
 
 
