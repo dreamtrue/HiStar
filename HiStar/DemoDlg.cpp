@@ -11,9 +11,9 @@ CVector<HoldDetail> HedgeHoldDemo;
 extern int iBackTestTime(SYSTEMTIME & systime);
 extern sqldb m_db;
 //const double HedgeLadderDemoRef[21] = {   -200, -180, -160, -140, -120, -100, -80, -60, -40, -30, -10,  20,  40,  60,  80,  100,  120,  140,  160,  180,  200};
-//const int PositionAimUnitDemo[22] = {11,    10,    9,    8,    7,    6,    5,   4,   3,   2,   1,   0,  -1,  -2,  -3,  -4,  -5,    -6,   -7,   -8,   -9,   -10};
+//const int PositionAimUnitDemo[22] = {   11,   10,    9,    8,    7,    6,    5,   4,   3,   2,   1,   0,  -1,  -2,  -3,   -4,   -5,   -6,   -7,   -8,   -9,   -10};
 const double HedgeLadderDemoRef[21] = {   -95, -85, -75, -65, -55, -45, -35, -25, -15, -5,  0,  5,   15,  25,  35,  45,  55,  65,   75,   85,   95};
-const int PositionAimUnitDemo[22] = { 10,  9,   8,   7,   6,   5,    4,  3,   2,   1,  0,  0,  -1,  -2,  -3,  -4,  -5,  -6,  -7,   -8,   -9,  -10};
+const int PositionAimUnitDemo[22] = {    10,  9,   8,   7,   6,   5,    4,  3,   2,   1,  0,  0,  -1,  -2,  -3,  -4,  -5,  -6,   -7,   -8,   -9,   -10};
 double HedgeLadderDemo[21];
 extern void CalcDeviation(double &a50Bid1,double &a50Ask1,double &ifBid1,double &ifAsk1,double &A50IndexNow,double &HS300IndexNow);
 bool CmpByTimeDemo(const CString first,const CString second) 
@@ -181,8 +181,13 @@ void CDemoDlg::OnBnClickedRunDemo()
 			mysql_free_result(res_set);
 			res_set = NULL;
 		}
-		if(date == "2014-03-20" || date == "2014-03-28" || date == "2014-04-17" || date == "2014-04-29" || date == "2014-05-15" || date == "2014-05-28"){
-			ColseAllDemo();
+		if(date == "2014-03-20" || date == "2014-03-28" || date == "2014-04-17" || date == "2014-04-29" || date == "2014-05-15" 
+			|| date == "2014-05-28" || date == "2014-06-19" || date == "2014-06-27" || date == "2014-07-17" || date == "2014-07-28" 
+			|| date == "2014-08-13" || date == "2014-08-26"){
+				if(date < dateBegin || date > dateEnd){}
+				else{
+					ColseAllDemo();
+				}
 		}
 		PrintProfit();
 	}
