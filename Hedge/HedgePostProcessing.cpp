@@ -442,7 +442,8 @@ int CHiStarApp::ReqHedgeOrder(HoldDetail *pHD,bool OffsetFlag,double &a50Bid1,do
 			else{
 				shortIf =  shortIf + m_cT->m_InvPosDetailVec[i].Volume;
 			}
-			break;
+			//因为同样的合约可能是不同的日期，所以可能有两个持仓，故取消break
+			//break;
 		}
 	}
 	ReleaseSRWLockShared(&g_srwLock_PosDetail); 
@@ -887,11 +888,14 @@ void CHedgePostProcessing::Run_PostProcessing(WPARAM t_wParam,LPARAM t_lParam){
 	if(OffsetFlag == OPEN){
 		for(unsigned int i = 0;i < HedgeHoldTemp.size();i++){
 			if(HedgeHoldTemp[i].id == hd.id){
+				//暂时不对成本和成交价格数据进行修正，仍然使用最初预填进去的数据。
+				/*
 				if(fabs(t_avgPriceA50 - t_avgPriceIf * A50IndexNow / HS300IndexNow - HedgeHoldTemp[i].originalCost) < 10.0 && _isnan((t_avgPriceA50 - t_avgPriceIf * A50IndexNow / HS300IndexNow)) == 0){
-					HedgeHoldTemp[i].originalCost = t_avgPriceA50 - t_avgPriceIf * A50IndexNow / HS300IndexNow;
-					HedgeHoldTemp[i].priceIf = t_avgPriceIf;HedgeHoldTemp[i].indexHS300 = HS300IndexNow;
-					HedgeHoldTemp[i].priceA50 = t_avgPriceA50;HedgeHoldTemp[i].indexA50 = A50IndexNow;
+				HedgeHoldTemp[i].originalCost = t_avgPriceA50 - t_avgPriceIf * A50IndexNow / HS300IndexNow;
+				HedgeHoldTemp[i].priceIf = t_avgPriceIf;HedgeHoldTemp[i].indexHS300 = HS300IndexNow;
+				HedgeHoldTemp[i].priceA50 = t_avgPriceA50;HedgeHoldTemp[i].indexA50 = A50IndexNow;
 				}
+				*/
 			}
 		}
 	}
