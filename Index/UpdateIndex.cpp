@@ -38,5 +38,8 @@ VOID CIndex::UpdateIndexData(HWND wnd, UINT msg, UINT_PTR id, DWORD d)
 	}
 	g_A50Index = A50IndexRef * totalValueA50 / A50totalValueRef;
 	g_HS300Index = HS300IndexRef * totalValueHS300 / HS300totalValueRef;
+	//由于A50指数当前无法从和讯查询，故将昨天指数直接计算出来
+	g_A50IndexZT = A50IndexRef * totalValueA50ZT / A50totalValueRef;
+	g_HS300IndexZT = HS300IndexRef * totalValueHS300ZT / HS300totalValueRef;
 	return;
 }
