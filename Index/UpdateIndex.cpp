@@ -24,8 +24,10 @@ VOID CIndex::UpdateIndexData(HWND wnd, UINT msg, UINT_PTR id, DWORD d)
 {
 	GetQuotation();
 	//计算A50和HS300指数
-	double totalValueA50 = 0;
-	double totalValueHS300 = 0;
+	double totalValueA50 = 0.0;
+	double totalValueHS300 = 0.0;
+	totalValueA50ZT = 0.0;
+	totalValueHS300ZT = 0.0;
 	for(unsigned int i = 0;i < A50NUM + HS300NUM;i++){
 		if(i < A50NUM){
 			totalValueA50 = totalValueA50 + price[i] * volume[i];
