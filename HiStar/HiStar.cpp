@@ -12,6 +12,7 @@
 #include <fstream>
 #include <sstream>
 #include "me.h"
+#include "Csv.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -20,7 +21,7 @@ extern DWORD IndexThreadId;
 std::fstream fileInput;
 bool isReal = true,isDownload = false;
 extern CVector<HoldDetail> HedgeHold;
-extern unsigned int HS300NUM;
+extern unsigned int HS300NUM,A50NUM;
 sqldb::sqldb(){
 	host = "";user = "";passwd = "";db = "";
 }
@@ -34,6 +35,24 @@ SRWLOCK g_srwLock_MargRate;
 SRWLOCK g_srwLock_Insinf;
 SRWLOCK g_srwLock_WaitForFee;
 SRWLOCK g_srwLock_FeeRate;
+/*
+std::string stringtrim(std::string s)
+{
+	int i=0;
+	while(s[i] == ' '|| s[i] == '\t' || s[i] == '"' || s[i] == '-')//开头处为空格或者Tab，则跳过
+	{
+		i++;
+	}
+	s=s.substr(i);
+	i=s.size()-1;
+	while(s[i] == ' '|| s[i] == '\t' || s[i] == '"' || s[i] == '-')////结尾处为空格或者Tab，则跳过
+	{
+		i--;
+	}
+	s=s.substr(0,i+1);
+	return s;
+}
+*/
 // CHiStarApp
 BEGIN_MESSAGE_MAP(CHiStarApp, CWinApp)
 	ON_COMMAND(ID_HELP, &CWinApp::OnHelp)
@@ -93,11 +112,11 @@ void CHiStarApp::OnInitialize(WPARAM wParam,LPARAM lParam){
 	//更新指数文件
 	if(isDownload){
 		CString cStatus;
-		if(Download("http://hk.ishares.com/product_info/fund/excel_holdings.htm?ticker=2823",".\\2823_Holdings.csv")){
+		if(Download("https://www.blackrock.com/hk/zh/products/251797/ishares-ftse-a50-china-index-etf/1404292000448.ajax?fileType=csv&fileName=2823_holdings&dataType=fund",".\\2823_Holdings.csv")){
 			cStatus.Format("Download 2823 Holdings Success.");
 			PostOrderStatus(cStatus);
 		}
-		if(Download("http://hk.ishares.com/product_info/fund/excel_holdings.htm?ticker=2846",".\\2846_Holdings.csv")){
+		if(Download("https://www.blackrock.com/hk/zh/products/251754/ishares-csi-300-a-share-index-etf/1404292000448.ajax?fileType=csv&fileName=2846_holdings&dataType=fund",".\\2846_Holdings.csv")){
 			cStatus.Format("Download 2846 Holdings Success.");
 			PostOrderStatus(cStatus);
 		}
@@ -322,44 +341,77 @@ int CHiStarApp::FileInput(void)
 	}
 	fileInput.close();
 	stock st;
+	std::string line;
+	int numStockLine;
 	fileInput.open("2823_Holdings.csv");
-	int i = 0;
-	while(getline(fileInput,str)){
-		i++;
-		stream.str("");stream.clear();stream << str;
-		if(i >= 12 && i <= 61){
-			std::string sub_str;
-			std::vector<std::string> subvec;
-			while(getline(stream,sub_str,',')){
-				subvec.push_back(sub_str);
+	Csv csv2823(fileInput,"\t");
+	numStockLine = 0;
+	while (csv2823.getline(line) != 0)
+	{
+		TRACE("%d\r\n",csv2823.getnfield());
+		//有9列的行是股票持仓部分的格式,其中第一行为标题栏
+		if(csv2823.getnfield() == 10){
+			numStockLine++;
+			if(numStockLine >= 4 && numStockLine <= 53){
+				//第一行是标题,不做处理
+				if(atoi(csv2823.getfield(0).c_str()) >= 60000){st.exch = "sh";}else{st.exch = "sz";}
+				TRACE(csv2823.getfield(7).c_str());
+				std::string field07 = csv2823.getfield(7);
+				std::string field08 = csv2823.getfield(8);
+				for(int k = 0;k < field07.size();k++){
+					if(field07[k] == ',' || field07[k] == '-' || field07[k] == '"'){
+						field07.erase(k,1);
+						k--;
+						TRACE(field07.c_str());
+					}
+				}
+				for(int k = 0;k < field08.size();k++){
+					if(field08[k] == ',' || field08[k] == '-' || field08[k] == '"'){
+						field08.erase(k,1);
+						k--;
+						TRACE(field08.c_str());
+					}
+				}
+				char codename[10];
+				sprintf_s(codename,"%06d",atoi(csv2823.getfield(0).c_str()));
+				st.code = codename;
+				st.volume = atoi(field07.c_str()) + atoi(field08.c_str());
+				g_a50.push_back(st);
 			}
-			if(subvec[2] >= "60000"){st.exch = "sh";}else{st.exch = "sz";}
-			st.code = subvec[2].substr(0,6);st.volume = atoi(subvec[6].c_str()) + atoi(subvec[7].c_str());
-			g_a50.push_back(st);
 		}
 	}
+	A50NUM = numStockLine - 5;
 	fileInput.close();
 	fileInput.open("2846_Holdings.csv");
-	i = 0;
-	while(getline(fileInput,str)){
-		i++;
-		stream.str("");stream.clear();stream << str;
-		if(i >= 13 && i <= 312){
-			std::string sub_str;
-			std::vector<std::string> subvec;
-			while(getline(stream,sub_str,',')){
-				subvec.push_back(sub_str);
+	Csv csv2846(fileInput,",");
+	numStockLine = 0;
+	while (csv2846.getline(line) != 0)
+	{
+		TRACE("%d\r\n",csv2846.getnfield());
+		//有9列的行是股票持仓部分的格式,其中第一行为标题栏
+		if(csv2846.getnfield() == 9){
+			numStockLine++;
+			if(numStockLine != 1){
+				//第一行是标题,不做处理
+				if(atoi(csv2846.getfield(0).c_str()) >= 60000){st.exch = "sh";}else{st.exch = "sz";}
+				TRACE(csv2846.getfield(7).c_str());
+				std::string field = csv2846.getfield(7);
+				for(int k = 0;k < field.size();k++){
+					if(field[k] == ',' || field[k] == '-' || field[k] == '"'){
+						field.erase(k,1);
+						k--;
+						TRACE(field.c_str());
+					}
+				}
+				char codename[10];
+				sprintf_s(codename,"%06d",atoi(csv2846.getfield(0).c_str()));
+				st.code = codename;
+				st.volume = atoi(field.c_str());
+				g_hs300.push_back(st);
 			}
-			if(subvec.size() == 0){
-				HS300NUM = i - 13;
-				break;
-			}
-			if(subvec[2] >= "60000"){st.exch = "sh";}else{st.exch = "sz";}
-			st.code = subvec[2].substr(0,6);st.volume = atoi(subvec[6].c_str());
-			g_hs300.push_back(st);
 		}
 	}
-	stream.str("");stream.clear();
+	HS300NUM = numStockLine - 1;//去掉标题栏
 	fileInput.close();
 	return 0;
 }

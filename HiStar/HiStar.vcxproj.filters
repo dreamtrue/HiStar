@@ -327,6 +327,9 @@
     <ClInclude Include="me.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Csv.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\CppClient\src\EClientSocket.cpp">
@@ -445,6 +448,9 @@
     </ClCompile>
     <ClCompile Include="DemoDlg.cpp">
       <Filter>源文件\Dialog</Filter>
+    </ClCompile>
+    <ClCompile Include="Csv.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -270,6 +270,7 @@
     <ClInclude Include="..\THostFtdc\ThostFtdcUserApiDataType.h" />
     <ClInclude Include="..\THostFtdc\ThostFtdcUserApiStruct.h" />
     <ClInclude Include="AccountPage.h" />
+    <ClInclude Include="Csv.h" />
     <ClInclude Include="DemoDlg.h" />
     <ClInclude Include="global.h" />
     <ClInclude Include="HiStar.h" />
@@ -314,6 +315,7 @@
     <ClCompile Include="..\MSHQ\MSHQ.cpp" />
     <ClCompile Include="..\TraderSpi\traderspi.cpp" />
     <ClCompile Include="AccountPage.cpp" />
+    <ClCompile Include="Csv.cpp" />
     <ClCompile Include="CtpOpera.cpp" />
     <ClCompile Include="CVector.h" />
     <ClCompile Include="DemoDlg.cpp" />
