@@ -51,6 +51,7 @@ public:
 	double profit;
 	double NetProfit;
 	void DemoTaskRun(CString datetime);
+	void DemoTaskRun02(CString datetime);
 	afx_msg void OnBnClickedClear();
 	CStatic m_demoShow;
 	CListBox m_demoList;
@@ -79,4 +80,6 @@ public:
 	CEdit m_A50Multi;
 	CEdit m_max;
 	CEdit m_min;
+	afx_msg void OnRunDemo02();
+	CButton m_runDemo02;
 };
