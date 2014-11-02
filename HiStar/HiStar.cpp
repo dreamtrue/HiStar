@@ -344,28 +344,28 @@ int CHiStarApp::FileInput(void)
 	std::string line;
 	int numStockLine;
 	fileInput.open("2823_Holdings.csv");
-	Csv csv2823(fileInput,"\t");
+	Csv csv2823(fileInput,",");
 	numStockLine = 0;
 	while (csv2823.getline(line) != 0)
 	{
 		TRACE("%d\r\n",csv2823.getnfield());
 		//有9列的行是股票持仓部分的格式,其中第一行为标题栏
-		if(csv2823.getnfield() == 10){
+		if(csv2823.getnfield() == 11){
 			numStockLine++;
-			if(numStockLine >= 4 && numStockLine <= 53){
+			if(numStockLine != 1){
 				//第一行是标题,不做处理
 				if(atoi(csv2823.getfield(0).c_str()) >= 60000){st.exch = "sh";}else{st.exch = "sz";}
 				TRACE(csv2823.getfield(7).c_str());
 				std::string field07 = csv2823.getfield(7);
 				std::string field08 = csv2823.getfield(8);
-				for(int k = 0;k < field07.size();k++){
+				for(unsigned int k = 0;k < field07.size();k++){
 					if(field07[k] == ',' || field07[k] == '-' || field07[k] == '"'){
 						field07.erase(k,1);
 						k--;
 						TRACE(field07.c_str());
 					}
 				}
-				for(int k = 0;k < field08.size();k++){
+				for(unsigned int k = 0;k < field08.size();k++){
 					if(field08[k] == ',' || field08[k] == '-' || field08[k] == '"'){
 						field08.erase(k,1);
 						k--;
@@ -380,7 +380,7 @@ int CHiStarApp::FileInput(void)
 			}
 		}
 	}
-	A50NUM = numStockLine - 5;
+	A50NUM = numStockLine - 1;
 	fileInput.close();
 	fileInput.open("2846_Holdings.csv");
 	Csv csv2846(fileInput,",");
@@ -389,14 +389,14 @@ int CHiStarApp::FileInput(void)
 	{
 		TRACE("%d\r\n",csv2846.getnfield());
 		//有9列的行是股票持仓部分的格式,其中第一行为标题栏
-		if(csv2846.getnfield() == 9){
+		if(csv2846.getnfield() == 10){
 			numStockLine++;
 			if(numStockLine != 1){
 				//第一行是标题,不做处理
 				if(atoi(csv2846.getfield(0).c_str()) >= 60000){st.exch = "sh";}else{st.exch = "sz";}
 				TRACE(csv2846.getfield(7).c_str());
 				std::string field = csv2846.getfield(7);
-				for(int k = 0;k < field.size();k++){
+				for(unsigned int k = 0;k < field.size();k++){
 					if(field[k] == ',' || field[k] == '-' || field[k] == '"'){
 						field.erase(k,1);
 						k--;
