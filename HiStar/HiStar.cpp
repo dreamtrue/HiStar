@@ -350,7 +350,7 @@ int CHiStarApp::FileInput(void)
 	{
 		TRACE("%d\r\n",csv2823.getnfield());
 		//有9列的行是股票持仓部分的格式,其中第一行为标题栏
-		if(csv2823.getnfield() == 11){
+		if(csv2823.getnfield() == 10){
 			numStockLine++;
 			if(numStockLine != 1){
 				//第一行是标题,不做处理
@@ -389,7 +389,7 @@ int CHiStarApp::FileInput(void)
 	{
 		TRACE("%d\r\n",csv2846.getnfield());
 		//有9列的行是股票持仓部分的格式,其中第一行为标题栏
-		if(csv2846.getnfield() == 10){
+		if(csv2846.getnfield() == 9){
 			numStockLine++;
 			if(numStockLine != 1){
 				//第一行是标题,不做处理
