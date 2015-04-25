@@ -26,12 +26,12 @@ public:
 	static CInternetSession mySession;
 	static CHttpFile* myHttpFile;
 	static CHttpFile* myHttpFile01;
-	static CHttpFile* myHttpFile02;
+	//static CHttpFile* myHttpFile02;
 	static CString myData;
 	static CString myURL01;
-	static CString myURL02;
+	//static CString myURL02;
 	static CString myURL_code01;
-	static CString myURL_code02;
+	//static CString myURL_code02;
 	static CString m_URL;
 	static CString m_hexunA50;
 	static CString m_hexunHS300;

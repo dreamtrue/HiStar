@@ -21,12 +21,13 @@ extern DWORD IndexThreadId;
 std::fstream fileInput;
 bool isReal = true,isDownload = false;
 extern CVector<HoldDetail> HedgeHold;
-extern unsigned int HS300NUM,A50NUM;
+extern unsigned int HS300NUM,A50NUM,SH50NUM;
 sqldb::sqldb(){
 	host = "";user = "";passwd = "";db = "";
 }
 std::vector<stock> g_hs300;
 std::vector<stock> g_a50;
+std::vector<stock> g_sh50;
 sqldb m_db;
 //读写锁
 SRWLOCK g_srwLock_PosDetail;  
@@ -35,6 +36,38 @@ SRWLOCK g_srwLock_MargRate;
 SRWLOCK g_srwLock_Insinf;
 SRWLOCK g_srwLock_WaitForFee;
 SRWLOCK g_srwLock_FeeRate;
+inline double volumeDeal(double circulVolume,double totalVolume){
+	double ratio = circulVolume / totalVolume * 100.0;
+	double ratioNew = 0.0,circulVolumeNew = 0.0;
+	if(ratio <= 15.0){
+		ratioNew = ceil(ratio);
+	}
+	else if(ratio <= 20.0){
+		ratioNew = 20.0;
+	}
+	else if(ratio <= 30.0){
+		ratioNew = 30.0;
+	}
+	else if(ratio <= 40.0){
+		ratioNew = 40.0;
+	}
+	else if(ratio <= 50.0){
+		ratioNew = 50.0;
+	}
+	else if(ratio <= 60.0){
+		ratioNew = 60.0;
+	}
+	else if(ratio <= 70.0){
+		ratioNew = 70.0;
+	}
+	else if(ratio <= 80.0){
+		ratioNew = 80.0;
+	}
+	else{
+		ratioNew = 100.0;
+	}
+	return totalVolume * ratioNew / 100.0;
+}
 /*
 std::string stringtrim(std::string s)
 {
@@ -265,7 +298,8 @@ void CHiStarApp::SetIFContract(void)
 	}
 	//多字节编码里的字母数字和ASCII是兼容的，所以才用CString和char[]在这儿效果一样。
 	//为了保持这种兼容，本程序只能采用多字节编码，否则会出错的。
-	m_accountCtp.m_szInst = _T("IF") + insID.Right(4);
+	//将沪深300期货合约换成上证50期货合约
+	m_accountCtp.m_szInst = _T("IH") + insID.Right(4);
 	char IFNAME[100];memset(IFNAME,0,sizeof(IFNAME));
 	sprintf_s(IFNAME,"IF%s,%d",insID,m_LifeIf);
 	if(sys.wDay < ifFinal - 1){
@@ -343,75 +377,180 @@ int CHiStarApp::FileInput(void)
 	stock st;
 	std::string line;
 	int numStockLine;
+	/*
+	//1、安硕A50
 	fileInput.open("2823_Holdings.csv");
 	Csv csv2823(fileInput,",");
 	numStockLine = 0;
 	while (csv2823.getline(line) != 0)
 	{
-		TRACE("%d\r\n",csv2823.getnfield());
-		//有9列的行是股票持仓部分的格式,其中第一行为标题栏
-		if(csv2823.getnfield() == 10){
-			numStockLine++;
-			if(numStockLine != 1){
-				//第一行是标题,不做处理
-				if(atoi(csv2823.getfield(0).c_str()) >= 60000){st.exch = "sh";}else{st.exch = "sz";}
-				TRACE(csv2823.getfield(7).c_str());
-				std::string field07 = csv2823.getfield(7);
-				std::string field08 = csv2823.getfield(8);
-				for(unsigned int k = 0;k < field07.size();k++){
-					if(field07[k] == ',' || field07[k] == '-' || field07[k] == '"'){
-						field07.erase(k,1);
-						k--;
-						TRACE(field07.c_str());
-					}
-				}
-				for(unsigned int k = 0;k < field08.size();k++){
-					if(field08[k] == ',' || field08[k] == '-' || field08[k] == '"'){
-						field08.erase(k,1);
-						k--;
-						TRACE(field08.c_str());
-					}
-				}
-				char codename[10];
-				sprintf_s(codename,"%06d",atoi(csv2823.getfield(0).c_str()));
-				st.code = codename;
-				st.volume = atoi(field07.c_str()) + atoi(field08.c_str());
-				g_a50.push_back(st);
-			}
-		}
+	TRACE("%d\r\n",csv2823.getnfield());
+	//有10列的行是股票持仓部分的格式,其中第一行为标题栏
+	if(csv2823.getnfield() == 10){
+	numStockLine++;
+	if(numStockLine != 1){
+	//第一行是标题,不做处理
+	if(atoi(csv2823.getfield(0).c_str()) >= 60000){st.exch = "sh";}else{st.exch = "sz";}
+	TRACE(csv2823.getfield(7).c_str());
+	std::string field07 = csv2823.getfield(7);
+	std::string field08 = csv2823.getfield(8);
+	for(unsigned int k = 0;k < field07.size();k++){
+	if(field07[k] == ',' || field07[k] == '-' || field07[k] == '"'){
+	field07.erase(k,1);
+	k--;
+	TRACE(field07.c_str());
+	}
+	}
+	for(unsigned int k = 0;k < field08.size();k++){
+	if(field08[k] == ',' || field08[k] == '-' || field08[k] == '"'){
+	field08.erase(k,1);
+	k--;
+	TRACE(field08.c_str());
+	}
+	}
+	char codename[10];
+	sprintf_s(codename,"%06d",atoi(csv2823.getfield(0).c_str()));
+	st.code = codename;
+	st.volume = atoi(field07.c_str()) + atoi(field08.c_str());
+	g_a50.push_back(st);
+	}
+	}
 	}
 	A50NUM = numStockLine - 1;
 	fileInput.close();
+	//2、安硕沪深300
 	fileInput.open("2846_Holdings.csv");
 	Csv csv2846(fileInput,",");
 	numStockLine = 0;
 	while (csv2846.getline(line) != 0)
 	{
-		TRACE("%d\r\n",csv2846.getnfield());
-		//有9列的行是股票持仓部分的格式,其中第一行为标题栏
-		if(csv2846.getnfield() == 9){
-			numStockLine++;
-			if(numStockLine != 1){
-				//第一行是标题,不做处理
-				if(atoi(csv2846.getfield(0).c_str()) >= 60000){st.exch = "sh";}else{st.exch = "sz";}
-				TRACE(csv2846.getfield(7).c_str());
-				std::string field = csv2846.getfield(7);
-				for(unsigned int k = 0;k < field.size();k++){
-					if(field[k] == ',' || field[k] == '-' || field[k] == '"'){
-						field.erase(k,1);
-						k--;
-						TRACE(field.c_str());
-					}
-				}
-				char codename[10];
-				sprintf_s(codename,"%06d",atoi(csv2846.getfield(0).c_str()));
-				st.code = codename;
-				st.volume = atoi(field.c_str());
-				g_hs300.push_back(st);
-			}
-		}
+	TRACE("%d\r\n",csv2846.getnfield());
+	//有9列的行是股票持仓部分的格式,其中第一行为标题栏
+	if(csv2846.getnfield() == 9){
+	numStockLine++;
+	if(numStockLine != 1){
+	//第一行是标题,不做处理
+	if(atoi(csv2846.getfield(0).c_str()) >= 60000){st.exch = "sh";}else{st.exch = "sz";}
+	TRACE(csv2846.getfield(7).c_str());
+	std::string field = csv2846.getfield(7);
+	for(unsigned int k = 0;k < field.size();k++){
+	if(field[k] == ',' || field[k] == '-' || field[k] == '"'){
+	field.erase(k,1);
+	k--;
+	TRACE(field.c_str());
+	}
+	}
+	char codename[10];
+	sprintf_s(codename,"%06d",atoi(csv2846.getfield(0).c_str()));
+	st.code = codename;
+	st.volume = atoi(field.c_str());
+	g_hs300.push_back(st);
+	}
+	}
 	}
 	HS300NUM = numStockLine - 1;//去掉标题栏
+	fileInput.close();
+	*/
+	//3、南方A50
+	fileInput.open("A50ETFExcelDownload.csv");
+	Csv csv2822(fileInput,",");
+	numStockLine = 0;
+	while (csv2822.getline(line) != 0)
+	{
+		TRACE("%d\r\n",csv2822.getnfield());
+		numStockLine++;
+		//6~55行股票
+		if(numStockLine >= 6 && numStockLine <= 55){
+			if(atoi(csv2822.getfield(2).c_str()) >= 60000){st.exch = "sh";}else{st.exch = "sz";}
+			TRACE(csv2822.getfield(7).c_str());
+			std::string field07 = csv2822.getfield(7);
+			for(unsigned int k = 0;k < field07.size();k++){
+				if(field07[k] == ',' || field07[k] == '-' || field07[k] == '"'){
+					field07.erase(k,1);
+					k--;
+					TRACE(field07.c_str());
+				}
+			}
+			char codename[10];
+			sprintf_s(codename,"%06d",atoi(csv2822.getfield(2).c_str()));
+			st.code = codename;
+			st.volume = atoi(field07.c_str());
+			g_a50.push_back(st);
+		}
+	}
+	A50NUM = 50;
+	fileInput.close();
+	//4、万得资讯HS300
+	fileInput.open("HS300.csv");
+	Csv csvHS300(fileInput,",");
+	numStockLine = 0;
+	while (csvHS300.getline(line) != 0)
+	{
+		TRACE("%d\r\n",csvHS300.getnfield());
+		numStockLine++;
+		//2~301行股票
+		if(numStockLine >= 2 && numStockLine <= 301){
+			if(atoi(csvHS300.getfield(1).substr(0,6).c_str()) >= 60000){st.exch = "sh";}else{st.exch = "sz";}
+			std::string field10 = csvHS300.getfield(10);
+			std::string field11 = csvHS300.getfield(11);
+			for(unsigned int k = 0;k < field10.size();k++){
+				if(field10[k] == ',' || field10[k] == '-' || field10[k] == '"'){
+					field10.erase(k,1);
+					k--;
+					TRACE(field10.c_str());
+				}
+			}
+			for(unsigned int k = 0;k < field11.size();k++){
+				if(field11[k] == ',' || field11[k] == '-' || field11[k] == '"'){
+					field11.erase(k,1);
+					k--;
+					TRACE(field11.c_str());
+				}
+			}
+			char codename[10];
+			sprintf_s(codename,"%06d",atoi(csvHS300.getfield(1).substr(0,6).c_str()));
+			st.code = codename;
+			st.volume = volumeDeal(atof(field11.c_str()),atof(field10.c_str()));
+			g_hs300.push_back(st);
+		}
+	}
+	HS300NUM = 300;
+	fileInput.close();
+	//5、万得资讯SH50
+	fileInput.open("SH50.csv");
+	Csv csvSH50(fileInput,",");
+	numStockLine = 0;
+	while (csvSH50.getline(line) != 0)
+	{
+		TRACE("%d\r\n",csvSH50.getnfield());
+		numStockLine++;
+		//2~51行股票
+		if(numStockLine >= 2 && numStockLine <= 51){
+			if(atoi(csvSH50.getfield(1).substr(0,6).c_str()) >= 60000){st.exch = "sh";}else{st.exch = "sz";}
+			std::string field10 = csvSH50.getfield(10);
+			std::string field11 = csvSH50.getfield(11);
+			for(unsigned int k = 0;k < field10.size();k++){
+				if(field10[k] == ',' || field10[k] == '-' || field10[k] == '"'){
+					field10.erase(k,1);
+					k--;
+					TRACE(field10.c_str());
+				}
+			}
+			for(unsigned int k = 0;k < field11.size();k++){
+				if(field11[k] == ',' || field11[k] == '-' || field11[k] == '"'){
+					field11.erase(k,1);
+					k--;
+					TRACE(field11.c_str());
+				}
+			}
+			char codename[10];
+			sprintf_s(codename,"%06d",atoi(csvSH50.getfield(1).substr(0,6).c_str()));
+			st.code = codename;
+			st.volume = volumeDeal(atof(field11.c_str()),atof(field10.c_str()));
+			g_sh50.push_back(st);
+		}
+	}
+	SH50NUM = 50;
 	fileInput.close();
 	return 0;
 }

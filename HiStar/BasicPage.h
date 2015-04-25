@@ -63,7 +63,7 @@ public:
 	void RefreshMdPane(void);
 	CThostFtdcDepthMarketDataField m_depthMd;
 public:
-	CColorStatic m_csHs300;
+	CColorStatic m_csSh50;
 	CColorStatic m_csA50;
 	CColorStatic m_csA50Ask1;
 	CColorStatic m_csA50Last;

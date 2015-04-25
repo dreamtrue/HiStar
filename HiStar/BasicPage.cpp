@@ -22,13 +22,13 @@ extern double datumDiff;
 extern bool isHedgeLoopingPause;
 extern BOOL g_bLoginCtpT;
 extern double g_A50Index;
-extern double g_HS300Index;
+extern double g_SH50Index;
 extern double g_a50Bid1,g_a50Ask1,g_a50last;
 extern double premiumHigh,premiumLow;
 extern double MaxProfitAim,MinProfitAim;
 extern int MultiPos;
 extern double MarginA50;extern int MultiA50;
-extern double g_A50IndexZT,g_HS300IndexZT;
+extern double g_A50IndexZT,g_SH50IndexZT;
 extern bool isReal;
 extern CVector<HoldDetail> HedgeHold;
 extern bool iBackTest01;
@@ -91,7 +91,7 @@ void CBasicPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_STATIC01, m_csS1P);
 	DDX_Control(pDX, IDC_STATIC03, m_csB1P);
 	DDX_Control(pDX, IDC_STATIC02, m_csLastP);
-	DDX_Control(pDX, IDC_STATIC_HS300, m_csHs300);
+	DDX_Control(pDX, IDC_STATIC_HS300, m_csSh50);
 	DDX_Control(pDX, IDC_STATIC_A50, m_csA50);
 	DDX_Control(pDX, IDC_STATIC_A50ASK1, m_csA50Ask1);
 	DDX_Control(pDX, IDC_STATIC_A50_LAST, m_csA50Last);
@@ -196,8 +196,8 @@ BOOL CBasicPage::OnInitDialog()
 	m_csLastP.SetWindowText(_T("0.0"),LITGRAY);
 	m_csB1P.SetBkColor(ACC_BG);
 	m_csB1P.SetWindowText(_T("0.0"),LITGRAY);
-	m_csHs300.SetBkColor(ACC_BG);
-	m_csHs300.SetWindowText(_T("0.0"),LITGRAY);
+	m_csSh50.SetBkColor(ACC_BG);
+	m_csSh50.SetWindowText(_T("0.0"),LITGRAY);
 	m_csA50.SetBkColor(ACC_BG);
 	m_csA50.SetWindowText(_T("0.0"),LITGRAY);
 	m_csA50Bid1.SetBkColor(ACC_BG);
@@ -391,7 +391,7 @@ void CBasicPage::RefreshMdPane(void)
 	m_csS1P.SetDouble(m_depthMd.AskPrice1,CmpPriceColor(m_depthMd.AskPrice1,dPresp));
 	m_csLastP.SetDouble(m_depthMd.LastPrice,CmpPriceColor(m_depthMd.AskPrice1,dPresp));
 	m_csB1P.SetDouble(m_depthMd.BidPrice1,CmpPriceColor(m_depthMd.AskPrice1,dPresp));
-	m_csHs300.SetDouble(g_HS300Index,CmpPriceColor(g_HS300Index,g_HS300IndexZT));
+	m_csSh50.SetDouble(g_SH50Index,CmpPriceColor(g_SH50Index,g_SH50IndexZT));
 	m_csA50.SetDouble(g_A50Index,CmpPriceColor(g_A50Index,g_A50IndexZT));
 	m_csA50Bid1.SetDouble(g_a50Bid1,BLACK);
 	m_csA50Ask1.SetDouble(g_a50Ask1,BLACK);
@@ -400,7 +400,7 @@ void CBasicPage::RefreshMdPane(void)
 	m_csHedgePriceHigh.SetDouble(premiumHigh - datumDiff,BLACK);
 	m_csHedgePriceLow.SetDouble(premiumLow - datumDiff,BLACK);
 	m_A50UP.SetDouble(g_A50Index - g_A50IndexZT,CmpPriceColor(g_A50Index - g_A50IndexZT,0));
-	m_HS300UP.SetDouble(g_HS300Index - g_HS300IndexZT,CmpPriceColor(g_HS300Index - g_HS300IndexZT,0));
+	m_HS300UP.SetDouble(g_SH50Index - g_SH50IndexZT,CmpPriceColor(g_SH50Index - g_SH50IndexZT,0));
 
 	m_profitBT.SetDouble(profitBackTest,CmpPriceColor(profitBackTest,0));
 	m_feeBT.SetDouble(feeBackTest,CmpPriceColor(feeBackTest,0));
@@ -421,8 +421,8 @@ void CBasicPage::RefreshMdPane(void)
 		char data[1000],datetime[100];
 		if(((CHiStarApp*)AfxGetApp())->conn){
 			sprintf_s(datetime,"'%d-%d-%d %d:%d:%d',%d,",sys.wYear,sys.wMonth,sys.wDay,sys.wHour,sys.wMinute,sys.wSecond,sys.wMilliseconds);
-			sprintf_s(data,"%.02lf,%.02lf,%.02lf,%.02lf,%.02lf,%.02lf,%.02lf,%.02lf",g_A50Index,g_a50Bid1,g_a50Ask1,g_HS300Index,m_depthMd.BidPrice1,m_depthMd.AskPrice1,
-				g_a50Ask1 - m_depthMd.BidPrice1 / g_HS300Index * g_A50Index,g_a50Bid1 - m_depthMd.AskPrice1 / g_HS300Index * g_A50Index);
+			sprintf_s(data,"%.02lf,%.02lf,%.02lf,%.02lf,%.02lf,%.02lf,%.02lf,%.02lf",g_A50Index,g_a50Bid1,g_a50Ask1,g_SH50Index,m_depthMd.BidPrice1,m_depthMd.AskPrice1,
+				g_a50Ask1 - m_depthMd.BidPrice1 / g_SH50Index * g_A50Index,g_a50Bid1 - m_depthMd.AskPrice1 / g_SH50Index * g_A50Index);
 			CString insertdata = "INSERT INTO " + ((CHiStarApp*)AfxGetApp())->m_marketTableName 
 				+ " (datetime,millisecond,a50index,a50bid,a50ask,hs300index,hs300bid,hs300ask,preniumHigh,preniumLow) VALUES (" + CString(datetime) + CString(data) +")";
 			if(mysql_query(((CHiStarApp*)AfxGetApp())->conn,insertdata.GetBuffer())){

@@ -10,33 +10,36 @@
 #include <vector>
 #include "me.h"
 unsigned int A50NUM = 50;
-unsigned int HS300NUM=300;
+unsigned int HS300NUM = 300;
+unsigned int SH50NUM = 50;
 SYSTEMTIME systime01,time_09_00_00,time_09_50_00;
-extern double g_A50IndexZT,g_HS300IndexZT;
+extern double g_A50IndexZT,g_HS300IndexZT,g_SH50IndexZT;
 char data01[1000];
 int seconds(SYSTEMTIME &time);
 double totalValueA50ZT = 0;
 double totalValueHS300ZT = 0;
-double A50IndexRef;double A50totalValueRef;double HS300IndexRef;double HS300totalValueRef;
+double totalValueSH50ZT = 0;
+double A50IndexRef,A50totalValueRef,HS300IndexRef,HS300totalValueRef,SH50IndexRef,SH50totalValueRef;
 extern sqldb m_db;
 extern std::vector<stock> g_hs300;
 extern std::vector<stock> g_a50;
-extern double volume[350];
-extern double price[350];
-extern double priceZT[350];
+extern std::vector<stock> g_sh50;
+extern double volume[400];
+extern double price[400];
+extern double priceZT[400];
 // CIndex
 
 IMPLEMENT_DYNCREATE(CIndex, CWinThread)
 
-CInternetSession CIndex::mySession("ssision",0);
+	CInternetSession CIndex::mySession("ssision",0);
 CHttpFile* CIndex::myHttpFile = NULL;
 CHttpFile* CIndex::myHttpFile01 = NULL;
-CHttpFile* CIndex::myHttpFile02 = NULL;
+//CHttpFile* CIndex::myHttpFile02 = NULL;
 CString CIndex::myData("");
 CString CIndex::myURL01("");
-CString CIndex::myURL02("");
+//CString CIndex::myURL02("");
 CString CIndex::myURL_code01("");
-CString CIndex::myURL_code02("");
+//CString CIndex::myURL_code02("");
 CString CIndex::m_URL("http://hq.sinajs.cn/list=");
 CString CIndex::m_hexunA50("http://webglobal.hermes.hexun.com/global_index/quotelist?code=FTSE.FTXIN9&column=LastClose");
 CString CIndex::m_hexunHS300("http://flashquote.stock.hexun.com/Stock_Combo.ASPX?mc=1_000300&dt=Q,MI&t=0.9522008465137333");
@@ -46,49 +49,66 @@ CIndex::CIndex()
 	connindex = NULL;
 	myHttpFile = NULL;
 	myHttpFile01 = NULL;
-	myHttpFile02 = NULL;
+	//myHttpFile02 = NULL;
 	for(unsigned int k = 0;k < A50NUM;k++){
 		myURL_code01 = myURL_code01 + ",";
 		myURL_code01 = myURL_code01 + g_a50[k].exch.c_str();
 		myURL_code01 = myURL_code01 + g_a50[k].code.c_str();
 	}
-	unsigned int tempnum;
-	tempnum = HS300NUM;//分两批获取HS300股价行情的首批数目
 	for(unsigned int k = 0;k < HS300NUM;k++){
-		if(tempnum <= HS300NUM){
-			if(k < tempnum){
-				myURL_code01 = myURL_code01 + ",";
-				myURL_code01 = myURL_code01 + g_hs300[k].exch.c_str();
-				myURL_code01 = myURL_code01 + g_hs300[k].code.c_str();
-			}
-			else{
-				myURL_code02 = myURL_code02 + ",";
-				myURL_code02 = myURL_code02 + g_hs300[k].exch.c_str();
-				myURL_code02 = myURL_code02 + g_hs300[k].code.c_str();
-			}
-		}
-		else{
-			myURL_code01 = myURL_code01 + ",";
-			myURL_code01 = myURL_code01 + g_hs300[k].exch.c_str();
-			myURL_code01 = myURL_code01 + g_hs300[k].code.c_str();
-			myURL_code02 = "";
-		}
+		myURL_code01 = myURL_code01 + ",";
+		myURL_code01 = myURL_code01 + g_hs300[k].exch.c_str();
+		myURL_code01 = myURL_code01 + g_hs300[k].code.c_str();
 	}
-	for(unsigned int j = 0;j < A50NUM + HS300NUM;j++){
+	for(unsigned int k = 0;k < SH50NUM;k++){
+		myURL_code01 = myURL_code01 + ",";
+		myURL_code01 = myURL_code01 + g_sh50[k].exch.c_str();
+		myURL_code01 = myURL_code01 + g_sh50[k].code.c_str();
+	}
+	/*
+	unsigned int tempnum;
+	tempnum = HS300NUM + SH50NUM;//分两批获取HS300股价行情的首批数目
+	for(unsigned int k = 0;k < HS300NUM + SH50NUM;k++){
+	if(tempnum <= HS300NUM + SH50NUM){
+	if(k < tempnum){
+	myURL_code01 = myURL_code01 + ",";
+	myURL_code01 = myURL_code01 + g_hs300[k].exch.c_str();
+	myURL_code01 = myURL_code01 + g_hs300[k].code.c_str();
+	}
+	else{
+	myURL_code02 = myURL_code02 + ",";
+	myURL_code02 = myURL_code02 + g_hs300[k].exch.c_str();
+	myURL_code02 = myURL_code02 + g_hs300[k].code.c_str();
+	}
+	}
+	else{
+	myURL_code01 = myURL_code01 + ",";
+	myURL_code01 = myURL_code01 + g_hs300[k].exch.c_str();
+	myURL_code01 = myURL_code01 + g_hs300[k].code.c_str();
+	myURL_code02 = "";
+	}
+	}
+	*/
+	for(unsigned int j = 0;j < A50NUM + HS300NUM + SH50NUM;j++){
 		if(j < A50NUM){
 			volume[j] = g_a50[j].volume;
 		}
-		else{
+		else if(j < A50NUM + HS300NUM){
 			volume[j] = g_hs300[j - A50NUM].volume;
+		}
+		else{
+			volume[j] = g_sh50[j - A50NUM - HS300NUM].volume;
 		}
 	}
 	myURL01 = m_URL + myURL_code01;
-	if(tempnum <= HS300NUM){
-		myURL02 = m_URL + myURL_code02;
+	/*
+	if(tempnum <= HS300NUM + SH50NUM){
+	myURL02 = m_URL + myURL_code02;
 	}
 	else{
-		myURL02 = "";
+	myURL02 = "";
 	}
+	*/
 }
 
 CIndex::~CIndex()
@@ -111,7 +131,7 @@ BOOL CIndex::InitInstance()
 	}
 	//创建指数储存表格
 	if(connindex){
-		if(mysql_query(connindex,"CREATE TABLE IF NOT EXISTS HISTARINDEX (name VARCHAR(40),A50REF DOUBLE,A50VALUE DOUBLE,HS300REF DOUBLE,HS300VALUE DOUBLE,primary key (name))")) 
+		if(mysql_query(connindex,"CREATE TABLE IF NOT EXISTS HISTARINDEX (name VARCHAR(40),A50REF DOUBLE,A50VALUE DOUBLE,HS300REF DOUBLE,HS300VALUE DOUBLE,SH50REF DOUBLE,SH50VALUE DOUBLE,primary key (name))")) 
 		{      
 			TRACE("Error %u: %s\n", mysql_errno(connindex), mysql_error(connindex));      
 		}
@@ -127,6 +147,8 @@ BOOL CIndex::InitInstance()
 				A50totalValueRef = atof(row[2]);
 				HS300IndexRef = atof(row[3]);
 				HS300totalValueRef = atof(row[4]);
+				SH50IndexRef = atof(row[5]);
+				SH50totalValueRef = atof(row[6]);
 			}	
 		}
 	}
@@ -144,13 +166,16 @@ int CIndex::ExitInstance()
 
 void CIndex::OnUpdateIndexRef(WPARAM wParam,LPARAM lParam){
 	GetQuotation();//获取行情
-	totalValueA50ZT = 0;totalValueHS300ZT = 0;
-	for(unsigned int i = 0;i <A50NUM + HS300NUM;i++){
+	totalValueA50ZT = 0.0;totalValueHS300ZT = 0.0;totalValueSH50ZT = 0.0;
+	for(unsigned int i = 0;i < A50NUM + HS300NUM + SH50NUM;i++){
 		if(i < A50NUM){
 			totalValueA50ZT = totalValueA50ZT + priceZT[i] * volume[i];
 		}
-		if(i >= A50NUM){
+		else if(i < A50NUM + HS300NUM){
 			totalValueHS300ZT = totalValueHS300ZT + priceZT[i] * volume[i];
+		}
+		else{
+			totalValueSH50ZT = totalValueSH50ZT + priceZT[i] * volume[i];
 		}
 	}
 	GetIndexYd();//获得昨天的指数
@@ -166,8 +191,9 @@ void CIndex::OnUpdateIndexRef(WPARAM wParam,LPARAM lParam){
 	else{
 		A50totalValueRef = totalValueA50ZT;A50IndexRef = g_A50IndexZT;
 		HS300totalValueRef = totalValueHS300ZT;HS300IndexRef = g_HS300IndexZT;
+		SH50totalValueRef = totalValueSH50ZT;SH50IndexRef = g_SH50IndexZT;
 		//存入指数
-		sprintf_s(data01,"INSERT INTO HISTARINDEX (name,A50REF,A50VALUE,HS300REF,HS300VALUE) VALUES('indexref',%.02lf,%.02lf,%.02lf,%.02lf) ON DUPLICATE KEY UPDATE A50REF = %.02lf,A50VALUE = %.02lf,HS300REF = %.02lf,HS300VALUE = %.02lf",g_A50IndexZT,totalValueA50ZT,g_HS300IndexZT,totalValueHS300ZT,g_A50IndexZT,totalValueA50ZT,g_HS300IndexZT,totalValueHS300ZT);
+		sprintf_s(data01,"INSERT INTO HISTARINDEX (name,A50REF,A50VALUE,HS300REF,HS300VALUE,SH50REF,SH50VALUE) VALUES('indexref',%.02lf,%.02lf,%.02lf,%.02lf,%.02lf,%.02lf) ON DUPLICATE KEY UPDATE A50REF = %.02lf,A50VALUE = %.02lf,HS300REF = %.02lf,HS300VALUE = %.02lf,SH50REF = %.02lf,SH50VALUE = %.02lf",g_A50IndexZT,totalValueA50ZT,g_HS300IndexZT,totalValueHS300ZT,g_A50IndexZT,totalValueA50ZT,g_HS300IndexZT,totalValueHS300ZT,g_SH50IndexZT,totalValueSH50ZT);
 		if(connindex){
 			if(mysql_query(connindex,data01)){
 				TRACE("Error %u: %s\n", mysql_errno(connindex), mysql_error(connindex));
@@ -184,20 +210,23 @@ void CIndex::GetQuotation(void)
 {
 	try{
 		myHttpFile01 = (CHttpFile*)mySession.OpenURL(myURL01,1,INTERNET_FLAG_RELOAD|INTERNET_FLAG_TRANSFER_ASCII);
+		/*
 		if(myURL02 != ""){
-			myHttpFile02 = (CHttpFile*)mySession.OpenURL(myURL02,1,INTERNET_FLAG_RELOAD|INTERNET_FLAG_TRANSFER_ASCII);
+		myHttpFile02 = (CHttpFile*)mySession.OpenURL(myURL02,1,INTERNET_FLAG_RELOAD|INTERNET_FLAG_TRANSFER_ASCII);
 		}
+		*/
 	}
 	catch(CInternetException*pException){
 		pException->Delete();
 		myHttpFile01->Close();
 		delete myHttpFile01;
 		myHttpFile01 = NULL;
+		/*
 		if(myURL02 != ""){
-			myHttpFile02->Close();
-			delete myHttpFile02;	
-			myHttpFile02 = NULL;
-		}
+		myHttpFile02->Close();
+		delete myHttpFile02;	
+		myHttpFile02 = NULL;
+		}*/
 		TRACE("读取指数失败!\r\n");
 		return;//读取失败,返回
 	}
@@ -230,43 +259,48 @@ void CIndex::GetQuotation(void)
 			i++;
 		}
 	}
+	/*
 	if(myURL02 != ""){
-		myHttpFile02->QueryInfoStatusCode(dwStatusCode);
-		if(myHttpFile02 != NULL && dwStatusCode == HTTP_STATUS_OK){
-			while(myHttpFile02->ReadString(myData))
-			{
-				CString strGet1(_T("")); 
-				CString strGet2(_T(""));
-				CString strGet3(_T(""));
-				double temp = 0;
-				AfxExtractSubString(strGet1,myData,1, _T('\"'));
-				AfxExtractSubString(strGet2,strGet1,3, _T(','));//现在的价格
-				AfxExtractSubString(strGet3,strGet1,2, _T(','));//昨天的价格
-				LPTSTR  chValue = strGet2.GetBuffer( strGet2.GetLength() );
-				LPTSTR  chValueZT = strGet3.GetBuffer( strGet3.GetLength() );
-				double fZT = atof(chValueZT);//昨天的价格
-				strGet3.ReleaseBuffer(); 
-				priceZT[i] = fZT;
-				double fValue = atof(chValue);//今天的价格
-				strGet2.ReleaseBuffer(); 
-				if(fValue > 0.1){//防止等于0，等于0就用昨天的收盘价
-					price[i] = fValue;
-				}
-				else{
-					price[i] = priceZT[i];
-				}
-				i++;
-			}
-		}
+	myHttpFile02->QueryInfoStatusCode(dwStatusCode);
+	if(myHttpFile02 != NULL && dwStatusCode == HTTP_STATUS_OK){
+	while(myHttpFile02->ReadString(myData))
+	{
+	CString strGet1(_T("")); 
+	CString strGet2(_T(""));
+	CString strGet3(_T(""));
+	double temp = 0;
+	AfxExtractSubString(strGet1,myData,1, _T('\"'));
+	AfxExtractSubString(strGet2,strGet1,3, _T(','));//现在的价格
+	AfxExtractSubString(strGet3,strGet1,2, _T(','));//昨天的价格
+	LPTSTR  chValue = strGet2.GetBuffer( strGet2.GetLength() );
+	LPTSTR  chValueZT = strGet3.GetBuffer( strGet3.GetLength() );
+	double fZT = atof(chValueZT);//昨天的价格
+	strGet3.ReleaseBuffer(); 
+	priceZT[i] = fZT;
+	double fValue = atof(chValue);//今天的价格
+	strGet2.ReleaseBuffer(); 
+	if(fValue > 0.1){//防止等于0，等于0就用昨天的收盘价
+	price[i] = fValue;
 	}
+	else{
+	price[i] = priceZT[i];
+	}
+	i++;
+	}
+	}
+
+	}
+	*/
 	myHttpFile01->Close();
 	delete myHttpFile01;
 	myHttpFile01 = NULL;
+	/*
 	if(myURL02 != ""){
-		myHttpFile02->Close();
-		delete myHttpFile02;	
-		myHttpFile02 = NULL;
+	myHttpFile02->Close();
+	delete myHttpFile02;	
+	myHttpFile02 = NULL;
 	}
+	*/
 }
 
 void CIndex::GetIndexYd(void)

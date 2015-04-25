@@ -9,5 +9,5 @@ struct sqldb{
 struct stock{
 	std::string exch;
 	std::string code;
-	int volume;
+	double volume;
 };

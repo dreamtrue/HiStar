@@ -5,6 +5,7 @@
 #include "me.h"
 extern unsigned int A50NUM;
 extern unsigned int HS300NUM;
+extern unsigned int SH50NUM;
 double g_totalA50Value = 0;//A50总值
 double g_totalHS300Value = 0;//HS300总值
 double g_A50IndexMSHQ = 0;
@@ -20,7 +21,7 @@ typedef struct tagStockSlf		//股票行情
 	float   Close;              //昨日收盘价
 	long	Update;				//更新时间
 	int     index;              //在镜像文件中的位置
-	int     volume;             //在指数中的持仓数目
+	double     volume;             //在指数中的持仓数目
 	char    exchange;           //交易所
 }STOCK_SLF,*PSTOCK_SLF;
 
