@@ -25,7 +25,7 @@ double premium = 0,premiumHigh = 0,premiumLow = 0;
 double deviation = 0,DeviationSell = 0,DeviationBuy = 0;
 extern double g_a50Bid1,g_a50Ask1;
 extern double g_ifAsk1,g_ifBid1;
-extern double g_A50Index,g_HS300Index;
+extern double g_A50Index,g_HS300Index,g_SH50Index;
 extern double g_A50IndexMSHQ,g_HS300IndexMSHQ;
 extern bool iAccountDownloadEnd;
 extern bool iInitMarginOIfAddOneA50;
@@ -1005,7 +1005,8 @@ void SelectIndex(double &A50Index,double &HS300Index){
 		A50Index = g_A50IndexMSHQ;
 	}
 	if(fabs(g_HS300Index - g_HS300IndexMSHQ) > 5.0){
-		HS300Index = g_HS300Index;
+		//HS300Index = g_HS300Index;
+		HS300Index = g_SH50Index;
 	}
 	else{
 		HS300Index = g_HS300IndexMSHQ;
