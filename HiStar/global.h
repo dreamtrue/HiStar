@@ -143,8 +143,8 @@ inline COLORREF CmpPriceColor(double d1,double d2)
 	//double delta= d1-d2;
 
 	COLORREF clorf = WHITE;
-	if (d1>d2) { clorf=RED; }
-	if (d1<d2) { clorf=GREEN; }
+	if (d1>d2) { clorf=BLACK; }
+	if (d1<d2) { clorf=BLACK; }
 
 	return clorf;
 }
