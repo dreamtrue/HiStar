@@ -71,19 +71,19 @@ inline double volumeDeal(double circulVolume,double totalVolume){
 /*
 std::string stringtrim(std::string s)
 {
-	int i=0;
-	while(s[i] == ' '|| s[i] == '\t' || s[i] == '"' || s[i] == '-')//开头处为空格或者Tab，则跳过
-	{
-		i++;
-	}
-	s=s.substr(i);
-	i=s.size()-1;
-	while(s[i] == ' '|| s[i] == '\t' || s[i] == '"' || s[i] == '-')////结尾处为空格或者Tab，则跳过
-	{
-		i--;
-	}
-	s=s.substr(0,i+1);
-	return s;
+int i=0;
+while(s[i] == ' '|| s[i] == '\t' || s[i] == '"' || s[i] == '-')//开头处为空格或者Tab，则跳过
+{
+i++;
+}
+s=s.substr(i);
+i=s.size()-1;
+while(s[i] == ' '|| s[i] == '\t' || s[i] == '"' || s[i] == '-')////结尾处为空格或者Tab，则跳过
+{
+i--;
+}
+s=s.substr(0,i+1);
+return s;
 }
 */
 // CHiStarApp
@@ -516,37 +516,68 @@ int CHiStarApp::FileInput(void)
 	}
 	HS300NUM = 300;
 	fileInput.close();
+	/*
 	//5、万得资讯SH50
 	fileInput.open("SH50.csv");
 	Csv csvSH50(fileInput,",");
 	numStockLine = 0;
 	while (csvSH50.getline(line) != 0)
 	{
+	TRACE("%d\r\n",csvSH50.getnfield());
+	numStockLine++;
+	//2~51行股票
+	if(numStockLine >= 2 && numStockLine <= 51){
+	if(atoi(csvSH50.getfield(1).substr(0,6).c_str()) >= 60000){st.exch = "sh";}else{st.exch = "sz";}
+	std::string field10 = csvSH50.getfield(10);
+	std::string field11 = csvSH50.getfield(11);
+	for(unsigned int k = 0;k < field10.size();k++){
+	if(field10[k] == ',' || field10[k] == '-' || field10[k] == '"'){
+	field10.erase(k,1);
+	k--;
+	TRACE(field10.c_str());
+	}
+	}
+	for(unsigned int k = 0;k < field11.size();k++){
+	if(field11[k] == ',' || field11[k] == '-' || field11[k] == '"'){
+	field11.erase(k,1);
+	k--;
+	TRACE(field11.c_str());
+	}
+	}
+	char codename[10];
+	sprintf_s(codename,"%06d",atoi(csvSH50.getfield(1).substr(0,6).c_str()));
+	st.code = codename;
+	st.volume = volumeDeal(atof(field11.c_str()),atof(field10.c_str()));
+	g_sh50.push_back(st);
+	}
+	}
+	SH50NUM = 50;
+	fileInput.close();
+	*/
+	//6、SZ50
+	fileInput.open("510050ExcelDownload.csv");
+	Csv csvSH50(fileInput,",");
+	numStockLine = 0;
+	while (csvSH50.getline(line) != 0)
+	{
 		TRACE("%d\r\n",csvSH50.getnfield());
 		numStockLine++;
-		//2~51行股票
-		if(numStockLine >= 2 && numStockLine <= 51){
-			if(atoi(csvSH50.getfield(1).substr(0,6).c_str()) >= 60000){st.exch = "sh";}else{st.exch = "sz";}
-			std::string field10 = csvSH50.getfield(10);
-			std::string field11 = csvSH50.getfield(11);
-			for(unsigned int k = 0;k < field10.size();k++){
-				if(field10[k] == ',' || field10[k] == '-' || field10[k] == '"'){
-					field10.erase(k,1);
+		//6~55行股票
+		if(numStockLine >= 6 && numStockLine <= 55){
+			if(atoi(csvSH50.getfield(2).c_str()) >= 60000){st.exch = "sh";}else{st.exch = "sz";}
+			TRACE(csvSH50.getfield(7).c_str());
+			std::string field12 = csvSH50.getfield(7);
+			for(unsigned int k = 0;k < field12.size();k++){
+				if(field12[k] == ',' || field12[k] == '-' || field12[k] == '"'){
+					field12.erase(k,1);
 					k--;
-					TRACE(field10.c_str());
-				}
-			}
-			for(unsigned int k = 0;k < field11.size();k++){
-				if(field11[k] == ',' || field11[k] == '-' || field11[k] == '"'){
-					field11.erase(k,1);
-					k--;
-					TRACE(field11.c_str());
+					TRACE(field12.c_str());
 				}
 			}
 			char codename[10];
-			sprintf_s(codename,"%06d",atoi(csvSH50.getfield(1).substr(0,6).c_str()));
+			sprintf_s(codename,"%06d",atoi(csvSH50.getfield(2).c_str()));
 			st.code = codename;
-			st.volume = volumeDeal(atof(field11.c_str()),atof(field10.c_str()));
+			st.volume = atoi(field12.c_str());
 			g_sh50.push_back(st);
 		}
 	}
@@ -693,7 +724,7 @@ void CHiStarApp::OnSynchronizeMarket(WPARAM wParam,LPARAM lParam){
 			ReleaseSRWLockShared(&g_srwLock_Insinf);
 		}
 		ReleaseSRWLockShared(&g_srwLock_PosDetail);
-	
+
 		AcquireSRWLockExclusive(&g_srwLock_TradingAccount);
 		m_cT->TradingAccount.CurrMargin = totalMargin;
 		ReleaseSRWLockExclusive(&g_srwLock_TradingAccount);
@@ -860,7 +891,7 @@ bool CHiStarApp::Download(const CString& strFileURLInServer,const CString& strFi
 	INTERNET_PORT wPort;
 	DWORD dwType;
 	const int nTimeOut = 2000;
-    char *pszBuffer = NULL;
+	char *pszBuffer = NULL;
 	CInternetSession session("download",0);
 	session.SetOption(INTERNET_OPTION_CONNECT_TIMEOUT,nTimeOut);
 	session.SetOption(INTERNET_OPTION_CONNECT_RETRIES,1);
